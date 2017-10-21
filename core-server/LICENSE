@@ -1,0 +1,31 @@
+Copyright (c) 2010-2017 Denis Machard
+All rights reserved.
+
+This part is distributed under "GNU Lesser General Public License, Version 2.1" (see LICENSE-LGPLv21).
+
+Also following components are in use (see the source code or official sites for license details):
+------------------------------------
+Python:
+	Python Software Foundation License http://www.python.org/psf/license
+
+hashlib
+	Python Software Foundation License http://www.python.org/psf/license
+	./Libs/hashlib.py
+	./Libs/_hashlib.so
+
+daemon
+	A simple unix/linux daemon in Python by Sander Marechal
+	./Libs/daemon.py
+
+pexpect
+	./Libs/pexpect.py
+
+External softwares, not linked with the main application
+--------------------------------------
+Pylint
+	GPL v3
+	./Script/pychecker.py
+
+Apache
+
+Mysql

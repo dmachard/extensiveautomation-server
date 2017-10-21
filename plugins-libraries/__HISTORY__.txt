@@ -1,0 +1,184 @@
+
+--- Previous: 7.3.1 ---
+Date: 30/03/2017
+What's new
+	1. none
+Issues fixed
+	1. (medium) fix issue on generate function of the openssl library
+
+--- Previous: 7.3.0 ---
+Date: 25/02/2017
+What's new
+	1. (medium) New openssl library
+	2. (minor) Url safe support on base64 codec
+	3. (minor) Uuid: remove unused random argument in generate function
+Issues fixed
+	1. None
+
+--- Previous: 7.2.0 ---
+Date: 20/06/2016
+What's new
+	1. New ChartJS library
+	2. Update excel codec to support writing mode
+Issues fixed
+	1. None
+	
+--- Previous: 7.1.0 ---
+Date: 29/04/2016
+What's new
+	1. Dummy: minor example to handle properly bad argument exception
+	2. Update all libraries to support shared mode
+Issues fixed
+	1. None
+	
+--- Previous: 7.0.0 ---
+Date: 12/02/2016
+What's new
+	1. New feature to disable one or more libraries - major change
+	2. Xml Codec: add parent element support
+	3. Minor update on all code sources according to the new year
+Issues fixed
+	1. None
+	
+--- Previous: 6.0.0 ---
+Date: 22/11/2015
+What's new
+	1. Excel: release ressource to save memory
+	2. XML Codec: major improvement to manipulate xml content (no backward compatibility)
+	3. XML Codec: hack to support properly python 2.6
+Issues fixed
+	1. Excel: fix bad id to get row or column
+
+--- Previous: 5.2.0 ---
+Date: 18/10/2015
+What's new
+	1. Codec XML: new function to find nodes/values with xpath expression
+	2. Codec XML: new xml validator function from xsd schema
+	3. Codec XML: new function to get text with xpath expression
+	4. New codec to support excel xls files
+Issues fixed
+	1. None
+
+--- Previous: 5.1.0 ---
+Date: 12/07/2015
+What's new
+	1. SDP: change default session name
+	2. Default variable no more used, will be removed on the next release
+Issues fixed
+	1. None
+
+--- Previous: 5.0.0 ---
+Date: 28/05/2015
+What's new
+	1. No more old version	
+Issues fixed
+	1. None
+
+--- Previous: 4.0.0 ---
+Date: 10/01/2015
+What's new
+	1. External hashlib for python 2.4 no more needed
+	2. No more support of python 2.4 (no backward compatibility)
+Issues fixed
+	1. None
+
+--- Previous: 3.5.0 ---
+Date: 25/10/2014
+What's new
+	1. Codec Json: new option to ignore errors on decode/encode
+	2. New gzip compress library
+	3. New oauth authentication
+Issues fixed
+	1. None
+
+--- Previous: 3.4.0 ---
+Date: 20/09/2014
+What's new
+	1. New xor cipher
+	2. New aes cipher	
+	3. New library to manipulate image
+Issues fixed
+	1. Authentication: digest algorithm not understand (Issue 454)
+	2. Digest authentication: bad quote around nonce-count variable (Issue 457)
+
+--- Previous: 3.3.0 ---
+Date: 08/08/2014
+What's new
+	1. New wsee authentication
+	2. Hashing: new function to set the key on the hmac
+	3. New hmacdigest authentication
+	4. All libraries updated to support the new from/to parameters (Enhancement 290)
+	5. License LGPL v21 applied to all files
+Issues fixed
+	1. None
+
+--- Previous: 3.2.0 ---
+Date: 02/06/2014
+What's new
+	1. Remove reference to tas
+	2. New dummy library
+	3. New units library
+Issues fixed
+	1. None
+
+--- Previous: 3.1.0 ---
+Date: 25/04/2014
+What's new
+	1. Basic and digest authentification splited
+Issues fixed
+	1. None
+
+--- Previous: 3.0.0 ---
+Date: 23/03/2014
+What's new
+	1. Time: new function to convert a timestamp to a readable human view
+	2. New packaging mode, release notes file deprecated
+Issues fixed
+	1. None
+
+--- Previous: 2.1.0 ---
+Date: 12/01/2014
+What's new
+	1. Timestamp library improved (Enhancement 208)
+	2. New identifier library
+Issues fixed
+	1. None
+
+--- Previous: 2.0.0 ---
+Date: 15/09/2013
+What's new
+	1. New import to support versionning (no backward compatibility)
+	2. New XML coder-decoder
+	3. New JSON coder-decoder
+	4. New MD5 hashing algorithm
+	5. Authentication update to use the internal md5 and base64 library
+	6. New Base64 coder-decoder
+	7. New CRC32 hashing algorithm
+	8. New HMAC MD5 and SHA hashing algorithm
+	9. New SHA1, 256 and 512 hashing algorithm
+	10. New timetools library
+	11. MediaTools renamed to Media library
+	12. SDP moved in the media library
+	13. New RC4 cipher library
+	14. New cipher mode CBC on Blowfish cipher 
+Issues fixed
+	1. None
+
+--- Previous: 1.1.0 ---
+Date: 30/01/2013
+What's new
+	1. Hashing algorithms
+Issues fixed
+	1. None
+
+--- Previous: 1.0.0 ---
+Date: 29/09/2012
+What's new
+	1. First release
+	 - Dialtones, waves and noise generators
+	 - Codecs audio G711A and G711U
+	 - Cipher blowfish
+	 - SDP
+	 - Authentication (Basic and Digest)
+Issues fixed
+	1. None

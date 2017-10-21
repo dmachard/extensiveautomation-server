@@ -1,0 +1,87 @@
+/*
+Copyright (c) 2010-2017 Denis Machard. All rights reserved.
+
+This file is part of the extensive testing project; you can redistribute it and/or
+modify it under the terms of the GNU General Public License, Version 3.
+
+This file is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License,
+along with this program. If not, see http://www.gnu.org/licenses/.
+*/
+
+#box-warn-login {
+    padding: 10px;
+	margin: 5px;
+    background: #FFEBE8;
+    color: black;
+    border: 1px solid #DD3C10;
+    display: none;
+}
+
+.signinlogo {
+    text-align: center;
+    width: 55%;
+    height: 40%;
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+	padding-top: 10px;
+	padding-bottom: 10px;
+    background: #FFFFFF;
+    border-top: 1px solid #CDCDCD;
+	border-bottom: 1px solid #CDCDCD;
+}
+
+.signinlogo ul {
+    list-style-type:none 
+}
+
+.signinlogo li  {
+   text-align: right;
+   margin-right: 40px;
+}
+
+
+.signin {
+    text-align: center;
+    width: 35%;
+    height: 40%;
+    margin-top: 150px;
+    margin-left: auto;
+    margin-right: auto;
+	-moz-border-radius:7px;
+	-webkit-border-radius:7px;
+	border-radius:7px;
+    background: #FFFFFF;
+    border: 1px solid #CDCDCD;
+}
+
+
+.signin-demo {
+	padding: 10px;
+    width: 20%;
+    height: 40%;
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+    background: #FFFFFF;
+}
+
+
+.signin table {
+    text-align: left;
+    margin: auto;
+}
+
+.button-login {
+    text-align: right;
+}
+
+.logged {
+    color: grey;
+    font-style:italic;
+}

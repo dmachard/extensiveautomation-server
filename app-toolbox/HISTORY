@@ -1,0 +1,568 @@
+
+12.0.0
+	Date: 04/06/2017
+	What's new		
+		1. (major) Selenium2 added as before to support old firefox version (esr version)
+		2. (minor) Build: python package update for selenium 3.4.2 and pymysql
+		3. (minor) Add missing folder Plugins creation on first run
+		4. (major) Project code source splitted in twice (core and binaries)
+		5. (medium) Selenium3 plugin: add support for edge microsoft browser
+		6. (minor) Build: chrome driver for selenium updated to the version 2.29
+		7. (minor) Code cleanup to support python3
+		8. (major) Toolbox build on 64-bit architecture by default, 32-bit mode no more supported
+		9. (major) Build: Java JRE updated to the version 8u131 x64
+	Issues Fixed
+		1. None
+        
+11.1.0
+	Date: 30/03/2017
+	What's new		
+		1. (medium) cleanup code on selenium server agent
+		2. (major) selenium server agent: support explicit wait for more robustness
+		3. (major) Update to support python selenium 3.3.1
+		4. (major) Build: Gecko driver updated to the version v0.15
+		5. (major) Build: IE driver updated to the version v3.3.1
+		6. (major) Build: python selenium library updated to the 3.3.1 version
+		7. (medium) Improvement in user interface
+		8. (minor) Socket agent: update to support keepalive on macos system
+		9. (minor) Code updated to begin support of the next major graphical library QT5
+		10. (minor) New function in logger to log traceback automatically
+	Issues Fixed
+		1. (medium) Selenium agent: ignore system proxy by default
+		2. (minor) Network library: fix to support macos system
+
+11.0.0
+	Date: 25/02/2017
+	What's new		
+		1. (major) Build: some dlls removed because python2.7 is no more supported on windows
+		2. (major) Build: support python 64 bits on windows, new dlls embedded
+		3. (major) Build: support 64 bits installer for windows
+		4. (major) Code source updated according to the new year
+		5. (major) Build: Java JRE updated to the version 8u121
+		6. (major) Build: Wireshark no more embedded, must be installed manually to use properly the network probe
+		7. (major) Build: Chrome driver updated to the version v2.27
+		8. (major) Build: IE driver updated to the version v2.53.1
+		9. (major) Build: Gecko driver updated to the version v0.13
+		10. (major) Build: update to support selenium 3.0.1
+	Issues Fixed
+		1. (medium) Ssh: bad tcp keepalive support on windows only
+		2. (minor) Enable to deploy a tool when the automatic save option is activated
+		3. (minor) Reduce android screen overview to support small resolution
+
+10.0.0
+	Date: 30/10/2016
+	What's new
+		1. Add gecko driver to support firefox greater than 48 version
+		2. Support the new 1.1.1 version of sikulix 
+		3. Selenium agent renamed to selenium-server
+		4. Sikulix agent renamed to sikulix-server
+		5. Major change on sikuli agent, more robust integration
+		6. Major change on selenium agent, more robust integration
+		7. Improvement in stop process for adb and command plugins
+		8. Selenium server: new feature to upload screenshot to server test result
+		9. Chrome driver 32b updated to the 2.25 version
+	Issues Fixed
+		1. Avoid none type error during the call of the function onUserConfirmed
+		2. Fix some freezes on stop/start of sikulix or selenium agent
+		3. The agent restarts in the background while it is stopped
+        
+9.1.0
+	Date: 28/08/2016
+	What's new
+		1. Build: Java JRE updated to the version 8u102
+		2. Update new selenium standalone server 2.53.1
+		3. Change to support the new generic module plugin
+		4. New dummy plugin 2.0.0 (support of the generic module)
+		5. No more run toolbox on windows with python 2.7 (old script removed)
+		6. New "Plugins" folder in startup menu
+	Issues Fixed
+		1. Plugin Socket: missing support of CA certs
+        
+9.0.0
+	Date: 20/06/2016
+	What's new
+		1. Plugin Sikuli: image no more mandatory in request
+		2. Official support for external plugins
+		3. User interface improvement in selection combobox
+		4. Build: MySQL python package update to 0.7.4
+		5. Build: Java JRE updated to the version 8u92
+		6. Plugin Selenium: detect properly the interactive prompt
+		7. Code cleanup on build scripts
+		8. Build: no more harcoded version in install script
+		9. Plugin Ssh: update to support upload/download folders
+	Issues Fixed
+		1. Plugin Adb: fix bad value for ide boolean argument
+		2. Plugin Sikuli: detect properly when java is missing
+		3. Unable to take screenshot with QT5
+        
+8.1.0
+	Date: 29/04/2016
+	What's new
+		1. Improvment in packaging for portable edition, automatic generation
+		2. Sikuli/Selenium: update to generate thumbnail screenshot
+		3. Optimization: use jpg compression by default during screenshot generation
+		4. Code cleanup on all plugins
+		5. Prepare the project to support Qt5 in the future 
+		6. Plugin sftp/ftp: new function to upload file 
+		7. Plugin command: small change, limitation added on documentation
+		8. Plugin sikuli: return thread output on all notify
+		9. Update new selenium standalone server 2.53.0
+		10. New drivers chrome 2.21 and IE 2.53.0.0 for selenium
+		11. Java JRE updated to the version 8u77
+		12. Update of the python library for selenium 2.53
+		13. New version of wireshark 1.12.10
+		14. Small improvement to build final package
+		15. Build: remove git files on package generation for linux only
+		16. Selenium: update to support linux operating system
+		17. New function to detect execution from command line or not in plugins
+		18. Default agent name or description are configurable from settings ini file
+		19. Separate agent and probe in combobox list
+		20. Sikuli: update to support linux operating system
+		21. Build: adding dll files for qt images, gif support
+	Issues Fixed
+		1. Ignore delayed startup from tool list
+		2. Unable to use proxy with xmlrpc api, bad module usage
+		3. Automatic reconnect: avoid some freezes on sikuli restart
+		4. Android: unable to handle request from server, bad test id
+		5. Fix minor error on client agent to handle proxy error properly
+		6. Create missing folder Logs and Tmp from command line
+		7. Database: unable to execute mysql commands from exe mode
+		8. Command: unable to execute long command, adding timeout parameter
+
+8.0.0
+	Date: 12/02/2016
+	What's new
+		1. Enable application keepalive and tcp keepalive
+		2. Increate timeout select for socket 
+		3. Plugin SSH: new specific log file
+		4. Plugin Selenium: agent name added on log filename
+		5. No more agent registration if external libraries are missing on the system
+		6. Code cleanup on all plugins
+		7. Plugin SSH: new feature to support terminal type, width and height
+		8. Plugin FTP/SFTP: reduce sleep interval in wait for file/folder functions
+		9. Plugin Ssh/Sftp: support regular expression on wait for file/folder functions
+		10. Update new selenium standalone server 2.50.0
+		11. New drivers chrome 2.20 and IE 2.48.0.0 for selenium
+		12. Release notes cleanup, new HISTORY file added
+		13. New script to prepare window portable version
+		14. New indicator in about page for portable edition
+		15. Plugin File Probe: support regexp for the files to retrieve them
+		16. Plugin Sikuli/Command: properly redirect stdout/stdin
+		17. New android debug bridge plugin and support of uiautomator
+		18. Minor update on all code sources according to the new year
+		19. Default port set to tcp/443 by default on build for xmlrpc api
+		20. Build with a new version of python 3.4.4
+		21. Plugin Sikuli: minor update to use the new temp storage
+		22. Systray: new feature to delaying automatic startup in seconds, default value of 30 seconds
+		23. Proxy indicator added on the list of tools saved
+		24. New default ftp library to properly support tls on python 2.6
+		25. Socket: update to support tls1.1 and tls1.2, only with python >= 2.7!
+		26. Plugin SSH/Socket: update to use the new generic tool class, dispatch data properly
+		27. Major update to support the new universally unique test identifiers
+		28. New version of wireshark 1.12.9
+		29. Java JRE updated to the version 8u74
+		30. Java 7 no more embedded in the solution
+		31. New version of SoapUI 5.2.1
+	Issues Fixed
+		1. Plugin SSH: fix cpu pic usage with sftp only
+		2. Plugin SSH: fix issue on putfile function, bad python 2.x support
+		3. Fix minor error on tooptip message on windows plateform
+		4. Missing return on wait for file/folder function
+		5. Fix regression on generic tool to send data throught notify (duplicate function name)
+		6. Plugin Sikuli: no more SCREENSHOT event in test log
+		7. Fix issue to upload file with a different tcp port than the default tcp/443
+		8. Plugin Sikuli: exit properly loop when sikuli does not start
+		9. Unable to start selenium/sikuli on system with guest account
+		10. Sftp Plugin is not more blocking to run command
+		11. Sikuli: unable to create temp folder on test replay
+		12. Proxy ignored when the tool is started from the tool list 
+		13. Unable to run selenium/sikuli because path contains & in username
+		14. Fix missing agent reset on socket/ssh, adding just a workaround 
+
+7.0.0
+	Date: 22/11/2015
+	What's new
+		1. Platform architecture added on about page
+		2. New innosetup version 5.5.6 for windows installer
+		3. Enhancement, new options to select components to install or not
+		4. Plugin File: new feature to follow file content as tailf unix command
+		5. New network layer library - update on client agent
+		6. Code factory on generic tool class
+		7. Adding test context on all agent plugins
+		8. Plugin Sikuli/Selenium: update to support Java 8
+		9. Plugin Selenium/Command: kill java process on terminate
+		10. Plugin Selenium: error message added when selenium library is missing
+		11. Install java 8 jre on windows environment
+		12. Plugin Ftp: support new wait for file/folder functions
+		13. Plugin Ftp: support multiple connections
+		14. New plugin to support mysql, mssql and postgresql database
+		15. Plugin FTP: support python 2.6 for tls
+		16. Tcp keepalive activated by default, new settings
+		17. Plugin Socket: new error messages to prevent bad usage
+		18. New feature to use separate controller ip/port 
+		19. Controller added on settings view and each tabulation
+	Issues Fixed
+		1. Fix logger library - no rotation file
+		2. Unable to detect properly inactivity from server
+		3. Fix windows launcher
+		4. Remove lock on log file because of stdout/sdterr redirect
+		5. Plugin socket: close tcp connection properly
+		6. Plugin Sikuli: kill process on terminate, avoid some freeze of the app
+		7. Fix minor error to log tool type in debug mode
+		8. Unable to connect to remote server from command line, bad ip in host header
+
+6.1.0
+	Date: 18/10/2015
+	What's new
+		1. Adding VC2010 and C runtime dependencies
+		2. New version of wireshark 1.12.7
+		3. New version of SikuliX with final version 1.1.0
+		4. New plugin SSH based on paramiko library, available on windows too
+	Issues fixed
+		1. Fix unable to run soapui testrunner.sh, executable mode was missing
+		2. Plugin Sikuli: Fix no response on get text, typo error
+
+6.0.0
+	Date: 14/09/2015
+	What's new
+		1. New network Layer Library updated to support python3
+		2. Robustness added on start agent with errors
+		3. Update of the standalone selenium server and driver to 2.47.1
+		4. All plugins updated to support python 3
+		5. Built with a new PyQt 4.8.7
+		6. Built with a new major version of python 3.4.3
+		7. New library py2exe to construct executable for python3
+		8. Plugin File: new functions to support isFile, isFolder, isLink and checksumFile
+		9. Plugin File: new functions to support waitForFile or directory, existsFile or directory
+		10. Plugin File: new functions to support deleteFile or directory, sizeOfFile, sizeOfDirectory
+		11. Plugin File: new functions to support copyFile or directory, moveFile or directory
+		12. Plugin File: new function to get the modification date of a file, and list files in folder
+		13. Plugin Selenium: some improvements, take screenshot in error, new logs messages
+		14. Plugin Selenium/Sikuli: upload screnshot through the xml api
+		15. Plugin Selenium: driver for opera integrated by default
+		16. Major version to merge agent and probe.
+		17. New toolbox product name
+		18. New feature to deploy several agent and probe
+		19. Complete overhaul of the user interface
+		20. Interval keepalive increased to 60s, inactivity timeout increased to 90s
+		21. Plugin FTP: new major update with tls support also
+		22. New plugin SMS gateway
+	Issues fixed
+		1. Plugin dummy: fix minor error on agent reset
+		2. Selenium: fix error on constructor of the external library
+		3. Reset retry counter on succesful registration
+		4. Proxy: adding error message when proxy ip/port are missing
+		5. Active the automatic restart only when the registration was successfully previously
+		6. Plugin network: unable to find tshark on windows platform
+		7. Fix issue to detect disconnection from remote host
+		8. Network Layer Library: fix error to detect inactivity on ping/pong
+
+5.1.0
+	Date: 12/07/2015
+	What's new
+		1. Launcher for windows from command line improved
+		2. New feature to restart automatically agent when started command line 
+		3. Built with a new version of python 2.7.10
+		4. New network layer library (updated to support login/password on hello)
+		5. Built with a new PyQt 4.8.6
+		6. Sikuli project name changed to SikuliX
+		7. Gui: new function to log success message from plugin
+		8. Plugin Ftp: improved with new logs message during ftp connection
+		9. Java JRE updated to the version 7u80
+		10. Update of the standalone selenium server to 2.46
+		11. New release of SikuliX 1.1.0 (revision 2015-07-05) constructed with OCR features
+		12. New version of wireshark 1.12.6
+	Issues fixed
+		1. Unable to run agent in standalone because selenium lib was missing
+		2. Reconnect options not properly used on automatic restart
+
+5.0.0
+	Date: 28/05/2015
+	What's new
+		1. Sikuli IDE integrated
+		2. Handle generic traceback error on sikuli agent
+		3. New version of Sikuli 1.1.0 (revision 2015-04-02_01)
+		4. New plugin for selenium
+		5. New auto reconnect mechanism (more robust)
+		6. Built with a new PyQt and Python version 
+		7. Java JRE updated to the version 7u79
+		8. Support double click to show application from systray icon
+		9. New feature to change the cursor to busy during starting
+		10. Global status added: stopped/starting and running
+		11. New button to open external IDE if exists
+		12. New plugin for SoapUI 5.1.3
+		13. New build time added on about page
+		14. New version of wireshark 1.12.4
+	Issues fixed
+		1. None
+
+4.1.0
+	Date: 22/03/2015
+	What's new
+		1. New product name
+		2. Minor change on about page
+	Issues fixed
+		1. None
+
+4.0.0
+	Date: 05/01/2015
+	What's new
+		1. No more support of python 2.4
+		2. New network layer library (update to support python3)
+		3. Pickle version 2 used instead of 0 in the network layer library (no backward compatibility)
+		4. Configuration file: Pickle version is now defined
+		5. Java JRE updated to the version 7u72
+		6. Rebuild of sikuli 1.0.1 with OCR option activated (feature not yet stable in sikuli)
+		7. Plugin Sikuli: update to support the get text action (via OCR)
+		8. Small graphical change
+	Issues fixed
+		1. Hide systray icon on closing
+
+3.1.0
+	Date: 25/10/2014
+	What's new
+		1. Python updated to the version 2.7.8
+		2. Java JRE updated to the version 7u67 (Enhancement 406)
+		3. Sikuli: new feature to take a screenshot when asked
+		4. Network Layer Library 3.1.0
+		5. SoapUI 5.0.0 integration for windows and linux, no plugin yet
+		6. New option to minimize agent on startup (Enhancement 412)
+		7. Automatic connection on startup disabled by default (Enhancement 405)
+		8. Installation: new shortcut on startup folder for windows (Enhancement 380)
+		9. Plugin Sikilu: new feature to count number of occurences of one image (Enhancement 349)
+		10. New file plugin
+		11. New ftp plugin
+	Issues fixed
+		1. Fix error in setting, bad duplicate key
+
+5.0.0 - probe
+	Date: 08/08/2014
+	What's new
+		1. Debugging improvment: redirect stdout and stderr in log files
+		2. Application logger improved with text encoding
+		3. New network layer library 3.0.0, support websocket rfc6455, cancel requests
+		4. Web access: tcp port changed from 30002 to tcp/443
+		5. Ssl support on notification channel
+		6. New HTTPS proxy support for connection
+		7. Small improvements on interface with buttons
+		8. No more dependency with plugins on systray
+		9. No more dependency with plugins name on pyagent launcher
+		10. No more dependency with plugins name from command line
+		11. Complete usage on help for command line launcher 
+		12. No more use of the controller expression, replaced by server
+		13. Localization added, not fully supported
+		14. New button to copy logs to clipboard (Enhancement 372)
+		15. Support HTTPS proxy from command line
+		16. Web access: tcp port changed from 8082 to tcp/443 
+		17. External library httplib2 updated to 0.9
+		18. New thread to upload result
+		19. Windows support for the network probe
+		20. Wireshark embedded in the win executable
+		21. Plugin command deprecated
+		22. Commnd line launcher renamed from pyprobe to probe
+		23. Ssl support added on command line
+		24. Network timer increased, keepalive and timeout inactivity
+		25. Python and PyQt libraries updated
+		26. License LGPL 2.1 applied on all files
+		27. Qt removed from help menu
+		28. New quickstart guides en/fr
+		29. Code cleanup
+	Issues fixed
+		1. Startup auto: the default agent type is not the good one (Issue 342)
+		2. No reconnect auto on timeout or connection refused (Issue 373)
+		3. Fix access permission denied on settings file 
+
+3.0.0 - agent
+	Date: 08/08/2014
+	What's new
+		1. Robustness: check prerequisites added on manual start
+		2. Debugging improvment: redirect stdout and stderr in log files
+		3. Sikuli agent: adapter id added on screenshot (Enhancement 344)
+		4. New help menu with qt about and new about window
+		5. New release notes window and resources updated with-it
+		6. New network layer library 3.0.0, support websocket rfc6455, cancel requests
+		7. Web access: tcp port changed from 30002 to tcp/443
+		8. Ssl support on notification channel
+		10. Dummy agent: warning added on start and stop event
+		11. Dummy agent: new documentations added
+		12. New HTTPS proxy support for connection
+		13. No more use of the controller expression, replaced by server
+		14. Complete usage on help for command line launcher 
+		15. Support HTTPS proxy from command line
+		16. Small improvements on interface with buttons
+		17. New button to copy logs to clipboard (Enhancement 372)
+		18. Localization added, not fully supported
+		19. No more dependency with plugins on systray
+		20. No more dependency with plugins name on pyagent launcher
+		21. No more dependency with plugins name from command line
+		22. Command line launcher renamed from pyagent to agent
+		23. Ssl support added on command line
+		24. Network timer increased, keepalive and timeout inactivity
+		25. Python and PyQt libraries updated
+		26. Sikuli: documentation updated to explain the nonintrusive mode (Enhancement 354)
+		27. License LGPL 2.1 applied on all files
+		28. Qt menu removed from help menu
+		29. New quickstart guides en/fr
+		30. Code cleanup
+	Issues fixed
+		1. Sikuli fix no more data error (Issue 341)
+		2. Bat file: sikuli not supported on 32 bits
+		3. Prerequisites not checked on auto startup
+		4. Fix bad key name on setting file after build
+		5. Startup auto: the default agent type is not the good one (Issue 342)
+		6. Java no detected on 32bits architecture (Issue 339)
+		7. Fix no more data error on plugin command and sikuli
+		8. Plugin command: prompt not detected on french os
+		9. No reconnect auto on timeout or connection refused (Issue 373)
+		10. Fix a lot of timeout raised (Issue 374)
+		11. Fix access permission denied on settings file 
+
+4.1.0 - probe
+	Date: 02/06/2014
+	What's new
+		1. Http access: default login and password updated (digest authentication)
+		2. New dummy probe
+		3. Code analysing added according to the PEP8
+		4. Remove reference to tas 
+		5. New minimize button
+		6. Build exe script improved 
+	Issues fixed
+		1. Fix minor error on the Network layer library 2.1.1
+		2. Fix probe file to really work on windows
+		3. Remove uneeded error on disconnection
+
+2.0.0 - agent
+	Date: 02/06/2014
+	What's new
+		1. Java JRE updated to the version 7u55
+		2. New dummy agent
+		3. Improve user interface
+		4. Code analysing added according to the PEP8
+		5. Update sikuli to 1.0.1
+		6. Sikuli, big improvment of the speed
+		7. New minimize button
+		8. Build exe: script improvment
+		9. New plugin command to run system action
+	Issues fixed
+		1. Fix minor error on the Network layer library 2.1.1
+		2. Fix invalid or corrupt jarfile error
+		3. Fix error on settings file: duplicate key
+		4. Fix incorrect variable name on error case only
+		5. Remove uneeded error on disconnection
+
+4.0.0 - probe
+	Date: 25/04/2014
+	What's new
+		1. Network layer library updated to 2.1.0 version
+		2. Remove reference to tas on http uploader
+		3. Major update to support window platform (only plugin file)
+	Issues fixed
+		1. None
+
+1.1.0 - agent
+	Date: 25/04/2014
+	What's new	
+		1. No more pack exe on build with upx by default (Enhancement 269)
+		2. Network layer library updated to 2.1.0 version (Enhancement 272)
+		3. New option to reconnect automatically the agent on inactivity
+		4. Save controller ip and port automatically on settings
+		5. New option to connect automatically the agent on startup
+		6. Take a screenshot on error
+		7. Warning added when java is not installed
+		8. Automatic deployment of java6 on agent installation
+		9. Return action id on notify
+		10. Logs added on socket agent to help for troubleshooting
+	Issues fixed
+		1. Fix issue with the cursor on the log text part
+		2. Fix some freeze on exit
+		3. Fix error on config check which block using sockets
+
+3.0.0 - probe
+	Date: 23/03/2014
+	What's new
+		1. Remove reference to tas name
+		2. Network layer library updated to 2.0.0 version
+	Issues fixed
+		1. Fix error on usage documentation
+
+1.0.0 - agent
+	Date: 23/03/2014
+	What's new
+		1. First release (socket and gui agent)
+	Issues fixed
+		1. None
+
+2.3.0 - probe
+	Date: 15/09/2013
+	What's new
+		1. Network layer library updated to 1.6.0 version
+		2. Code cleanup to support python3
+		3. Add Window support for the file probe
+	Issues fixed
+		1. Fix incorrect trace level
+		2. Fix incorrect help usage
+		3. Network layer library updated to 1.6.1 version (Issue 201)
+
+2.2.0 - probe
+	Date: 08/04/2013
+	What's new
+		1. Network layer library updated to 1.5.0 version
+		2. Operating system supported added
+	Issues fixed
+		1. Keep-alive timeout not updated
+
+2.1.0 - probe
+	Date: 09/03/2013
+	What's new
+		1. New probe command
+		2. Usage probes updated
+		3. Keep-alive timeout increased to 20 seconds
+	Issues fixed
+		1. Network Probe: fix bad binary path
+
+2.0.0 - probe
+	Date: 30/01/2013
+	What's new
+		1. Updated to support the new TAS server 4.0.0
+		2. Command line usage updated
+		3. Configuration file updated with path binaries 
+		4. Network layer library updated to 1.4.0 version
+		5. Network parameters is now configurable in probe.ini
+		6. Https support to upload file to the server on port 8082
+	Issues fixed
+		1. Keyboard interrupt on ctrl+C (Issue 113)
+
+1.2.0 - probe
+	Date: 10/07/2012
+	What's new
+		1. Default probe information added
+		2. Exit code improved
+		3. Network layer library changed to 1.3.0 version
+	Issues fixed
+		1. Failed to start network probe (Issue 103)
+		2. Config file missing on manual start (Issue 100)
+
+1.1.1 - probe
+	Date: 02/06/2012
+	What's new
+		1. None
+	Issues fixed
+		1. Logger changed to the version 1.0.2
+		2. Network layer library changed to 1.2.0 version	
+		3. Log level set to INFO for stable release
+
+1.1.0 - probe
+	Date: 28/03/2012
+	What's new
+		1. stopProbe updated to support the reset
+	Issues fixed
+		1. Details logs no enough (Issue 27)
+		2. Logger changed to the first stable release 1.0.1
+		3. Network layer library changed to 1.1.1 version
+
+1.0.0 - probe
+	Date: 27/02/2012
+	What's new
+		1. First release
+	Issues fixed
+		1. None

@@ -1,0 +1,86 @@
+/*
+Copyright (c) 2010-2017 Denis Machard. All rights reserved.
+
+This file is part of the extensive testing project; you can redistribute it and/or
+modify it under the terms of the GNU General Public License, Version 3.
+
+This file is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License,
+along with this program. If not, see http://www.gnu.org/licenses/.
+*/
+
+
+/* titles */
+.admin-title-index, .admin-title-center {
+	margin-bottom: 5px;
+	padding: 4px;
+	/*background-color: #FAD163;*/
+	background-color: #82AD42;
+	color: black;
+	font-weight: bold;
+}
+
+.admin-tab-sub-license {
+  padding: 0px;
+  margin: 0px;
+  margin-left: 20px;
+}
+
+.col1 {
+	width: 150px;
+	height: 30px;
+}
+
+.col2 {
+	width: 250px;
+}
+
+#tusrlst {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+
+#tusrlst tr td {
+	padding: 5px;
+}
+
+.list {
+	height: 35px;
+}
+
+.list:hover
+{
+	background-color: #D7DCE0;
+} 
+
+input[type="text"][disabled] {
+	border: 0px;
+	background-color: transparent;
+}
+
+input[type="password"][disabled] {
+	border: 0px;
+	background-color: transparent;
+}
+
+/* stats section title */
+.dotted {
+	border-bottom-width: 1px;
+	border-bottom-style: dotted;
+	border-bottom-color: #993300;
+	text-decoration: none;
+}
+
+/* stats table */
+.table {
+	width: 200px;
+	vertical-align: top;
+}
+.tablekey {
+	padding-left: 10px;
+}

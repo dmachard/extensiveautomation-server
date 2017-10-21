@@ -1,0 +1,115 @@
+#!/usr/bin/python
+
+# -------------------------------------------------------------------
+# Copyright (c) 2010-2017 Denis Machard
+# This file is part of the extensive testing project
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+# MA 02110-1301 USA
+# -------------------------------------------------------------------
+
+import Core.InitTool as Tools
+from Libs import Settings
+
+import sys
+import os
+import inspect
+
+try:
+    xrange
+except NameError: # support python3
+    xrange = range
+
+# unicode = str with python3
+if sys.version_info > (3,):
+    unicode = str
+    
+arg = sys.argv[0]
+pathname = os.path.dirname(arg)
+path_install = os.path.abspath(pathname)
+
+settingsFile = '%s/settings.ini' % path_install
+if not os.path.exists(settingsFile):
+    print('config file settings.ini doesn\'t exist.')
+    sys.exit(-1)
+
+# adding missing folders
+if not os.path.exists( "%s/Logs/" % path_install ):
+    os.mkdir( "%s/Logs" % path_install )
+if not os.path.exists( "%s/Tmp/" % path_install ):
+    os.mkdir( "%s/Tmp" % path_install )
+    
+Settings.initialize()
+
+# loading all plugins
+plugins = {}
+for pluginName in dir(__import__( "Embedded" )):
+    if not pluginName.startswith('__') and not pluginName.endswith('__'):
+        pkg =  __import__( "Embedded.%s" % pluginName )
+        for listing in dir(pkg):
+            obj = getattr(pkg, listing)
+            if inspect.ismodule(obj):
+                if obj.__TOOL_TYPE__ == 1: # probe
+                    plugins[obj.__TYPE__] = obj
+
+def str2bool(value):
+    return {"True": True, "true": True}.get(value, False)
+    
+def help():
+    """
+    """
+    print('Command line tool launcher')
+    print('')
+    print('Usage: ./toolprobe [test-server-ip] [test-server-port] [ssl-support] [%s] [tool-name] [tool-description] [[proxy-ip] [proxy-port]]' % '|'.join(plugins.keys()))
+    print('')
+    print('* Server parameters')
+    print('[test-server-ip]: your test server ip or hostname. This option is mandatory.')
+    print('[test-server-port]: your test server port. This option is mandatory.')
+    print('[ssl-support=True/False]: ssl support. This option is mandatory.')
+    print('')
+    print('* Tools parameters')
+    print('[Values expected: %s]: tool type to start. This option is mandatory.' % '|'.join(plugins.keys()))
+    print('[tool-name]: The tool name. This option is mandatory.')
+    print('[tool-description]: The tool description. This option is mandatory.')
+    print('')
+    print('* Proxy parameters')
+    print('[proxy-ip]: proxy address. This option is optional.')
+    print('[proxy-port]: proxy port. This option is optional.')
+    print('')
+    
+if __name__ == "__main__":
+    # manual start
+    if len(sys.argv) == 7: 
+        Tools.initialize()
+        Tools.start( serverIp=sys.argv[1], serverPort=sys.argv[2], toolType=sys.argv[4], toolName=sys.argv[5],
+                    toolDescr=sys.argv[6], sslSupport=str2bool(sys.argv[3]), isAgent=1, fromCmd=True )
+    
+    # manual start with proxy
+    elif len(sys.argv) == 9: 
+        Tools.initialize()
+        Tools.start( serverIp=sys.argv[1], serverPort=sys.argv[2], toolType=sys.argv[4], toolName=sys.argv[5],
+                    toolDescr=sys.argv[6], supportProxy=True, proxyIp=sys.argv[7], proxyPort=sys.argv[8],
+                    sslSupport=str2bool(sys.argv[3]), isAgent=1, fromCmd=True )
+        
+    # automatic start by the server
+    elif len(sys.argv) == 8: 
+        Tools.initialize()
+        Tools.start( serverIp=sys.argv[1], serverPort=sys.argv[2], toolType=sys.argv[4], toolName=sys.argv[5],
+                    toolDescr=sys.argv[6], defaultTool=str2bool(sys.argv[7]), sslSupport=str2bool(sys.argv[3]), 
+                    isAgent=1, fromCmd=True )
+    
+    else:
+        help()
+        sys.exit(0)

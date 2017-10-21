@@ -1,0 +1,36 @@
+# This script work on any system using systemd as the init process.
+# It works on Debian/Raspbian Jessie.
+# If you have Debian/Rapbian Wheezy and want to use this script with systemd
+# follow the information here : https://wiki.debian.org/systemd
+
+# To easily download, install and set at startup:
+# wget -O /tmp/download https://gist.github.com/Belphemur/3f6d3bf211b0e8a18d93/download && sudo tar -zxf /tmp/download --strip-components 1 -C /etc/systemd/system/ && s
+udo systemctl --reload-daemon && sudo systemctl enable Node-RED
+
+# To consult the log : journalctl -u Node-RED
+[Unit]
+Description=Node-RED is a tool for wiring together hardware devices, APIs and online services in new and interesting ways.
+After=syslog.target network.target
+Documentation=http://nodered.org/
+
+[Service]
+Environment="NODE_OPTIONS=--max-old-space-size=128"
+Environment="NODE_RED_OPTIONS=-v"
+#Full Path to Node.js
+ExecStart=/usr/local/bin/node $NODE_OPTIONS red.js $NODE_RED_OPTIONS
+WorkingDirectory=/root/node-red/
+# User/Group that launches node-RED (it's advised to create a new user for Node-RED)
+# You can do : sudo useradd node-red
+# then change the User=root by User=node-red
+User=root
+Group=root
+Nice=10
+SyslogIdentifier=Node-RED
+StandardOutput=syslog
+# Make Node-RED restart if it fails
+Restart=on-failure
+# Node-RED need a SIGINT to be notified to stop
+KillSignal=SIGINT
+
+[Install]
+WantedBy=multi-user.target

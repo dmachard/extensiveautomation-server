@@ -1,0 +1,210 @@
+/*
+ * CSS3 Treeview. No JavaScript
+ * @version 1.0
+ * @author Martin Ivanov
+ * @url developer's website: http://wemakesites.net/
+ * @url developer's twitter: https://twitter.com/#!/wemakesitesnet
+ * @url developer's blog http://acidmartin.wordpress.com/
+ **/
+ 
+.css-treeview ul,
+.css-treeview li
+{
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+ 
+.css-treeview input
+{
+    position: absolute;
+    opacity: 0;
+}
+ 
+.css-treeview
+{
+    font: normal 11px "Segoe UI", Arial, Sans-serif;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.css-treeview a
+{
+    color: #00f;
+    text-decoration: none;
+	padding-left: 10px;
+}
+
+.css-treeview #pass
+{
+    background: url("./img/pass.png") no-repeat;
+	padding-left: 20px;
+}
+
+.css-treeview #fail
+{
+    background: url("./img/fail.png") no-repeat;
+	padding-left: 20px;
+}
+
+.css-treeview #undef
+{
+    background: url("./img/undefined.png") no-repeat;
+	padding-left: 20px;
+}
+
+.css-treeview #zip
+{
+    background: url("./img/file-zip.png") no-repeat;
+	padding-left: 20px;
+}
+
+.css-treeview #trx
+{
+    background: url("./img/trx.png") no-repeat;
+	padding-left: 20px;
+}
+
+.css-treeview #tax
+{
+    background: url("./img/tax.png") no-repeat;
+	padding-left: 20px;
+}
+
+.css-treeview #tux
+{
+    background: url("./img/tux.png") no-repeat;
+	padding-left: 20px;
+}
+
+.css-treeview #tsx
+{
+    background: url("./img/tsx.png") no-repeat;
+	padding-left: 20px;
+}
+
+.css-treeview #tpx
+{
+    background: url("./img/tpx.png") no-repeat;
+	padding-left: 20px;
+}
+
+.css-treeview #tgx
+{
+    background: url("./img/tgx.png") no-repeat;
+	padding-left: 20px;
+}
+
+.css-treeview #trx
+{
+    background: url("./img/trx.png") no-repeat;
+	padding-left: 20px;
+}
+
+.css-treeview #tcx
+{
+    background: url("./img/tcx.png") no-repeat;
+	padding-left: 20px;
+}
+
+.css-treeview #tdx
+{
+    background: url("./img/tdx.png") no-repeat;
+	padding-left: 20px;
+}
+
+.css-treeview #png
+{
+    background: url("./img/png.png") no-repeat;
+	padding-left: 20px;
+}
+
+.css-treeview a:hover
+{
+    text-decoration: underline;
+}
+ 
+.css-treeview input + label + ul
+{
+    margin: 0 0 0 22px;
+}
+ 
+.css-treeview input ~ ul
+{
+    display: none;
+}
+ 
+.css-treeview label,
+.css-treeview label::before
+{
+    cursor: pointer;
+}
+ 
+.css-treeview input:disabled + label
+{
+    cursor: default;
+    opacity: .6;
+}
+ 
+.css-treeview input:checked:not(:disabled) ~ ul
+{
+    display: block;
+}
+ 
+.css-treeview label,
+.css-treeview label::before
+{
+    background: url("./img/treeview_icons.png") no-repeat;
+}
+ 
+.css-treeview label,
+.css-treeview a,
+.css-treeview span,
+.css-treeview label::before
+{
+    display: inline-block;
+    height: 16px;
+    line-height: 16px;
+    vertical-align: middle;
+}
+ 
+.css-treeview label
+{
+    background-position: 18px 0;
+}
+ 
+.css-treeview label::before
+{
+    content: "";
+    width: 16px;
+    margin: 0 22px 0 0;
+    vertical-align: middle;
+    background-position: 0 -32px;
+}
+ 
+.css-treeview input:checked + label::before
+{
+    background-position: 0 -16px;
+}
+ 
+/* webkit adjacent element selector bugfix */
+@media screen and (-webkit-min-device-pixel-ratio:0)
+{
+    .css-treeview
+    {
+        -webkit-animation: webkit-adjacent-element-selector-bugfix infinite 1s;
+    }
+ 
+    @-webkit-keyframes webkit-adjacent-element-selector-bugfix
+    {
+        from
+        {
+            padding: 0;
+        }
+        to
+        {
+            padding: 0;
+        }
+    }
+}

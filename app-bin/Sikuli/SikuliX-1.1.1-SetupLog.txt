@@ -1,0 +1,182 @@
+[debug (19/09/16 07:07:36)] Debug: setLogFile: E:\My Lab\01 ExtensiveTesting\03 - Prérequis\sikuli 1.1.1\SikuliX-1.1.1-SetupLog.txt
+[debug (19/09/16 07:07:36)] RunSetup: ... starting with no args given
+[debug (19/09/16 07:07:36)] RunSetup: Setup: 1.1.1 2016-07-19_20:32nightly in folder:
+E:\My Lab\01 ExtensiveTesting\03 - Prérequis\sikuli 1.1.1
+[debug (19/09/16 07:07:36)] RunSetup: RunningSystem: Windows 10.0
+[debug (19/09/16 07:07:36)] RunSetup: parent of jar/classes: E:\My Lab\01 ExtensiveTesting\03 - Prérequis\sikuli 1.1.1
+[debug (19/09/16 07:07:36)] RunSetup: RunningJava: Java 8 (x86) 1.8.0_102-b14
+[debug (19/09/16 07:07:36)] init user preferences
+[debug (19/09/16 07:07:43)] RunSetup: 
+popAsk: --------------------
+The following file(s) will be downloaded to
+E:\My Lab\01 ExtensiveTesting\03 - Prérequis\sikuli 1.1.1
+--- Native support libraries for Windows (sikulixlibs...)
+--- Package 1 ---
+sikulixsetupIDE-1.1.1-20160909.231645-108-forsetup.jar (IDE/Scripting)
+sikulixsetupAPI-1.1.1-20160909.231419-110-forsetup.jar (Java API)
+ - with Jython
+--- Additions ---
+tessdata-eng (Tesseract)
+Only click NO, if you want to terminate setup now!
+Click YES even if you want to use local copies in Downloads!
+--------------------
+[debug (19/09/16 07:07:52)] RunSetup: 
+popAsk: --------------------
+You have for Windows native libs
+E:\My Lab\01 ExtensiveTesting\03 - Prérequis\sikuli 1.1.1\sikulixlibswin-1.1.1-20160909.230412-120.jar
+Click YES, if you want to use this for setup processing
+... or click NO, to ignore it and download a fresh copy
+--------------------
+[debug (19/09/16 07:08:01)] RunSetup: Copied from Downloads: sikulixlibswin
+[debug (19/09/16 07:08:01)] FileManager: resetFolder:
+E:\My Lab\01 ExtensiveTesting\03 - Prérequis\sikuli 1.1.1\SetupStuff\sikulixlibs\windows
+jar:file:/E:/My Lab/01 ExtensiveTesting/03 - Prérequis/sikuli 1.1.1/sikulixlibswin.jar
+[debug (19/09/16 07:08:01)] RunSetup: 
+popAsk: --------------------
+You have for Java API package
+E:\My Lab\01 ExtensiveTesting\03 - Prérequis\sikuli 1.1.1\sikulixsetupAPI-1.1.1-20160909.231419-110-forsetup.jar
+Click YES, if you want to use this for setup processing
+... or click NO, to ignore it and download a fresh copy
+--------------------
+[debug (19/09/16 07:08:04)] RunSetup: Copied from Downloads: sikulixapi
+[debug (19/09/16 07:08:04)] FileManager: resetFolder:
+E:\My Lab\01 ExtensiveTesting\03 - Prérequis\sikuli 1.1.1\SetupStuff\Lib
+jar:file:/E:/My Lab/01 ExtensiveTesting/03 - Prérequis/sikuli 1.1.1/sikulixapi.jar
+[debug (19/09/16 07:08:04)] RunSetup: 
+popAsk: --------------------
+You have for SikuliX IDE package
+E:\My Lab\01 ExtensiveTesting\03 - Prérequis\sikuli 1.1.1\sikulixsetupIDE-1.1.1-20160909.231645-108-forsetup.jar
+Click YES, if you want to use this for setup processing
+... or click NO, to ignore it and download a fresh copy
+--------------------
+[debug (19/09/16 07:08:14)] RunSetup: Copied from Downloads: sikulix
+[debug (19/09/16 07:08:14)] RunSetup: 
+popAsk: --------------------
+If you click YES, you will get Jython version 2.7.0 (recommended)
+... but in rare cases there might be issues with UTF-8/Unicode
+that usually appear on startup when UTF-8 characters
+are present somewhere in the system environment
+If you encounter such problems with Jython 2.7.0
+run setup again and
+click NO to get Jython 2.5.4rc1
+--------------------
+[debug (19/09/16 07:08:17)] RunSetup: 
+popAsk: --------------------
+You have for Jython 2.7
+C:\Users\Denis\AppData\Roaming\Sikulix\SikulixDownloads\jython-standalone-2.7.0.jar
+Click YES, if you want to use this for setup processing
+... or click NO, to ignore it and download a fresh copy
+--------------------
+[debug (19/09/16 07:08:20)] RunSetup: Copied from Downloads: Jython
+[debug (19/09/16 07:08:20)] RunSetup: 
+popAsk: --------------------
+You have for Tesseract tessdata-eng
+E:\My Lab\01 ExtensiveTesting\03 - Prérequis\sikuli 1.1.1\tesseract-ocr-3.02.eng.tar.gz
+Click YES, if you want to use this for setup processing
+... or click NO, to ignore it and download a fresh copy
+--------------------
+[debug (19/09/16 07:08:22)] RunSetup: using already downloaded: tessdata-eng
+[debug (19/09/16 07:08:22)] RunSetup: trying to extract from: tesseract-ocr-3.02.eng.tar.gz
+[debug (19/09/16 07:08:23)] RunSetup: preparing the tessdata stuff in:
+C:\Users\Denis\AppData\Roaming\Sikulix\SikulixDownloads\tessdata-eng
+[debug (19/09/16 07:08:23)] FileManager: resetFolder:
+C:\Users\Denis\AppData\Roaming\Sikulix\SikulixDownloads\tessdata-eng
+[debug (19/09/16 07:08:23)] FileManager: deleteFileOrFolder:
+C:\Users\Denis\AppData\Roaming\Sikulix\SikulixDownloads\tesseract-ocr
+[debug (19/09/16 07:08:23)] RunTimeSETUP: resourceList: enter
+[debug (19/09/16 07:08:23)] RunTimeSETUP: resourceLocation: (class org.sikuli.setup.RunSetup) /sikulixtessdata
+[debug (19/09/16 07:08:23)] RunTimeSETUP: resourceList: having jar: jar:file:/E:/My%20Lab/01%20ExtensiveTesting/03%20-%20Pr%c3%a9requis/sikuli%201.1.1/sikulixsetup-1.1.1-20160719.184310-68-forsetup.jar!/sikulixtessdata
+[debug (19/09/16 07:08:24)] RunTimeSETUP: files exported: 21 from: sikulixtessdata to:
+ C:\Users\Denis\AppData\Roaming\Sikulix\SikulixDownloads\tessdata-eng
+[debug (19/09/16 07:08:24)] RunSetup: finally preparing sikulixtessdata.jar
+[debug (19/09/16 07:08:24)] RunTimeSETUP: addToClasspath:
+file:/C:/Users/Denis/AppData/Roaming/Sikulix/SikulixDownloads/
+[debug (19/09/16 07:08:24)] RunTimeSETUP: resourceList: enter
+[debug (19/09/16 07:08:24)] RunTimeSETUP: resourceLocation: (class org.sikuli.setup.RunSetup) /tessdata-eng
+[debug (19/09/16 07:08:24)] RunTimeSETUP: resourceList: having folder: C:\Users\Denis\AppData\Roaming\Sikulix\SikulixDownloads\tessdata-eng
+[debug (19/09/16 07:08:24)] FileManager: buildJar: sikulixtemp.jar
+[debug (19/09/16 07:08:26)] FileManager: buildJar: adding tessdata-eng at sikulixtessdata
+[debug (19/09/16 07:08:30)] FileManager: buildJar: completed
+[debug (19/09/16 07:08:30)] RunSetup: renaming sikulixtemp.jar to target jar: sikulixtessdata.jar
+[debug (19/09/16 07:08:30)] FileManager: deleteFileOrFolder:
+C:\Users\Denis\AppData\Roaming\Sikulix\SikulixDownloads\tessdata-eng
+[debug (19/09/16 07:08:30)] RunSetup: Download ended
+[debug (19/09/16 07:08:30)] RunSetup: Downloads for selected options:
+sikulixlibswin-1.1.1-20160909.230412-120.jar sikulixsetupIDE-1.1.1-20160909.231645-108-forsetup.jar sikulixsetupAPI-1.1.1-20160909.231419-110-forsetup.jar jython-standalone-2.7.0.jar tessdata-eng 
+[debug (19/09/16 07:08:30)] RunSetup: adding needed stuff to sikulix.jar
+[debug (19/09/16 07:08:30)] FileManager: buildJar: sikulixtemp.jar
+[debug (19/09/16 07:08:30)] FileManager: buildJar: adding: sikulix.jar
+[debug (19/09/16 07:08:33)] FileManager: buildJar: adding: sikulixapi.jar
+[debug (19/09/16 07:08:34)] FileManager: buildJar: adding: sikulixtessdata.jar
+[debug (19/09/16 07:08:38)] FileManager: buildJar: adding: sikulixjython.jar
+[debug (19/09/16 07:08:55)] FileManager: buildJar: adding: sikulixlibswin.jar
+[debug (19/09/16 07:09:02)] FileManager: buildJar: completed
+[debug (19/09/16 07:09:02)] RunSetup: renaming sikulixtemp.jar to target jar: sikulix.jar
+[debug (19/09/16 07:09:02)] RunSetup: processing commandfiles
+[debug (19/09/16 07:09:02)] RunTimeSETUP: addToClasspath:
+file:/E:/My Lab/01 ExtensiveTesting/03 - Prérequis/sikuli 1.1.1/sikulix.jar
+[debug (19/09/16 07:09:02)] RunTimeSETUP: exists libs folder at: C:\Users\Denis\AppData\Roaming\Sikulix\SikulixLibs_201607192032
+[debug (19/09/16 07:09:02)] RunSetup: Jython: Trying to run functional test: running script statements via SikuliScript
+[debug (19/09/16 07:09:07)] ScriptingSupport: initScriptingSupport: enter
+[debug (19/09/16 07:09:12)] JythonSupport: init: starting
+[debug (19/09/16 07:09:12)] JythonSupport: init: success
+[debug (19/09/16 07:09:12)] JythonSupport: ***** Jython sys.path
+ 0: E:\My Lab\01 ExtensiveTesting\03 - Prérequis\sikuli 1.1.1\Lib
+ 1: E:\My Lab\01 ExtensiveTesting\03 - Prérequis\sikuli 1.1.1\sikulix.jar\Lib
+ 2: __classpath__
+ 3: __pyclasspath__/
+[debug (19/09/16 07:09:12)] JythonSupport: ***** Jython sys.path end
+[debug (19/09/16 07:09:12)] Jython: sikuli: Sikuli: starting init
+[debug (19/09/16 07:09:12)] RunTimeSETUP: exists libs folder at: C:\Users\Denis\AppData\Roaming\Sikulix\SikulixLibs_201607192032
+[debug (19/09/16 07:09:12)] RunTimeSETUP: libs folder empty or has wrong content
+[debug (19/09/16 07:09:12)] RunTimeSETUP: now exporting libs
+[error (19/09/16 07:09:12)] RunTimeSETUP: addToClasspath: does not exist - not added:
+E:\My Lab\01 ExtensiveTesting\03 - Prérequis\sikuli 1.1.1\Libswin\target\sikulixlibswin-1.1.1.jar
+[debug (19/09/16 07:09:12)] RunTimeSETUP: libs to export are at:
+jar:file:/E:/My Lab/01 ExtensiveTesting/03 - Prérequis/sikuli 1.1.1/sikulix.jar!/sikulixlibs/windows/libs32
+[debug (19/09/16 07:09:12)] RunTimeSETUP: resourceList: enter
+[debug (19/09/16 07:09:12)] RunTimeSETUP: resourceLocation: (class org.sikuli.setup.RunSetup) /sikulixlibs/windows/libs32
+[debug (19/09/16 07:09:12)] RunTimeSETUP: resourceList: having jar: jar:file:/E:/My%20Lab/01%20ExtensiveTesting/03%20-%20Prérequis/sikuli%201.1.1/sikulix.jar!/sikulixlibs/windows/libs32
+[debug (19/09/16 07:09:15)] RunTimeSETUP: files exported: 17 from: /sikulixlibs/windows/libs32 to:
+ C:\Users\Denis\AppData\Roaming\Sikulix\SikulixLibs_201607192032
+[debug (19/09/16 07:09:16)] RunTimeSETUP: addToWindowsSystemPath: added to systempath:
+C:\Users\Denis\AppData\Roaming\Sikulix\SikulixLibs_201607192032
+[debug (19/09/16 07:09:16)] RunTimeSETUP: checkJavaUsrPath: added to ClassLoader.usrPaths
+[debug (19/09/16 07:09:18)] RunTimeSETUP: loadLib: VisionProxy.dll
+[error (19/09/16 07:09:19)] RobotDesktop: checkMousePosition: should be L(900,510)@S(0)[0,0 1600x900]
+but after move is L(842,565)@S(0)[0,0 1600x900]
+Possible cause in case you did not touch the mouse while script was running:
+ Mouse actions are blocked generally or by the frontmost application.
+You might try to run the SikuliX stuff as admin.
+[debug (19/09/16 07:09:19)] Mouse: init
+[debug (19/09/16 07:09:19)] KeyBoard: init
+[debug (19/09/16 07:09:19)] RunTimeSETUP: loadLib: WinUtil.dll
+[debug (19/09/16 07:09:19)] Jython: requested to use as default region: S(0)[0,0 1600x900]
+[debug (19/09/16 07:09:19)] Jython: sikuli: Sikuli: ending init
+[debug (19/09/16 07:09:19)] JythonScriptRunner: running Jython 2.7.0 
+[debug (19/09/16 07:09:19)] ScriptingSupport: initScriptingSupport: added: jython
+[debug (19/09/16 07:09:19)] ScriptingSupport: initScriptingSupport: exit with defaultrunner: jython (py)
+[debug (19/09/16 07:09:19)] Jython: requested to use as default region: S(0)[0,0 1600x900]
+[debug (19/09/16 07:09:19)] JythonScriptRunner: runPython: running statements
+[debug (19/09/16 07:09:19)] Image: BufferedImage: (100, 100)
+[debug (19/09/16 07:09:19)] Finder: Image: __BufferedImage__: (100x100)
+[debug (19/09/16 07:09:19)] Sikulix: testSetup: Finder setup with image worked
+[debug (19/09/16 07:09:19)] FileManager: tempfile create:
+C:\Users\Denis\AppData\Local\Temp\Sikulix_1853399588\sikuli-6024982284555979155.png
+[debug (19/09/16 07:09:19)] Image: loaded: C:/Users/Denis/AppData/Local/Temp/Sikulix_1853399588/sikuli-6024982284555979155.png (file:/C:/Users/Denis/AppData/Local/Temp/Sikulix_1853399588/sikuli-6024982284555979155.png)
+[debug (19/09/16 07:09:19)] Image: cached: C:/Users/Denis/AppData/Local/Temp/Sikulix_1853399588/sikuli-6024982284555979155.png (29 KB) (# 1 KB 29 -- 0 % of 64 MB)
+[debug (19/09/16 07:09:19)] Sikulix: testSetup: Finder setup with image file worked
+[debug (19/09/16 07:09:19)] Image: reused: C:/Users/Denis/AppData/Local/Temp/Sikulix_1853399588/sikuli-6024982284555979155.png (file:/C:/Users/Denis/AppData/Local/Temp/Sikulix_1853399588/sikuli-6024982284555979155.png)
+[debug (19/09/16 07:09:19)] Region: wait: waiting 3,0 secs for C:/Users/Denis/AppData/Local/Temp/Sikulix_1853399588/sikuli-6024982284555979155.png to appear in S(0)[0,0 1600x900]
+[debug (19/09/16 07:09:20)] Region: wait: C:/Users/Denis/AppData/Local/Temp/Sikulix_1853399588/sikuli-6024982284555979155.png appeared (M[0,0 100x100]@S(S(0)[0,0 1600x900]) S:1,00 C:50,50 [457 msec])
+[debug (19/09/16 07:09:20)] Sikulix: testSetup: Screen.find(imagefile) worked
+[debug (19/09/16 07:09:20)] Image: reused: C:/Users/Denis/AppData/Local/Temp/Sikulix_1853399588/sikuli-6024982284555979155.png (file:/C:/Users/Denis/AppData/Local/Temp/Sikulix_1853399588/sikuli-6024982284555979155.png)
+[debug (19/09/16 07:09:20)] Region: wait: waiting 3,0 secs for C:/Users/Denis/AppData/Local/Temp/Sikulix_1853399588/sikuli-6024982284555979155.png to appear in S(0)[0,0 1600x900]
+[debug (19/09/16 07:09:20)] Region: checkLastSeen: still there
+[debug (19/09/16 07:09:20)] Region: wait: C:/Users/Denis/AppData/Local/Temp/Sikulix_1853399588/sikuli-6024982284555979155.png appeared (M[0,0 100x100]@S(S(0)[0,0 1600x900]) S:1,00 C:50,50 [76 msec])
+[debug (19/09/16 07:09:20)] Sikulix: testSetup: repeated Screen.find(imagefile) worked
+[debug (19/09/16 07:09:21)] Sikulix: testSetup: Finder.find: worked
+[debug (19/09/16 07:09:26)] RunSetup: ... SikuliX Setup seems to have ended successfully ;-)
+[debug (19/09/16 07:09:26)] RunTimeSETUP: final cleanup
+[debug (19/09/16 07:09:26)] FileManager: deleteFileOrFolder:
+C:\Users\Denis\AppData\Local\Temp\Sikulix_1853399588

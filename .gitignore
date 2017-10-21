@@ -1,0 +1,8 @@
+# Python files
+*.pyc
+*.pyo
+
+# Logs files
+*.log
+*.lock
+*.snapshot
