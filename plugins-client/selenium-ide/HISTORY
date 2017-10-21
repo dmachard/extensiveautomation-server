@@ -1,0 +1,26 @@
+
+3.0.0
+	Date: 25/02/2017
+	What's new
+		1. (major) Generic part: support 64bits architecture
+		2. (minor) Generic part: release notes added on about page
+	Issues Fixed
+		1. None
+        
+2.0.0
+	Date: 05/10/2016
+	What's new
+		1. Support of waitForVisible function
+		2. Update to support the new automation assistant
+		3. Major update to support the new generic plugin core
+	Issues Fixed
+		1. Detect properly parsing issue
+		2. Unable to read selenium file with quoted data 
+		3. Fix bad plugin icon
+
+1.0.0
+	Date: 28/08/2016
+	What's new
+		1. Initial version
+	Issues Fixed
+		1. None

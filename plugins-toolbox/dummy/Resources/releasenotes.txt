@@ -1,0 +1,9 @@
+
+3.0.0
+	Date: 27/05/2017
+	What's new
+		1. (major) New version build on 64-bit architecture
+		2. (major) New settings file and dll for 32 and 64-bit
+		3. (major) New script to build the final executable
+	Issues Fixed
+		1. None

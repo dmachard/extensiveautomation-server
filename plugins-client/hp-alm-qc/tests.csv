@@ -1,0 +1,8 @@
+testpath;testcase;purpose;step id;step description;step expected
+/aaaa/bbb/ccc;Usage Case 1;;1;"1. hello world
+2. welcome";"1. hello world
+2. welcome"
+/aaaa/;Usage Case 2;;1;Send HTTP request;200 OK received
+/aaaa/;Usage Case 2;;2;Send SOAP request;500 server explorer received
+;;;;;
+;;;;;
