@@ -32,7 +32,7 @@ Main module
 from __future__ import print_function 
 
 # define the current version
-__VERSION__ = '17.1.0'
+__VERSION__ = '17.1.1'
 # name of the main developer
 __AUTHOR__ = 'Denis Machard'
 # email of the main developer
@@ -46,9 +46,9 @@ __BEGIN__="2010"
 # year of the latest build
 __END__="2017"
 # date and time of the buid
-__BUILDTIME__="17/10/2017 21:58:18"
+__BUILDTIME__="23/10/2017 21:15:04"
 # Redirect stdout and stderr to log file only on production
-REDIRECT_STD=True
+REDIRECT_STD=False
 # disable warning from qt framework on production 
 QT_WARNING_MODE=False
 # workspace offline, for dev only
@@ -1658,12 +1658,7 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
         Create tray icon 
         """
         self.trayIconMenu = QMenu()
-        # self.trayIconMenu.addAction(self.captureRecorderAction)
-        # self.trayIconMenu.addSeparator()
         self.trayIconMenu.addAction(self.restoreAction)
-        # self.trayIconMenu.addSeparator()
-        # self.trayIconMenu.addAction(WServerExplorer.instance().connectAction)
-        # self.trayIconMenu.addAction(WServerExplorer.instance().disconnectAction)
         self.trayIconMenu.addSeparator()
         self.trayIconMenu.addAction(self.aboutAction)
         self.trayIconMenu.addSeparator()

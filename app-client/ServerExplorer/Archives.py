@@ -42,12 +42,12 @@ try:
                             QDialog, QFileDialog, QLabel, QPalette, QSizePolicy, QScrollArea, 
                             QPixmap, QImage, QTextEdit, QMessageBox, QHBoxLayout, QTabWidget, 
                             QStyle, QComboBox, QSplitter, QFrame, QMenu, QApplication,
-                            QGroupBox, QCheckBox)
+                            QGroupBox, QCheckBox, QTextDocument)
     from PyQt4.QtCore import (Qt, QSize, QFile, QIODevice, QTextStream, QByteArray)
     from PyQt4.QtWebKit import (QWebView, QWebSettings)
     from PyQt4.QtNetwork import (QNetworkProxy)
 except ImportError:
-    from PyQt5.QtGui import (QIcon, QFont, QBrush, QColor, QPalette, QPixmap, QImage)
+    from PyQt5.QtGui import (QIcon, QFont, QBrush, QColor, QPalette, QPixmap, QImage, QTextDocument)
     from PyQt5.QtWidgets import (QTreeWidgetItem, QTreeWidget, QTreeView, QWidget, QToolBar,
                                 QVBoxLayout, QDialog, QFileDialog, QLabel, 
                                 QSizePolicy, QScrollArea, QTextEdit, QMessageBox, QHBoxLayout, 
@@ -334,6 +334,8 @@ class PreviewReport(QWidget, Logger.ClassLogger):
         self.toTxt = toTxt
         self.toPdf = toPdf
 
+        self.fileName = None
+        
         self.createWidgets()
         self.createActions()
         self.createToolbars()
@@ -441,8 +443,27 @@ class PreviewReport(QWidget, Logger.ClassLogger):
         if dialog.exec_() != QDialog.Accepted:
             return
 
-        self.txtEdit.print_(printer)
+        if QtHelper.IS_QT5: # new in v18
+            self.fileName = printer
+            self.txtEdit.page().toHtml(self.__toPrinter)
+        else:
+            self.txtEdit.print_(printer)
 
+    def __toPrinter(self, html):
+        """
+        New in v18
+        Callback from QWebpage
+        """
+        textEdit = QTextEdit(self)
+        textEdit.setHtml(html)
+        textEdit.print(self.fileName)
+        textEdit.deleteLater()
+        
+        self.fileName = None
+
+        # notify user
+        self.parent.app().showMessageTray("Report printing...")
+            
     def saveTxt(self):
         """
         Save to txt file
@@ -451,22 +472,45 @@ class PreviewReport(QWidget, Logger.ClassLogger):
         
         # new in v17.1
         if QtHelper.IS_QT5:
-            _filename, _type = filename
+            _filename, _type = fileName
         else:
-            _filename = filename
+            _filename = fileName
         # end of new
         
         if _filename:
+
+            if QtHelper.IS_QT5: # new in v18
+                self.fileName = _filename
+                self.txtEdit.page().toPlainText(self.__toPlainText)
+            else:
+                frame = self.txtEdit.page().mainFrame()
+                txtReport = frame.toPlainText()
+
+                try:
+                    with codecs.open(_filename, "w", "utf-8") as f:
+                        f.write( txtReport )
+                except Exception as e:
+                    self.error('unable to save report file as txt: %s' % str(e) )
+
+    def __toPlainText(self, text):
+        """
+        New in v18
+        Callback from QWebpage
+        """
+        if self.fileName is None:
+            return
+            
+        try:
+            with codecs.open(self.fileName, "w", "utf-8") as f:
+                f.write( text )
+        except Exception as e:
+            self.error('unable to save report file as txt: %s' % str(e) )
+        else:
+            # notify user
+            self.parent.app().showMessageTray("Plain text report saved!")
         
-            frame = self.txtEdit.page().mainFrame()
-            txtReport = frame.toPlainText()
-
-            try:
-                with codecs.open(_filename, "w", "utf-8") as f:
-                    f.write( txtReport )
-            except Exception as e:
-                self.error('unable to save report file as txt: %s' % str(e) )
-
+        self.fileName = None
+        
     def saveHtml(self):
         """
         Save to html file
@@ -475,44 +519,90 @@ class PreviewReport(QWidget, Logger.ClassLogger):
         
         # new in v17.1
         if QtHelper.IS_QT5:
-            _filename, _type = filename
+            _filename, _type = fileName
         else:
-            _filename = filename
+            _filename = fileName
         # end of new
         
         if _filename:
+            if QtHelper.IS_QT5: # new in v18
+                self.fileName = _filename
+                self.txtEdit.page().toHtml(self.__toHtml)
+            else:
+                frame = self.txtEdit.page().mainFrame()
+                htmlReport = frame.toHtml()
+
+                try:
+                    with codecs.open(_filename, "w", "utf-8") as f:
+                        f.write( htmlReport  )
+                except Exception as e:
+                    self.error('unable to save report file as html: %s' % str(e) )
+
+    def __toHtml(self, html):
+        """
+        New in v18
+        Callback from QWebpage
+        """
+        if self.fileName is None:
+            return
+            
+        try:
+            with codecs.open(self.fileName, "w", "utf-8") as f:
+                f.write( html  )
+        except Exception as e:
+            self.error('unable to save report file as html: %s' % str(e) )
+        else:
+            # notify user
+            self.parent.app().showMessageTray("HTML report saved!")
+            
+        self.fileName = None
         
-            frame = self.txtEdit.page().mainFrame()
-            htmlReport = frame.toHtml()
-
-            try:
-                with codecs.open(_filename, "w", "utf-8") as f:
-                    f.write( htmlReport  )
-            except Exception as e:
-                self.error('unable to save report file as html: %s' % str(e) )
-
     def savePdf(self):
         """
         Save to pdf file
         """
-        filename = QFileDialog.getSaveFileName(self, 'Save to PDF', "", "PDF file (*.pdf);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, 'Save to PDF', "", "PDF file (*.pdf);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
-            _filename, _type = filename
+            _filename, _type = fileName
         else:
-            _filename = filename
+            _filename = fileName
         # end of new 
             
         if _filename:
-            printer = QPrinter(QPrinter.HighResolution)
-            printer.setPageSize(QPrinter.A4)
-            printer.setColorMode(QPrinter.Color)
-            printer.setOutputFormat(QPrinter.PdfFormat)
-            printer.setOutputFileName(_filename)
+        
+            if QtHelper.IS_QT5: # new in v18
+                self.fileName = _filename
+                self.txtEdit.page().printToPdf(self.__toPdf)            
+            else:
+                printer = QPrinter(QPrinter.HighResolution)
+                printer.setPageSize(QPrinter.A4)
+                printer.setColorMode(QPrinter.Color)
+                printer.setOutputFormat(QPrinter.PdfFormat)
+                printer.setOutputFileName(_filename)
 
-            self.txtEdit.print_(printer)
+                self.txtEdit.print_(printer)
+    
+    def __toPdf(self, pdf):
+        """
+        New in v18
+        Callback from QWebpage
+        """
+        if self.fileName is None:
+            return
             
+        try:
+            with codecs.open(self.fileName, "wb") as f:
+                f.write( pdf  )
+        except Exception as e:
+            self.error('unable to save report file as pdf: %s' % str(e) )
+        else:   
+            # notify user
+            self.parent.app().showMessageTray("PDF report saved!")
+            
+        self.fileName = None
+        
     def loadReports(self, content):
         """
         """
@@ -596,8 +686,15 @@ class PreviewImages(QWidget):
         graphPixmap = QPixmap.grabWidget(self.imageLabel)
         format = 'jpg'
         fileName = QFileDialog.getSaveFileName(self, self.tr("Save As"), "", "%s Files (*.%s);;All Files (*)" % (format.upper(), format))
-        if fileName:
-            graphPixmap.save(fileName, format)
+        # new in v18 to support qt5
+        if QtHelper.IS_QT5:
+            _fileName, _type = fileName
+        else:
+            _fileName = fileName
+        # end of new
+        
+        if _fileName:
+            graphPixmap.save(_fileName, format)
 
     def resetView(self):
         """
@@ -1113,9 +1210,9 @@ class PreviewVerdict(QWidget, Logger.ClassLogger):
         
         # new in v17.1
         if QtHelper.IS_QT5:
-            _filename, _type = filename
+            _filename, _type = fileName
         else:
-            _filename = filename
+            _filename = fileName
         # end of new
         
         if _filename:
@@ -1125,6 +1222,10 @@ class PreviewVerdict(QWidget, Logger.ClassLogger):
             except Exception as e:
                 self.error('unable to save design file as xml: %s' % str(e) )
 
+            else:
+                # notify user
+                self.parent.app().showMessageTray("XML verdict report saved")
+        
     def savePrinter(self):
         """
         Save to printer
@@ -1140,6 +1241,9 @@ class PreviewVerdict(QWidget, Logger.ClassLogger):
         doc.setPlainText( self.txtEdit.text() )
         doc.print_(printer)
 
+        # notify user
+        self.parent.app().showMessageTray("PDF verdict printing...")
+        
     def saveCsv(self):
         """
         Save to csv file
@@ -1148,9 +1252,9 @@ class PreviewVerdict(QWidget, Logger.ClassLogger):
         
         # new in v17.1
         if QtHelper.IS_QT5:
-            _filename, _type = filename
+            _filename, _type = fileName
         else:
-            _filename = filename
+            _filename = fileName
         # end of new
         
         if _filename:
@@ -1161,6 +1265,10 @@ class PreviewVerdict(QWidget, Logger.ClassLogger):
             except Exception as e:
                 self.error('unable to save report file as txt: %s' % str(e) )
 
+            else:
+                # notify user
+                self.parent.app().showMessageTray("CSV verdict report saved")
+        
     def saveTxt(self):
         """
         Save to txt file
@@ -1169,9 +1277,9 @@ class PreviewVerdict(QWidget, Logger.ClassLogger):
         
         # new in v17.1
         if QtHelper.IS_QT5:
-            _filename, _type = filename
+            _filename, _type = fileName
         else:
-            _filename = filename
+            _filename = fileName
         # end of new
         
         if _filename:
@@ -1182,17 +1290,21 @@ class PreviewVerdict(QWidget, Logger.ClassLogger):
             except Exception as e:
                 self.error('unable to save report file as txt: %s' % str(e) )
 
+            else:
+                # notify user
+                self.parent.app().showMessageTray("TXT verdict report saved")
+        
     def savePdf(self):
         """
         Save pdf file
         """
-        filename = QFileDialog.getSaveFileName(self, 'Save to PDF', "", "PDF file (*.pdf);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, 'Save to PDF', "", "PDF file (*.pdf);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
-            _filename, _type = filename
+            _filename, _type = fileName
         else:
-            _filename = filename
+            _filename = fileName
         # end of new
         
         if _filename:
@@ -1208,7 +1320,10 @@ class PreviewVerdict(QWidget, Logger.ClassLogger):
             else:
                 doc.setHtml( self.txtEdit.toHtml() )
             doc.print_(printer)
-    
+
+            # notify user
+            self.parent.app().showMessageTray("PDF verdict report saved")
+        
     def loadVerdicts(self, content):
         """
         """
@@ -1225,7 +1340,7 @@ class WArchives(QWidget, Logger.ClassLogger):
     """
     Widgets for archives
     """
-    def __init__(self, parent):
+    def __init__(self, parent, mainParent):
         """
         Constructs WArchives widget
 
@@ -1234,6 +1349,7 @@ class WArchives(QWidget, Logger.ClassLogger):
         """
         QWidget.__init__(self, parent)
         self.parent = parent
+        self.mainParent = mainParent
         self.name = self.tr("Tests Results")
         self.archivesItems = []
 
@@ -1249,7 +1365,13 @@ class WArchives(QWidget, Logger.ClassLogger):
         self.createActions()
         self.createToolbar()
         self.deactivate()
-
+        
+    def app(self):
+        """
+        accessor to the main application
+        """
+        return self.mainParent
+        
     def createConnections (self):
         """
         Widgets connections
@@ -1394,10 +1516,14 @@ class WArchives(QWidget, Logger.ClassLogger):
  
         self.tabComments = PreviewComments(self)
         self.tabImages = PreviewImages(self)
-        self.tabReports = PreviewReport(self, data='', toCsv=True, toHtml=True, toPrinter=True, toTxt=True, toPdf=True)
-        self.tabVerdicts = PreviewVerdict(self, data='', toCsv=True, toPrinter=True, toTxt=True, toPdf=True)
-        self.tabXmlVerdicts = PreviewVerdict(self, data='', toCsv=False, toXml=True, toPrinter=True, toTxt=False, toPdf=True)
-        self.tabBasicReports = PreviewReport(self, data='', toCsv=True, toHtml=True, toPrinter=True, toTxt=True, toPdf=True)
+        self.tabReports = PreviewReport(self, data='', toCsv=True, toHtml=True, 
+                                        toPrinter=True, toTxt=True, toPdf=True)
+        self.tabVerdicts = PreviewVerdict(self, data='', toCsv=True, 
+                                        toPrinter=True, toTxt=True, toPdf=True)
+        self.tabXmlVerdicts = PreviewVerdict(self, data='', toCsv=False, toXml=True, 
+                                        toPrinter=True, toTxt=False, toPdf=True)
+        self.tabBasicReports = PreviewReport(self, data='', toCsv=True, toHtml=True, 
+                                        toPrinter=True, toTxt=True, toPdf=True)
         
         self.previewTab = QTabWidget()
         self.previewTab.setMinimumWidth(700)
@@ -1672,7 +1798,8 @@ class WArchives(QWidget, Logger.ClassLogger):
         projectId = cur.archiveDescr['project']
         
         # call web services
-        UCI.instance().exportTestReport( testPath= '%s/%s' % (logDirName,logSubDirName), testFileName=logFileName, projectId=projectId )
+        UCI.instance().exportTestReport( testPath= '%s/%s' % (logDirName,logSubDirName), 
+                                            testFileName=logFileName, projectId=projectId )
 
     def exportTestDesign(self):
         """
@@ -1693,7 +1820,8 @@ class WArchives(QWidget, Logger.ClassLogger):
         projectId = cur.archiveDescr['project']
 
         # call web services
-        UCI.instance().exportTestDesign( testPath= '%s/%s' % (logDirName,logSubDirName), testFileName=logFileName, projectId=projectId )
+        UCI.instance().exportTestDesign( testPath= '%s/%s' % (logDirName,logSubDirName), 
+                                        testFileName=logFileName, projectId=projectId )
 
     def exportTestVerdict(self):
         """
@@ -1714,7 +1842,8 @@ class WArchives(QWidget, Logger.ClassLogger):
         projectId = cur.archiveDescr['project']
         
         # call web services
-        UCI.instance().exportTestVerdict( testPath= '%s/%s' % (logDirName,logSubDirName), testFileName=logFileName, projectId=projectId )
+        UCI.instance().exportTestVerdict( testPath= '%s/%s' % (logDirName,logSubDirName), 
+                                            testFileName=logFileName, projectId=projectId )
 
     def partialRefreshRepo(self):
         """
@@ -1724,7 +1853,8 @@ class WArchives(QWidget, Logger.ClassLogger):
         projectId = self.getProjectId(project="%s" % projectName)
         
         # web service call
-        UCI.instance().refreshRepo(repo=UCI.REPO_ARCHIVES, partialRefresh=True, project=projectId)
+        UCI.instance().refreshRepo(repo=UCI.REPO_ARCHIVES, partialRefresh=True, 
+                                    project=projectId)
 
     def fullRefreshRepo(self):
         """
@@ -1732,7 +1862,8 @@ class WArchives(QWidget, Logger.ClassLogger):
         """
         projectName = self.prjComboBox.currentText()
         projectId = self.getProjectId(project="%s" % projectName)
-        UCI.instance().refreshRepo(repo=UCI.REPO_ARCHIVES, partialRefresh=False, project=projectId, showPopup=False)
+        UCI.instance().refreshRepo(repo=UCI.REPO_ARCHIVES, partialRefresh=False, 
+                                    project=projectId, showPopup=False)
 
     def createRootItem(self):
         """
@@ -2028,7 +2159,8 @@ class WArchives(QWidget, Logger.ClassLogger):
         projectId =  cur.archiveDescr['project']
 
         # call web service
-        UCI.instance().downloadResultLogsV2(  '%s/%s' % (logDirName,logSubDirName), logFileName, projectId=projectId )
+        UCI.instance().downloadResultLogsV2(  '%s/%s' % (logDirName,logSubDirName), 
+                                                logFileName, projectId=projectId )
 
     def loadData( self, data, parent, fileincluded=True, subCall=False):
         """
@@ -2141,7 +2273,8 @@ class WArchives(QWidget, Logger.ClassLogger):
                     mainItemFound = itm
                     break
             if mainItemFound is None:
-                item = ArchiveItem(parent = self.backupsRoot, archiveDescr = data[0], icon = self.folderIcon, colored=True )
+                item = ArchiveItem(parent = self.backupsRoot, archiveDescr = data[0], 
+                                    icon = self.folderIcon, colored=True )
                 self.archivesItems.append(item) 
                 mainItemFound = item
             else:
@@ -2150,16 +2283,14 @@ class WArchives(QWidget, Logger.ClassLogger):
             # search sub dir
             subItemFound = None
             for itm in self.archivesItems:
-                # print( "search=%s" % subDir)
-                # print( "current=%s" % itm.archiveDescr["name"] )
                 if itm.archiveDescr["name"] == subDir and itm.typeItem == 1:
-                    # print( subDir )
                     if itm.parent == mainItemFound:
                         subItemFound = itm
                         break
 
             if subItemFound is None:
-                item = ArchiveItem(parent = mainItemFound, archiveDescr = data[0]['content'][0], icon = self.folderIcon, colored=True )
+                item = ArchiveItem(parent = mainItemFound, archiveDescr = data[0]['content'][0], 
+                                    icon = self.folderIcon, colored=True )
                 self.archivesItems.append(item) 
                 subItemFound = item 
             else:
@@ -2304,7 +2435,8 @@ class WArchives(QWidget, Logger.ClassLogger):
         self.tabComments.active(item=self.itemCurrent)
 
         # call web service
-        UCI.instance().getTestPreview(  '%s/%s' % (logDirName,logSubDirName), logFileName, projectId=projectId )
+        UCI.instance().getTestPreview(  '%s/%s' % (logDirName,logSubDirName), 
+                                        logFileName, projectId=projectId )
          
     def loadImagePreview(self):
         """
@@ -2330,7 +2462,8 @@ class WArchives(QWidget, Logger.ClassLogger):
             projectId =  cur.archiveDescr['project']
 
             # call web service
-            UCI.instance().getImagePreview(  '%s/%s' % (logDirName,logSubDirName), logFileName, projectId=projectId )
+            UCI.instance().getImagePreview(  '%s/%s' % (logDirName,logSubDirName), 
+                                            logFileName, projectId=projectId )
         else:
             self.resetPreview()
             
@@ -2429,12 +2562,12 @@ def instance ():
     """
     return AR
 
-def initialize (parent):
+def initialize (parent, mainParent):
     """
     Initialize WArchives widget
     """
     global AR
-    AR = WArchives(parent)
+    AR = WArchives(parent, mainParent)
 
 def finalize ():
     """

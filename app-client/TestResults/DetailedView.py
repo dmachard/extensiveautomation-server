@@ -686,8 +686,15 @@ class ImageView(QWidget):
         graphPixmap = QPixmap.grabWidget(self.imageLabel)
         format = 'png'
         fileName = QFileDialog.getSaveFileName(self, self.tr("Save As"), "", "%s Files (*.%s);;All Files (*)" % (format.upper(), format))
-        if fileName:
-            graphPixmap.save(fileName, format)
+        # new in v18 to support qt5
+        if QtHelper.IS_QT5:
+            _fileName, _type = fileName
+        else:
+            _fileName = fileName
+        # end of new
+        
+        if _fileName:
+            graphPixmap.save(_fileName, format)
 
     def resetView(self):
         """

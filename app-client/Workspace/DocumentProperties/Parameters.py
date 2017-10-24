@@ -3665,17 +3665,24 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
         Import external file from local disk
         """
         fileName = QFileDialog.getOpenFileName(self, self.tr("Import file"), "", "Files (*.*)" )
-        if not len(fileName):
+        # new in v18 to support qt5
+        if QtHelper.IS_QT5:
+            _fileName, _type = fileName
+        else:
+            _fileName = fileName
+        # end of new
+        
+        if not len(_fileName):
             return None
 
-        fileAny = QFile(fileName)
+        fileAny = QFile(_fileName)
         if not fileAny.open(QIODevice.ReadOnly):
             QMessageBox.warning(self, self.tr("Open local file failed"), self.tr("unable to read content") )
             return None
         else:
             fileData= fileAny.readAll()
 
-        baseName = os.path.basename(fileName)
+        baseName = os.path.basename(_fileName)
         lenFile = len(fileData)
         
         if sys.version_info > (3,): # python 3 support
@@ -3688,19 +3695,26 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
         Import external image from local disk
         """
         fileName = QFileDialog.getOpenFileName(self, self.tr("Import image"), "", "Images (*.%s)" % Workspace.Repositories.LocalRepository.EXTENSION_PNG )
-        if not len(fileName):
+        # new in v18 to support qt5
+        if QtHelper.IS_QT5:
+            _fileName, _type = fileName
+        else:
+            _fileName = fileName
+        # end of new
+        
+        if not len(_fileName):
             return None
         
-        if not ( str(fileName).endswith( Workspace.Repositories.LocalRepository.EXTENSION_PNG ) ):
+        if not ( str(_fileName).endswith( Workspace.Repositories.LocalRepository.EXTENSION_PNG ) ):
             QMessageBox.warning(self, self.tr("Open local image failed") , self.tr("Image file not supported") )
             return None
 
-        image = QImage(fileName)
+        image = QImage(_fileName)
         if image.isNull():
             QMessageBox.warning(self, self.tr("Open local image failed") , self.tr("Image file not supported, unable to read") )
             return None
 
-        fileImage = QFile(fileName)
+        fileImage = QFile(_fileName)
         if not fileImage.open(QIODevice.ReadOnly):
             QMessageBox.warning(self, self.tr("Open local image failed"), self.tr("Image file not supported, unable to read content") )
             return None
@@ -3784,14 +3798,21 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
         Load from anywhere
         """
         fileName = QFileDialog.getOpenFileName(self, self.tr("Import dataset"), "", "Tdx Data Files (*.%s)" % Workspace.Repositories.LocalRepository.EXTENSION_TDX )
-        if not len(fileName):
+        # new in v18 to support qt5
+        if QtHelper.IS_QT5:
+            _fileName, _type = fileName
+        else:
+            _fileName = fileName
+        # end of new
+        
+        if not len(_fileName):
             return None
         
-        if not ( str(fileName).endswith( Workspace.Repositories.LocalRepository.EXTENSION_TDX ) ):
+        if not ( str(_fileName).endswith( Workspace.Repositories.LocalRepository.EXTENSION_TDX ) ):
             QMessageBox.critical(self, self.tr("Open Failed") , self.tr("File not supported") )
             return None
 
-        return "undefined:/%s" %  fileName
+        return "undefined:/%s" %  _fileName
 
     def loadFromRemote(self):
         """
@@ -3822,14 +3843,20 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
         Load image from anywhere
         """
         fileName = QFileDialog.getOpenFileName(self, self.tr("Import image"), "", "Images (*.%s)" % Workspace.Repositories.LocalRepository.EXTENSION_PNG )
-        if not len(fileName):
+        # new in v18 to support qt5
+        if QtHelper.IS_QT5:
+            _fileName, _type = fileName
+        else:
+            _fileName = fileName
+        # end of new
+        if not len(_fileName):
             return None
         
-        if not ( str(fileName).endswith( Workspace.Repositories.LocalRepository.EXTENSION_PNG ) ):
+        if not ( str(_fileName).endswith( Workspace.Repositories.LocalRepository.EXTENSION_PNG ) ):
             QMessageBox.critical(self, self.tr("Open Failed") , self.tr("Image file not supported") )
             return None
 
-        return "undefined:/%s" %  fileName
+        return "undefined:/%s" %  _fileName
 
     def loadImageFromRemote(self):
         """

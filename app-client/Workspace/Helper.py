@@ -46,14 +46,14 @@ try:
     from PyQt4.QtGui import (QTreeWidgetItem, QTreeWidget, QDrag, QTreeView, QWidget, QLabel, QFont, 
                             QTextEdit, QVBoxLayout, QLineEdit, QComboBox, QPushButton, QGridLayout, 
                             QHBoxLayout, QCheckBox, QFileDialog, QMessageBox, QToolBar, QTabWidget, 
-                            QIcon, QSplitter, QMenu, QDialog)
+                            QIcon, QSplitter, QMenu, QDialog, QFrame)
     from PyQt4.QtCore import (QMimeData, Qt, pyqtSignal, QSize, QFile, QIODevice, QByteArray)
 except ImportError:
     from PyQt5.QtGui import (QDrag, QFont, QIcon)
     from PyQt5.QtWidgets import (QTreeWidgetItem, QTreeWidget, QTreeView, QWidget, QLabel, 
                                 QTextEdit, QVBoxLayout, QLineEdit, QComboBox, QPushButton, 
                                 QGridLayout, QHBoxLayout, QCheckBox, QFileDialog, QMessageBox, 
-                                QToolBar, QTabWidget, QSplitter, QMenu, QDialog)
+                                QToolBar, QTabWidget, QSplitter, QMenu, QDialog, QFrame)
     from PyQt5.QtCore import (QMimeData, Qt, pyqtSignal, QSize, QFile, QIODevice, QByteArray)
     
 import Settings
@@ -805,10 +805,10 @@ class WHelper(QWidget, Logger.ClassLogger):
         self.masterTab.addTab(self.areaTab, QIcon(":/main.png"), "Test Library")
         self.masterTab.addTab(self.extsTab, QIcon(":/adapters.png"), "SUT Extensions")
         
-        self.labelHelp = QLabel(self.tr("Drag and drop object or method in your test to add-it"))
-        font = QFont()
-        font.setItalic(True)
-        self.labelHelp.setFont(font)
+        # self.labelHelp = QLabel(self.tr("Drag and drop object or method in your test to add-it"))
+        # font = QFont()
+        # font.setItalic(True)
+        # self.labelHelp.setFont(font)
 
         self.setMinimumWidth( 300 )
         
@@ -818,13 +818,23 @@ class WHelper(QWidget, Logger.ClassLogger):
         self.hSplitter = QSplitter(self)
         self.hSplitter.setOrientation(Qt.Vertical)
 
-        self.hSplitter.addWidget( self.masterTab )
+        frame = QFrame()
+        layoutFrame = QVBoxLayout()
+        layoutFrame.setContentsMargins(0,0,0,0)
+        layoutFrame.addWidget(self.masterTab)
+        layoutFrame.addWidget(self.dockToolbar)
+        frame.setLayout(layoutFrame)
+        
+        
+        # self.hSplitter.addLayout( subLayout )
+        self.hSplitter.addWidget( frame )
+        # self.hSplitter.addWidget(self.dockToolbar)
         self.hSplitter.addWidget( self.textEdit )
         self.hSplitter.setContentsMargins(0,0,0,0)
         
         layout = QVBoxLayout()
-        layout.addWidget(self.dockToolbar)
-        layout.addWidget(self.labelHelp)
+        # layout.addWidget(self.dockToolbar)
+        # layout.addWidget(self.labelHelp)
         layout.addWidget(self.hSplitter)
         
         layout.setContentsMargins(0,0,0,0)
@@ -887,7 +897,7 @@ class WHelper(QWidget, Logger.ClassLogger):
         """
         self.masterTab.setEnabled(False)
         
-        self.labelHelp.setEnabled(False)
+        # self.labelHelp.setEnabled(False)
         self.reloadAllAction.setEnabled(False)
         self.rebuildCacheAction.setEnabled(False)
         self.expandSubtreeAction.setEnabled(False)
@@ -1083,7 +1093,7 @@ class WHelper(QWidget, Logger.ClassLogger):
         """
         Set not connected
         """
-        self.labelHelp.setEnabled(False)
+        # self.labelHelp.setEnabled(False)
         self.textEdit.setSytleSheetTextEdit()
         self.setDefaultActionsValues()
 
@@ -1096,12 +1106,12 @@ class WHelper(QWidget, Logger.ClassLogger):
         """
         self.masterTab.setEnabled(True)
         
-        if hideLabel:
-            self.labelHelp.setEnabled(False)
-            self.labelHelp.hide()
-        else:
-            self.labelHelp.setEnabled(True)
-            self.labelHelp.show()
+        # if hideLabel:
+            # self.labelHelp.setEnabled(False)
+            # self.labelHelp.hide()
+        # else:
+            # self.labelHelp.setEnabled(True)
+            # self.labelHelp.show()
         
         self.reloadAllAction.setEnabled(True)
         if UCI.RIGHTS_ADMIN in UCI.instance().userRights or  UCI.RIGHTS_DEVELOPER in UCI.instance().userRights :

@@ -40,9 +40,6 @@ import sys
 # unicode = str with python3
 if sys.version_info > (3,):
     unicode = str
-    
-# FONT_NAME="courier"
-# FONT_SIZE=8
 
 class KeyItem(QTreeWidgetItem):
     """
@@ -67,18 +64,14 @@ class KeyItem(QTreeWidgetItem):
         """
         font = QFont()
         if type == 2:
-            # font = QFont(FONT_NAME, FONT_SIZE)
             font.setItalic(True)
             self.setFont( 0, font)
         elif type == 0 and self.siz > 0:
-            # self.setTextColor(0, QColor(Qt.darkBlue) )
             self.setForeground(0, QColor(Qt.darkBlue) )
             self.setIcon(0, QIcon(":/dot.png") )
-            # font = QFont(FONT_NAME, FONT_SIZE)
             font.setBold(True)
             self.setFont( 0, font)          
         else:
-            # font = QFont(FONT_NAME, FONT_SIZE)
             self.setFont( 0, font) 
 
 class ReleaseNotesDialog(QDialog):

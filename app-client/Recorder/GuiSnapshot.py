@@ -77,7 +77,8 @@ class DSnapshot(QDialog):
 
         # create rubberband
         self.rb = QRubberBand(QRubberBand.Rectangle)
-
+        self.rb.setWindowOpacity(0.4) # new in v18, to support pyqt5 properly
+        
         self.snapshotResult = None
         
         layout = QVBoxLayout()

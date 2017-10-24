@@ -1077,9 +1077,9 @@ class WServerExplorer(QWidget, Logger.ClassLogger):
         self.wWebService.StartWorkingChannel.connect(self.OnChannelStartWorking)
         self.wWebService.StopWorking.connect(self.OnWsStopWorking)
         self.wWebService.InProgress.connect(self.onNetworkProgress)
+        
         # rest
         self.RestService.StartWorking.connect(self.OnRestStartWorking)
-        # self.RestService.StartWorkingChannel.connect(self.OnChannelStartWorking)
         self.RestService.StopWorking.connect(self.OnRestStopWorking)
         self.RestService.InProgress.connect(self.onRestNetworkProgress)
         
@@ -1168,7 +1168,7 @@ class WServerExplorer(QWidget, Logger.ClassLogger):
         TestManager.initialize( parent = self.serverTab )
         Probes.initialize( parent = self.serverTab )
         Agents.initialize( parent = self.serverTab )
-        Archives.initialize( parent = self.serverTab )
+        Archives.initialize( parent = self.serverTab, mainParent=self.parent )
         ReleaseNotes.initialize( parent = self.serverTab )
         Repositories.initialize( parent = self.serverTab )
         Counters.initialize( parent = self.serverTab )

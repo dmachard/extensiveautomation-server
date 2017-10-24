@@ -262,22 +262,28 @@ class DUdpReplay(QtHelper.EnhancedQDialog, Logger.ClassLogger):
             fileName = QFileDialog.getOpenFileName(self,  self.tr("Open File"), "", "Network dump (*.cap;*.pcap;*.pcapng)")
         else:
             fileName = QFileDialog.getOpenFileName(self,  self.tr("Open File"), "", "Network dump (*.cap)")
-        if not fileName:
-        #if fileName.isEmpty():
+        # new in v18 to support qt5
+        if QtHelper.IS_QT5:
+            _fileName, _type = fileName
+        else:
+            _fileName = fileName
+        # end of new
+        
+        if not _fileName:
             return
 
         if sys.version_info < (3,):
-            extension = str(fileName).rsplit(".", 1)[1]
+            extension = str(_fileName).rsplit(".", 1)[1]
             if not ( extension == "cap" ):
-                self.addLogError(txt="<< File not supported %s" % fileName)
+                self.addLogError(txt="<< File not supported %s" % _fileName)
                 QMessageBox.critical(self, "Open" , "File not supported")
                 return
 
-        fileName = str(fileName)
-        capName = fileName.rsplit("/", 1)[1]
+        _fileName = str(_fileName)
+        capName = _fileName.rsplit("/", 1)[1]
 
-        self.addLogSuccess(txt=">> Reading the file %s" % fileName)
-        self.readFileV2(fileName=fileName)
+        self.addLogSuccess(txt=">> Reading the file %s" % _fileName)
+        self.readFileV2(fileName=_fileName)
 
     def exportToTS(self):
         """

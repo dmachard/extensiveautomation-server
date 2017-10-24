@@ -529,17 +529,24 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
         """
         if pathFilename is None:
             fileName = QFileDialog.getOpenFileName(self, self.tr("Import File"), "", "Tcx Config Files (*.%s)" % self.rRepo.EXTENSION_TCX )
-            if fileName.isEmpty():
+            # new in v18 to support qt5
+            if QtHelper.IS_QT5:
+                _fileName, _type = fileName
+            else:
+                _fileName = fileName
+            # end of new
+            
+            if _fileName.isEmpty():
                 return
 
-            if not ( str(fileName).endswith( self.rRepo.EXTENSION_TCX ) ):
+            if not ( str(_fileName).endswith( self.rRepo.EXTENSION_TCX ) ):
                 QMessageBox.critical(self, "Open Failed" , "File not supported")
                 return
         else:
-            fileName=pathFilename
+            _fileName=pathFilename
         
         config = FileModelTestConfig.DataModel()
-        res = config.load( absPath = fileName )
+        res = config.load( absPath = _fileName )
         if not res:
             QMessageBox.critical(self, "Open Failed" , "Corrupted file")
             return  

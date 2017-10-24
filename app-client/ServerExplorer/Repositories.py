@@ -701,10 +701,16 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         backupFileName = self.itemBackupCurrent.itemData # archive name
         extension = self.tr("All Files (*.*)")
         destfileName = QFileDialog.getSaveFileName(self, self.tr("Export backup"), backupFileName, extension )
+        # new in v18 to support qt5
+        if QtHelper.IS_QT5:
+            _fileName, _type = destfileName
+        else:
+            _fileName = destfileName
+        # end of new
         
-        if destfileName:
+        if _fileName:
             UCI.instance().downloadBackupV2( fromRepo=UCI.REPO_ARCHIVES, backupFileName=backupFileName, 
-                                                destFileName="%s" % destfileName )
+                                                destFileName="%s" % _fileName )
             
     def deleteAllBackupsArchives(self):
         """
@@ -895,10 +901,16 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         extension = self.tr("All Files (*.*)")
     
         destfileName = QFileDialog.getSaveFileName(self, self.tr("Export backup"), backupFileName, extension )
+        # new in v18 to support qt5
+        if QtHelper.IS_QT5:
+            _fileName, _type = destfileName
+        else:
+            _fileName = destfileName
+        # end of new
         
-        if destfileName:
+        if _fileName:
             UCI.instance().downloadBackupV2( fromRepo=UCI.REPO_TESTS, backupFileName=backupFileName, 
-                                                destFileName="%s" % destfileName )
+                                                destFileName="%s" % _fileName )
 
     def exportBackupAdapter(self):
         """
@@ -912,10 +924,16 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         extension = self.tr("All Files (*.*)")
     
         destfileName = QFileDialog.getSaveFileName(self, self.tr("Export backup"), backupFileName, extension )
+        # new in v18 to support qt5
+        if QtHelper.IS_QT5:
+            _fileName, _type = destfileName
+        else:
+            _fileName = destfileName
+        # end of new
         
-        if destfileName:
+        if _fileName:
             UCI.instance().downloadBackupV2( fromRepo=UCI.REPO_ADAPTERS, backupFileName=backupFileName,
-                                                destFileName="%s" % destfileName )
+                                                destFileName="%s" % _fileName )
 
     def exportBackupLibrary(self):
         """
@@ -929,10 +947,16 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         extension = self.tr("All Files (*.*)")
     
         destfileName = QFileDialog.getSaveFileName(self, self.tr("Export backup"), backupFileName, extension )
+        # new in v18 to support qt5
+        if QtHelper.IS_QT5:
+            _fileName, _type = destfileName
+        else:
+            _fileName = destfileName
+        # end of new
         
-        if destfileName:
+        if _fileName:
             UCI.instance().downloadBackupV2( fromRepo=UCI.REPO_LIBRARIES, backupFileName=backupFileName, 
-                                            destFileName="%s" % destfileName )
+                                            destFileName="%s" % _fileName )
 
     def deleteAllBackupsTests(self):
         """
