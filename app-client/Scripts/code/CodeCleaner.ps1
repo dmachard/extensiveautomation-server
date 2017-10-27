@@ -22,17 +22,19 @@ MA 02110-1301 USA
 
 Write-Host "Cleanup sources..."
 
-Remove-Item -Recurse -Force ./../__build__/
-Remove-Item -Recurse -Force ./../__pycache__/
+Remove-Item -Recurse -Force ./../../__build__/
+Remove-Item -Recurse -Force ./../../__pycache__/
+Remove-Item -Recurse -Force ./../../build/
+Remove-Item -Recurse -Force ./../../dist/
 
-Remove-Item -Force ./../Files/recent.dat 
+Remove-Item -Force ./../../Files/recent.dat 
 
-Remove-Item -Force ./../Logs/*.* 
-Remove-Item -Force ./../ResultLogs/*.* 
-Remove-Item -Force ./../Tmp/*.* 
-Remove-Item -Force ./../Update/*.* 
+Remove-Item -Force ./../../Logs/*.* 
+Remove-Item -Force ./../../ResultLogs/*.* 
+Remove-Item -Force ./../../Tmp/*.* 
+Remove-Item -Force ./../../Update/*.* 
 
-Get-ChildItem -Path ./../Plugins/  -Recurse | Remove-Item -Force -Recurse
+Get-ChildItem -Path ./../../Plugins/  -Recurse | Remove-Item -Force -Recurse
 
 Write-Host "Press any key to continue ..."
 $x = $host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")

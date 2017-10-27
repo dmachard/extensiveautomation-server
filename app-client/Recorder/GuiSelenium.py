@@ -21,6 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Selenium assistant module
+"""
+
 import sys
 
 # unicode = str with python3
@@ -40,7 +44,6 @@ try:
                             QCheckBox, QSplitter, QMessageBox, QDesktopWidget, QValidator, QPushButton)
     from PyQt4.QtCore import (QFile, QIODevice, QTextStream, Qt, QSize, QUrl, QByteArray, QBuffer,
                                 pyqtSignal)
-    # from PyQt4.QtWebKit import (QWebView, QWebSettings, QWebPage)
 except ImportError:
     from PyQt5.QtGui import (QKeySequence, QPixmap, QCursor, QIcon, QDoubleValidator,
                                 QIntValidator, QValidator, QFont)
@@ -50,25 +53,15 @@ except ImportError:
                                 QCheckBox, QSplitter, QMessageBox, QPushButton, QDesktopWidget)
     from PyQt5.QtCore import (QFile, QIODevice, QTextStream, Qt, QSize, QUrl, QByteArray, QBuffer,
                                 pyqtSignal)
-    # from PyQt5.QtWebEngineWidgets import QWebEngineView as QWebView
-    # from PyQt5.QtWebEngineWidgets import QWebEngineSettings as QWebSettings
-    # from PyQt5.QtWebEngineWidgets import QWebEnginePage as QWebPage
 
 from Libs import QtHelper, Logger
 import Settings
 
 try:
     import GuiSteps
-    # import GuiWebBrowser
 except ImportError: # python3 support
     from . import GuiSteps
-    # from . import GuiWebBrowser
 
-# try:
-    # from html.parser import HTMLParser
-# except ImportError: # python2 support
-    # from HTMLParser import HTMLParser
-    
 import copy
 
 KEYS_BROWSER = [
@@ -158,17 +151,21 @@ LIST_TYPES = ["TEXT", "CACHE", "ALIAS"]
 
 class ValidatorUpper(QValidator):
     """
+    Validator upper
     """
     def validate(self, string, pos):
         """
+        validate
         """
         return QValidator.Acceptable, string.upper(), pos
         
 class ValidatorAll(QValidator):
     """
+    Validator all
     """
     def validate(self, string, pos):
         """
+        validate
         """
         return QValidator.Acceptable, string, pos
         
@@ -247,6 +244,7 @@ class OptionsDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
   
 class WSelenium(QWidget, Logger.ClassLogger):
     """
+    Selenium widget
     """
     # action, description, text, misc, textmore, cache, alias
     AddStep = pyqtSignal(str, str, str, str, str, dict)
@@ -254,6 +252,7 @@ class WSelenium(QWidget, Logger.ClassLogger):
     CancelEdit = pyqtSignal()
     def __init__(self, parent):
         """
+        Contructor
         """
         QWidget.__init__(self)
 
@@ -271,6 +270,7 @@ class WSelenium(QWidget, Logger.ClassLogger):
         
     def createActions(self):
         """
+        Create qt actions
         """
         self.addBrowserAction = QPushButton(QIcon(":/add_black.png"), '&Add Action', self)
         self.addBrowserAction.setMinimumHeight(40)
@@ -279,13 +279,13 @@ class WSelenium(QWidget, Logger.ClassLogger):
         self.cancelBrowserAction = QtHelper.createAction(self, "&Cancel", self.cancelStep, 
                                             icon=None, tip = 'Cancel update')
         self.cancelBrowserAction.setEnabled(False)
-        # self.openBrowserAction = QPushButton(QIcon(":/web-browser.png"), '&Open Browser', self)
-        
+
         self.optionsAction = QtHelper.createAction(self, "&", self.openOptions, 
                                             icon=QIcon(":/recorder-web-small.png"), tip = 'Browser options')
         
     def createWidgets(self):
         """
+        Create widgets
         """
         self.optionsDialog  = OptionsDialog(self)
         
@@ -293,9 +293,6 @@ class WSelenium(QWidget, Logger.ClassLogger):
         self.validatorAll = ValidatorAll(self)
         self.validatorInt = QIntValidator(self)
 
-        # self.webBrowser = GuiWebBrowser.WBrowserWeb(parent=self)
-        # self.webBrowser.hide()
-        
         self.actionsBrComboBox = QComboBox(self)
         self.actionsBrComboBox.setMinimumHeight(40)
         for i in xrange(len(GuiSteps.ACTION_BROWSER_DESCR)):
@@ -378,12 +375,14 @@ class WSelenium(QWidget, Logger.ClassLogger):
       
     def openOptions(self):
         """
+        Open options
         """
         if self.optionsDialog.exec_() == QDialog.Accepted:
             pass
 
     def createWidgetOpenBrowser(self):
         """
+        Create open browser widget
         """
         self.openBrGroup = QGroupBox()
         openBrLayout = QGridLayout()
@@ -409,8 +408,7 @@ class WSelenium(QWidget, Logger.ClassLogger):
         
         openBrLayout.addWidget(QLabel( self.tr("Browser") ), 1, 0)
         openBrLayout.addWidget(self.browserComboBox, 1, 1)
-        # openBrLayout.addWidget(self.openBrowserAction, 1, 2)
-        
+
         openBrLayout.addWidget(QLabel( self.tr("Session name") ), 2, 0)
         openBrLayout.addWidget(self.sessionNameLine, 2, 2)
         
@@ -418,6 +416,7 @@ class WSelenium(QWidget, Logger.ClassLogger):
 
     def createWidgetTextToGlobal(self):
         """
+        Create text widget
         """
         self.valueTextCacheGlobalBrowserLine = QLineEdit(self)
         self.valueTextCacheGlobalBrowserLine.setMinimumWidth(400)
@@ -434,6 +433,7 @@ class WSelenium(QWidget, Logger.ClassLogger):
         
     def createWidgetBrowserBy(self):
         """
+        Create browser by widget
         """
         self.brByGroup = QGroupBox()
         brByLayout = QGridLayout()
@@ -484,6 +484,7 @@ class WSelenium(QWidget, Logger.ClassLogger):
 
     def createWidgetTextTo(self):
         """
+        Create text widget
         """
         self.valueTextCacheBrowserLine = QLineEdit(self)
         self.valueTextCacheBrowserLine.setMinimumWidth(250)
@@ -502,6 +503,7 @@ class WSelenium(QWidget, Logger.ClassLogger):
 
     def createWidgetGetText(self):
         """
+        Create text widget
         """
 
         self.valueTextBrowserLine = QLineEdit(self)
@@ -522,25 +524,26 @@ class WSelenium(QWidget, Logger.ClassLogger):
     
     def createToolbar(self):
         """
+        Create toolbar
         """
         pass
 
     def createConnections(self):
         """
+        Create connections
         """
         self.actionsBrComboBox.currentIndexChanged.connect(self.onActionBrowserChanged)
         self.browserByComboBox.currentIndexChanged.connect(self.onByBrowserChanged)
-        # self.webBrowser.TagsHtml.connect(self.onUpdateTagsHtml)
 
         self.addBrowserAction.clicked.connect(self.addStep)
-        # self.openBrowserAction.clicked.connect(self.openWebBrowser)
-        
+
         self.valueTextOpenCombo.currentIndexChanged.connect(self.onValueTextOpenTypeChanged)
         self.valueTextBrowserCombo.currentIndexChanged.connect(self.onValueTextBrowserTypeChanged)
         self.valueBrowserByCombo.currentIndexChanged.connect(self.onValueBrowserByChanged)
         
     def onValueTextBrowserTypeChanged(self):
         """
+        On vaue browser changed
         """
         if self.valueTextBrowserCombo.currentText() in [ "TEXT", "CACHE" ]:
             self.valueTextBrowserLine.setValidator(self.validatorAll)
@@ -551,6 +554,7 @@ class WSelenium(QWidget, Logger.ClassLogger):
             
     def onValueTextOpenTypeChanged(self):
         """
+        On value changed
         """
         if self.valueTextOpenCombo.currentText() in [ "TEXT", "CACHE" ]:
             self.valueTextOpenBrowserLine.setValidator(self.validatorAll)
@@ -561,6 +565,7 @@ class WSelenium(QWidget, Logger.ClassLogger):
             
     def onValueBrowserByChanged(self):
         """
+        On value changed
         """
         if self.valueBrowserByCombo.currentText() in [ "TEXT", "CACHE" ]:
             self.valueBrowserLine.setValidator(self.validatorAll)
@@ -571,11 +576,13 @@ class WSelenium(QWidget, Logger.ClassLogger):
             
     def pluginDataAccessor(self):
         """
+        return data for plugin
         """
         return { "data": "" } 
 
     def onPluginImport(self, dataJson):
         """
+        Received data from plugin
         """
         if "steps" not in dataJson:
             QMessageBox.warning(self, "Assistant Automation" , "bad import")
@@ -613,6 +620,7 @@ class WSelenium(QWidget, Logger.ClassLogger):
  
     def checkActionName(self, actionName):
         """
+        Check the name of action
         """
         found = False
         for act in GuiSteps.ACTION_BROWSER_DESCR:
@@ -622,6 +630,7 @@ class WSelenium(QWidget, Logger.ClassLogger):
 
     def findSearchBy(self, actionParams):
         """
+        Find search by
         """
         searchBy = BROWSER_BY_ID
         seachValue = ''
@@ -647,6 +656,7 @@ class WSelenium(QWidget, Logger.ClassLogger):
 
     def onActionBrowserChanged(self):
         """
+        On action changed
         """
         descr = 'No description available!'
         i = 0
@@ -801,6 +811,7 @@ class WSelenium(QWidget, Logger.ClassLogger):
             
     def onUpdateTagsHtml(self, tagList, idList, classList, nameList, linkList, cssList):
         """
+        On update tags html
         """
         self.tagList = tagList
         self.idList = idList
@@ -812,6 +823,7 @@ class WSelenium(QWidget, Logger.ClassLogger):
         
     def onByBrowserChanged(self, index):
         """
+        On browser changed
         """
         # save current text before to clear
         current = self.valueBrowserLine.currentText()
@@ -843,6 +855,7 @@ class WSelenium(QWidget, Logger.ClassLogger):
         
     def addStep(self):
         """
+        Add step
         """
         action = self.actionsBrComboBox.currentText()
         descr = self.descriptionBrLine.text()
@@ -919,8 +932,6 @@ class WSelenium(QWidget, Logger.ClassLogger):
                 toCache = True
                 textMoreStr = self.valueTextCacheBrowserLine.text()
 
-                #signal.emit(str(action), unicode(descr), unicode(searchValue), unicode(searchBy), textMoreStr, toCache, False )
-                    
                 parameters =    { 
                                     "from-el-cache": fromCache, "from-el-alias": fromAlias,
                                     "from-cache": False, "from-alias": False,
@@ -1052,6 +1063,7 @@ class WSelenium(QWidget, Logger.ClassLogger):
             
     def cancelStep(self):
         """
+        Cancel step
         """
         self.addBrowserAction.setText( "&Add" )
         buttonFont = QFont()
@@ -1064,6 +1076,7 @@ class WSelenium(QWidget, Logger.ClassLogger):
     
     def finalizeUpdate(self):
         """
+        Finalise step update
         """
         self.addBrowserAction.setText( "&Add Action"  )
         
@@ -1071,39 +1084,34 @@ class WSelenium(QWidget, Logger.ClassLogger):
         buttonFont.setBold(False)
         self.addBrowserAction.setFont(buttonFont)
         self.cancelBrowserAction.setEnabled(False)
-        
-    # def openWebBrowser(self):
-        # """
-        # """
-        # self.webBrowser.show()
-        
-    # def stopWebBrowser(self):
-        # """
-        # """
-        # self.webBrowser.stop()
-        
+
     def setTimeout(self, timeout):
         """
+        Set the timeout
         """
         self.optionsDialog.timeoutBrLine.setText(timeout)
         
     def getTimeout(self):
         """
+        Return the timeout
         """
         return self.optionsDialog.timeoutBrLine.text()
         
     def getAgentName(self):
         """
+        Return the agent name
         """
         return self.optionsDialog.agentBrNameLine.text()
         
     def getAgentList(self):
         """
+        Return the list of agent
         """
         return self.optionsDialog.agentsBrList
      
     def editStep(self, stepData):
         """
+        Edit a step
         """
         # change button text           
         self.addBrowserAction.setText( "&Update" )
@@ -1231,17 +1239,11 @@ class WSelenium(QWidget, Logger.ClassLogger):
                 if unicode(stepData["misc"]) == unicode(item_text):
                     self.browserByComboBox.setCurrentIndex(i)
                     break
-            
-            # if "from-alias" not in stepData: # for backward compatibility
-                # stepData["from-alias"] = False 
-                
-
-                
+ 
         if self.actionsBrComboBox.currentText() in [ GuiSteps.BROWSER_FIND_TEXT_TITLE, GuiSteps.BROWSER_FIND_TEXT_GET_URL,
                                                      GuiSteps.BROWSER_FIND_TEXT_GET_SOURCE, GuiSteps.BROWSER_SWITCH_TO_WINDOW,
                                                      GuiSteps.BROWSER_SWITCH_TO_SESSION ]:   
-            # self.valueBrTextLine.setText( stepData["text"] )
-                
+
             if stepData["parameters"]["from-cache"]:
                 self.valueTextBrowserCombo.setCurrentIndex(INDEX_CACHE)
                 self.valueTextBrowserLine.setValidator(self.validatorAll)
@@ -1258,11 +1260,7 @@ class WSelenium(QWidget, Logger.ClassLogger):
                 if unicode(stepData["misc"]) == unicode(item_text):
                     self.browserByComboBox.setCurrentIndex(i)
                     break
-                    
-            # if "from-alias" not in stepData: # for backward compatibility
-                # stepData["from-alias"] = False 
 
-                
         if self.actionsBrComboBox.currentText() in [ GuiSteps.BROWSER_TYPE_KEY ]:
                     
             if stepData["parameters"]["from-el-cache"]:

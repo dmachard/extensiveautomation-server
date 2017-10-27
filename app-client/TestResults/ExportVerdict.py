@@ -171,6 +171,7 @@ class RawView(QWidget, Logger.ClassLogger):
 
     def createConnections(self):
         """
+        All qt connections
         """
         self.delTG.stateChanged.connect(self.onRemoveLines)
         self.delTP.stateChanged.connect(self.onRemoveLines)
@@ -212,6 +213,7 @@ class RawView(QWidget, Logger.ClassLogger):
 
     def registerPlugin(self, pluginAction):
         """
+        Register plugin
         """
         self.toolbarPlugins.addAction(pluginAction)
         self.toolbarPlugins.setIconSize(QSize(16, 16))
@@ -219,6 +221,7 @@ class RawView(QWidget, Logger.ClassLogger):
         
     def onRemoveLines(self):
         """
+        Called to remove lines
         """
         ret = []
         for l in self.__data.splitlines():
@@ -264,9 +267,9 @@ class RawView(QWidget, Logger.ClassLogger):
         
         # new in v17.1
         if QtHelper.IS_QT5:
-            _filename, _type = filename
+            _filename, _type = fileName
         else:
-            _filename = filename
+            _filename = fileName
         # end of new
         
         if _filename:
@@ -285,9 +288,9 @@ class RawView(QWidget, Logger.ClassLogger):
         
         # new in v17.1
         if QtHelper.IS_QT5:
-            _filename, _type = filename
+            _filename, _type = fileName
         else:
-            _filename = filename
+            _filename = fileName
         # end of new
         
         if _filename:
@@ -306,9 +309,9 @@ class RawView(QWidget, Logger.ClassLogger):
         
         # new in v17.1
         if QtHelper.IS_QT5:
-            _filename, _type = filename
+            _filename, _type = fileName
         else:
-            _filename = filename
+            _filename = fileName
         # end of new
         
         if _filename:
@@ -326,9 +329,9 @@ class RawView(QWidget, Logger.ClassLogger):
         
         # new in v17.1
         if QtHelper.IS_QT5:
-            _filename, _type = filename
+            _filename, _type = fileName
         else:
-            _filename = filename
+            _filename = fileName
         # end of new
         
         if _filename:
@@ -343,13 +346,13 @@ class RawView(QWidget, Logger.ClassLogger):
         """
         Save pdf file
         """
-        filename = QFileDialog.getSaveFileName(self, 'Save to PDF', "", "PDF file (*.pdf);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, 'Save to PDF', "", "PDF file (*.pdf);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
-            _filename, _type = filename
+            _filename, _type = fileName
         else:
-            _filename = filename
+            _filename = fileName
         # end of new
         
         if _filename:
@@ -421,6 +424,7 @@ class WExportVerdict(QtHelper.EnhancedQDialog, Logger.ClassLogger):
 
     def pluginDataAccessor(self):
         """
+        Return data for plugins
         """
         return {    
                     'verdict-csv': self.rawWidget.txtEdit.toPlainText(),
@@ -429,6 +433,7 @@ class WExportVerdict(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         
     def addPlugin(self, pluginAct):
         """
+        Add plugins in widgets
         """
         self.rawWidget.registerPlugin(pluginAct)
         self.xmlWidget.registerPlugin(pluginAct)

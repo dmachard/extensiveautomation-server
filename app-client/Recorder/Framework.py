@@ -21,6 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Framework assistant module
+"""
+
 import sys
 
 # unicode = str with python3
@@ -68,17 +72,21 @@ LIST_TYPES = ["TEXT", "CACHE", "ALIAS"]
 
 class ValidatorUpper(QValidator):
     """
+    Validator
     """
     def validate(self, string, pos):
         """
+        validate
         """
         return QValidator.Acceptable, string.upper(), pos
         
 class ValidatorAll(QValidator):
     """
+    Validator
     """
     def validate(self, string, pos):
         """
+        validate
         """
         return QValidator.Acceptable, string, pos
         
@@ -147,6 +155,7 @@ class OptionsDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         
 class WFramework(QWidget, Logger.ClassLogger):
     """
+    Framework widget
     """
     # action, description, misc, parameters
     AddStep = pyqtSignal(str, str, str, dict)  
@@ -154,6 +163,7 @@ class WFramework(QWidget, Logger.ClassLogger):
     CancelEdit = pyqtSignal()
     def __init__(self, parent):
         """
+        Constructor
         """
         QWidget.__init__(self)
 
@@ -164,6 +174,7 @@ class WFramework(QWidget, Logger.ClassLogger):
     
     def createActions(self):
         """
+        Create qt actions
         """
         self.addAction = QPushButton(QIcon(":/add_black.png"), '&Add Action', self)
         self.addAction.setMinimumHeight(40)
@@ -178,12 +189,14 @@ class WFramework(QWidget, Logger.ClassLogger):
         
     def openOptions(self):
         """
+        Open options dialog
         """
         if self.optionsDialog.exec_() == QDialog.Accepted:
             pass
               
     def createWidgets(self):
         """
+        Create all qt widgets
         """
         self.optionsDialog  = OptionsDialog(self)
         
@@ -247,11 +260,13 @@ class WFramework(QWidget, Logger.ClassLogger):
         
     def createToolbar(self):
         """
+        Create toolbar
         """
         pass
 
     def createWidgetCheckString(self):
         """
+        Create widget to check string
         """
         self.getCheckGroup = QGroupBox(self.tr(""))
 
@@ -289,6 +304,7 @@ class WFramework(QWidget, Logger.ClassLogger):
         
     def createWidgetGetText(self):
         """
+        Create text widget 
         """
         self.getTextGroup = QGroupBox(self.tr(""))
 
@@ -306,6 +322,7 @@ class WFramework(QWidget, Logger.ClassLogger):
     
     def createWidgetGetAsk(self):
         """
+        Create ask widget
         """
         # ask
         self.getAskGroup = QGroupBox(self.tr(""))
@@ -333,6 +350,7 @@ class WFramework(QWidget, Logger.ClassLogger):
         
     def createWidgetGetWait(self):
         """
+        Create wait text widget
         """
         self.getWaitGroup = QGroupBox(self.tr(""))
 
@@ -352,6 +370,7 @@ class WFramework(QWidget, Logger.ClassLogger):
         
     def createWidgetCacheSet(self):
         """
+        Create cache widget
         """
         self.setCacheGroup = QGroupBox(self.tr(""))
         
@@ -368,6 +387,7 @@ class WFramework(QWidget, Logger.ClassLogger):
         
     def createConnections(self):
         """
+        Createa qt connections
         """
         self.actionsComboBox.currentIndexChanged.connect(self.onActionChanged)
         self.addAction.clicked.connect(self.addStep)
@@ -379,6 +399,7 @@ class WFramework(QWidget, Logger.ClassLogger):
         
     def onAskTextTypeChanged(self):
         """
+        On ask type changed
         """
         if self.askTextCombo.currentText() in [ "TEXT", "CACHE" ]:
             self.askTextLine.setValidator(self.validatorAll)
@@ -389,6 +410,7 @@ class WFramework(QWidget, Logger.ClassLogger):
             
     def onCheckOutTextTypeChanged(self):
         """
+        On check out type changed
         """
         if self.checkOutTextCombo.currentText() in [ "TEXT", "CACHE" ]:
             self.checkOutTextLine.setValidator(self.validatorAll)
@@ -399,6 +421,7 @@ class WFramework(QWidget, Logger.ClassLogger):
             
     def onValueWaitTypeChanged(self):
         """
+        On value wait changed
         """
         if self.valueWaitCombo.currentText() in [ "TEXT" ]:
             self.valueWaitLine.setText( "0" )
@@ -413,6 +436,7 @@ class WFramework(QWidget, Logger.ClassLogger):
             
     def onBasicTextTypeChanged(self):
         """
+        On basic text changed
         """
         if self.basicTextCombo.currentText() in [ "TEXT", "CACHE" ]:
             self.basicTextLine.setValidator(self.validatorAll)
@@ -423,16 +447,19 @@ class WFramework(QWidget, Logger.ClassLogger):
             
     def pluginDataAccessor(self):
         """
+        Return data for plugins
         """
         return { "data": "" } 
         
     def onPluginImport(self, dataJson):
         """
+        On call from plugin
         """
         pass 
     
     def onRadioAskChanged(self, button):
         """
+        On radio ask changed
         """
         if button.text() == 'From alias parameter':
             self.askTextLine.setText( self.askTextLine.text().upper() )
@@ -442,6 +469,7 @@ class WFramework(QWidget, Logger.ClassLogger):
 
     def onActionChanged(self):
         """
+        On action changed
         """
         descr = 'No description available!'
         i = 0
@@ -525,6 +553,7 @@ class WFramework(QWidget, Logger.ClassLogger):
 
     def addStep(self):
         """
+        Add step
         """
         action = self.actionsComboBox.currentText()
         descr = self.descriptionLine.text()
@@ -619,6 +648,7 @@ class WFramework(QWidget, Logger.ClassLogger):
             
     def cancelStep(self):
         """
+        Cancel step
         """
         self.addAction.setText( "&Add" )
         
@@ -631,6 +661,7 @@ class WFramework(QWidget, Logger.ClassLogger):
     
     def finalizeUpdate(self):
         """
+        Finalize update 
         """
         self.addAction.setText( "&Add Action" )
         
@@ -641,6 +672,7 @@ class WFramework(QWidget, Logger.ClassLogger):
 
     def editStep(self, stepData):
         """
+        Edit step
         """
         self.addAction.setText( "&Update" )
         buttonFont = QFont()
@@ -677,36 +709,26 @@ class WFramework(QWidget, Logger.ClassLogger):
         if self.actionsComboBox.currentText() in [ GuiSteps.FRAMEWORK_WAIT ]:
             self.valueWaitLine.setText ( stepData["misc"] )
             if stepData["parameters"]["from-cache"]:
-                # self.radioCacheWait.setChecked( True )
                 self.valueWaitLine.setValidator(self.validatorAll)
-                # self.valueWaitLine.setText ( stepData["misc"] )
                 self.valueWaitCombo.setCurrentIndex(INDEX_CACHE)
             elif stepData["parameters"]["from-alias"]:
-                # self.radioAliasWait.setChecked( True )
                 self.valueWaitLine.setValidator(self.validatorUpper)
                 self.valueWaitCombo.setCurrentIndex(INDEX_ALIAS)
-                # self.valueWaitLine.setText ( stepData["misc"] )
             else:
-                # self.radioUserWait.setChecked( True )
                 self.valueWaitLine.setValidator(self.validatorInt)
                 self.valueWaitCombo.setCurrentIndex(INDEX_TEXT)
  
         if self.actionsComboBox.currentText() in [ GuiSteps.FRAMEWORK_CACHE_SET ]:
             self.basicTextLine.setText ( stepData["parameters"]["value"] )
             if stepData["parameters"]["from-cache"]:
-                # self.radioCache.setChecked( True )
                 self.basicTextLine.setValidator(self.validatorAll)
                 self.basicTextCombo.setCurrentIndex(INDEX_CACHE)
                 
             elif stepData["parameters"]["from-alias"]:
-                # self.radioAlias.setChecked( True )
                 self.basicTextLine.setValidator(self.validatorUpper)
-                # self.basicTextLine.setText ( stepData["parameters"]["value"] )
                 self.basicTextCombo.setCurrentIndex(INDEX_ALIAS)
             else:
-                # self.radioUser.setChecked( True )
                 self.basicTextLine.setValidator(self.validatorAll)
-                # self.basicTextLine.setText ( stepData["parameters"]["value"] )
                 self.basicTextCombo.setCurrentIndex(INDEX_TEXT)
                 
             self.cacheKeyName.setText( stepData["parameters"]["key"] ) 
@@ -749,10 +771,12 @@ class WFramework(QWidget, Logger.ClassLogger):
             
     def getTimeout(self):
         """
+        Return timeout
         """
         return self.optionsDialog.timeoutLine.text() 
         
     def setTimeout(self, timeout):
         """
+        Set the timeout
         """
         return self.optionsDialog.timeoutLine.setText(timeout) 

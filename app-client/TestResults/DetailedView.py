@@ -362,7 +362,8 @@ class QTreeWidgetTemplate(QWidget):
     TemplateCollapsed = pyqtSignal(list) 
     TemplateClicked = pyqtSignal(list) 
     def __init__ (self, parent, signals=False, textHexa=None, textRaw=None, imgRaw=None, withLabel=True, 
-                        signalsExpanded=False, signalsReadMore=False, signalsAutoSelect=False, xmlRaw=None, htmlRaw=None):
+                        signalsExpanded=False, signalsReadMore=False, signalsAutoSelect=False, 
+                        xmlRaw=None, htmlRaw=None):
         """
         Qtree widget template
 
@@ -683,9 +684,13 @@ class ImageView(QWidget):
         """
         Save image
         """
-        graphPixmap = QPixmap.grabWidget(self.imageLabel)
+        if QtHelper.IS_QT5:
+            graphPixmap = self.imageLabel.grab()
+        else:
+            graphPixmap = QPixmap.grabWidget(self.imageLabel)
         format = 'png'
-        fileName = QFileDialog.getSaveFileName(self, self.tr("Save As"), "", "%s Files (*.%s);;All Files (*)" % (format.upper(), format))
+        fileName = QFileDialog.getSaveFileName(self, self.tr("Save As"), "", 
+                                                "%s Files (*.%s);;All Files (*)" % (format.upper(), format))
         # new in v18 to support qt5
         if QtHelper.IS_QT5:
             _fileName, _type = fileName
@@ -829,8 +834,12 @@ class RawView(QWidget):
         self.rawEdit.setReadOnly(readonly)
 
 class TreeMemory(object):
+    """
+    Tree memory class
+    """
     def __init__(self, treeWidget):
         """
+        Constructor
         """
         self.treeWidget = treeWidget
         self.treeIndexes = []
@@ -861,6 +870,7 @@ class TreeMemory(object):
     
     def snapshot(self):
         """
+        Take a snapshot
         """
         self.treeIndexes = []
         for i in xrange( self.treeWidget.tree.topLevelItemCount() ):
@@ -1018,28 +1028,6 @@ class DetailedView(QWidget):
         currentItem = self.treeWidgetLeft3.tree.currentItem()
         self.treeWidgetLeft3.itemDoubleClicked(itm=currentItem)
 
-    # def itemEventSelected(self):
-        # """
-        # On item event expanded or collapsed
-        # """
-        # itms = self.treeWidgetLeft2.tree.selectedItems()
-        # if not len(itms):
-            # return
-            
-        # itm = itms[0]
-        
-        
-        # self.treeIndexesSelected = []
-        
-        # index = self.treeWidgetLeft2.tree.indexFromItem(itm)
-        # self.treeIndexesSelected.append(index.row())
-
-        # p = itm.parent()
-        # while p is not None:
-            # indexParent = self.treeWidgetLeft2.tree.indexFromItem(p)
-            # self.treeIndexesSelected.append(indexParent.row())
-            # p = p.parent()
-
     def onTemplateClicked(self, indexes):
         """
         On template clicked
@@ -1190,14 +1178,12 @@ class DetailedView(QWidget):
         # tree for template on left
         self.treeWidgetLeft = QTreeWidgetTemplate( self, signalsReadMore=True ) 
         self.treeWidgetLeft.tree.setContextMenuPolicy(Qt.CustomContextMenu)
-        # self.treeWidgetLeft.tree.setStyleSheet( """QTreeWidget { border: 1px solid %s;}""" % Settings.instance().readValue( key = 'TestRun/tree-template-received-color' ) )
-        
+
         # tree for events
         self.treeWidgetLeft2 = QTreeWidgetTemplate( self, signals=True, textHexa=self.hexEdit, textRaw=self.rawEdit , 
                                                     imgRaw=self.imgEdit, xmlRaw=self.xmlEdit, htmlRaw=self.htmlEdit )
         self.treeWidgetLeft2.tree.setContextMenuPolicy(Qt.CustomContextMenu)
-        # self.treeWidgetLeft2.tree.setStyleSheet( """QTreeWidget { border: 1px solid %s;}""" % Settings.instance().readValue( key = 'TestRun/tree-event-background-color' ) )
-        
+
         self.treeWidgetLeft3 = QTreeWidgetTemplate( self, signals=True, textRaw=self.text3Edit, withLabel=False  )
         self.treeWidgetLeft3.tree.setContextMenuPolicy(Qt.CustomContextMenu)
         
@@ -1208,8 +1194,7 @@ class DetailedView(QWidget):
                                                     signalsReadMore=True ) 
         self.treeWidgetRight.setStatusLabels()
         self.treeWidgetRight.tree.setContextMenuPolicy(Qt.CustomContextMenu)
-        # self.treeWidgetRight.tree.setStyleSheet( """QTreeWidget { border: 1px solid %s;}""" % Settings.instance().readValue( key = 'TestRun/tree-template-expected-color' ) )
-        
+    
         # text | text
         self.vSplitter.addWidget( self.textEdit )
         self.vSplitter.addWidget( self.text2Edit )
@@ -1350,14 +1335,12 @@ class DetailedView(QWidget):
         Expand all items
         """
         self.treeWidgetLeft2.tree.expandAll()
-        # self.itemEventExpandedCollapsed(item=None)
-    
+
     def collapseAllItems(self):
         """
         Collapse all items
         """
         self.treeWidgetLeft2.tree.collapseAll()
-        # self.itemEventExpandedCollapsed(item=None)
 
     def expandAllItemsLeft3(self):
         """
@@ -1413,7 +1396,6 @@ class DetailedView(QWidget):
         currentItem = self.treeWidgetLeft2.tree.currentItem()
         if currentItem is not None:
             self.expandItem(itm=currentItem)
-            # self.itemEventExpandedCollapsed(item=currentItem)
 
     def expandSubtreeItemLeft(self):
         """
@@ -1517,42 +1499,7 @@ class DetailedView(QWidget):
             self.menu.addAction(self.displayValueLeft2Action)
 
             self.menu.popup(self.treeWidgetLeft2.tree.mapToGlobal(pos))
-
-    # def selectAuto(self):
-        # """
-        # Select auto
-        # """
-        # if not len(self.treeIndexesSelected):
-            # return 
-            
-        # self.treeWidgetLeft2.tree.setFocus()
-        
-        # i = self.treeIndexesSelected.pop()
-        
-        # itm = self.treeWidgetLeft2.tree.topLevelItem(i)
-        # if itm is None:
-            # return
-            
-        # if not len(self.treeIndexesSelected):
-            # itm.setSelected(True)
-        # else:
-            # self.__selectAuto(itm)
-            
-    # def __selectAuto(self, itm):
-        # """
-        # Select auto
-        # """
-        # j = self.treeIndexesSelected.pop()
-        
-        # itmchild = itm.child(j)
-        # if itmchild is None:
-            # return
-            
-        # if not len(self.treeIndexesSelected):
-            # itmchild.setSelected(True)
-        # else:
-            # self.__selectAuto(itmchild)
-                    
+         
     def display (self, data, dataType, shortName):
         """  
         Display event
@@ -1590,9 +1537,7 @@ class DetailedView(QWidget):
                 # expand item ?
                 if QtHelper.str2bool(Settings.instance().readValue( key = 'TestRun/auto-expandcollapse-events' )):
                     self.EventTreeMemory.restore()
-                    # self.expandAuto()
-                    # self.selectAuto()
-                    
+  
             else:
                 pass
 
@@ -1843,7 +1788,8 @@ class DetailedView(QWidget):
         if sz == 0:
             resume = 'Arrival Time: %s' % QtHelper.formatTimestamp(t, milliseconds=True)
         else:
-            resume = 'Length: %s, Arrival Time: %s' % ( QtHelper.bytes2human(sz), QtHelper.formatTimestamp(t, milliseconds=True) )
+            resume = 'Length: %s, Arrival Time: %s' % ( QtHelper.bytes2human(sz), 
+                                                        QtHelper.formatTimestamp(t, milliseconds=True) )
         self.treeWidgetLeft2.setLabel(resume  )
         
         # update image view

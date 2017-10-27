@@ -21,6 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+System module (ssh)
+"""
+
 import sys
 
 # unicode = str with python3
@@ -63,17 +67,21 @@ EMPTY_VALUE = ''
 
 class ValidatorUpper(QValidator):
     """
+    Validator upper
     """
     def validate(self, string, pos):
         """
+        validate
         """
         return QValidator.Acceptable, string.upper(), pos
         
 class ValidatorAll(QValidator):
     """
+    Validate all
     """
     def validate(self, string, pos):
         """
+        validate
         """
         return QValidator.Acceptable, string, pos
        
@@ -162,6 +170,7 @@ class OptionsDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
 
 class WSystem(QWidget, Logger.ClassLogger):
     """
+    System widget
     """
     # action, description, misc, parameters
     AddStep = pyqtSignal(str, str, str, dict)  
@@ -169,6 +178,7 @@ class WSystem(QWidget, Logger.ClassLogger):
     CancelEdit = pyqtSignal()
     def __init__(self, parent):
         """
+        Constructor
         """
         QWidget.__init__(self)
 
@@ -179,6 +189,7 @@ class WSystem(QWidget, Logger.ClassLogger):
     
     def createActions(self):
         """
+        Create qt actions
         """
         self.addAction = QPushButton(QIcon(":/add_black.png"), '&Add Action', self)
         self.addAction.setMinimumHeight(40)
@@ -192,12 +203,14 @@ class WSystem(QWidget, Logger.ClassLogger):
         
     def openOptions(self):
         """
+        Open options dialog
         """
         if self.optionsDialog.exec_() == QDialog.Accepted:
             pass
              
     def createWidgets(self):
         """
+        Create qt widgets
         """
         self.optionsDialog  = OptionsDialog(self)
         
@@ -262,11 +275,13 @@ class WSystem(QWidget, Logger.ClassLogger):
         
     def createToolbar(self):
         """
+        Create toolbar
         """
         pass
         
     def createWidgetScreen(self):
         """
+        Create screen widget
         """
         self.screenGroup = QGroupBox(self.tr(""))
 
@@ -310,6 +325,7 @@ class WSystem(QWidget, Logger.ClassLogger):
         
     def createWidgetText(self):
         """
+        Create text widget
         """
         self.textGroup = QGroupBox(self.tr(""))
 
@@ -329,6 +345,7 @@ class WSystem(QWidget, Logger.ClassLogger):
         
     def createWidgetShortcut(self):
         """
+        Create shortcut widget
         """
         self.shortcutGroup = QGroupBox(self.tr(""))
 
@@ -346,6 +363,7 @@ class WSystem(QWidget, Logger.ClassLogger):
         
     def createWidgetSession(self):
         """
+        Create session widget
         """
         self.sessionGroup = QGroupBox(self.tr(""))
 
@@ -400,6 +418,7 @@ class WSystem(QWidget, Logger.ClassLogger):
    
     def createConnections(self):
         """
+        Create qt connections
         """
         self.actionsComboBox.currentIndexChanged.connect(self.onActionChanged)
         self.addAction.clicked.connect(self.addStep)
@@ -416,11 +435,13 @@ class WSystem(QWidget, Logger.ClassLogger):
         
     def pluginDataAccessor(self):
         """
+        Return data to plugin
         """
         return { "data": "" } 
         
     def onPluginImport(self, dataJson):
         """
+        Received data from plugins
         """
         if "steps" not in dataJson:
             QMessageBox.warning(self, "Assistant Automation" , "bad import")
@@ -476,6 +497,7 @@ class WSystem(QWidget, Logger.ClassLogger):
         
     def onScreenOperatorChanged(self):
         """
+        On screen operator changed
         """
         if self.checkComboBox.currentText() == GuiSteps.OP_ANY:
             self.screenLine.setEnabled(False)
@@ -488,6 +510,7 @@ class WSystem(QWidget, Logger.ClassLogger):
             
     def onScreenSaveChanged(self):
         """
+        On screen save changed
         """
         if self.screenSaveCombo.currentText() == "VARIABLE":
             self.screenSaveLine.setEnabled(False)
@@ -496,6 +519,7 @@ class WSystem(QWidget, Logger.ClassLogger):
             
     def onScreenTypeChanged(self):
         """
+        On screen type changed
         """
         if self.screenCombo.currentText() in [ "TEXT" ]:
             self.screenArea.show()
@@ -512,6 +536,7 @@ class WSystem(QWidget, Logger.ClassLogger):
             
     def onTextTypeChanged(self):
         """
+        On text type changed
         """
         if self.textCombo.currentText() in [ "TEXT", "CACHE" ]:
             self.textLine.setValidator(self.validatorAll)
@@ -522,6 +547,7 @@ class WSystem(QWidget, Logger.ClassLogger):
             
     def onLoginTypeChanged(self):
         """
+        On login type changed
         """
         if self.loginCombo.currentText() in [ "TEXT", "CACHE" ]:
             self.loginLine.setValidator(self.validatorAll)
@@ -532,6 +558,7 @@ class WSystem(QWidget, Logger.ClassLogger):
             
     def onPwdTypeChanged(self):
         """
+        On password type changed
         """
         if self.pwdCombo.currentText() in [ "TEXT", "CACHE" ]:
             self.pwdLine.setValidator(self.validatorAll)
@@ -542,6 +569,7 @@ class WSystem(QWidget, Logger.ClassLogger):
     
     def onIpTypeChanged(self):
         """
+        On ip type changed
         """
         if self.ipCombo.currentText() in [ "TEXT", "CACHE" ]:
             self.ipLine.setValidator(self.validatorAll)
@@ -552,6 +580,7 @@ class WSystem(QWidget, Logger.ClassLogger):
     
     def onPortTypeChanged(self):
         """
+        On port type changed
         """
         if self.portCombo.currentText() in [ "TEXT" ]:
             self.portLine.setText( "22" )
@@ -566,6 +595,7 @@ class WSystem(QWidget, Logger.ClassLogger):
             
     def onActionChanged(self):
         """
+        On action changed
         """
         descr = 'No description available!'
         i = 0
@@ -642,6 +672,7 @@ class WSystem(QWidget, Logger.ClassLogger):
 
     def addStep(self):
         """
+        Add step
         """
         action = self.actionsComboBox.currentText()
         descr = self.descriptionLine.text()
@@ -756,6 +787,7 @@ class WSystem(QWidget, Logger.ClassLogger):
             
     def cancelStep(self):
         """
+        Cancel step
         """
         self.addAction.setText( "&Add" )
         
@@ -768,6 +800,7 @@ class WSystem(QWidget, Logger.ClassLogger):
     
     def finalizeUpdate(self):
         """
+        Finalize the update of the step
         """
         self.addAction.setText( "&Add Action" )
         
@@ -778,6 +811,7 @@ class WSystem(QWidget, Logger.ClassLogger):
 
     def editStep(self, stepData):
         """
+        Edit step
         """
         self.addAction.setText( "&Update" )
         buttonFont = QFont()
@@ -902,20 +936,24 @@ class WSystem(QWidget, Logger.ClassLogger):
                 
     def getTimeout(self):
         """
+        Return timeout value
         """
         return self.optionsDialog.timeoutLine.text() 
         
     def setTimeout(self, timeout):
         """
+        Set the timeout
         """
         return self.optionsDialog.timeoutLine.setText(timeout) 
         
     def getAgentName(self):
         """
+        Return the agent name
         """
         return self.optionsDialog.agentNameLine.text()
         
     def getAgentList(self):
         """
+        Return the agent list
         """
         return self.optionsDialog.agentsList

@@ -207,6 +207,7 @@ class WRepositories(QWidget, Logger.ClassLogger):
     
     def hideWidgetsHeader(self):
         """
+        Hide the widget header
         """
         self.line.hide()
         self.title.hide()
@@ -214,6 +215,7 @@ class WRepositories(QWidget, Logger.ClassLogger):
         
     def showWidgetsHeader(self):
         """
+        Show the widget header
         """
         self.line.show()
         self.title.show()

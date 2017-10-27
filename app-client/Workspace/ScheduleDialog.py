@@ -90,7 +90,6 @@ class SchedSuccessiveDialog(QtHelper.EnhancedQDialog):
 
 
         buttonLayout = QHBoxLayout()
-        # QIcon(":/schedule.png")
         self.okButton = QPushButton(self.tr("OK"), self)
         self.cancelButton = QPushButton(self.tr("Cancel"), self)
         buttonLayout.addWidget(self.okButton)
@@ -141,9 +140,11 @@ class SchedSuccessiveDialog(QtHelper.EnhancedQDialog):
 
 class WeeklyWidget(QWidget, Logger.ClassLogger):
     """
+    Weekly widget
     """
     def __init__(self, parent=None):
         """
+        Constructor
         """
         super(WeeklyWidget, self).__init__(parent)
         self.createWidgets()
@@ -255,9 +256,11 @@ class WeeklyWidget(QWidget, Logger.ClassLogger):
         
 class DailyWidget(QWidget, Logger.ClassLogger):
     """
+    Daily widget
     """
     def __init__(self, parent=None):
         """
+        Constructor
         """
         super(DailyWidget, self).__init__(parent)
         self.createWidgets()
@@ -360,9 +363,11 @@ class DailyWidget(QWidget, Logger.ClassLogger):
         
 class HourlyWidget(QWidget, Logger.ClassLogger):
     """
+    Hourly widget
     """
     def __init__(self, parent=None):
         """
+        Constructor
         """
         super(HourlyWidget, self).__init__(parent)
         self.createWidgets()
@@ -462,9 +467,11 @@ class HourlyWidget(QWidget, Logger.ClassLogger):
         
 class SuccessiveWidget(QWidget, Logger.ClassLogger):
     """
+    Successive widget
     """
     def __init__(self, parent=None):
         """
+        Constructor
         """
         super(SuccessiveWidget, self).__init__(parent)
         self.createWidgets()
@@ -551,9 +558,11 @@ class SuccessiveWidget(QWidget, Logger.ClassLogger):
         
 class EveryWidget(QWidget, Logger.ClassLogger):
     """
+    Every widget
     """
     def __init__(self, parent=None):
         """
+        Constructor
         """
         super(EveryWidget, self).__init__(parent)
         self.createWidgets()
@@ -708,9 +717,11 @@ class EveryWidget(QWidget, Logger.ClassLogger):
         
 class OneTimeWidget(QWidget, Logger.ClassLogger):
     """
+    One time widget
     """
     def __init__(self, parent=None):
         """
+        Constructor
         """
         super(OneTimeWidget, self).__init__(parent)
         self.createWidgets()
@@ -1118,7 +1129,6 @@ class SchedDialogV1(QtHelper.EnhancedQDialog):
         self.schedWeeklyLabel = QLabel(" at:")
 
         self.comboBoxDays = QComboBox()
-        #for d in UCI.SCHED_DAYS_DICT.values():
         for d in list(UCI.SCHED_DAYS_DICT.values()): # wrap to list to support python3 
             self.comboBoxDays.addItem( d.title())
 
@@ -1130,7 +1140,8 @@ class SchedDialogV1(QtHelper.EnhancedQDialog):
         self.withoutProbes  = QCheckBox( "Run without probes" )
         self.withoutNotifs  = QCheckBox( "Run without notifications" )
         self.noKeepTestResult  = QCheckBox( "Do not keep test result on success" )
-        if QtHelper.str2bool(Settings.instance().readValue( key = 'ScheduleRun/dont-keep-result-on-success' )):  self.noKeepTestResult.setChecked(True)
+        if QtHelper.str2bool(Settings.instance().readValue( key = 'ScheduleRun/dont-keep-result-on-success' )):  
+            self.noKeepTestResult.setChecked(True)
         
         configLayout = QGridLayout()
         configLayout.addWidget(self.schedIn, 0, 0)

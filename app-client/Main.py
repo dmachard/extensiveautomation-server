@@ -46,7 +46,7 @@ __BEGIN__="2010"
 # year of the latest build
 __END__="2017"
 # date and time of the buid
-__BUILDTIME__="23/10/2017 21:15:04"
+__BUILDTIME__="27/10/2017 22:01:20"
 # Redirect stdout and stderr to log file only on production
 REDIRECT_STD=False
 # disable warning from qt framework on production 
@@ -84,10 +84,6 @@ if sys.platform == "win32":
     import sip
     sip.setdestroyonexit(False)
 
-# workaround for python3
-# import sip
-# sip.setapi('QVariant', 1)
-    
 from Libs import QtHelper, Logger
 
 try:
@@ -143,7 +139,6 @@ if sys.platform in [ "win32", "linux2", "linux" ]:
                                 QFile, Qt, QTimer, QSize, QUrl, QIODevice, QT_VERSION_STR, QEvent,
                                 qInstallMsgHandler, QTranslator, QLibraryInfo, QObject, QProcess )
         from PyQt4.QtNetwork import (QUdpSocket, QHostAddress)
-        # from PyQt4.QtWebKit import (QWebView)
     except ImportError:
         from PyQt5.QtGui import (QIcon, QDesktopServices, QCursor, QColor, QPixmap, QFont)
         from PyQt5.QtWidgets import (QMainWindow, QApplication, QMessageBox, QTabWidget, 
@@ -156,7 +151,6 @@ if sys.platform in [ "win32", "linux2", "linux" ]:
                                 QTranslator, QLibraryInfo, QObject, QProcess, QEvent )
         from PyQt5.QtCore import qInstallMessageHandler as qInstallMsgHandler
         from PyQt5.QtNetwork import (QUdpSocket, QHostAddress)
-        # from PyQt5.QtWebKitWidgets import (QWebView)
 else:
     print('os not supported')
     sys.exit(-1)
@@ -228,9 +222,13 @@ class MessageHandler(object):
                 print >> sys.stderr, '%s [FATAL] %s' % (now, msg)
 
 class PluginProcess(QProcess):
+    """
+    Plugin process
+    """
     DataReceived = pyqtSignal(bytes, object)
     def __init__(self, parent, cmd):
         """
+        Constructor
         """
         QProcess.__init__(self, parent)
         self.__cmd = cmd
@@ -242,7 +240,7 @@ class PluginProcess(QProcess):
         
     def onData(self):
         """
-        
+        Called when data are received from plugin
         """
         # d -> qbytearray
         d = self.readAllStandardOutput()
@@ -250,21 +248,25 @@ class PluginProcess(QProcess):
         
     def startPlugin(self):
         """
+        Start plugin
         """
         self.start(self.__cmd)
         
     def startKeepAlive(self):
         """
+        Start keepalive
         """
         self.keepAliveTimer.start()
         
     def sendKeepAlive(self):
         """
+        Send keepalive
         """
         self.sendCommand(cmd='keepalive')
         
     def sendCommand(self, cmd, data='', more={}):
         """
+        Send command to the plugin
         """
         inData = False
         msg = {'cmd': cmd }
@@ -298,14 +300,21 @@ class PluginProcess(QProcess):
 
 
 class RecordButton(QWidget):
+    """
+    Record button widget
+    """
     CapturePressed = pyqtSignal()
     CancelPressed = pyqtSignal()
     def __init__(self, parent=None):
+        """
+        Constructor
+        """
         super(RecordButton, self).__init__(parent)
         self.createWidgets()
         self.createConnections()
     def createWidgets(self):
         """
+        Create qt widgets
         """
         mainLayout = QVBoxLayout()
         
@@ -328,17 +337,20 @@ class RecordButton(QWidget):
         
     def createConnections(self):
         """
+        Create qt connections
         """
         self.buttonCapture.clicked.connect(self.onCapture)
         self.buttonCancel.clicked.connect(self.onCancel)
         
     def onCapture(self):
         """
+        On capture
         """
         self.CapturePressed.emit()
 
     def onCancel(self):
         """
+        On cancel
         """
         self.CancelPressed.emit() 
 
@@ -537,6 +549,7 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
                 
     def loadingPlugins(self):
         """
+        Load plugins present in the plugins folder
         """
         files=os.listdir("%s//Plugins//" % (QtHelper.dirExec()))
         for x in files:
@@ -561,7 +574,7 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
 
     def onPluginData(self, data, plugin):
         """
-        
+        On data from plugins
         """
         # workaround, libpng can be present in console
         if b"warning:" in data: data = data.split(b"\n", 1)[1]
@@ -588,6 +601,7 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
         
     def onPluginMessage(self, msg, plugin):
         """
+        On mesage from plugins
         """
         # plugins registration
         if msg['cmd'] == 'register' and msg['id'].lower() not in self.pluginsStarted :
@@ -706,6 +720,7 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
     
     def integratePlugin(self, pluginId, pluginName, widgetDest, widgetDestData=None, pluginIcon=None):
         """
+        Integrate plugin in the application
         """
         if widgetDestData is not None:
             pluginData = widgetDestData.pluginDataAccessor
@@ -720,6 +735,7 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
 
     def openPluginMain(self, pluginInfos):
         """
+        open the main page of the plugin
         """
         pluginId = pluginInfos['pluginId']
         if pluginId.lower() in self.pluginsConfigured:
@@ -954,6 +970,7 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
 
     def showRecordButton(self, mouseLocation=False, mousePosition=False):
         """
+        Show the record button
         """
         self.widgetRecord.showNormal()
         self.widgetRecord.show()
@@ -1517,12 +1534,14 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
 
     def onCaptureCancelActivated(self):
         """
+        On capture canceled
         """
         self.widgetRecord.hide()
         WRecorder.instance().restoreAssistant()
         
     def onCaptureActivated(self):
         """
+        On capture mode activated
         """
         self.widgetRecord.showMinimized()
         self.widgetRecord.hide()
@@ -1530,6 +1549,7 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
         
     def onCaptureRecorder(self):
         """
+        Show capture window
         """
         WRecorder.instance().captureDesktop()
         
@@ -1699,6 +1719,7 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
 
     def restoreWindow(self):
         """
+        Restore the window
         """
         self.setWindowState(Qt.WindowNoState)
         
@@ -1933,7 +1954,7 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
         UCI.instance().Notify.connect(self.onNotify)
         UCI.instance().OpenTestResult.connect(self.openLog)
         self.Notify.connect(self.onNotify)
-        self.LoadLocalTestResult.connect(self.onLocalLocalTestResult)
+        self.LoadLocalTestResult.connect(self.onLoadLocalTestResult)
         self.LoadLocalTestResultTerminated.connect(self.onLoadLocalTestResultTerminated)
 
         UCI.instance().RefreshHelper.connect(WWorkspace.WHelper.instance().onRefresh)
@@ -1984,6 +2005,7 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
         
     def onTextNbReplaced(self, counter):
         """
+        On number of occurrenced replaced from editor
         """
         if counter:
             self.sendToStatusbar( self.tr('Replace All: %s occurence(s) were replaced.' % counter) )
@@ -1992,6 +2014,7 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
         
     def onRunTest(self, channelId):
         """
+        Run a test
         """
         WWorkspace.WDocumentViewer.instance().runTest(channelId=channelId)
         
@@ -2003,6 +2026,7 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
        
     def onMacroMode(self, isTu=True, isTs=False):
         """
+        On show assistant automation
         """
         WRecorder.instance().restartGui(isTu=isTu, isTs=isTs)
         
@@ -2039,6 +2063,7 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
         
     def onLinkPluginClicked(self, plugId):
         """
+        On plugin clicked
         """
         self.openPluginMain( {"pluginId": plugId, "pluginData": ""} )
         
@@ -2403,12 +2428,17 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
         """
         Save list file to recent
         """
+        if sys.version_info > (3,):
+            if isinstance(data, str):
+                # convert to bytes
+                data = data.encode()
+                
         try:
             recentFile = '%s/Files/recent.dat' % QtHelper.dirExec()
             with open( recentFile, mode='wb') as myfile:
                 myfile.write(data)
         except Exception as e:
-            self.error("failed to write recent file list: %s" % e)
+            self.error("unable to write recent file list: %s" % e)
 
     def readFromRecent(self):
         """
@@ -2421,10 +2451,11 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
                 compressed = ''
                 with open( recentFile, mode='rb') as myfile:
                     compressed = myfile.read()
-                decompressed = zlib.decompress(compressed)
-                recentListFiles =  cPickle.loads( decompressed )
+                if len(compressed):
+                    decompressed = zlib.decompress(compressed)
+                    recentListFiles =  cPickle.loads( decompressed )
         except Exception as e:
-            self.error( "failed to read recent file: %s" % e )
+            self.error( "unable to read recent file: %s" % e )
         return recentListFiles
 
     def emptyRecentFilesList(self):
@@ -2436,7 +2467,7 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
             self.listActionsRecentFiles[i].setText( "%s:" % str(i+1) )
 
         # clean settings
-        self.saveToRecent(data='')
+        self.saveToRecent(data=b'')
 
         # disable recent menu
         self.recentMenu.setEnabled(False)
@@ -2641,7 +2672,6 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
                 or UCI.RIGHTS_DEVELOPER in UCI.instance().userRights :
             self.mainTab.setTabEnabled( self.TAB_WORKSPACE, True )
             self.mainTab.setCurrentIndex( self.TAB_WORKSPACE )
-            #WWorkspace.WDocumentViewer.instance().setEnabled(True)
             WWorkspace.WDocumentViewer.instance().enableWorkspace()
             WWorkspace.WDocumentViewer.instance().enableTabs()
             if not WWorkspace.WDocumentViewer.instance().isEmpty():
@@ -2769,12 +2799,11 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
             WWorkspace.WDocumentViewer.instance().newTestPlanAction.setEnabled(False)
             WWorkspace.WDocumentViewer.instance().newTestGlobalAction.setEnabled(False)
             WWorkspace.WDocumentViewer.instance().newTestDataAction.setEnabled(False)
-            #
+
             WWorkspace.WDocumentViewer.instance().openAction.setEnabled(False)
             WWorkspace.WDocumentViewer.instance().setCurrentTabWelcome()
             self.importImageAction.setEnabled(False)
 
-            #WWorkspace.WDocumentViewer.instance().setEnabled(False)
             WWorkspace.WDocumentViewer.instance().disableTabs()
             WWorkspace.WDocumentViewer.instance().disableWorkspace()
             WWorkspace.WDocumentProperties.instance().clear()
@@ -2786,12 +2815,14 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
 
     def onLoadLocalTestResultTerminated(self, testId):
         """
+        On load local testresult terminated
         """
         if TestResults.instance() is not None:
             TestResults.instance().onLoadLocalTestResultTerminated( testId=testId )
     
-    def onLocalLocalTestResult(self, data):
+    def onLoadLocalTestResult(self, data):
         """
+        On load local testresult
         """
         if data[0] in [ 'event' ] :
             if TestResults.instance() is not None:
@@ -2829,6 +2860,7 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
         
     def onTestFileEvents(self, data):
         """
+        On test file events
         """
         try:
             actionName, actionData = data
@@ -2872,7 +2904,6 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
                 self.emptyRecentFilesListAction.setEnabled(True)
 
             if UCI.instance().isAuthenticated():
-                #WWorkspace.WDocumentViewer.instance().setEnabled(True)
                 WWorkspace.WDocumentViewer.instance().enableWorkspace()
                 if UCI.RIGHTS_DEVELOPER in UCI.instance().userRights or UCI.RIGHTS_ADMIN in UCI.instance().userRights:
                     WWorkspace.WDocumentViewer.instance().newAdapterAction.setEnabled(True)
@@ -2906,7 +2937,6 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
             else:
                 if not WORKSPACE_OFFLINE:
                     WWorkspace.WDocumentViewer.instance().disableWorkspace()
-                    #WWorkspace.WDocumentViewer.instance().setEnabled(False)
                     WWorkspace.WDocumentViewer.instance().openAction.setEnabled(False)
                     WWorkspace.WDocumentViewer.instance().newAdapterAction.setEnabled(False)
                     WWorkspace.WDocumentViewer.instance().newLibraryAction.setEnabled(False)

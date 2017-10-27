@@ -24,6 +24,7 @@
 """
 Test parameters inputs/outputs module
 """
+
 import sys
 import os
 
@@ -60,14 +61,18 @@ except ImportError:
                             
 from Libs import QtHelper, Logger
 
-# python 3 support
-# support old variant style
-# will be remove in the future
-def q(v=""): 
-    return QVariant(v)
-if sys.version_info > (3,): 
-    def q(v=None): 
+def q(v=""):
+    """
+    Return the value argument without do anything
+    Only to support python 2.x and python 3.x
+    
+    @param v: the value to convert
+    @type v: string
+    """
+    if sys.version_info > (3,): 
         return v
+    else:
+        return QVariant(v)
         
 import Settings
 import UserClientInterface as UCI
@@ -145,7 +150,7 @@ class ParametersTableModel(QAbstractTableModel, Logger.ClassLogger):
         @type data:
         """
         self.mydata = data
-        # self.reset()
+
         if sys.version_info > (3,):
             self.beginResetModel()
             self.endResetModel()
@@ -950,7 +955,8 @@ class ValueDelegate(QItemDelegate, Logger.ClassLogger):
                     dateVal = value['value'].split(' ')
                     dayDescr, monthDescr, yearDescr = dateVal[0].split('/')
                     hourDescr, minDescr, secDescr =  dateVal[1].split(':')
-                    datetimeDescr =  QDateTime( int(yearDescr), int(monthDescr), int(dayDescr), int(hourDescr), int(minDescr), int(secDescr) )
+                    datetimeDescr =  QDateTime( int(yearDescr), int(monthDescr), int(dayDescr), 
+                                                int(hourDescr), int(minDescr), int(secDescr) )
                 except Exception as e:
                     datetimeDescr = QDateTime.currentDateTime()
                 editor = QDateTimeEdit(datetimeDescr, parent)
@@ -1623,16 +1629,20 @@ class DescriptionDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         return self.descrEdit.toPlainText()
 
 ##################### List shared ######################
-class SharedListModel(QAbstractListModel): 
+class SharedListModel(QAbstractListModel):
+    """
+    Shared list model
+    """
     def __init__(self, parent=None): 
         """
-        TODO
+        Constructor
         """
         super(SharedListModel, self).__init__(parent)
         self.listdata = []
  
     def rowCount(self, parent=QModelIndex()): 
         """
+        Return the number of row
         """
         return len(self.listdata) 
         
@@ -1662,6 +1672,7 @@ class SharedListModel(QAbstractListModel):
             
     def data(self, index, role=Qt.DisplayRole): 
         """
+        Return data
         """
         if not index.isValid():
             return q()
@@ -1672,6 +1683,9 @@ class SharedListModel(QAbstractListModel):
         return q()
         
 class SharedListView(QListView, Logger.ClassLogger):
+    """
+    Shared list view
+    """
     def __init__(self, parent):
         """
         Contructs ParametersTableView table view
@@ -1691,16 +1705,21 @@ class SharedListView(QListView, Logger.ClassLogger):
         
     def clear(self):
         """
+        Clear the list
         """
         self.model__.setDataModel( [] )
     
     def addItems(self, items):
         """
+        Add items in the list
         """
         items.sort(key=operator.itemgetter('name'))
         self.model__.setDataModel( items )
         
 class ListItemEnhanced(QListWidgetItem):
+    """
+    List item enhanced
+    """
     def __init__(self, key, value):
         """
         Item for shared parameters
@@ -1710,6 +1729,9 @@ class ListItemEnhanced(QListWidgetItem):
         self.keyValue = value
         
 class ListItemEnhanced2(QListWidgetItem):
+    """
+    List item enhanced
+    """
     def __init__(self, key, projectId, projectName):
         """
         Item for list shared parameters
@@ -1949,8 +1971,7 @@ class ListSharedParameter(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         proxyIndexes = self.mainList.selectedIndexes()
         if not proxyIndexes:
             return
-            
-        #item = self.mainList.selectedItems()
+
         sourceIndex = self.mainList.proxyModel.mapToSource( proxyIndexes[0] )
         selectedIndex = sourceIndex.row()
         row = self.mainList.model__.getData()[selectedIndex]
@@ -2151,7 +2172,6 @@ class SharedParameter(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         """
         # clear the list
         self.secondList.clear()
-        #self.valueLabel.setText( "" )
 
         # read the current project
         parameters = None
@@ -2300,8 +2320,12 @@ class SharedParameter(QtHelper.EnhancedQDialog, Logger.ClassLogger):
             return ':::'
 
 class MyHighlighter( QSyntaxHighlighter ):
+    """
+    My highlighter syntax
+    """
     def __init__( self, parent ):
         """
+        Constructor
         """
         QSyntaxHighlighter.__init__( self, parent )
         self.parent = parent
@@ -2353,21 +2377,20 @@ class MyHighlighter( QSyntaxHighlighter ):
         pattern6 = QRegExp( Settings.instance().readValue( key='Editor/parameter-custom-keywords1' ) )
         pattern6.setMinimal( True )
         others1.setForeground( brush6 )
-        # others1.setFontWeight( QFont.Bold )
         ruleOthers1 = HighlightingRule( pattern6, others1 )
+        
         # others keywords
         brush7 = QBrush( Qt.darkGray, Qt.SolidPattern )
         pattern7 = QRegExp( Settings.instance().readValue( key='Editor/parameter-custom-keywords2' ) )
         pattern7.setMinimal( True )
         others2.setForeground( brush7 )
-        # others2.setFontWeight( QFont.Bold )
         ruleOthers2 = HighlightingRule( pattern7, others2 )
+        
         # others keywords
         brush8 = QBrush( Qt.darkCyan, Qt.SolidPattern )
         pattern8 = QRegExp( Settings.instance().readValue( key='Editor/parameter-custom-keywords3' ) )
         pattern8.setMinimal( True )
         others3.setForeground( brush8 )
-        # others3.setFontWeight( QFont.Bold )
         ruleOthers3 = HighlightingRule( pattern8, others3 )
         
         self.highlightingRules.append( ruleComment )
@@ -2380,6 +2403,7 @@ class MyHighlighter( QSyntaxHighlighter ):
                 
     def highlightBlock( self, text ):
         """
+        Highligh block
         """
         for rule in self.highlightingRules:
             expression = QRegExp( rule.pattern )
@@ -2391,8 +2415,12 @@ class MyHighlighter( QSyntaxHighlighter ):
         self.setCurrentBlockState( 0 )
 
 class HighlightingRule():
+    """
+    Highlighting rule
+    """
     def __init__( self, pattern, format ):
         """
+        Constructor
         """
         self.pattern = pattern
         self.format = format
@@ -2448,7 +2476,6 @@ class CustomValues(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         self.rawFind = QtHelper.RawFind(parent=self, editor=self.textEdit, buttonNext=True)
         
         self.textEdit.setLineWrapMode(QTextEdit.NoWrap)
-        # self.textEdit.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.textEdit.setStyleSheet("""font: 9pt "Courier";""")
         self.textEdit.setPlainText(self.dataValues)
         highlighter = MyHighlighter( self.textEdit )
@@ -2530,6 +2557,7 @@ class CustomValues(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         
     def onCancel(self):
         """
+        On cancel
         """
         if self.isTextChanged:
             reply = QMessageBox.question(self, self.tr("Custom parameter"), self.tr("Are you sure to cancel?"),
@@ -2543,6 +2571,7 @@ class CustomValues(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         
     def onTextChanged(self):
         """
+        On text changed
         """
         if self.textEdit.toPlainText() != self.dataValues:
             self.isTextChanged = True
@@ -2552,6 +2581,7 @@ class CustomValues(QtHelper.EnhancedQDialog, Logger.ClassLogger):
             
     def onWrapModeChanged(self, mode):
         """
+        On wrap mode changed
         """
         if mode == Qt.Checked:
             self.textEdit.setLineWrapMode(QTextEdit.WidgetWidth)
@@ -3963,6 +3993,7 @@ class ParametersQWidget(QWidget, Logger.ClassLogger):
 
     def usedAsAlias(self, paramName):
         """
+        Used as alias
         """
         isAlias = False
         for param in self.table().model.getData():
@@ -3974,6 +4005,7 @@ class ParametersQWidget(QWidget, Logger.ClassLogger):
         
     def markUnusedInputs(self, editorSrc, editorExec):
         """
+        Mark unused inputs
         """
         for param in self.table().model.getData():
             match = False
@@ -4008,6 +4040,7 @@ class ParametersQWidget(QWidget, Logger.ClassLogger):
 
     def markUnusedOutputs(self, editorSrc, editorExec):
         """
+        Mark unused outputs
         """
         for param in self.table().model.getData():
             match = False

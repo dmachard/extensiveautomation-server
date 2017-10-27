@@ -219,8 +219,6 @@ class WRecorder(object):
                     testInputs = currentDocument.dataModel.properties['properties']['inputs-parameters']
                     testAgents = currentDocument.dataModel.properties['properties']['agents']
 
-                    # self.parent.minimizeWindow()
-
                     Gui.instance().clearSteps()
                     Gui.instance().loadAgents()
                     Gui.instance().show()
@@ -243,8 +241,6 @@ class WRecorder(object):
             if not UCI.instance().isAuthenticated():
                 QMessageBox.warning(Gui.instance(), "Assistant Automation" , "Connect to the test center in first!")
                 return
-        
-        # self.parent.minimizeWindow()
 
         Gui.instance().clearSteps()
         Gui.instance().loadAgents()
@@ -271,26 +267,31 @@ class WRecorder(object):
     
     def startMobile(self):
         """
+        Start the assistant on the mobile part
         """
         self.startGui(mode=MODE_MOB)
     
     def startWeb(self):
         """
+        Start the assistant on the web part
         """
         self.startGui(mode=MODE_WEB)
     
     def startBasic(self):
         """
+        Start the assistant on the framework part
         """
         self.startGui(mode=MODE_BAS)
     
     def startSys(self):
         """
+        Start the assistant on the system part
         """
         self.startGui(mode=MODE_SYS)
     
     def startDatabase(self):
         """
+        Start the assistant on the database part
         """
         self.startGui(mode=MODE_DBB)
         
@@ -327,11 +328,13 @@ class WRecorder(object):
 
     def captureDesktop(self):
         """
+        Capture the desktop
         """
         Gui.instance().onGlobalShortcutPressed()
 
     def restoreAssistant(self):
         """
+        Restore the assistant
         """
         Gui.instance().restoreAssistant()
         

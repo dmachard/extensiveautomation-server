@@ -171,7 +171,6 @@ class WTestResults(QWidget, Logger.ClassLogger):
         Returns all widgets tests
         """
         ret = []
-        #for wtest in self.tests.values():
         for wtest in list(self.tests.values()): # wrap to list for python3 support
             ret.append(wtest)
         return ret
@@ -230,6 +229,7 @@ class WTestResults(QWidget, Logger.ClassLogger):
 
     def onLoadLocalTestResultTerminated(self, testId):
         """
+        On load local test result terminated
         """
         if testId in self.tests:
             WTestResult = self.tests[testId]

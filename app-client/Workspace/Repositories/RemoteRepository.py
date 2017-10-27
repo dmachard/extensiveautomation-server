@@ -1053,6 +1053,7 @@ class RenameDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
 
     def onUppercaseChanged(self, state):
         """
+        on uppercase changed
         """
         if state == 2:
             filename = self.newnameEdit.text()
@@ -1376,6 +1377,7 @@ class EventFilterComboBox(QObject):
     """
     def eventFilter(self, filteredObj, event):
         """
+        On event filter
         """
         if event.type() == QEvent.Wheel:
             event.ignore()
@@ -2228,7 +2230,7 @@ class Repository(QWidget, Logger.ClassLogger):
                 else:
                     self.moveRemoteFolder(currentName=currentName, currentPath=pathFolder, newPath=newPath)
 
-    def moveRemoteFile(self, currentName, currentPath, currentExtension, newPath, project=0):
+    def moveRemoteFile(self, currentName, currentPath, currentExtension, newPath, project=0, newProject=0):
         """
         Move remote file
 
@@ -2246,7 +2248,7 @@ class Repository(QWidget, Logger.ClassLogger):
         """
         raise NotReimplemented("moveRemoteFile")
 
-    def moveRemoteFolder(self, currentName, currentPath, newPath, project=0):
+    def moveRemoteFolder(self, currentName, currentPath, newPath, project=0, newProject=0):
         """
         Move remote folder
 

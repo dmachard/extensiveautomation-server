@@ -451,7 +451,7 @@ class DTcpReplay(QtHelper.EnhancedQDialog, Logger.ClassLogger):
             self.readFilePacket(pcapFile=pcapFile)
         else:
             self.addLogError(txt="<< Error to open the network trace")
-            self.error( 'unable to open the network trace: %s' % str(e) )
+            self.error( 'unable to open the network trace: file format = %s' % fileFormat )
             QMessageBox.critical(self, "Import" , "File not supported")
         
     def readFilePacket(self, pcapFile):

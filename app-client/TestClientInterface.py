@@ -60,13 +60,13 @@ import Settings
 
 class TestsPool(QObject, Logger.ClassLogger):
     """
-    pass
+    Tests pool class
     """
     Run = pyqtSignal(tuple)  
     Notify = pyqtSignal(tuple)  
     def __init__(self, parent = None):
         """
-        pass
+        Constructor
         """
         QObject.__init__(self, parent)
         self.parent = parent
@@ -74,6 +74,7 @@ class TestsPool(QObject, Logger.ClassLogger):
 
     def newChannel(self, testId):
         """
+        Create a new channel
         """
         test = TestClientInterface( parent = self.parent )
         test.setServerAddress(ip = UCI.instance().addressResolved, port = int(UCI.instance().portData) )
@@ -88,6 +89,7 @@ class TestsPool(QObject, Logger.ClassLogger):
     
     def onConnectionSuccessful(self, instance):
         """
+        On connection successful
         """
         websocketSupport = QtHelper.str2bool(Settings.instance().readValue( key = 'Server/data-websocket' ))
         websocketSsl = QtHelper.str2bool(Settings.instance().readValue( key = 'Server/data-ssl' ))
@@ -100,11 +102,13 @@ class TestsPool(QObject, Logger.ClassLogger):
             
     def onWsHanshakeSuccess(self, instance):
         """
+        On websocket handshake success
         """
         pass
     
     def onRequest(self, client, tid, request, instance):
         """
+        On request
         """
         if request['cmd'] == Messages.RSQ_NOTIFY:
             if  request['body'][0] == 'reg':
@@ -114,6 +118,7 @@ class TestsPool(QObject, Logger.ClassLogger):
         
     def closeAll(self):
         """
+        Close all
         """
         for testId, test in self.tests:
             test.closeConnection()

@@ -136,6 +136,7 @@ class EditorWidget(QWidget, Logger.ClassLogger):
 
     def createToolbars(self):
         """
+        Create qt toolbars
         """
         self.dockToolbarClipboard.addAction(self.editor.copyAction)
         self.dockToolbarClipboard.addAction(self.editor.cutAction)
@@ -837,6 +838,7 @@ class PyEditor(QsciScintilla, Logger.ClassLogger):
   
     def markOccurence(self, foundList):
         """
+        Mark occurence
         """
         if sys.version_info > (3,):
             self.clearAllIndicators(self.matchIndicator)
@@ -883,16 +885,23 @@ class PyEditor(QsciScintilla, Logger.ClassLogger):
         return word
         
 class FindOccurenceThread(QThread):
-  
+    """
+    Find occurence thread
+    """
     markOccurrence = pyqtSignal(list)
-  
     def run(self):
         """
+        Run thread
         """
         word = re.escape(self.word)
         if self.wholeWord:
             word = "\\b{0}\\b".format(word)
-        flags = re.UNICODE | re.LOCALE
+        
+        if QtHelper.IS_QT5:
+            flags = re.UNICODE
+        else:
+            flags = re.UNICODE | re.LOCALE
+            
         search = re.compile(word, flags)
   
         lineno = 0
@@ -907,6 +916,7 @@ class FindOccurenceThread(QThread):
   
     def find(self, word, wholeWord, source):
         """
+        Find
         """
         self.source = source
         self.word = word
@@ -992,19 +1002,13 @@ class FindReplace(QWidget):
         glayout = QGridLayout()
         glayout.setContentsMargins(0, 0, 0, 0)
 
-        # findWhat = QLabel(  self.tr("Find :") )
-        # replaceWith = QLabel(  self.tr("Replace With:") )
-        
         self.edit = QLineEditMore(parent=self)
-        # self.edit.setMinimumWidth(250)
         self.edit.setEditable(1)
         self.edit.setMaxCount(10)
         self.edit.setSizePolicy( QSizePolicy.Expanding, QSizePolicy.Fixed )
         self.edit.lineEdit().setPlaceholderText("Search text in your test?")
-        
-        #self.replaceEdit = QComboBox(parent=self)
+
         self.replaceEdit = QComboBox(self)
-        # self.replaceEdit.setMinimumWidth(250)
         self.replaceEdit.setEditable(1)
         self.replaceEdit.setMaxCount(10)
         self.replaceEdit.setSizePolicy( QSizePolicy.Expanding, QSizePolicy.Fixed )
@@ -1049,7 +1053,6 @@ class FindReplace(QWidget):
         hlayout.addWidget(self.allCheck)
         hlayout.addWidget(self.line)
 
-        # glayout.addWidget( findWhat, 0, 0 )
         glayout.addWidget( self.edit, 0, 1 )
         glayout.addWidget( self.nextButton, 0, 2 )
         glayout.addWidget( self.previousButton, 0, 3 )
@@ -1058,7 +1061,6 @@ class FindReplace(QWidget):
         glayout.addWidget( self.caseWordCheck, 1, 4 )
         glayout.addWidget( self.caseRegexpCheck, 1, 5 )
 
-        # glayout.addWidget( replaceWith, 1, 0 )
         glayout.addWidget( self.replaceEdit, 1, 1 )
         glayout.addWidget( self.replaceButton, 1, 2 )
         glayout.addLayout( hlayout, 1, 3)
@@ -1096,7 +1098,6 @@ class FindReplace(QWidget):
         """
         Find text has changed
         """
-        # text = self.edit.text()
         text = self.edit.currentText()
         if len(text) > 0:
             self.previousButton.setEnabled(True)
@@ -1108,6 +1109,7 @@ class FindReplace(QWidget):
 
     def updateComboBox(self):
         """
+        Update combobox
         """
         comboUpdated = False
         for i in range(self.edit.count()):
@@ -1162,7 +1164,6 @@ class FindReplace(QWidget):
         @param forward: 
         @type forward: boolean      
         """
-        # text = self.edit.text()
         text = self.edit.currentText()
         if len(text)==0:
             self.edit.setStyleSheet("")

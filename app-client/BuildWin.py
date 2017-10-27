@@ -21,6 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Build the windows portable version with py2exe
+"""
+
 from distutils.core import setup
 import py2exe
 import datetime
@@ -49,16 +53,19 @@ class Target(object):
     """
     def __init__(self, **kw):
         """
+        Constructor
         """
         self.__dict__.update(kw)
 
     def copy(self):
         """
+        Copy the target
         """
         return Target(**self.__dict__)
 
     def __setitem__(self, name, value):
         """
+        Set item on the dict
         """
         self.__dict__[name] = value
 

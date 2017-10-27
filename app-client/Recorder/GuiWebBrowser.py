@@ -21,6 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Browser assistant module
+"""
+
 import sys
 
 # unicode = str with python3
@@ -60,10 +64,12 @@ import Settings
 
 class WBrowserWeb(QWidget, Logger.ClassLogger):
     """
+    Browser web widget
     """
     TagsHtml = pyqtSignal(dict, dict, dict, dict ,dict, dict)  
     def __init__(self, parent):
         """
+        Constructor
         """
         QWidget.__init__(self)
         
@@ -88,6 +94,7 @@ class WBrowserWeb(QWidget, Logger.ClassLogger):
         
     def createWidgets(self):
         """
+        Create all qt widgets
         """
         self.setWindowTitle( self.tr("Extensive Testing Client - Web Browser") )
         self.setWindowIcon( QIcon(":/main.png") )
@@ -159,11 +166,13 @@ class WBrowserWeb(QWidget, Logger.ClassLogger):
 
     def stop(self):
         """
+        Stop the web view
         """
         self.webView.stop()
 
     def onChangeWebLocation(self):
         """
+        On change web location
         """
         self.webCounter.setText( "(1%)" )
         url = QUrl.fromUserInput(self.locationEdit.text())
@@ -172,11 +181,13 @@ class WBrowserWeb(QWidget, Logger.ClassLogger):
 
     def onWebProgress(self, p):
         """
+        On web progress
         """
         self.webCounter.setText( "(%s%%)" % p )
         
     def onFinishLoading(self):
         """
+        On finish loading
         """
         self.webTitle.setText( "Title: %s" % self.webView.title() )
         
@@ -240,6 +251,7 @@ class WBrowserWeb(QWidget, Logger.ClassLogger):
 
     def examineChildElements(self, parentElement, listResult):
         """
+        Examine child elements
         """
         # Traverse the document.
         element = parentElement.firstChild()

@@ -4,5 +4,10 @@
 	What's new
 		1. (minor) small change on the toolbar of the online assistant
 		2. (medium) new library pyinstaller used to build the client with qt5
+		3. (minor) static code analysis and cleanup, epydoc added
+		4. (minor) change default url of the website opensource project
+		5. (major) full support of qt5.9 and python3.6 (tbc!!!)
 	Issues Fixed
 		1. (minor) unable to print test xml verdict to pdf, missing QTextDocument import
+		2. (minor) fix some undefined variable after static code analysis
+		3. (minor) tests results archives: add protection to avoid errors on add/delete comments

@@ -168,6 +168,7 @@ class RawView(QWidget, Logger.ClassLogger):
 
     def registerPlugin(self, pluginAction):
         """
+        Register plugin in toolbar
         """
         self.toolbarPlugins.addAction(pluginAction)
         self.toolbarPlugins.setIconSize(QSize(16, 16))
@@ -197,9 +198,9 @@ class RawView(QWidget, Logger.ClassLogger):
         
         # new in v17.1
         if QtHelper.IS_QT5:
-            _filename, _type = filename
+            _filename, _type = fileName
         else:
-            _filename = filename
+            _filename = fileName
         # end of new
         
         if _filename:
@@ -218,9 +219,9 @@ class RawView(QWidget, Logger.ClassLogger):
         
         # new in v17.1
         if QtHelper.IS_QT5:
-            _filename, _type = filename
+            _filename, _type = fileName
         else:
-            _filename = filename
+            _filename = fileName
         # end of new
         
         if _filename:
@@ -238,9 +239,9 @@ class RawView(QWidget, Logger.ClassLogger):
         
         # new in v17.1
         if QtHelper.IS_QT5:
-            _filename, _type = filename
+            _filename, _type = fileName
         else:
-            _filename = filename
+            _filename = fileName
         # end of new
         
         if _filename:
@@ -255,13 +256,13 @@ class RawView(QWidget, Logger.ClassLogger):
         """
         Save to pdf file
         """
-        filename = QFileDialog.getSaveFileName(self, 'Save to PDF', "", "PDF file (*.pdf);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, 'Save to PDF', "", "PDF file (*.pdf);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
-            _filename, _type = filename
+            _filename, _type = fileName
         else:
-            _filename = filename
+            _filename = fileName
         # end of new 
         
         if _filename:
@@ -340,6 +341,7 @@ class WExportDesign(QtHelper.EnhancedQDialog, Logger.ClassLogger):
 
     def pluginDataAccessor(self):
         """
+        Return data to plugins
         """
         frame = self.rawWidget.txtEdit.page().mainFrame()
         
@@ -350,6 +352,7 @@ class WExportDesign(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         
     def addPlugin(self, pluginAct):
         """
+        Register plugins in widgets
         """
         self.rawWidget.registerPlugin(pluginAct)
         self.xmlWidget.registerPlugin(pluginAct)

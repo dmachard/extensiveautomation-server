@@ -64,6 +64,9 @@ def calling_rest(func):
     return wrapper
     
 class RestClientInterface(QObject, Logger.ClassLogger):
+    """
+    Rest client interface
+    """
     CloseConnection = pyqtSignal()
     CriticalMsg = pyqtSignal(str, str)  
     WarningMsg = pyqtSignal(str, str)  
@@ -74,6 +77,7 @@ class RestClientInterface(QObject, Logger.ClassLogger):
     Authenticated = pyqtSignal()
     def __init__(self, parent):
         """
+        Constructor
         """
         QObject.__init__(self, parent)
         self.__sessionId = None

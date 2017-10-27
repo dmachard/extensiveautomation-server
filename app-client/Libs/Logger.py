@@ -61,6 +61,7 @@ def caller():
     
 def log_exception(*args):
     """
+    Log exception
     """
     timestamp = time.time()
     c,e,traceback = args

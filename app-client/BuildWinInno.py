@@ -52,6 +52,7 @@ class InnoScript:
         
     def listdir(self, mainPath, subPath):
         """
+        List all files and append it in a list with inno format
         """
         r = []
         for f in os.listdir( "%s/%s" % (mainPath, subPath) ):

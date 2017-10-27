@@ -224,17 +224,20 @@ class WWorkspace(QWidget):
         
     def onShowPropertiesTab(self):
         """
+        On show properties tabulation
         """
         if QtHelper.str2bool( Settings.instance().readValue( key = 'View/tab-left' ) ): 
             self.leftTab.setCurrentIndex(TAB_PROPERTIES)  
         
     def onEnterAssistant(self):
         """
+        On mouse enter in the online helper
         """
         pass
 
     def onLeaveAssistant(self):
         """
+        On mouse leave in the online helper
         """
         pass
         

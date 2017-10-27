@@ -52,10 +52,16 @@ import re
 
 r = re.compile( u"[^\x09\x0A\x0D\x20-\x7E\x85\xA0-\xFF\u0100-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD]")
 def removeInvalidXML(string):
-  def replacer(m):
-    return ""
-  return re.sub(r,replacer,string)
-  
+    """
+    Remove invalid XML
+    """
+    def replacer(m):
+        """
+        return empty string
+        """
+        return ""
+    return re.sub(r,replacer,string)
+
 DEFAULT_INPUTS = [ {'type': 'bool', 'name': 'DEBUG', 'description': '', 'value' : 'False', 'color': '' },
                     {'type': 'float', 'name': 'TIMEOUT', 'description': '', 'value' : '1.0', 'color': '' },
                     {'type': 'bool', 'name': 'VERBOSE', 'description': '', 'value' : 'True', 'color': '' } ]
@@ -288,6 +294,7 @@ class DataModel(GenericModel.GenericModel):
 
     def fixOrphan(self):
         """
+        Fix orphan test
         """
         orphansDetected = []
         for i in xrange(len(self.testplan['testplan']['testfile'])):
@@ -307,6 +314,7 @@ class DataModel(GenericModel.GenericModel):
         
     def findTest(self, testId):
         """
+        Find a test
         """
         test = None
         for t in self.testplan['testplan']['testfile']:
@@ -454,6 +462,7 @@ class DataModel(GenericModel.GenericModel):
 
     def __submerge(self, paramName, parameters):
         """
+        Recursive function to merge 
         """
         paramFound = False
         for inputDict in parameters:
@@ -464,6 +473,7 @@ class DataModel(GenericModel.GenericModel):
 
     def cleartTestParameters(self, itemId):
         """
+        Clear test parameters
         """
         testSuites = self.testplan['testplan']['testfile']
         for i in xrange(len(testSuites)):
@@ -477,6 +487,7 @@ class DataModel(GenericModel.GenericModel):
         
     def cleartAllTestParameters(self):
         """
+        Clear all test parameters
         """
         testSuites = self.testplan['testplan']['testfile']
         for i in xrange(len(testSuites)):

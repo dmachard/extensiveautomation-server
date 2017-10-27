@@ -64,6 +64,9 @@ MAX_ARGUMENT_TO_DISPLAY2    = 30
 MAX_COL                     = 12
 
 class QLabelEnhanced(QLabel):
+    """
+    Label enhanced widget
+    """
     EnterLabel = pyqtSignal(str)  
     LeaveLabel = pyqtSignal()  
     def __init__(self, text, parent, data):
@@ -88,6 +91,9 @@ class QLabelEnhanced(QLabel):
         event.accept()
         
 class BasicWidget(QFrame, Logger.ClassLogger):
+    """
+    Basic widget
+    """
     def __init__(self, actionData, owner, variables, testParams, parent, adapterMode=False, stepMode=False):
         """
         Constructs WDocumentViewer widget 

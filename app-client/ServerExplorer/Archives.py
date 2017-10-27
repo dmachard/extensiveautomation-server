@@ -318,7 +318,8 @@ class PreviewReport(QWidget, Logger.ClassLogger):
     """
     Raw view widget
     """
-    def __init__(self, parent, data, toCsv=False, toHtml=False, toPrinter=False, toTxt=False, toPdf=False):
+    def __init__(self, parent, data, toCsv=False, toHtml=False, toPrinter=False, 
+                    toTxt=False, toPdf=False):
         """
         Raw view widget
 
@@ -414,6 +415,7 @@ class PreviewReport(QWidget, Logger.ClassLogger):
 
     def registerPlugin(self, pluginAction):
         """
+        Called to register a plugin
         """
         self.toolbarPlugins.addAction(pluginAction)
         self.toolbarPlugins.setIconSize(QSize(16, 16))
@@ -468,7 +470,8 @@ class PreviewReport(QWidget, Logger.ClassLogger):
         """
         Save to txt file
         """
-        fileName = QFileDialog.getSaveFileName(self, "Save TXT file", "", "TXT file (*.txt);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, "Save TXT file", "", 
+                                                "TXT file (*.txt);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
@@ -515,7 +518,8 @@ class PreviewReport(QWidget, Logger.ClassLogger):
         """
         Save to html file
         """
-        fileName = QFileDialog.getSaveFileName(self, "Save HTML file", "", "HTML file (*.html);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, "Save HTML file", "", 
+                                                "HTML file (*.html);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
@@ -561,7 +565,8 @@ class PreviewReport(QWidget, Logger.ClassLogger):
         """
         Save to pdf file
         """
-        fileName = QFileDialog.getSaveFileName(self, 'Save to PDF', "", "PDF file (*.pdf);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, 'Save to PDF', "", 
+                                                "PDF file (*.pdf);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
@@ -605,6 +610,7 @@ class PreviewReport(QWidget, Logger.ClassLogger):
         
     def loadReports(self, content):
         """
+        Load the report
         """
         # convert to qbyte array to support qt5
         tmp_ = QByteArray()
@@ -614,6 +620,7 @@ class PreviewReport(QWidget, Logger.ClassLogger):
 
     def deactive(self):
         """
+        Deactive the widget
         """
         self.txtEdit.setHtml( "" )
         
@@ -652,10 +659,14 @@ class PreviewImages(QWidget):
         """
         Create qc actions
         """
-        self.zoomInAct = QtHelper.createAction(self, "&Zoom &In (25%.", self.zoomIn, icon=QIcon(":/zoom-in.png") ) 
-        self.zoomOutAct = QtHelper.createAction(self, "Zoom &Out (25%.", self.zoomOut, icon=QIcon(":/zoom-out.png") ) 
-        self.normalSizeAct = QtHelper.createAction(self, "&Normal Size", self.normalSize, icon=QIcon(":/zoom-normal.png") ) 
-        self.saveImageAct = QtHelper.createAction(self, "&Save", self.saveImage, icon=QIcon(":/filesave.png") ) 
+        self.zoomInAct = QtHelper.createAction(self, "&Zoom &In (25%.", self.zoomIn, 
+                                                icon=QIcon(":/zoom-in.png") ) 
+        self.zoomOutAct = QtHelper.createAction(self, "Zoom &Out (25%.", self.zoomOut, 
+                                                icon=QIcon(":/zoom-out.png") ) 
+        self.normalSizeAct = QtHelper.createAction(self, "&Normal Size", self.normalSize, 
+                                                    icon=QIcon(":/zoom-normal.png") ) 
+        self.saveImageAct = QtHelper.createAction(self, "&Save", self.saveImage, 
+                                                    icon=QIcon(":/filesave.png") ) 
 
     def createWidgets(self):
         """
@@ -683,9 +694,13 @@ class PreviewImages(QWidget):
         """
         Save image
         """
-        graphPixmap = QPixmap.grabWidget(self.imageLabel)
+        if QtHelper.IS_QT5:
+            graphPixmap = self.imageLabel.grab()
+        else:
+            graphPixmap = QPixmap.grabWidget(self.imageLabel)
         format = 'jpg'
-        fileName = QFileDialog.getSaveFileName(self, self.tr("Save As"), "", "%s Files (*.%s);;All Files (*)" % (format.upper(), format))
+        fileName = QFileDialog.getSaveFileName(self, self.tr("Save As"), "", 
+                                                "%s Files (*.%s);;All Files (*)" % (format.upper(), format))
         # new in v18 to support qt5
         if QtHelper.IS_QT5:
             _fileName, _type = fileName
@@ -767,14 +782,19 @@ class PreviewImages(QWidget):
     
     def onGetImagePreview(self, content):
         """
+        Called on image preview received
         """
         self.resetView()
         self.setImage(content=base64.b64decode(content))
         self.scaleImage(1.0)
         
 class PreviewComments(QWidget):
-    def __init__(self,parent):
+    """
+    Preview comments widget
+    """
+    def __init__(self, parent):
         """
+        Constructor
         """
         QWidget.__init__(self, parent)
         self.itemCurrent = None
@@ -795,14 +815,15 @@ class PreviewComments(QWidget):
         """
         # comments actions
         self.addCommentAction = QtHelper.createAction(self, "&Add", self.addComment, 
-                    tip = 'Add comment', icon = QIcon(":/add_post.png") )
+                                            tip = 'Add comment', icon = QIcon(":/add_post.png") )
         self.clearAction = QtHelper.createAction(self, "&Clear", self.clearText, 
-                    tip = 'Clear fields', icon = QIcon(":/clear.png") )
+                                            tip = 'Clear fields', icon = QIcon(":/clear.png") )
         self.delCommentsAction = QtHelper.createAction(self, "&Delete all", self.delComments, 
-                    tip = 'Delete all comments', icon = QIcon(":/del-posts.png") )
+                                            tip = 'Delete all comments', icon = QIcon(":/del-posts.png") )
 
     def createWidgets(self):
         """
+        Create the widgets
         """
         self.dockToolbarComments = QToolBar(self)
         self.dockToolbarComments.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
@@ -870,6 +891,10 @@ class PreviewComments(QWidget):
 
         # prepare vars
         cur = self.itemCurrent
+
+        if cur.typeItem != TYPE_ITEM_TEST_RESULT:
+            return
+            
         logDirName = cur.parent.parent.archiveDescr['name']
         logSubDirName = cur.parent.archiveDescr['name']
         logFileName =  cur.archiveDescr['name']
@@ -883,7 +908,8 @@ class PreviewComments(QWidget):
             postComment_encoded = base64.b64encode( postComment.toUtf8() )
         
         # call web services
-        UCI.instance().addCommentArchive( archiveFile = filePath, archivePost = postComment_encoded, postTimestamp=time.time() )
+        UCI.instance().addCommentArchive( archiveFile = filePath, archivePost = postComment_encoded, 
+                                            postTimestamp=time.time() )
     
     def readComments(self):
         """
@@ -895,6 +921,10 @@ class PreviewComments(QWidget):
 
         # prepare vars
         cur = self.itemCurrent
+        
+        if cur.typeItem != TYPE_ITEM_TEST_RESULT:
+            return
+            
         logDirName = cur.parent.parent.archiveDescr['name']
         logSubDirName = cur.parent.archiveDescr['name']
         logFileName =  cur.archiveDescr['name']
@@ -913,6 +943,10 @@ class PreviewComments(QWidget):
         if reply == QMessageBox.Yes:
             # prepare vars
             cur = self.itemCurrent
+            
+            if cur.typeItem != TYPE_ITEM_TEST_RESULT:
+                return
+                
             logDirName = cur.parent.parent.archiveDescr['name']
             logSubDirName = cur.parent.archiveDescr['name']
             logFileName =  cur.archiveDescr['name']
@@ -931,7 +965,8 @@ class PreviewComments(QWidget):
         """
         commentsParsed = []
         for archive_comment in comments:
-            dt = time.strftime( "%Y-%m-%d %H:%M:%S", time.localtime( float(archive_comment['datetime'])) )  + ".%3.3d" % int(( float(archive_comment['datetime']) * 1000) % 1000 )
+            dt = time.strftime( "%Y-%m-%d %H:%M:%S", time.localtime( float(archive_comment['datetime'])) )  \
+                                    + ".%3.3d" % int(( float(archive_comment['datetime']) * 1000) % 1000 )
             post_decoded = base64.b64decode(archive_comment['post'])
             post_decoded = post_decoded.decode('utf8').replace('\n', '<br />')
             commentsParsed.append( 'By <b>%s</b>, %s<p style="margin-left:20px">%s</p>' % (archive_comment['author'], dt, post_decoded) )
@@ -954,7 +989,8 @@ class PreviewComments(QWidget):
         newArchiveName = "%s_0.trx" % archiveName
         newArchivePath = '%s/%s' % (archPath, newArchiveName)
         
-        self.onCommentAdded(oldArchivePath=archivePath, newArchivePath=newArchivePath, archiveComments=[], displayPosts=False)
+        self.onCommentAdded(oldArchivePath=archivePath, newArchivePath=newArchivePath, 
+                            archiveComments=[], displayPosts=False)
 
     def onLoadComments(self, archivePath, archiveComments):
         """
@@ -1136,6 +1172,7 @@ class PreviewVerdict(QWidget, Logger.ClassLogger):
 
     def createConnections(self):
         """
+        Create all qt connections
         """
         self.delTG.stateChanged.connect(self.onRemoveLines)
         self.delTP.stateChanged.connect(self.onRemoveLines)
@@ -1173,6 +1210,7 @@ class PreviewVerdict(QWidget, Logger.ClassLogger):
 
     def registerPlugin(self, pluginAction):
         """
+        Register a plugin
         """
         self.toolbarPlugins.addAction(pluginAction)
         self.toolbarPlugins.setIconSize(QSize(16, 16))
@@ -1180,6 +1218,7 @@ class PreviewVerdict(QWidget, Logger.ClassLogger):
         
     def onRemoveLines(self):
         """
+        Called when lines must be removed
         """
         ret = []
         for l in self.__data.splitlines():
@@ -1206,7 +1245,8 @@ class PreviewVerdict(QWidget, Logger.ClassLogger):
         """
         Save to xml file
         """
-        fileName = QFileDialog.getSaveFileName(self, "Save XML file", "", "XML file (*.xml);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, "Save XML file", "", 
+                                                "XML file (*.xml);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
@@ -1248,7 +1288,8 @@ class PreviewVerdict(QWidget, Logger.ClassLogger):
         """
         Save to csv file
         """
-        fileName = QFileDialog.getSaveFileName(self, "Save CSV file", "", "CSV file (*.csv);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, "Save CSV file", "", 
+                                                "CSV file (*.csv);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
@@ -1273,7 +1314,8 @@ class PreviewVerdict(QWidget, Logger.ClassLogger):
         """
         Save to txt file
         """
-        fileName = QFileDialog.getSaveFileName(self, "Save TXT file", "", "TXT file (*.txt);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, "Save TXT file", "", 
+                                                "TXT file (*.txt);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
@@ -1298,7 +1340,8 @@ class PreviewVerdict(QWidget, Logger.ClassLogger):
         """
         Save pdf file
         """
-        fileName = QFileDialog.getSaveFileName(self, 'Save to PDF', "", "PDF file (*.pdf);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, 'Save to PDF', "", 
+                                                "PDF file (*.pdf);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
@@ -1326,12 +1369,14 @@ class PreviewVerdict(QWidget, Logger.ClassLogger):
         
     def loadVerdicts(self, content):
         """
+        Load verdicts in the widget
         """
         self.__data = content
         self.txtEdit.setText( content )
 
     def deactive(self):
         """
+        Deactive the widget
         """
         self.__data = ''
         self.txtEdit.setText( "" )     
@@ -1406,36 +1451,43 @@ class WArchives(QWidget, Logger.ClassLogger):
          * expand sub tree of a item on archive tree
         """
         self.deleteTrAction = QtHelper.createAction(self, "&Delete\nResult", self.deleteTestResult, 
-                    tip = 'Delete the selected test result', icon = QIcon(":/delete_file.png"), shortcut = "Del" )
+                                                    tip = 'Delete the selected test result', 
+                                                    icon = QIcon(":/delete_file.png"), shortcut = "Del" )
 
         self.emptyAction = QtHelper.createAction(self, "&Empty\nall", self.emptyArchives, 
-                    tip = 'Remove all archives', icon = QIcon(":/trash.png") )
+                                                    tip = 'Remove all archives', 
+                                                    icon = QIcon(":/trash.png") )
         self.openAction = QtHelper.createAction(self, "&Open", self.openResult, 
-                    tip = 'Open the selected test result', icon = QIcon(":/open-test.png"))
+                                                    tip = 'Open the selected test result', 
+                                                    icon = QIcon(":/open-test.png"))
         self.saveAction = QtHelper.createAction(self, "&Save", self.saveFile, 
-                    tip = 'Save the selected test result', icon = QIcon(":/save-test.png"))
+                                                    tip = 'Save the selected test result', 
+                                                    icon = QIcon(":/save-test.png"))
         self.zipAction = QtHelper.createAction(self, "&Create package", self.createPkg, 
-                    tip = 'Create a package of the selected directory', icon = QIcon(":/file-zip-logs.png") )
+                                                tip = 'Create a package of the selected directory', 
+                                                icon = QIcon(":/file-zip-logs.png") )
         self.refreshAction = QtHelper.createAction(self, "&Partial", self.partialRefreshRepo, 
-                    tip = 'Refresh partial results', tooltip='Partial refresh', icon = QIcon(":/act-half-refresh.png") )
+                                                    tip = 'Refresh partial results', tooltip='Partial refresh', 
+                                                    icon = QIcon(":/act-half-refresh.png") )
         self.fullRefreshAction = QtHelper.createAction(self, "&Full", self.fullRefreshRepo, 
-                    tip = 'Refresh all test results', tooltip='Full refresh', icon = QIcon(":/act-refresh.png") )   
+                                                    tip = 'Refresh all test results', tooltip='Full refresh', 
+                                                    icon = QIcon(":/act-refresh.png") )   
 
         self.expandAllAction = QtHelper.createAction(self, "&Expand All...", self.expandAllItems, icon = None, 
-                    tip = 'Expand all items' )
+                                                    tip = 'Expand all items' )
         self.collapseAllAction = QtHelper.createAction(self, "&Collapse All...", self.collapseAllItems, icon = None, 
-                    tip = 'Collapse all items' )
+                                                    tip = 'Collapse all items' )
 
         # export csv
         self.exportTestVerdictAction = QtHelper.createAction(self, "&Verdict", self.exportTestVerdict,
-                    tip = 'Export test verdict', icon = QIcon(":/tvr.png"))
+                                                        tip = 'Export test verdict', icon = QIcon(":/tvr.png"))
         self.exportTestReportAction = QtHelper.createAction(self, "&Report", self.exportTestReport,
-                    tip = 'Export test report', icon = QIcon(":/trp.png"))
+                                                        tip = 'Export test report', icon = QIcon(":/trp.png"))
         self.exportTestDesignAction = QtHelper.createAction(self, "&Design", self.exportTestDesign,
-                    tip = 'Export test design', icon = QIcon(":/tds.png"))
+                                                        tip = 'Export test design', icon = QIcon(":/tds.png"))
 
         self.expandSubtreeAction = QtHelper.createAction(self, "&Expand subtree...", self.expandSubtreeIteem, icon = None, 
-                    tip = 'Expand subtree' )
+                                                        tip = 'Expand subtree' )
 
     def createWidgets (self):
         """
@@ -1546,7 +1598,8 @@ class WArchives(QWidget, Logger.ClassLogger):
         self.archives = DeselectableTreeWidget(self)
         self.archives.setEnabled(False)
         self.archives.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.labels = [ self.tr("Name"), self.tr("Result"), self.tr("Run"), self.tr("Replay Id"), self.tr("Created"), 
+        self.labels = [ self.tr("Name"), self.tr("Result"), self.tr("Run"), 
+                        self.tr("Replay Id"), self.tr("Created"), 
                         self.tr("User"), self.tr("Size on disk") ]
         self.archives.setHeaderLabels(self.labels)
         self.archives.setColumnWidth(COL_NAME, 370)
@@ -1625,6 +1678,7 @@ class WArchives(QWidget, Logger.ClassLogger):
 
     def pluginDataAccessor(self):
         """
+        Return the data for plugin
         """
         frame = self.tabReports.txtEdit.page().mainFrame()
         basicFrame = self.tabBasicReports.txtEdit.page().mainFrame()
@@ -1639,6 +1693,7 @@ class WArchives(QWidget, Logger.ClassLogger):
 
     def addPlugin(self, pluginAct):
         """
+        Register the plugin in the widget
         """
         self.tabReports.registerPlugin(pluginAct)
         self.tabVerdicts.registerPlugin(pluginAct)
@@ -1647,6 +1702,7 @@ class WArchives(QWidget, Logger.ClassLogger):
 
     def deleteTestResult(self):
         """
+        Deete a test result
         """
         
         cur = self.itemCurrent
@@ -1657,8 +1713,9 @@ class WArchives(QWidget, Logger.ClassLogger):
             logDirName = cur.archiveDescr['name']
             projectId =  cur.archiveDescr['project']
        
-            reply = messageBox.warning(self, self.tr("Delete Test Result"), self.tr("Are you sure you want to delete?"),
-                                                QMessageBox.Yes |QMessageBox.Cancel )
+            reply = messageBox.warning(self, self.tr("Delete Test Result"), 
+                                        self.tr("Are you sure you want to delete?"),
+                                        QMessageBox.Yes |QMessageBox.Cancel )
             #call web service
             if reply == QMessageBox.Yes:   
                 UCI.instance().deleteTestResult(  '%s/' % (logDirName), projectId=projectId )
@@ -1669,7 +1726,8 @@ class WArchives(QWidget, Logger.ClassLogger):
             projectId =  cur.archiveDescr['project']
        
             
-            reply = messageBox.warning(self, self.tr("Delete Test Result"), self.tr("Are you sure you want to delete?"),
+            reply = messageBox.warning(self, self.tr("Delete Test Result"), 
+                                            self.tr("Are you sure you want to delete?"),
                                                 QMessageBox.Yes |QMessageBox.Cancel )
             #call web service
             if reply == QMessageBox.Yes:   
@@ -1680,31 +1738,37 @@ class WArchives(QWidget, Logger.ClassLogger):
         
     def comments(self):
         """
+        Returen the comments tabulation
         """
         return self.tabComments
         
     def images(self):
         """
+        Return the images tabulation
         """
         return self.tabImages
         
     def reports(self):
         """
+        Return the reports tabulation
         """
         return self.tabReports
         
     def verdicts(self):
         """
+        Return the verdict tabulation
         """
         return self.tabVerdicts
         
     def basicReports(self):
         """
+        Return the basic report tabulation
         """
         return self.tabReports
         
     def xmlVerdicts(self):
         """
+        Return the xml verdict tabulation
         """
         return self.tabVerdicts
         
@@ -1791,8 +1855,10 @@ class WArchives(QWidget, Logger.ClassLogger):
         cur = self.itemCurrent
         logDirName = cur.parent.parent.archiveDescr['name']
         logSubDirName = cur.parent.archiveDescr['name']
+        
         # filename without extension, example : "Noname1_0_PASS_0.trx
         logFileName =  cur.archiveDescr['name'].rsplit('.', 1)[0]
+        
         # and without nb comment and result
         logFileName =  logFileName.rsplit('_', 2)[0]
         projectId = cur.archiveDescr['project']
@@ -1835,8 +1901,10 @@ class WArchives(QWidget, Logger.ClassLogger):
         cur = self.itemCurrent
         logDirName = cur.parent.parent.archiveDescr['name']
         logSubDirName = cur.parent.archiveDescr['name']
+        
         # filename without extension, example : "Noname1_0_PASS_0.trx
         logFileName =  cur.archiveDescr['name'].rsplit('.', 1)[0]
+        
         # and without nb comment and result
         logFileName =  logFileName.rsplit('_', 2)[0]
         projectId = cur.archiveDescr['project']
@@ -2127,7 +2195,8 @@ class WArchives(QWidget, Logger.ClassLogger):
             _destfileName = "%s/%s" % ( Settings.instance().readValue( key = 'TestArchives/download-directory' ), logFileName )
         else:
             extension = self.tr("All Files (*.*)")
-            destfileName = QFileDialog.getSaveFileName(self, self.tr("Save Test Result"), logFileName, extension )
+            destfileName = QFileDialog.getSaveFileName(self, self.tr("Save Test Result"), 
+                                                        logFileName, extension )
             # new in v17.1
             if QtHelper.IS_QT5:
                 _destfileName, _type = destfileName
@@ -2411,6 +2480,7 @@ class WArchives(QWidget, Logger.ClassLogger):
 
     def loadTestPreview(self):
         """
+        Load test preview
         """
         if self.itemCurrent is None: return
 
@@ -2440,6 +2510,7 @@ class WArchives(QWidget, Logger.ClassLogger):
          
     def loadImagePreview(self):
         """
+        Load image preview
         """
         if self.itemCurrent is None: return
         
@@ -2469,6 +2540,7 @@ class WArchives(QWidget, Logger.ClassLogger):
             
     def resetPreview(self):
         """
+        Reset the preview widget
         """
         self.previewTab.setTabEnabled(TAB_XML_VERDICTS, False)
         self.previewTab.setTabEnabled(TAB_VERDICTS, False)
@@ -2487,6 +2559,7 @@ class WArchives(QWidget, Logger.ClassLogger):
      
     def onGetTestPreview(self, content):
         """
+        On get test preview
         """
         self.previewTab.setCurrentIndex(TAB_REPORTS)   
         

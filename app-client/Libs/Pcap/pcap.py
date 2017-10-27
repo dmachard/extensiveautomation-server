@@ -1,24 +1,37 @@
+"""
+Read and parse pcap file
+see http://wiki.wireshark.org/Development/LibpcapFileFormat
+"""
+
 from __future__ import unicode_literals, print_function, division
 
 __author__ = 'dongliu'
 
-# read and parse pcap file
-# see http://wiki.wireshark.org/Development/LibpcapFileFormat
+
 import sys
 import struct
 
 
 class PcapFile(object):
+    """
+    Pcap file handler
+    """
     def __init__(self, infile, head):
+        """
+        Constructor
+        """
         self.infile = infile
         self.byteorder = b'@'
         self.link_type = None
         # the first 4 byte head has been read by pcap file format checker
         self.head = head
 
-    # http://www.winpcap.org/ntar/draft/PCAP-DumpFileFormat.html
+    
     def pcap_check(self):
-        """check the header of cap file, see it is a ledge pcap file.."""
+        """
+        check the header of cap file, see it is a ledge pcap file
+        # http://www.winpcap.org/ntar/draft/PCAP-DumpFileFormat.html
+        """
 
         # default, auto
         # read 24 bytes header
@@ -65,6 +78,9 @@ class PcapFile(object):
         return micro_second, link_packet
 
     def read_packet(self):
+        """
+        Read packet
+        """
         flag = self.pcap_check()
         if not flag:
             # not a valid pcap file or we cannot handle this file.

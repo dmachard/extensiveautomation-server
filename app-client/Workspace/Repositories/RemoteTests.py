@@ -67,6 +67,7 @@ class Repository(RemoteRepository.Repository):
         
     def __treeFolder(self, item):
         """
+        Reccursive tree folder
         """
         listing = []
         
@@ -83,6 +84,7 @@ class Repository(RemoteRepository.Repository):
             
     def pluginDataAccessor(self):
         """
+        Send data to plugin
         """
         listing = []
         
@@ -101,6 +103,7 @@ class Repository(RemoteRepository.Repository):
         
     def addPlugin(self, pluginAct):
         """
+        Add plugin
         """
         self.pluginsStarted.append( pluginAct )
         
@@ -134,6 +137,7 @@ class Repository(RemoteRepository.Repository):
             
     def onPluginImport(self, dataJson):
         """
+        On data from plugin
         """
         if "files" not in dataJson:
             QMessageBox.warning(self, "Remote tests" , "bad json import, files key is missing!")
@@ -162,6 +166,7 @@ class Repository(RemoteRepository.Repository):
                     
     def setDefaultVersionForAllTests(self):
         """
+        Set the default version for all tests
         """
         reply = QMessageBox.question(self, self.tr("Set default adapters and libraries version"), 
                                         self.tr("Are you sure to set the default adapters and libraries version for all tests?"),

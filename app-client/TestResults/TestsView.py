@@ -66,9 +66,11 @@ TAB_INTERACT_POS    = 4
 
 class LabelMovie(QWidget):
     """
+    Label movie widget
     """
     def __init__(self, parent, testcaseName, running=False):
         """
+        Constructor
         """
         QWidget.__init__(self, parent)
         self.testcaseName = testcaseName
@@ -81,6 +83,7 @@ class LabelMovie(QWidget):
 
     def createWidgets(self):
         """
+        Create qt widgets
         """
         layout = QHBoxLayout()
 
@@ -122,11 +125,13 @@ class LabelMovie(QWidget):
         
     def startMovie(self):
         """
+        Start the movie icon
         """
         self.movie.start()
         
     def setPASS(self):
         """
+        Set the result icon as pass
         """
         self.labelText.setStyleSheet('color: darkGreen')
         # hide the loading movie
@@ -141,6 +146,7 @@ class LabelMovie(QWidget):
         
     def setFAIL(self):
         """
+        Set the icon as fail
         """
         self.labelText.setStyleSheet('color: red')
         self.movie.stop()
@@ -152,6 +158,7 @@ class LabelMovie(QWidget):
         
     def setUNDEF(self):
         """
+        Set undef
         """
         self.labelText.setStyleSheet('color: black')
         self.movie.stop()
@@ -217,11 +224,13 @@ class TestItem(QTreeWidgetItem):
 
     def setResult(self, result):
         """
+        Set the result
         """
         self.result = result
         
     def getResult(self):
         """
+        Return the result
         """
         return self.result
         
@@ -289,6 +298,7 @@ class InteractWidget(QWidget):
   
     def setDefaultValue(self, default):
         """
+        Set the default value
         """
         self.lineEdit.setText(default)
 		
@@ -523,14 +533,19 @@ class PauseWidget(QWidget, Logger.ClassLogger):
         UCI.instance().ok(tid=self.__tid, body='cancel' )
 
 class LogsTreeWidget(QTreeWidget):
+    """
+    Logs tree widget
+    """
     KeyUpDownPressed = pyqtSignal()
     def __init__(self, parent):
         """
+        Constructor
         """
         QTreeWidget.__init__(self, parent)
         
     def keyPressEvent(self, event):
         """
+        On key press event
         """
         if event.key() == Qt.Key_Up or event.key() == Qt.Key_Down:
             QTreeWidget.keyPressEvent(self, event)
@@ -919,11 +934,13 @@ class TestsView(QWidget):
 
     def disableControls(self):
         """
+        Disable controls
         """
         self.progressNext.setEnabled(False)
 
     def enableControls(self):
         """
+        Enable controls
         """
         self.progressNext.setEnabled(True)
 
@@ -1010,11 +1027,13 @@ class TestsView(QWidget):
         
     def loadNextEvents(self):
         """
+        Load next events
         """
         self.LoadNext.emit()
         
     def onUpDownPressed(self):
         """
+        On up/down key pressed
         """
         events = self.logs.selectedItems()
         if len(events) > 0:
@@ -1566,8 +1585,7 @@ class TestsView(QWidget):
         @type rootItem: TestItem
         """
         self.parentLogs = self.logs
-        
-        #itemSep.setDuration(duration="{%s}" % duration)
+
         itemSep.setTooltipDuration(duration=duration)
         
         self.nb_min_avg_max_tp.append( float(duration) )

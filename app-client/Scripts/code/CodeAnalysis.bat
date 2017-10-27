@@ -20,9 +20,9 @@
 
 @echo off
 
-set Project=%~dp0..\
+set Project=%~dp0..\..\
 
-set PythonVersion=34
+set PythonVersion=36
 set Python=C:\Python%PythonVersion%\python.exe
 
 :: execute analysis

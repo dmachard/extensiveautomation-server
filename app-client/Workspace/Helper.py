@@ -64,7 +64,7 @@ import UserClientInterface as UCI
 
 class Item(QTreeWidgetItem):
     """
-    tree widget item
+    Tree widget item
     """
     def __init__( self, data, parent = None, type = QTreeWidgetItem.UserType+0, icon=None,
                         hide=False, isDefault=False, isGeneric=False):
@@ -703,6 +703,7 @@ class WsdlDialog(QtHelper.EnhancedQDialog):
         
     def getParameters(self):
         """
+        Return parameters
         """
         url = self.urlLineEdit.text()
         fileWsdl = self.fileLineEdit.text()
@@ -739,11 +740,13 @@ class WHelper(QWidget, Logger.ClassLogger):
    
     def enterEvent(self,event):
         """
+        Enter event
         """
         self.ShowAssistant.emit()
     
     def leaveEvent(self,event):
         """
+        Leave event
         """
         self.HideAssistant.emit()
 
@@ -804,11 +807,6 @@ class WHelper(QWidget, Logger.ClassLogger):
 
         self.masterTab.addTab(self.areaTab, QIcon(":/main.png"), "Test Library")
         self.masterTab.addTab(self.extsTab, QIcon(":/adapters.png"), "SUT Extensions")
-        
-        # self.labelHelp = QLabel(self.tr("Drag and drop object or method in your test to add-it"))
-        # font = QFont()
-        # font.setItalic(True)
-        # self.labelHelp.setFont(font)
 
         self.setMinimumWidth( 300 )
         
@@ -824,17 +822,12 @@ class WHelper(QWidget, Logger.ClassLogger):
         layoutFrame.addWidget(self.masterTab)
         layoutFrame.addWidget(self.dockToolbar)
         frame.setLayout(layoutFrame)
-        
-        
-        # self.hSplitter.addLayout( subLayout )
+
         self.hSplitter.addWidget( frame )
-        # self.hSplitter.addWidget(self.dockToolbar)
         self.hSplitter.addWidget( self.textEdit )
         self.hSplitter.setContentsMargins(0,0,0,0)
         
         layout = QVBoxLayout()
-        # layout.addWidget(self.dockToolbar)
-        # layout.addWidget(self.labelHelp)
         layout.addWidget(self.hSplitter)
         
         layout.setContentsMargins(0,0,0,0)
@@ -896,8 +889,7 @@ class WHelper(QWidget, Logger.ClassLogger):
         Set default values for qt actions
         """
         self.masterTab.setEnabled(False)
-        
-        # self.labelHelp.setEnabled(False)
+
         self.reloadAllAction.setEnabled(False)
         self.rebuildCacheAction.setEnabled(False)
         self.expandSubtreeAction.setEnabled(False)
@@ -931,7 +923,8 @@ class WHelper(QWidget, Logger.ClassLogger):
                     wsdlData= fd.readAll()
                     wsdlEncoded = base64.b64encode(wsdlData)
             
-            UCI.instance().generateAdapterFromWSDL(wsdlUrl=url, wsdlFile=wsdlEncoded, pkg=pkg, overwrite=overwrite)
+            UCI.instance().generateAdapterFromWSDL(wsdlUrl=url, wsdlFile=wsdlEncoded, 
+                                                    pkg=pkg, overwrite=overwrite)
         
     def prepareAssistant(self):
         """
@@ -1105,14 +1098,7 @@ class WHelper(QWidget, Logger.ClassLogger):
         @type hideLabel:
         """
         self.masterTab.setEnabled(True)
-        
-        # if hideLabel:
-            # self.labelHelp.setEnabled(False)
-            # self.labelHelp.hide()
-        # else:
-            # self.labelHelp.setEnabled(True)
-            # self.labelHelp.show()
-        
+
         self.reloadAllAction.setEnabled(True)
         if UCI.RIGHTS_ADMIN in UCI.instance().userRights or  UCI.RIGHTS_DEVELOPER in UCI.instance().userRights :
             self.rebuildCacheAction.setEnabled(True)
@@ -1145,10 +1131,14 @@ class WHelper(QWidget, Logger.ClassLogger):
         self.helperAdapters.clear()
         self.helperLibraries.clear()
 
-        self.createTree(listing=listing, parent=self.helper, framework=True, adapters=False, libraries=False, interops=False)
-        self.createTree(listing=listing, parent=self.helperInterop, framework=False, interops=True)
-        self.createTree(listing=listing, parent=self.helperAdapters, framework=False, adapters=True, libraries=False)
-        self.createTree(listing=listing, parent=self.helperLibraries, framework=False, adapters=False, libraries=True)
+        self.createTree(listing=listing, parent=self.helper, framework=True, 
+                        adapters=False, libraries=False, interops=False)
+        self.createTree(listing=listing, parent=self.helperInterop, 
+                        framework=False, interops=True)
+        self.createTree(listing=listing, parent=self.helperAdapters, 
+                        framework=False, adapters=True, libraries=False)
+        self.createTree(listing=listing, parent=self.helperLibraries, 
+                        framework=False, adapters=False, libraries=True)
 
     def createTree(self, listing, parent, framework=False, adapters=False, libraries=False, isGeneric=False, isDefault=False, interops=False ):
         """
@@ -1331,6 +1321,7 @@ class WHelper(QWidget, Logger.ClassLogger):
 
     def isGuiGeneric(self, name="GUI"):
         """
+        Is gui generic ?
         """
         isGeneric = False
         for h in self.assistantData:

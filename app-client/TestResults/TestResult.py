@@ -297,11 +297,13 @@ class WTestResult(QWidget, Logger.ClassLogger):
 
     def activeScrollingDiagram(self):
         """
+        Active scrolling on diagram
         """
         pass
 
     def disableScrollingDiagram(self):
         """
+        Disable scrolling on diagram
         """
         pass
         
@@ -1110,10 +1112,7 @@ class WTestResult(QWidget, Logger.ClassLogger):
                 return
             itemsSelected = self.logsItem.logs.selectedItems()
             testcaseItem = self.testcases[ data['tc_id'] ]
-            
-            # wtc = self.logsItem.logs.itemWidget(testcaseItem, 0)
-            # wtc.startMovie()
-            
+
             if len(itemsSelected) > 1:
                 testcaseItem.setSelected(False)
             if testcaseItem.isSelected():

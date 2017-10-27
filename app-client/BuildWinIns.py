@@ -21,6 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Module to construct the portable version with pyinstaller
+"""
+
 import os
 import sys
 import platform

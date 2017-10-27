@@ -45,7 +45,6 @@ try:
                             QCheckBox, QSplitter, QMessageBox, QDesktopWidget, QShortcut )
     from PyQt4.QtCore import (QFile, QIODevice, QTextStream, Qt, QSize, QUrl, QByteArray, QBuffer,
                                 pyqtSignal, QT_VERSION_STR, QEvent)
-    # from PyQt4.QtWebKit import (QWebView, QWebSettings, QWebPage)
 except ImportError:
     from PyQt5.QtGui import (QKeySequence, QPixmap, QCursor, QIcon, QDoubleValidator, QIntValidator,
                             QGuiApplication )
@@ -55,9 +54,6 @@ except ImportError:
                                 QCheckBox, QSplitter, QMessageBox, QDesktopWidget, QShortcut)
     from PyQt5.QtCore import (QFile, QIODevice, QTextStream, Qt, QSize, QUrl, QByteArray, QBuffer,
                                 pyqtSignal, QT_VERSION_STR, QEvent)
-    # from PyQt5.QtWebEngineWidgets import QWebEngineView as QWebView
-    # from PyQt5.QtWebEngineWidgets import QWebEngineSettings as QWebSettings
-    # from PyQt5.QtWebEngineWidgets import QWebEnginePage as QWebPage
 
 from Libs import QtHelper, Logger
 
@@ -155,6 +151,7 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
         
     def restoreAssistant(self):
         """
+        Restore assistant
         """
         self.setCursor(QCursor(Qt.ArrowCursor) )
         self.recorderActivated = False
@@ -622,15 +619,15 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
         
     def addPlugin(self, action):
         """
+        Add plugin in toolbar
         """
         self.dockToolbarPlugins.addAction(action)
         self.pluginsBox.show()
         
     def cleanup(self):
         """
+        Cleanup
         """
-        pass
-        # self.seleniumGroup.stopWebBrowser()
 
     def createConnections(self):
         """
@@ -663,11 +660,13 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
         
     def onCurrentTabChanged(self, index):
         """
+        On current tabulation changed
         """
         self.stepsTable.setUnboldAll()
         
     def onCancelStep(self):
         """
+        On cancel a step
         """
         self.seleniumGroup.setEnabled(True)
         self.sikuliGroup.setEnabled(True)
@@ -677,26 +676,31 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
         
     def sikuli(self):
         """
+        Return sikuli widget
         """
         return self.sikuliGroup
         
     def selenium(self):
         """
+        Return selenium widget
         """
         return self.seleniumGroup
         
     def android(self):
         """
+        Return android widget
         """
         return self.androidGroup
         
     def framework(self):
         """
+        Return framework widget
         """
         return self.frameworkGroup
         
     def system(self):
         """
+        Return system widget
         """
         return self.sshGroup
         
@@ -782,26 +786,31 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
         
     def focusWebPart(self):
         """
+        Activate the web tabulation
         """
         self.masterTab.setCurrentIndex(POS_TAB_WEB)
 
     def focusMobPart(self):
         """
+        Activate the mobile android tabulation
         """
         self.masterTab.setCurrentIndex(POS_TAB_ANDROID)
         
     def focusAppPart(self):
         """
+        Activate the application tabulation
         """
         self.masterTab.setCurrentIndex(POS_TAB_APP)
 
     def focusBasPart(self):
         """
+        Activate the basic tabulation
         """
         self.masterTab.setCurrentIndex(POS_TAB_BASIC)
 
     def focusSysPart(self):
         """
+        Activate the system tabulation
         """
         self.masterTab.setCurrentIndex(POS_TAB_SSH)
         
@@ -975,6 +984,7 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
         
     def checkDuplicateAlias(self, inputs, alias):
         """
+        Check all alias duplicated
         """
         duplicate = False
         for inp in inputs:
@@ -2556,6 +2566,7 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
     
     def onAddFrameworkStep(self, action, description, misc, parameters):
         """
+        Onn add step from framework
         """
         self.exportStepsAction.setEnabled(True)
         self.stepsTable.addStep(    actionName=action, imagePixmap='', textStr='', 
@@ -2565,6 +2576,7 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
             
     def onUpdateFrameworkStep(self, action, description, misc, parameters):
         """
+        On update step from framework
         """
         self.exportStepsAction.setEnabled(True)
         self.stepsTable.addStep(    actionName=action, imagePixmap='', textStr='', 
@@ -2576,6 +2588,7 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
     
     def onAddSshStep(self, action, description, misc, parameters):
         """
+        On add step from ssh
         """
         self.exportStepsAction.setEnabled(True)
         self.stepsTable.addStep(    actionName=action, imagePixmap='', textStr='', 
@@ -2585,6 +2598,7 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
             
     def onUpdateSshStep(self, action, description, misc, parameters):
         """
+        On update step from ssh
         """
         self.exportStepsAction.setEnabled(True)
         self.stepsTable.addStep(    actionName=action, imagePixmap='', textStr='', 
@@ -2596,6 +2610,7 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
         
     def onAddSikuliStep(self, action, description, image, text, misc, similar, cache, alias, parameters={}):
         """
+        On add step from sikuli
         """
         self.exportStepsAction.setEnabled(True)
         
@@ -2605,6 +2620,7 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
                     
     def onUpdateSikuliStep(self, action, description, image, text, misc, similar, cache, alias, parameters={}):
         """
+        On update step from sikuli
         """
         self.exportStepsAction.setEnabled(True)
         
@@ -2616,28 +2632,29 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
 
     def onAddSeleniumStep(self,action, description, text, misc, textmore, parameters):
         """
+        On add step from selenium
         """
         self.exportStepsAction.setEnabled(True)
         self.stepsTable.addStep(actionName=action, imagePixmap='', textStr=text, miscStr=misc,
                                     descriptionStr=description, actionType=GuiSteps.ACTION_BROWSER, 
                                     updateMode=False, stepId=self.stepId, textMoreStr=textmore,
-                                    # fromCache=cache, fromAlias=alias, 
                                     bold=True, parameters=parameters)
 
     def onUpdateSeleniumStep(self,action, description, text, misc, textmore, parameters):
         """
+        On update step from selenium
         """
         self.exportStepsAction.setEnabled(True)
         self.stepsTable.addStep(actionName=action, imagePixmap='', textStr=text, miscStr=misc,
                                     descriptionStr=description, actionType=GuiSteps.ACTION_BROWSER,
                                     updateMode=True, stepId=self.stepId, textMoreStr=textmore,
-                                     # fromCache=cache, fromAlias=alias, 
                                      bold=True, parameters=parameters)
         self.seleniumGroup.finalizeUpdate()
         self.cancelBrStep()
             
     def onAddAndroidStep(self, action, description, misc, parameters):
         """
+        On add step from android
         """
         self.exportStepsAction.setEnabled(True)
         self.stepsTable.addStep(    actionName=action, imagePixmap='', textStr='', 
@@ -2647,6 +2664,7 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
 
     def onUpdateAndroidStep(self, action, description, misc, parameters):
         """
+        On update step from android
         """
         self.exportStepsAction.setEnabled(True)
         self.stepsTable.addStep(    actionName=action, imagePixmap='', textStr='', 
@@ -2923,6 +2941,7 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
     
     def getDefaultStepsParameters(self):
         """
+        Return default steps parameter
         """
         parameters = { "from-el-alias": False, "from-el-cache": False, 
                         "from-alias": False, "from-cache": False,
@@ -3367,7 +3386,6 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
         dataModel = self.stepsTable.getData()
         dataModel.extend( steps )
 
-        # self.stepsTable.model.reset()
         self.stepsTable.model.beginResetModel() 
         self.stepsTable.model.endResetModel() 
         
@@ -3379,6 +3397,7 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
     
     def reconstructStepsFramework(self, line, i, stp, testInputs):
         """
+        Reconstruct steps from framework
         """
         if 'self.wait' in line:
             stp['action'] = GuiSteps.FRAMEWORK_WAIT
@@ -3444,6 +3463,7 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
          
     def reconstructStepsSystem(self, line, i, stp, testInputs):
         """
+        Reconstruct steps for system (ssh)
         """
         if 'self.ADP_SYS.doSession' in line:
             stp['action'] = GuiSteps.SYSTEM_SESSION
@@ -3480,6 +3500,7 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
                 
     def reconstructStepsAndroid(self, line, i, stp, testInputs):
         """
+        Reconstruct steps from android
         """
         if 'self.ADP_ANDROID.doWakeupUnlock' in line:
             stp['action'] = GuiSteps.ANDROID_WAKEUP_UNLOCK
@@ -3622,6 +3643,7 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
                 
     def reconstructStepsSikuli(self, line, i, stp, testInputs):
         """
+        Reconstruct steps from sikuli
         """
         if 'parameters' not in stp:
             stp['parameters'] = self.getDefaultStepsParameters()  
@@ -3887,6 +3909,7 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
 
     def reconstructStepsSelenium(self, line, i, stp, testInputs):
         """
+        Reconstruct step for selenium actions
         """
         if 'parameters' not in stp:
             stp['parameters'] = self.getDefaultStepsParameters()  
@@ -4337,6 +4360,7 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
                 
     def onTakeSnapshot(self):
         """
+        On snapshot taken
         """
         self.takeSnapshot()
         
@@ -4368,11 +4392,13 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
         
     def onTakeMousePosition(self):
         """
+        On take mouse position
         """
         self.takeMousePosition()
         
     def onTakeMouseLocation(self):
         """
+        On take mouse location
         """
         self.takeMouseLocation()
         

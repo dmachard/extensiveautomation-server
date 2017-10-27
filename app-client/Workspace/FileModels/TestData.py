@@ -24,6 +24,7 @@
 """
 Test data module
 """
+
 import sys
 
 # unicode = str with python3
@@ -45,9 +46,15 @@ import re
 
 r = re.compile( u"[^\x09\x0A\x0D\x20-\x7E\x85\xA0-\xFF\u0100-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD]")
 def removeInvalidXML(string):
-  def replacer(m):
-    return ""
-  return re.sub(r,replacer,string)
+    """
+    Remove invalid XML
+    """
+    def replacer(m):
+        """
+        return empty string
+        """
+        return ""
+    return re.sub(r,replacer,string)
   
 DEFAULT_MODE = 'Raw'
 
@@ -232,24 +239,17 @@ class DataModel(GenericModel.GenericModel):
                         i = -1
                         for kv in properties['descriptions']['description']:
                             i += 1
-                            # if sys.version_info > (3,): # python3 support
-                                # if keyequals( key=kv['key'], search='date' ): creationDate = kv['value']; creationDateIndex=i;
-                            # else: 
                             if kv['key'] == 'date':
                                 creationDate = kv['value']; creationDateIndex=i;
                         if creationDate is not None:
                             properties['descriptions']['description'].pop(creationDateIndex)
-                            properties['descriptions']['description'].append( {'key': 'creation date', 'value': creationDate } )
-                            #properties['descriptions']['description'].remove( {'key': 'date', 'value': creationDate, '@value': {}, '@key': {} } ) 
+                            properties['descriptions']['description'].append( {'key': 'creation date', 'value': creationDate } ) 
                     # END NEW in 5.1.0
                     
                     # BEGIN NEW in 8.0.0
                     if 'descriptions' in properties:
                         dataMode = False
                         for kv in properties['descriptions']['description']:
-                            # if sys.version_info > (3,): # python3 support
-                                # if keyequals( key=kv['key'], search='data mode' ): dataMode = True
-                            # else: 
                             if kv['key'] == 'data mode':
                                 dataMode = True
                         if not dataMode:

@@ -73,19 +73,21 @@ def get(section, key):
     """
     Dummy function
     """
-    return None
+    return ""
 
 def getInt(section, key):
     """
     Dummy function
     """
-    return None
+    return 0
 
 class RepositoriesWidget(QWidget, Logger.ClassLogger):
     """
+    Repositories widget
     """
     def __init__(self, parent=None):
         """
+        Constructor
         """
         super(RepositoriesWidget, self).__init__(parent)
         self.createWidgets()
@@ -140,7 +142,6 @@ class RepositoriesWidget(QWidget, Logger.ClassLogger):
         # final layout   
         subLayout = QGridLayout()
         subLayout.addWidget(localGroup, 0, 0)
-        # subLayout.addWidget(archivesGroup, 0, 1)
         subLayout.addWidget(viewGroup, 0, 1)
         
         mainLayout = QVBoxLayout()
@@ -153,11 +154,9 @@ class RepositoriesWidget(QWidget, Logger.ClassLogger):
         """
         Create pyqt connection
         """
-        # self.archivesActiveCheckBox.stateChanged.connect(self.enableArchivesRepo)
         self.repoActiveCheckBox.stateChanged.connect(self.enableLocalRepo)
         self.localRepositoryButton.clicked.connect(self.getLocalPathRepository)
-        # self.archiveRepositoryButton.clicked.connect(self.getArchivesPathRepository)
-        
+
     def getLocalPathRepository (self):
         """
         Returns path repository
@@ -192,9 +191,11 @@ class RepositoriesWidget(QWidget, Logger.ClassLogger):
 
 class TestsWritingWidget(QWidget, Logger.ClassLogger):
     """
+    Tests writing widget
     """
     def __init__(self, parent=None):
         """
+        Constructor
         """
         super(TestsWritingWidget, self).__init__(parent)
         self.createWidgets()
@@ -208,22 +209,28 @@ class TestsWritingWidget(QWidget, Logger.ClassLogger):
         editorGroup = QGroupBox(self.tr("Test Code Editor"))
         
         self.codeWrappingCheckBox = QCheckBox( self.tr("Use code wrapping") )
-        if QtHelper.str2bool(instance().readValue( key = 'Editor/code-wrapping' )): self.codeWrappingCheckBox.setChecked(True)
+        if QtHelper.str2bool(instance().readValue( key = 'Editor/code-wrapping' )): 
+            self.codeWrappingCheckBox.setChecked(True)
         
         self.codeFoldingCheckBox = QCheckBox( self.tr("Use code folding") )
-        if QtHelper.str2bool(instance().readValue( key = 'Editor/code-folding' )): self.codeFoldingCheckBox.setChecked(True)
+        if QtHelper.str2bool(instance().readValue( key = 'Editor/code-folding' )): 
+            self.codeFoldingCheckBox.setChecked(True)
 
         self.indentGuidesCheckBox = QCheckBox( self.tr("Show indent guides") )
-        if QtHelper.str2bool(instance().readValue( key = 'Editor/indent-guides-visible' )):  self.indentGuidesCheckBox.setChecked(True)
+        if QtHelper.str2bool(instance().readValue( key = 'Editor/indent-guides-visible' )):  
+            self.indentGuidesCheckBox.setChecked(True)
 
         self.wsCheckBox = QCheckBox( self.tr("Show all whitespaces and tabultations") )
-        if QtHelper.str2bool(instance().readValue( key = 'Editor/ws-visible' )):  self.wsCheckBox.setChecked(True)
+        if QtHelper.str2bool(instance().readValue( key = 'Editor/ws-visible' )):  
+            self.wsCheckBox.setChecked(True)
 
         self.lnCheckBox = QCheckBox( self.tr("Show lines numbering") )
-        if QtHelper.str2bool(instance().readValue( key = 'Editor/lines-numbering' )):  self.lnCheckBox.setChecked(True)
+        if QtHelper.str2bool(instance().readValue( key = 'Editor/lines-numbering' )):  
+            self.lnCheckBox.setChecked(True)
         
         self.acbCheckBox = QCheckBox( self.tr("Automatic close bracket") )
-        if QtHelper.str2bool(instance().readValue( key = 'Editor/auto-close-bracket' )):  self.acbCheckBox.setChecked(True)
+        if QtHelper.str2bool(instance().readValue( key = 'Editor/auto-close-bracket' )):  
+            self.acbCheckBox.setChecked(True)
 
         optionsLayout = QVBoxLayout()
         optionsLayout.addWidget(self.codeWrappingCheckBox)
@@ -251,15 +258,20 @@ class TestsWritingWidget(QWidget, Logger.ClassLogger):
         findGroup = QGroupBox(self.tr("Find And Replace Bar"))
         
         self.findCaseCheckBox = QCheckBox( self.tr("Case sensitive") )
-        if QtHelper.str2bool(instance().readValue( key = 'Editor/find-case-sensitive' )):  self.findCaseCheckBox.setChecked(True)
+        if QtHelper.str2bool(instance().readValue( key = 'Editor/find-case-sensitive' )):  
+            self.findCaseCheckBox.setChecked(True)
         self.findWholeCheckBox = QCheckBox( self.tr("Whole word") )
-        if QtHelper.str2bool(instance().readValue( key = 'Editor/find-whole-word' )):  self.findWholeCheckBox.setChecked(True)
+        if QtHelper.str2bool(instance().readValue( key = 'Editor/find-whole-word' )):  
+            self.findWholeCheckBox.setChecked(True)
         self.findWrapCheckBox = QCheckBox( self.tr("Wrap at the end") )
-        if QtHelper.str2bool(instance().readValue( key = 'Editor/find-wrap' )):    self.findWrapCheckBox.setChecked(True)
+        if QtHelper.str2bool(instance().readValue( key = 'Editor/find-wrap' )):    
+            self.findWrapCheckBox.setChecked(True)
         self.findRegexpCheckBox = QCheckBox( self.tr("Regular expression") )
-        if QtHelper.str2bool(instance().readValue( key = 'Editor/find-regexp' )):   self.findRegexpCheckBox.setChecked(True)
+        if QtHelper.str2bool(instance().readValue( key = 'Editor/find-regexp' )):   
+            self.findRegexpCheckBox.setChecked(True)
         self.replaceAllCheckBox = QCheckBox( self.tr("Replace all occurrences") )
-        if QtHelper.str2bool(instance().readValue( key = 'Editor/replace-all' )):   self.replaceAllCheckBox.setChecked(True)
+        if QtHelper.str2bool(instance().readValue( key = 'Editor/replace-all' )):   
+            self.replaceAllCheckBox.setChecked(True)
         
         layoutFind = QVBoxLayout()
         layoutFind.addWidget(self.findCaseCheckBox)
@@ -559,9 +571,11 @@ class TestsWritingWidget(QWidget, Logger.ClassLogger):
 
 class TestsArchivingWidget(QWidget, Logger.ClassLogger):
     """
+    Tests archiving widget
     """
     def __init__(self, parent=None):
         """
+        Constructor
         """
         super(TestsArchivingWidget, self).__init__(parent)
         self.createWidgets()
@@ -652,9 +666,11 @@ class TestsArchivingWidget(QWidget, Logger.ClassLogger):
         
 class TestsRunWidget(QWidget, Logger.ClassLogger):
     """
+    Tests run widget
     """
     def __init__(self, parent=None):
         """
+        Constructor
         """
         super(TestsRunWidget, self).__init__(parent)
         self.createWidgets()
@@ -732,9 +748,11 @@ class TestsRunWidget(QWidget, Logger.ClassLogger):
         
 class TestsAnalysisWidget(QWidget, Logger.ClassLogger):
     """
+    Tests analysis widget
     """
     def __init__(self, parent=None):
         """
+        Constructor
         """
         super(TestsAnalysisWidget, self).__init__(parent)
 
@@ -983,9 +1001,11 @@ class TestsAnalysisWidget(QWidget, Logger.ClassLogger):
 
 class TestsTemplatesWidget(QWidget, Logger.ClassLogger):
     """
+    Tests templates widget
     """
     def __init__(self, parent=None):
         """
+        Constructor
         """
         super(TestsTemplatesWidget, self).__init__(parent)
         self.defaultTemplates = DefaultTemplates.Templates()
@@ -1114,9 +1134,11 @@ class TestsTemplatesWidget(QWidget, Logger.ClassLogger):
            
 class ModulesTemplatesWidget(QWidget, Logger.ClassLogger):
     """
+    Modules templates widget
     """
     def __init__(self, parent=None):
         """
+        Constructor
         """
         super(ModulesTemplatesWidget, self).__init__(parent)
         self.defaultTemplates = DefaultTemplates.Templates()
@@ -1174,9 +1196,11 @@ class ModulesTemplatesWidget(QWidget, Logger.ClassLogger):
             
 class NetworkWidget(QWidget, Logger.ClassLogger):
     """
+    Network widget
     """
     def __init__(self, parent=None):
         """
+        Constructor
         """
         super(NetworkWidget, self).__init__(parent)
         self.createWidgets()
@@ -1295,12 +1319,13 @@ class NetworkWidget(QWidget, Logger.ClassLogger):
         
 class GeneralWidget(QWidget, Logger.ClassLogger):
     """
+    General widget
     """
     def __init__(self, parent=None):
         """
+        Constrcutor
         """
         super(GeneralWidget, self).__init__(parent)
-        #self.stylesItem = ("Cleanlooks", "WindowsXP", "WindowsVista", "Plastique", "GTK" )
         self.stylesItem = QStyleFactory.keys()
 
         self.langsItem = ("us_US", )
@@ -1395,8 +1420,7 @@ class GeneralWidget(QWidget, Logger.ClassLogger):
 
         # keyboard shorcuts
         shorcutsGroup = QGroupBox(self.tr("Keyboard shorcuts"))
-        
-        # self.captureShorcutEdit = QLineEdit(instance().readValue( key = 'KeyboardShorcuts/capture' ))
+
         self.developerShorcutEdit = QLineEdit(instance().readValue( key = 'KeyboardShorcuts/developer' ))
         self.exitShorcutEdit = QLineEdit(instance().readValue( key = 'KeyboardShorcuts/exit' ))
         self.fullShorcutEdit = QLineEdit(instance().readValue( key = 'KeyboardShorcuts/fullscreen' ))
@@ -1411,8 +1435,6 @@ class GeneralWidget(QWidget, Logger.ClassLogger):
         self.aboutShorcutEdit = QLineEdit(instance().readValue( key = 'KeyboardShorcuts/about' ))
         
         shorcutsLayout = QGridLayout()
-        # shorcutsLayout.addWidget( QLabel("Capture Screen: "), 1, 0 )
-        # shorcutsLayout.addWidget( self.captureShorcutEdit, 1, 1 )
         shorcutsLayout.addWidget( QLabel("Developer View: "), 2, 0 )
         shorcutsLayout.addWidget( self.developerShorcutEdit, 2, 1 )
         shorcutsLayout.addWidget( QLabel("Run test: "), 3, 0 )
@@ -1455,7 +1477,6 @@ class GeneralWidget(QWidget, Logger.ClassLogger):
         mainLayout = QHBoxLayout()
         mainLayout.addLayout(leftLayout)
         mainLayout.addLayout(rightLayout)
-        # mainLayout.addStretch(1)
 
         self.setLayout(mainLayout)
 
@@ -1477,7 +1498,6 @@ class GeneralWidget(QWidget, Logger.ClassLogger):
         if self.updateMessageCheckBox.checkState(): newUpdate = True
         if self.tabLeftCheckBox.checkState(): tabLeft = True
         
-        # captureData = "%s" % self.captureShorcutEdit.text()
         developerData = "%s" % self.developerShorcutEdit.text()
         runData = "%s" % self.runShorcutEdit.text()
         syntaxData = "%s" % self.syntaxShorcutEdit.text()
@@ -1513,7 +1533,6 @@ class GeneralWidget(QWidget, Logger.ClassLogger):
         instance().setValue( key = 'KeyboardShorcuts/syntax', value = syntaxData )
         instance().setValue( key = 'KeyboardShorcuts/assistant', value = assistantData )
         instance().setValue( key = 'KeyboardShorcuts/about', value = aboutData )
-        # instance().setValue( key = 'KeyboardShorcuts/capture', value = captureData )
         instance().setValue( key = 'KeyboardShorcuts/exit', value = exitData )
         instance().setValue( key = 'KeyboardShorcuts/run', value = runData )
         instance().setValue( key = 'KeyboardShorcuts/search', value = searchData )
@@ -1788,6 +1807,7 @@ class SettingsDialog(QDialog, Logger.ClassLogger):
 
     def changePage(self, current, previous):
         """
+        Change page
         """
         if not current:
             current = previous
@@ -1795,6 +1815,9 @@ class SettingsDialog(QDialog, Logger.ClassLogger):
         self.pagesWidget.setCurrentIndex(self.contentsWidget.row(current))
     
     def createIcons(self):
+        """
+        Create qt icons
+        """
         generalButton = QListWidgetItem(self.contentsWidget)
         generalButton.setIcon(QIcon(':/setting-general.png'))
         generalButton.setText("Application")

@@ -233,7 +233,8 @@ class Arrow(QGraphicsLineItem, Logger.ClassLogger):
         """
         The shape function returns a QPainterPath that is the exact shape of the item. 
         The QGraphicsLineItem::shape() returns a path with a line drawn with the current pen, 
-        so we only need to add the arrow head. This function is used to check for collisions and selections with the mouse.
+        so we only need to add the arrow head. 
+        This function is used to check for collisions and selections with the mouse.
         """
         path = super(Arrow, self).shape()
         path.addPolygon(self.arrowHead)
@@ -245,7 +246,8 @@ class Arrow(QGraphicsLineItem, Logger.ClassLogger):
         """
         # This slot updates the arrow by setting the start and end points 
         # of its line to the center of the items it connects.
-        line = QLineF(self.mapFromItem(self.myStartItem, 0, 0), self.mapFromItem(self.myEndItem, 0, 0))
+        line = QLineF( self.mapFromItem(self.myStartItem, 0, 0), 
+                        self.mapFromItem(self.myEndItem, 0, 0) )
         self.setLine(line)
     
     def itemChange(self, change, value):
@@ -254,12 +256,13 @@ class Arrow(QGraphicsLineItem, Logger.ClassLogger):
         """
 
         if change == QGraphicsItem.ItemSelectedChange:
-            if value == True:
-                self.startingPoint.setOpacity(1)
-                self.endingPoint.setOpacity(1)
-            else:
-                self.startingPoint.setOpacity(0.01)
-                self.endingPoint.setOpacity(0.01)
+            if self.startingPoint is not None and self.endingPoint is not None:
+                if value == True:
+                    self.startingPoint.setOpacity(1)
+                    self.endingPoint.setOpacity(1)
+                else:
+                    self.startingPoint.setOpacity(0.01)
+                    self.endingPoint.setOpacity(0.01)
     
         return value
 
@@ -293,23 +296,10 @@ class Arrow(QGraphicsLineItem, Logger.ClassLogger):
         # the points in the polygon are relative to the local coordinate system of the item. We must therefore add the 
         # position of the end item to make the coordinates relative to the scene.
         if (self.startingPoint is None) or (self.endingPoint is None):
-            # if self.arrow_start_point is not None and len(myStartItem.hs)>0:
-                # selecting starting hotspot
-                # p1 = myStartItem.hs[0]
-            # else:
-                # selecting starting hotspot
             p1 = myStartItem.pos()
             
             i = 0
-            # if self.fromHotspotId is not None:
-                # hs = myStartItem.hs[int(self.fromHotspotId)]
-                # x = hs.mapRectToScene(hs.rect()).center().x()
-                # y = hs.mapRectToScene(hs.rect()).center().y()
-                # p1 = QPointF(x,y)
-                # self.fromHotspotID = int(self.fromHotspotId)
-                # self.startingPoint = hs
-            # else:
-            
+
             # compute best distance ?
             for hs in myStartItem.hs:
                 if hs.isConnected: continue
@@ -329,31 +319,17 @@ class Arrow(QGraphicsLineItem, Logger.ClassLogger):
                 
                 
                 if (distance1 < distance2):
-                    # p1 = hs.mapToScene(hs.rect()).at(hs.id)
                     p1 = QPointF(x,y)
                     self.fromHotspotID = i
                     self.startingPoint = hs
                 
                 i += 1
 
-                    
-            # if self.arrow_end_point is not None and len(myEndItem.hs)>0:
-                #selecting starting hotspot
-                # p2 = myEndItem.hs[0]
-            # else:
-                #selecting ending hotspot       
+     
             p2 = myEndItem.pos()
             
             i = 0
-            # if self.toHotspotId is not None:
-                # hs2 = myEndItem.hs[int(self.toHotspotId)]
-                # x = hs2.mapRectToScene(hs2.rect()).center().x()
-                # y = hs2.mapRectToScene(hs2.rect()).center().y()
-                # p2 = QPointF(x,y)
-                # self.toHotspotID = int(self.toHotspotId)
-                # self.endingPoint = hs2
-            # else:
-            
+
             # compute best distance ?
             for  hs2 in myEndItem.hs:
                 if hs2.isConnected: continue
@@ -372,7 +348,6 @@ class Arrow(QGraphicsLineItem, Logger.ClassLogger):
                 distance2 = ((myeix-p2.x())**2) + ((myeiy-p2.y())**2)
 
                 if ( distance1 < distance2):
-                    # p2 = hs2.mapToScene(hs2.rect()).at(hs2.id)
                     p2 = QPointF(x,y)
                     self.toHotspotID = i
                     self.endingPoint = hs2
@@ -481,19 +456,23 @@ class DiagramItem(QGraphicsPolygonItem):
             self.myPolygon = path.toFillPolygon()
             
             # hotspot definition
-            hspot = Hotspots((boundingRectangle.topLeft().x() + boundingRectangle.topRight().x())/2, 
-                                (boundingRectangle.topLeft().y() + boundingRectangle.topRight().y())/2, self, scene, id = 0)
+            hspot = Hotspots(   (boundingRectangle.topLeft().x() + boundingRectangle.topRight().x())/2, 
+                                (boundingRectangle.topLeft().y() + boundingRectangle.topRight().y())/2, 
+                                self, scene, id = 0)
             self.hs.append(hspot)
             
-            hspot = Hotspots((boundingRectangle.bottomRight().x() + boundingRectangle.topRight().x())/2, 
-                                (boundingRectangle.bottomRight().y() + boundingRectangle.topRight().y())/2, self, scene, id = 1)
+            hspot = Hotspots(   (boundingRectangle.bottomRight().x() + boundingRectangle.topRight().x())/2, 
+                                (boundingRectangle.bottomRight().y() + boundingRectangle.topRight().y())/2, 
+                                self, scene, id = 1)
             self.hs.append(hspot)
-            hspot = Hotspots((boundingRectangle.bottomLeft().x() + boundingRectangle.bottomRight().x())/2, 
-                                (boundingRectangle.bottomLeft().y() + boundingRectangle.bottomRight().y())/2, self, scene, id = 2)
+            hspot = Hotspots(   (boundingRectangle.bottomLeft().x() + boundingRectangle.bottomRight().x())/2, 
+                                (boundingRectangle.bottomLeft().y() + boundingRectangle.bottomRight().y())/2, 
+                                self, scene, id = 2)
             self.hs.append(hspot)
             
-            hspot = Hotspots((boundingRectangle.bottomLeft().x() + boundingRectangle.topLeft().x())/2, 
-                                (boundingRectangle.bottomLeft().y() + boundingRectangle.topLeft().y())/2, self, scene, id = 3)
+            hspot = Hotspots(   (boundingRectangle.bottomLeft().x() + boundingRectangle.topLeft().x())/2, 
+                                (boundingRectangle.bottomLeft().y() + boundingRectangle.topLeft().y())/2, 
+                                self, scene, id = 3)
             self.hs.append(hspot)
             
         elif self.diagramType == self.Conditional: # diamond
@@ -521,7 +500,9 @@ class DiagramItem(QGraphicsPolygonItem):
                     )
             # hotspot definition   
             for i in range(self.myPolygon.size()-1):
-                hspot = Hotspots((self.myPolygon.at(i).x() + self.myPolygon.at(i+1).x())/2, (self.myPolygon.at(i).y() + self.myPolygon.at(i+1).y())/2, self, scene, id = i)
+                hspot = Hotspots(   (self.myPolygon.at(i).x() + self.myPolygon.at(i+1).x())/2, 
+                                    (self.myPolygon.at(i).y() + self.myPolygon.at(i+1).y())/2, 
+                                    self, scene, id = i )
                 self.hs.append(hspot)
                          
         elif self.diagramType == self.Adapter: # rectangle
@@ -535,7 +516,9 @@ class DiagramItem(QGraphicsPolygonItem):
                     )
             # hotspot definition   
             for i in range(self.myPolygon.size()-1):
-                hspot = Hotspots((self.myPolygon.at(i).x() + self.myPolygon.at(i+1).x())/2, (self.myPolygon.at(i).y() + self.myPolygon.at(i+1).y())/2, self, scene, id = i)
+                hspot = Hotspots(   (self.myPolygon.at(i).x() + self.myPolygon.at(i+1).x())/2, 
+                                    (self.myPolygon.at(i).y() + self.myPolygon.at(i+1).y())/2,
+                                    self, scene, id = i)
                 self.hs.append(hspot)
                 
         elif self.diagramType == self.Library: # rectangle
@@ -549,7 +532,9 @@ class DiagramItem(QGraphicsPolygonItem):
                     )
             # hotspot definition   
             for i in range(self.myPolygon.size()-1):
-                hspot = Hotspots((self.myPolygon.at(i).x() + self.myPolygon.at(i+1).x())/2, (self.myPolygon.at(i).y() + self.myPolygon.at(i+1).y())/2, self, scene, id = i)
+                hspot = Hotspots(   (self.myPolygon.at(i).x() + self.myPolygon.at(i+1).x())/2, 
+                                    (self.myPolygon.at(i).y() + self.myPolygon.at(i+1).y())/2, 
+                                    self, scene, id = i)
                 self.hs.append(hspot)
                 
         elif self.diagramType == self.Template: # rectangle
@@ -563,7 +548,9 @@ class DiagramItem(QGraphicsPolygonItem):
                     )
             # hotspot definition   
             for i in range(self.myPolygon.size()-1):
-                hspot = Hotspots((self.myPolygon.at(i).x() + self.myPolygon.at(i+1).x())/2, (self.myPolygon.at(i).y() + self.myPolygon.at(i+1).y())/2, self, scene, id = i)
+                hspot = Hotspots(   (self.myPolygon.at(i).x() + self.myPolygon.at(i+1).x())/2, 
+                                    (self.myPolygon.at(i).y() + self.myPolygon.at(i+1).y())/2, 
+                                    self, scene, id = i )
                 self.hs.append(hspot)
 
         elif self.diagramType == self.Manipulator: # rectangle
@@ -577,7 +564,9 @@ class DiagramItem(QGraphicsPolygonItem):
                     )
             # hotspot definition   
             for i in range(self.myPolygon.size()-1):
-                hspot = Hotspots((self.myPolygon.at(i).x() + self.myPolygon.at(i+1).x())/2, (self.myPolygon.at(i).y() + self.myPolygon.at(i+1).y())/2, self, scene, id = i)
+                hspot = Hotspots(   (self.myPolygon.at(i).x() + self.myPolygon.at(i+1).x())/2, 
+                                    (self.myPolygon.at(i).y() + self.myPolygon.at(i+1).y())/2, 
+                                    self, scene, id = i )
                 self.hs.append(hspot)
 
         elif self.diagramType == self.Validator: # rectangle
@@ -591,7 +580,9 @@ class DiagramItem(QGraphicsPolygonItem):
                     )
             # hotspot definition   
             for i in range(self.myPolygon.size()-1):
-                hspot = Hotspots((self.myPolygon.at(i).x() + self.myPolygon.at(i+1).x())/2, (self.myPolygon.at(i).y() + self.myPolygon.at(i+1).y())/2, self, scene, id = i)
+                hspot = Hotspots(   (self.myPolygon.at(i).x() + self.myPolygon.at(i+1).x())/2, 
+                                    (self.myPolygon.at(i).y() + self.myPolygon.at(i+1).y())/2, 
+                                    self, scene, id = i )
                 self.hs.append(hspot)
                 
         elif self.diagramType == self.Cache: # rectangle
@@ -605,7 +596,9 @@ class DiagramItem(QGraphicsPolygonItem):
                     )
             # hotspot definition   
             for i in range(self.myPolygon.size()-1):
-                hspot = Hotspots((self.myPolygon.at(i).x() + self.myPolygon.at(i+1).x())/2, (self.myPolygon.at(i).y() + self.myPolygon.at(i+1).y())/2, self, scene, id = i)
+                hspot = Hotspots(   (self.myPolygon.at(i).x() + self.myPolygon.at(i+1).x())/2, 
+                                    (self.myPolygon.at(i).y() + self.myPolygon.at(i+1).y())/2, 
+                                    self, scene, id = i )
                 self.hs.append(hspot)
                 
         elif self.diagramType == self.Time: # rectangle
@@ -619,7 +612,9 @@ class DiagramItem(QGraphicsPolygonItem):
                     )
             # hotspot definition   
             for i in range(self.myPolygon.size()-1):
-                hspot = Hotspots((self.myPolygon.at(i).x() + self.myPolygon.at(i+1).x())/2, (self.myPolygon.at(i).y() + self.myPolygon.at(i+1).y())/2, self, scene, id = i)
+                hspot = Hotspots(   (self.myPolygon.at(i).x() + self.myPolygon.at(i+1).x())/2, 
+                                    (self.myPolygon.at(i).y() + self.myPolygon.at(i+1).y())/2, 
+                                    self, scene, id = i )
                 self.hs.append(hspot)
                 
         elif self.diagramType == self.Private: # rectangle
@@ -633,7 +628,9 @@ class DiagramItem(QGraphicsPolygonItem):
                     )
             # hotspot definition   
             for i in range(self.myPolygon.size()-1):
-                hspot = Hotspots((self.myPolygon.at(i).x() + self.myPolygon.at(i+1).x())/2, (self.myPolygon.at(i).y() + self.myPolygon.at(i+1).y())/2, self, scene, id = i)
+                hspot = Hotspots(   (self.myPolygon.at(i).x() + self.myPolygon.at(i+1).x())/2, 
+                                    (self.myPolygon.at(i).y() + self.myPolygon.at(i+1).y())/2, 
+                                    self, scene, id = i )
                 self.hs.append(hspot)
                 
         elif self.diagramType == self.Public: # rectangle
@@ -647,7 +644,9 @@ class DiagramItem(QGraphicsPolygonItem):
                     )
             # hotspot definition   
             for i in range(self.myPolygon.size()-1):
-                hspot = Hotspots((self.myPolygon.at(i).x() + self.myPolygon.at(i+1).x())/2, (self.myPolygon.at(i).y() + self.myPolygon.at(i+1).y())/2, self, scene, id = i)
+                hspot = Hotspots(   (self.myPolygon.at(i).x() + self.myPolygon.at(i+1).x())/2, 
+                                    (self.myPolygon.at(i).y() + self.myPolygon.at(i+1).y())/2, 
+                                    self, scene, id = i )
                 self.hs.append(hspot)
                  
         elif self.diagramType == self.Action: # Trapeze
@@ -658,15 +657,23 @@ class DiagramItem(QGraphicsPolygonItem):
             boundingRectangle = QRectF(-70,40,140,-50)
             path.addRoundedRect(boundingRectangle,10,10)
             self.myPolygon = path.toFillPolygon()
-            hspot = Hotspots((boundingRectangle.topLeft().x() + boundingRectangle.topRight().x())/2, (boundingRectangle.topLeft().y() + boundingRectangle.topRight().y())/2, self, scene, id = 0)
+            hspot = Hotspots(   (boundingRectangle.topLeft().x() + boundingRectangle.topRight().x())/2, 
+                                (boundingRectangle.topLeft().y() + boundingRectangle.topRight().y())/2, 
+                                self, scene, id = 0)
             self.hs.append(hspot)
             
-            hspot = Hotspots((boundingRectangle.bottomRight().x() + boundingRectangle.topRight().x())/2, (boundingRectangle.bottomRight().y() + boundingRectangle.topRight().y())/2, self, scene, id = 1)
+            hspot = Hotspots(   (boundingRectangle.bottomRight().x() + boundingRectangle.topRight().x())/2, 
+                                (boundingRectangle.bottomRight().y() + boundingRectangle.topRight().y())/2, 
+                                self, scene, id = 1)
             self.hs.append(hspot)
-            hspot = Hotspots((boundingRectangle.bottomLeft().x() + boundingRectangle.bottomRight().x())/2, (boundingRectangle.bottomLeft().y() + boundingRectangle.bottomRight().y())/2, self, scene, id = 2)
+            hspot = Hotspots(   (boundingRectangle.bottomLeft().x() + boundingRectangle.bottomRight().x())/2, 
+                                (boundingRectangle.bottomLeft().y() + boundingRectangle.bottomRight().y())/2, 
+                                self, scene, id = 2)
             self.hs.append(hspot)
             
-            hspot = Hotspots((boundingRectangle.bottomLeft().x() + boundingRectangle.topLeft().x())/2, (boundingRectangle.bottomLeft().y() + boundingRectangle.topLeft().y())/2, self, scene, id = 3)
+            hspot = Hotspots(   (boundingRectangle.bottomLeft().x() + boundingRectangle.topLeft().x())/2, 
+                                (boundingRectangle.bottomLeft().y() + boundingRectangle.topLeft().y())/2, 
+                                self, scene, id = 3)
             self.hs.append(hspot)
 
         elif self.diagramType == self.Label: # Trapeze
@@ -688,15 +695,23 @@ class DiagramItem(QGraphicsPolygonItem):
             path.addEllipse(boundingRectangle)
             self.myPolygon = path.toFillPolygon()
             # hotspot definition   
-            hspot = Hotspots((boundingRectangle.topLeft().x() + boundingRectangle.topRight().x())/2, (boundingRectangle.topLeft().y() + boundingRectangle.topRight().y())/2, self, scene, id = 0)
+            hspot = Hotspots(   (boundingRectangle.topLeft().x() + boundingRectangle.topRight().x())/2, 
+                                (boundingRectangle.topLeft().y() + boundingRectangle.topRight().y())/2, 
+                                self, scene, id = 0)
             self.hs.append(hspot)
             
-            hspot = Hotspots((boundingRectangle.bottomRight().x() + boundingRectangle.topRight().x())/2, (boundingRectangle.bottomRight().y() + boundingRectangle.topRight().y())/2, self, scene, id = 1)
+            hspot = Hotspots(   (boundingRectangle.bottomRight().x() + boundingRectangle.topRight().x())/2, 
+                                (boundingRectangle.bottomRight().y() + boundingRectangle.topRight().y())/2, 
+                                self, scene, id = 1)
             self.hs.append(hspot)
-            hspot = Hotspots((boundingRectangle.bottomLeft().x() + boundingRectangle.bottomRight().x())/2, (boundingRectangle.bottomLeft().y() + boundingRectangle.bottomRight().y())/2, self, scene, id = 2)
+            hspot = Hotspots(   (boundingRectangle.bottomLeft().x() + boundingRectangle.bottomRight().x())/2, 
+                                (boundingRectangle.bottomLeft().y() + boundingRectangle.bottomRight().y())/2, 
+                                self, scene, id = 2)
             self.hs.append(hspot)
             
-            hspot = Hotspots((boundingRectangle.bottomLeft().x() + boundingRectangle.topLeft().x())/2, (boundingRectangle.bottomLeft().y() + boundingRectangle.topLeft().y())/2, self, scene, id = 3)
+            hspot = Hotspots(   (boundingRectangle.bottomLeft().x() + boundingRectangle.topLeft().x())/2, 
+                                (boundingRectangle.bottomLeft().y() + boundingRectangle.topLeft().y())/2, 
+                                self, scene, id = 3)
             self.hs.append(hspot)
 
         self.setPolygon(self.myPolygon)
@@ -746,12 +761,14 @@ class DiagramItem(QGraphicsPolygonItem):
 
     def showHotspots(self):
         """
+        Show hotspots
         """
         for hs in self.hs:
             hs.setOpacity(1)
             
     def hideHotspots(self):
         """
+        hide hotspots
         """
         for hs in self.hs:
             hs.setOpacity(0.01)
@@ -1028,11 +1045,11 @@ class DiagramItem(QGraphicsPolygonItem):
         return len(self.outputs)
 
 class DiagramScene(QGraphicsScene):
-    itemInserted = pyqtSignal()
-    InsertItem, InsertLine, MoveItem  = range(3)
     """
     Diagram scene class
     """
+    itemInserted = pyqtSignal()
+    InsertItem, InsertLine, MoveItem  = range(3)
     def __init__(self, parent, contextMenu=None, itemMenu=None):
         """
         Constructor
@@ -1070,8 +1087,6 @@ class DiagramScene(QGraphicsScene):
         """
         On key release event
         """
-        #if event.key() == Qt.Key_Delete:
-        #    self.parentWidget.deleteItem()
         super(DiagramScene, self).keyReleaseEvent(event)
 
     def mousePressEvent(self, mouseEvent):
@@ -1308,6 +1323,7 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
         
     def toolbar(self):
         """
+        Return toolbar
         """
         return self.dockToolbar
         
@@ -1315,7 +1331,6 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
         """
         Create connections
         """
-
         self.pointerTypeGroup.buttonClicked[int].connect(self.pointerGroupClicked)
         self.sceneScaleCombo.currentIndexChanged[str].connect(self.sceneScaleChanged)
         self.view.customContextMenuRequested.connect(self.onPopupMenu)
@@ -1342,6 +1357,7 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
 
     def addDesignStep(self):
         """
+        Add design step
         """
         self.AddStep.emit()
         
@@ -1422,6 +1438,7 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
 
     def addItem(self, itemType, itemId, itemText, itemColor, itemPos, itemData):
         """
+        Add item
         """
         item = DiagramItem(itemType, parentWidget=self, scene=self.scene)
         item.setItemId(itemId=int(itemId) )
@@ -2059,7 +2076,7 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
 
     def addTrace(self, fctParams):
         """
-        TODO
+        Add trace elements
         """
         itemId = self.getItemId()
         
@@ -2074,7 +2091,7 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
                         
     def addTime(self, fctParams):
         """
-        TODO
+        Add time elements
         """
         itemId = self.getItemId()
         
@@ -2089,7 +2106,7 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
         
     def addPrivate(self, fctParams):
         """
-        TODO
+        Add private elements
         """
         itemId = self.getItemId()
         
@@ -2104,7 +2121,7 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
         
     def addPublic(self, fctParams):
         """
-        TODO
+        Add public elements
         """
         itemId = self.getItemId()
         
@@ -2304,7 +2321,6 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
                 
             # add item in first
             self.addItem(   itemType=itemType, itemId=itemId, itemText=itemText, 
-                            #itemColor=QBrush(color),  itemPos=QPoint(posX,posY), itemData=itemData  )
                             itemColor=QBrush(color),  itemPos=QPointF(posX,posY), itemData=itemData  )
                             
             # kept the max id
@@ -2472,7 +2488,8 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
                     argsFct['function'] = fct['name']
                     if 'default-args' in fct:
                         self.addDefaultValues(defaultValues=fct['default-args'], currentFunction=argsFct)
-                    cacheMenu.addAction( QtHelper.createAction(self, fct['name'], self.addCache, icon=QIcon(":/methods.png"), cb_arg=argsFct ) )
+                    cacheMenu.addAction( QtHelper.createAction(self, fct['name'], self.addCache, 
+                                            icon=QIcon(":/methods.png"), cb_arg=argsFct ) )
                     cacheMenu.addSeparator()
             
         # sub menu for adding Interact functions
@@ -2485,7 +2502,8 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
                     argsFct['function'] = fct['name']
                     if 'default-args' in fct:
                         self.addDefaultValues(defaultValues=fct['default-args'], currentFunction=argsFct)
-                    interactMenu.addAction( QtHelper.createAction(self, fct['name'], self.addInteract, icon=QIcon(":/methods.png"), cb_arg=argsFct ) )
+                    interactMenu.addAction( QtHelper.createAction(self, fct['name'], self.addInteract, 
+                                            icon=QIcon(":/methods.png"), cb_arg=argsFct ) )
                     interactMenu.addSeparator()
                     
         # sub menu for adding Interact functions
@@ -2498,7 +2516,8 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
                     argsFct['function'] = fct['name']
                     if 'default-args' in fct:
                         self.addDefaultValues(defaultValues=fct['default-args'], currentFunction=argsFct)
-                    traceMenu.addAction( QtHelper.createAction(self, fct['name'], self.addTrace, icon=QIcon(":/methods.png"), cb_arg=argsFct ) )
+                    traceMenu.addAction( QtHelper.createAction(self, fct['name'], self.addTrace, 
+                                            icon=QIcon(":/methods.png"), cb_arg=argsFct ) )
                     traceMenu.addSeparator()
                     
         # sub menu for adding time functions
@@ -2511,7 +2530,8 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
                     argsFct['function'] = fct['name']
                     if 'default-args' in fct:
                         self.addDefaultValues(defaultValues=fct['default-args'], currentFunction=argsFct)
-                    timeMenu.addAction( QtHelper.createAction(self, fct['name'], self.addTime, icon=QIcon(":/methods.png"), cb_arg=argsFct ) )
+                    timeMenu.addAction( QtHelper.createAction(self, fct['name'], self.addTime, 
+                                            icon=QIcon(":/methods.png"), cb_arg=argsFct ) )
                     timeMenu.addSeparator()
         
         # sub menu for adding storage functions
@@ -2529,7 +2549,8 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
                         argsFct['function'] = fct['name']
                         if 'default-args' in fct:
                             self.addDefaultValues(defaultValues=fct['default-args'], currentFunction=argsFct)
-                        privateMenu.addAction( QtHelper.createAction(self, fct['name'], self.addPrivate, icon=QIcon(":/methods.png"), cb_arg=argsFct ) )
+                        privateMenu.addAction( QtHelper.createAction(self, fct['name'], self.addPrivate, 
+                                                icon=QIcon(":/methods.png"), cb_arg=argsFct ) )
                         privateMenu.addSeparator()
         functions = self.helper.helpFramework(moduleName='TestExecutor', className='Public')
         if functions is not None:
@@ -2540,7 +2561,8 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
                         argsFct['function'] = fct['name']
                         if 'default-args' in fct:
                             self.addDefaultValues(defaultValues=fct['default-args'], currentFunction=argsFct)
-                        publicMenu.addAction( QtHelper.createAction(self, fct['name'], self.addPublic, icon=QIcon(":/methods.png"), cb_arg=argsFct ) )
+                        publicMenu.addAction( QtHelper.createAction(self, fct['name'], self.addPublic, 
+                                                icon=QIcon(":/methods.png"), cb_arg=argsFct ) )
                         publicMenu.addSeparator()
                     
         # sub menu for adding testcase function
@@ -2557,7 +2579,8 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
                         argsFct['function'] = fct['name']
                         if 'default-args' in fct:
                             self.addDefaultValues(defaultValues=fct['default-args'], currentFunction=argsFct)
-                        tcMenu.addAction( QtHelper.createAction(self, fct['name'], self.addTc, icon=QIcon(":/methods.png"), cb_arg=argsFct ) )
+                        tcMenu.addAction( QtHelper.createAction(self, fct['name'], self.addTc, 
+                                        icon=QIcon(":/methods.png"), cb_arg=argsFct ) )
                         tcMenu.addSeparator()
 
         # sub menu for templates

@@ -98,7 +98,7 @@ import Settings
 
 import TestResults
 import UserClientInterface as UCI
-# import TestClientInterface as TCI
+
 try:
     import ScheduleDialog as SchedDialog
     import RunsDialog as RunsDialog
@@ -126,6 +126,9 @@ def bytes2str(val):
         return val
 
 class QLabelEnhanced(QWidget):
+    """
+    Label enhanced widget
+    """
     def __init__ (self, parent = None, linkId=None):
         """
         Constructor for qlabel
@@ -257,6 +260,9 @@ class QLabelEnhanced(QWidget):
         self.iconQLabel.setPixmap(icon)
 
 class WelcomePage(QWidget):
+    """
+    Welcome page widget
+    """
     LinkConnect = pyqtSignal() 
     LinkDisconnect = pyqtSignal() 
     LinkTax = pyqtSignal() 
@@ -269,7 +275,6 @@ class WelcomePage(QWidget):
     LinkWebMacro = pyqtSignal() 
     LinkMobileMacro = pyqtSignal() 
     LinkSysMacro = pyqtSignal() 
-    # WsdlMacro = pyqtSignal() 
     LinkPlugin = pyqtSignal(str)  
     OpenWeb = pyqtSignal()  
     OpenProductWeb = pyqtSignal()  
@@ -402,7 +407,6 @@ class WelcomePage(QWidget):
         capturetLayout.addWidget(self.captureLink)
         capturetLayout.addWidget(self.captureWebLink)
         capturetLayout.addWidget(self.captureMobileLink)
-        # capturetLayout.addWidget(self.wsdlLink)
         capturetLayout.setSpacing(0)
         capturetLayout.addStretch(1)
         
@@ -522,6 +526,7 @@ class WelcomePage(QWidget):
      
     def addPlugin(self, name, description, icon=None):
         """
+        Add plugin
         """
         
         plugLink = QLabelEnhanced(self, linkId=name)
@@ -536,25 +541,22 @@ class WelcomePage(QWidget):
         
     def onPluginLinkClicked(self, linkId):
         """
+        On plugin link clicked
         """
         self.LinkPlugin.emit(linkId)
         
     def onCaptureMobileLinkClicked(self, linkId=None):
         """
+        On capture mobile link clicked
         """
         self.LinkMobileMacro.emit()
         
     def onCaptureWebLinkClicked(self, linkId=None):
         """
+        On capture web link clicked
         """
         self.LinkWebMacro.emit()
-        
-    # def onWsdlLinkClicked(self, linkId=None):
-        # """
-        # On wsdl link clicked
-        # """
-        # self.WsdlMacro.emit()
-        
+
     def onCaptureLinkClicked(self, linkId=None):
         """
         On capture link clicked
@@ -611,20 +613,12 @@ class WelcomePage(QWidget):
             QMessageBox.warning(self, self.tr("Website"), self.tr("Please to configure a test server."))
         else:
             self.OpenWeb.emit()
-            # url = QUrl('%s://%s:%s/index.php' % (    UCI.instance().getScheme(),
-                                                # UCI.instance().getHttpAddress(),
-                                                # UCI.instance().getHttpPort()
-                                            # ) )
-            # QDesktopServices.openUrl(url)
-        
+
     def onProductLinkClicked(self, linkId=None):
         """
         On product link clicked
         """
         self.OpenProductWeb.emit()
-        
-        # url = QUrl( Settings.instance().readValue( key = 'Common/url' ) )
-        # QDesktopServices.openUrl(url)
 
     def onConnectLinkClicked(self, linkId=None):
         """
@@ -641,6 +635,7 @@ class WelcomePage(QWidget):
          
     def updateMacroLink(self):
         """
+        Update macro link
         """
         if UCI.RIGHTS_TESTER in UCI.instance().userRights or UCI.RIGHTS_ADMIN in UCI.instance().userRights:
             self.captureLink.setEnabled(True)
@@ -1074,11 +1069,13 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
         
     def onNbReplaced(self, counter):
         """
+        On number line replaced
         """
         self.NbReplaced.emit(counter)
         
     def onPluginLinkClicked(self, plugId):
         """
+        On plugin link clicked
         """
         self.LinkPlugin.emit(plugId)
         
@@ -1105,13 +1102,7 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
         Update the macro link
         """
         self.welcomePage.updateMacroLink()
-        
-    # def onWsdlLinkClicked(self):
-        # """
-        # On wsdl link clicked
-        # """
-        # self.WsdlMacro.emit()
-        
+
     def onWebMacroLinkClicked(self):
         """
         On macro link clicked
@@ -2388,11 +2379,9 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                 return
             if wdocument.isModified():
                 self.saveAction.setEnabled(True)
-#                self.saveAllAction.setEnabled(True)
             else:
                 self.saveAction.setEnabled(False)
-#                self.saveAllAction.setEnabled(False)
-            
+     
             self.findAction.setEnabled(True)
             self.printAction.setEnabled(True)
             self.commentAction.setEnabled(True)
@@ -3322,15 +3311,7 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
         """
         self.newTab( extension = TestAbstract.TYPE, repoDest=UCI.REPO_UNDEFINED, testDef=testDef, testInputs=testInputs,
                         testOutputs=testOutputs, testAgents=testAgents )
-
-    def newTestUnitWithContent(self, testDef=None, testInputs=None, testOutputs=None, testAgents=None):
-        """
-        Creates one new empty TestUnit file
-        Call the function newTab()
-        """
-        self.newTab( extension = TestUnit.TYPE, repoDest=UCI.REPO_UNDEFINED, testDef=testDef, testInputs=testInputs,
-                        testOutputs=testOutputs, testAgents=testAgents )
-
+                        
     def newTestPlan (self):
         """
         Creates one new empty TestPlan file
@@ -3690,6 +3671,7 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
 
     def updateMacro(self):
         """
+        Update macro
         """
         tabId = self.tab.currentIndex()
         if tabId == -1:
@@ -3924,6 +3906,7 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
     
     def setCurrentTabWelcome(self):
         """
+        Set the welcome tab as current
         """
         doc = self.tab.widget(0)
         if isinstance(doc, WelcomePage):

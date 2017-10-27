@@ -140,6 +140,7 @@ class XmlrpcNetworkHandler(QObject, Logger.ClassLogger):
 
     def onNetworkProgress(self, bytesRead, totalBytes):
         """
+        On network progress
         """
         self.InProgress.emit(bytesRead, totalBytes)
 
@@ -152,6 +153,7 @@ class XmlrpcNetworkHandler(QObject, Logger.ClassLogger):
 
     def onNetworkFinished(self, reply):
         """
+        On network finished
         """
 
         if reply in NETWORK_ERRORS:
@@ -209,10 +211,6 @@ class XmlrpcNetworkHandler(QObject, Logger.ClassLogger):
         On close event
         """
         self.httpPostId = None
-        if self.reply is not None:
-            self.reply.abort()
-        self.reply = None
-        
         event.accept()
 
     def setWsAddress(self, address, port, scheme, webpath, hostname ):
@@ -275,6 +273,7 @@ class XmlrpcNetworkHandler(QObject, Logger.ClassLogger):
 
     def NetworkCall(self, postData ):
         """
+        Network call
         """
         self.httpPostReq.append( postData )
         if self.reqInProgress is None:
@@ -282,6 +281,7 @@ class XmlrpcNetworkHandler(QObject, Logger.ClassLogger):
             
     def __NetworkCall(self, postData):
         """
+        Sub network call
         """
         self.startWorking()
 
@@ -344,6 +344,7 @@ class RestNetworkHandler(QObject, Logger.ClassLogger):
 
     def onNetworkProgress(self, bytesRead, totalBytes):
         """
+        On network progress
         """
         self.InProgress.emit(bytesRead, totalBytes)
 
@@ -356,6 +357,7 @@ class RestNetworkHandler(QObject, Logger.ClassLogger):
 
     def onNetworkFinished(self, reply):
         """
+        On network finished
         """
 
         if reply in NETWORK_ERRORS:
@@ -418,17 +420,13 @@ class RestNetworkHandler(QObject, Logger.ClassLogger):
         
         self.reqInProgress = None
         if len(self.httpPostReq):
-            self.__NetworkCall( postData=self.httpPostReq.pop(0) )
+            self.__NetworkCall( req=self.httpPostReq.pop(0) )
             
     def closeEvent(self, event):
         """
         On close event
         """
         self.httpPostId = None
-        if self.reply is not None:
-            self.reply.abort()
-        self.reply = None
-        
         event.accept()
 
     def setWsAddress(self, address, port, scheme, webpath, hostname ):
@@ -471,11 +469,13 @@ class RestNetworkHandler(QObject, Logger.ClassLogger):
 
     def setWsCookie(self, cook):
         """
+        Set the webservice cookie
         """
         self.WsCookie = cook
 
     def unsetWsCookie(self):
         """
+        Unset the webservice cookie
         """
         self.WsCookie = None
         
@@ -494,6 +494,7 @@ class RestNetworkHandler(QObject, Logger.ClassLogger):
 
     def NetworkCall(self, req ):
         """
+        Network call
         """
         self.httpPostReq.append( req )
         if self.reqInProgress is None:
@@ -501,6 +502,7 @@ class RestNetworkHandler(QObject, Logger.ClassLogger):
             
     def __NetworkCall(self, req):
         """
+        Sub network call
         """
         self.startWorking()
 
@@ -566,6 +568,7 @@ class WServerProgress(QWidget, Logger.ClassLogger):
     """
     def __init__(self, parent):
         """
+        Constructor
         """
         QWidget.__init__(self, parent)
         
@@ -573,6 +576,7 @@ class WServerProgress(QWidget, Logger.ClassLogger):
 
     def progress(self):
         """
+        return the progress bar
         """
         return self.progressBar
         
@@ -1085,6 +1089,7 @@ class WServerExplorer(QWidget, Logger.ClassLogger):
         
     def onRestNetworkProgress(self, bytesRead, totalBytes):
         """
+        On rest network progress
         """
         self.wServerProgress.updateProgressRest(bytesRead, totalBytes)
         
@@ -1109,6 +1114,7 @@ class WServerExplorer(QWidget, Logger.ClassLogger):
         
     def onNetworkProgress(self, bytesRead, totalBytes):
         """
+        On network progress
         """
         self.wServerProgress.updateProgress(bytesRead, totalBytes)
 
@@ -1655,11 +1661,13 @@ class WServerExplorer(QWidget, Logger.ClassLogger):
 
     def onWebCall(self, data):
         """
+        On web call
         """
         self.wWebService.NetworkCall(postData=data)
         
     def onRestCall(self, uri, request, body=''):
         """
+        On rest call
         """
         self.RestService.NetworkCall(req=(uri, request, body) )
        
@@ -1692,11 +1700,13 @@ class WServerExplorer(QWidget, Logger.ClassLogger):
         
     def rest(self):
         """
+        Return rest webservice object
         """
         return self.RestService
         
     def xmlrpc(self):
         """
+        Return the xmlrpc object
         """
         return self.wWebService
         

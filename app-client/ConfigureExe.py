@@ -21,6 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Configure the executable with default parameters before to build
+"""
+
 import datetime
 import sys
 import Settings
