@@ -24,6 +24,8 @@
 """
 Plugin archives
 """
+from __future__ import print_function
+
 import sys
 import codecs
 
@@ -336,6 +338,7 @@ class PreviewReport(QWidget, Logger.ClassLogger):
         self.toPdf = toPdf
 
         self.fileName = None
+        self.cacheHtml = ""
         
         self.createWidgets()
         self.createActions()
@@ -616,6 +619,7 @@ class PreviewReport(QWidget, Logger.ClassLogger):
         tmp_ = QByteArray()
         tmp_.append(content)
         
+        self.cacheHtml = content
         self.txtEdit.setContent( tmp_, "text/html; charset=utf-8") 
 
     def deactive(self):
@@ -1196,6 +1200,7 @@ class PreviewVerdict(QWidget, Logger.ClassLogger):
                                 tip = 'Print', icon = QIcon(":/printer.png") )
         self.saveXmlAction = QtHelper.createAction(self, "&To XML", self.saveXml, 
                                 tip = 'Save to XML file', icon = QIcon(":/xml.png") )
+    
     def createToolbars(self):
         """
         Toolbar creation
@@ -1680,14 +1685,11 @@ class WArchives(QWidget, Logger.ClassLogger):
         """
         Return the data for plugin
         """
-        frame = self.tabReports.txtEdit.page().mainFrame()
-        basicFrame = self.tabBasicReports.txtEdit.page().mainFrame()
-        
         ret = {}
         ret['verdict-xml'] = self.tabXmlVerdicts.txtEdit.text()
         ret['verdict-csv'] = self.tabVerdicts.txtEdit.toPlainText()
-        ret['report-html'] = frame.toHtml()
-        ret['basic-report-html'] = basicFrame.toHtml()
+        ret['report-html'] =  self.tabReports.cacheHtml
+        ret['basic-report-html'] = self.tabBasicReports.cacheHtml
         
         return ret
 
@@ -1731,7 +1733,8 @@ class WArchives(QWidget, Logger.ClassLogger):
                                                 QMessageBox.Yes |QMessageBox.Cancel )
             #call web service
             if reply == QMessageBox.Yes:   
-                UCI.instance().deleteTestResult(  '%s/%s' % (logDirName,logSubDirName), projectId=projectId )
+                UCI.instance().deleteTestResult(  '%s/%s' % (logDirName,logSubDirName), 
+                                                projectId=projectId )
         else:
             pass
         del messageBox

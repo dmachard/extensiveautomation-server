@@ -1948,14 +1948,16 @@ class ListSharedParameter(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         On main filter changed
         """
         # Qt.MatchExactly 	0 	Performs QVariant-based matching.
-        # Qt.MatchFixedString 	8 	Performs string-based matching. String-based comparisons are case-insensitive unless the MatchCaseSensitive flag is also specified.
+        # Qt.MatchFixedString 	8 	Performs string-based matching. String-based comparisons are case-insensitive 
+        # unless the MatchCaseSensitive flag is also specified.
         # Qt.MatchContains 	1 	The search term is contained in the item.
         # Qt.MatchStartsWith 	2 	The search term matches the start of the item.
         # Qt.MatchEndsWith 	3 	The search term matches the end of the item.
         # Qt.MatchCaseSensitive 	16 	The search is case sensitive.
         # Qt.MatchRegExp 	4 	Performs string-based matching using a regular expression as the search term.
         # Qt.MatchWildcard 	5 	Performs string-based matching using a string with wildcards as the search term.
-        # Qt.MatchWrap 	32 	Perform a search that wraps around, so that when the search reaches the last item in the model, it begins again at the first item and continues until all items have been examined.
+        # Qt.MatchWrap 	32 	Perform a search that wraps around, so that when the search reaches the last item in 
+        # the model, it begins again at the first item and continues until all items have been examined.
         # Qt.MatchRecursive 	64 	Searches the entire hierarchy.
         syntax = QRegExp.RegExp
         caseSensitivity = Qt.CaseInsensitive
@@ -2216,14 +2218,16 @@ class SharedParameter(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         On main filter changed
         """
         # Qt.MatchExactly 	0 	Performs QVariant-based matching.
-        # Qt.MatchFixedString 	8 	Performs string-based matching. String-based comparisons are case-insensitive unless the MatchCaseSensitive flag is also specified.
+        # Qt.MatchFixedString 	8 	Performs string-based matching. String-based comparisons are 
+        # case-insensitive unless the MatchCaseSensitive flag is also specified.
         # Qt.MatchContains 	1 	The search term is contained in the item.
         # Qt.MatchStartsWith 	2 	The search term matches the start of the item.
         # Qt.MatchEndsWith 	3 	The search term matches the end of the item.
         # Qt.MatchCaseSensitive 	16 	The search is case sensitive.
         # Qt.MatchRegExp 	4 	Performs string-based matching using a regular expression as the search term.
         # Qt.MatchWildcard 	5 	Performs string-based matching using a string with wildcards as the search term.
-        # Qt.MatchWrap 	32 	Perform a search that wraps around, so that when the search reaches the last item in the model, it begins again at the first item and continues until all items have been examined.
+        # Qt.MatchWrap 	32 	Perform a search that wraps around, so that when the search reaches the last item 
+        # in the model, it begins again at the first item and continues until all items have been examined.
         # Qt.MatchRecursive 	64 	Searches the entire hierarchy.
 
         syntax = QRegExp.RegExp
@@ -3059,43 +3063,59 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
          * paste
          * clear
         """
-        self.addAction = QtHelper.createAction(self, self.tr("&Add\nParameter"), self.addParameter, icon = QIcon(":/test-parameter-add.png"),
+        self.addAction = QtHelper.createAction(self, self.tr("&Add\nParameter"), self.addParameter, 
+                                                    icon = QIcon(":/test-parameter-add.png"),
                                                     tip = self.tr('Add a new parameter') )
-        self.delAction = QtHelper.createAction(self, self.tr("&Delete"), self.removeItem, icon = QIcon(":/test-parameter-del.png"),
+        self.delAction = QtHelper.createAction(self, self.tr("&Delete"), self.removeItem, 
+                                                    icon = QIcon(":/test-parameter-del.png"),
                                                     tip = self.tr('Delete selected parameter(s)') )
-        self.copyAction = QtHelper.createAction(self, self.tr("Copy"), self.copyItem, icon = QIcon(":/test-parameter-copy.png"), 
+        self.copyAction = QtHelper.createAction(self, self.tr("Copy"), self.copyItem, 
+                                                    icon = QIcon(":/test-parameter-copy.png"), 
                                                     tip = self.tr('Copy selected parameter(s)'), shortcut='Ctrl+C' )
-        self.pasteAction = QtHelper.createAction(self, self.tr("Paste"), self.pasteItem, icon = QIcon(":/test-parameter-paste.png"),
+        self.pasteAction = QtHelper.createAction(self, self.tr("Paste"), self.pasteItem, 
+                                                    icon = QIcon(":/test-parameter-paste.png"),
                                                     tip = self.tr('Paste parameter(s)'), shortcut='Ctrl+V' )
         self.cutAction = QtHelper.createAction(self, self.tr("Cut"), self.cutItem, icon = None, 
                                                     tip = self.tr('Cut selected parameter(s)') )
 
-        self.undoAction = QtHelper.createAction(self, self.tr("Undo"), self.undoItem, icon = QIcon(":/test-parameter-undo.png"),
+        self.undoAction = QtHelper.createAction(self, self.tr("Undo"), self.undoItem, 
+                                                    icon = QIcon(":/test-parameter-undo.png"),
                                                     tip = self.tr('Undo') )
 
-        self.clearAction = QtHelper.createAction(self, self.tr("Clear"), self.clearItems, icon = QIcon(":/test-parameter-clear.png"), 
+        self.clearAction = QtHelper.createAction(self, self.tr("Clear"), self.clearItems, 
+                                                    icon = QIcon(":/test-parameter-clear.png"), 
                                                     tip = self.tr('Clear all parameters') )
-        self.openAction = QtHelper.createAction(self, self.tr("Open"), self.openItem, icon = QIcon(":/open-test.png"),
+        self.openAction = QtHelper.createAction(self, self.tr("Open"), self.openItem, 
+                                                    icon = QIcon(":/open-test.png"),
                                                     tip = self.tr('Open') )
 
-        self.addPurpleColorAction = QtHelper.createAction(self, self.tr("&Purple"), self.addPurpleColor, icon = None,
-                                                    tip = self.tr('Purple color') )
-        self.addYellowColorAction = QtHelper.createAction(self, self.tr("&Yellow"), self.addYellowColor, icon = None,
-                                                    tip = self.tr('Yellow color') )
-        self.addBlueColorAction = QtHelper.createAction(self, self.tr("&Blue"), self.addBlueColor, icon = None, 
-                                                    tip = self.tr('Blue color') )
-        self.addGreenColorAction = QtHelper.createAction(self, self.tr("&Green"), self.addGreenColor, icon = None, 
-                                                    tip = self.tr('Green color') )
-        self.addRedColorAction = QtHelper.createAction(self, self.tr("&Red"), self.addRedColor, icon = None, 
-                                                    tip = self.tr('Red color') )
-        self.addDefaultColorAction = QtHelper.createAction(self, self.tr("&Default"), self.addDefaultColor, icon = None,
-                                                    tip = self.tr('Default color') )
-        self.addWhiteColorAction = QtHelper.createAction(self, self.tr("&White"), self.addWhiteColor, icon = None, 
-                                                    tip = self.tr('White color') )
-        self.addOrangeColorAction = QtHelper.createAction(self, self.tr("&Orange"), self.addOrangeColor, icon = None,
-                                                    tip = self.tr('Orange color') )
-        self.addGrayColorAction = QtHelper.createAction(self, self.tr("&Gray"), self.addGrayColor, icon = None,
-                                                    tip = self.tr('Gray color') )
+        self.addPurpleColorAction = QtHelper.createAction(self, self.tr("&Purple"), 
+                                                            self.addPurpleColor, icon = None,
+                                                            tip = self.tr('Purple color') )
+        self.addYellowColorAction = QtHelper.createAction(self, self.tr("&Yellow"), 
+                                                            self.addYellowColor, icon = None,
+                                                            tip = self.tr('Yellow color') )
+        self.addBlueColorAction = QtHelper.createAction(self, self.tr("&Blue"), 
+                                                            self.addBlueColor, icon = None, 
+                                                            tip = self.tr('Blue color') )
+        self.addGreenColorAction = QtHelper.createAction(self, self.tr("&Green"), 
+                                                            self.addGreenColor, icon = None, 
+                                                            tip = self.tr('Green color') )
+        self.addRedColorAction = QtHelper.createAction(self, self.tr("&Red"), 
+                                                            self.addRedColor, icon = None, 
+                                                            tip = self.tr('Red color') )
+        self.addDefaultColorAction = QtHelper.createAction(self, self.tr("&Default"), 
+                                                            self.addDefaultColor, icon = None,
+                                                            tip = self.tr('Default color') )
+        self.addWhiteColorAction = QtHelper.createAction(self, self.tr("&White"), 
+                                                            self.addWhiteColor, icon = None, 
+                                                            tip = self.tr('White color') )
+        self.addOrangeColorAction = QtHelper.createAction(self, self.tr("&Orange"), 
+                                                            self.addOrangeColor, icon = None,
+                                                            tip = self.tr('Orange color') )
+        self.addGrayColorAction = QtHelper.createAction(self, self.tr("&Gray"), 
+                                                            self.addGrayColor, icon = None,
+                                                            tip = self.tr('Gray color') )
         self.menuColor = QMenu(self.tr("Add colors"))
         self.menuColor.addAction( self.addOrangeColorAction )
         self.menuColor.addAction( self.addPurpleColorAction )
@@ -3109,7 +3129,8 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
         self.menuColor.addAction( self.addDefaultColorAction )
 
         self.colorsAction = QtHelper.createAction(self, self.tr("&Colors"), None, 
-                                                    tip = self.tr('Add colors'), icon=QIcon(":/colors.png") )
+                                                    tip = self.tr('Add colors'), 
+                                                    icon=QIcon(":/colors.png") )
         self.colorsAction.setMenu(self.menuColor)
 
         # set default values
@@ -3317,7 +3338,8 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
                 filePath, leftdata = fileAll.rsplit('/', 1)
                 fileName = leftdata.rsplit('.', 1)[0]
 
-                Workspace.WDocumentViewer.instance().newTab(path = filePath, filename = fileName, extension = fileExtension, repoDest=UCI.REPO_TESTS_LOCAL)
+                Workspace.WDocumentViewer.instance().newTab(path = filePath, filename = fileName, 
+                                                            extension = fileExtension, repoDest=UCI.REPO_TESTS_LOCAL)
 
             elif row['value'].startswith('undefined:/'):
                 fileAll = row['value'].split('undefined:/')[1]
@@ -3326,7 +3348,8 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
                 filePath, leftdata = fileAll.rsplit('/', 1)
                 fileName = leftdata.rsplit('.', 1)[0]
 
-                Workspace.WDocumentViewer.instance().newTab(path = filePath, filename = fileName, extension = fileExtension, repoDest=UCI.REPO_UNDEFINED)
+                Workspace.WDocumentViewer.instance().newTab(path = filePath, filename = fileName, 
+                                                            extension = fileExtension, repoDest=UCI.REPO_UNDEFINED)
 
             else:
                 pass
@@ -3338,8 +3361,16 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
                 fName = ""
                         
             fileName = QFileDialog.getSaveFileName(self, self.tr("Save file"), fName, "*.*")
-            if len(fileName):
-                f = open(fileName, 'wb')
+                
+            # new in v17.1
+            if QtHelper.IS_QT5:
+                _fileName, _type = fileName
+            else:
+                _fileName = fileName
+            # end of new
+            
+            if len(_fileName):
+                f = open(_fileName, 'wb')
                 f.write( base64.b64decode(fData)  )
                 f.close()
         else:
@@ -3827,7 +3858,8 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
         """
         Load from anywhere
         """
-        fileName = QFileDialog.getOpenFileName(self, self.tr("Import dataset"), "", "Tdx Data Files (*.%s)" % Workspace.Repositories.LocalRepository.EXTENSION_TDX )
+        fileName = QFileDialog.getOpenFileName(self, self.tr("Import dataset"), "", 
+                                                "Tdx Data Files (*.%s)" % Workspace.Repositories.LocalRepository.EXTENSION_TDX )
         # new in v18 to support qt5
         if QtHelper.IS_QT5:
             _fileName, _type = fileName
@@ -3849,7 +3881,8 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
         Load from remote repository
         """
         project = Workspace.Repositories.instance().remote().getCurrentProject()
-        Workspace.Repositories.instance().remote().saveAs.getFilename(type= Workspace.Repositories.RemoteRepository.EXTENSION_TDX, project=project)
+        Workspace.Repositories.instance().remote().saveAs.getFilename(type= Workspace.Repositories.RemoteRepository.EXTENSION_TDX, 
+                                                                    project=project)
         editor = Workspace.Repositories.instance().remote().saveAs
         if editor.exec_() == QDialog.Accepted:
             return editor.getSelection(withRepoName=True, withProject=True)
@@ -3893,7 +3926,8 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
         Load image from remote repository
         """
         project = Workspace.Repositories.instance().remote().getCurrentProject()
-        Workspace.Repositories.instance().remote().saveAs.getFilename(type= Workspace.Repositories.RemoteRepository.EXTENSION_PNG, project=project)
+        Workspace.Repositories.instance().remote().saveAs.getFilename(type= Workspace.Repositories.RemoteRepository.EXTENSION_PNG, 
+                                                                        project=project)
         editor = Workspace.Repositories.instance().remote().saveAs
         if editor.exec_() == QDialog.Accepted:
             return editor.getSelection(withRepoName=True, withProject=True)
@@ -3956,7 +3990,8 @@ class ParametersQWidget(QWidget, Logger.ClassLogger):
         self.dockToolbarParams = QToolBar(self)
         self.dockToolbarParams.setStyleSheet("QToolBar { border: 0px; }") # remove 3D border
 
-        self.parametersTable = ParametersTableView(self, forParamsOutput=self.forParamsOutput, forTestConfig=self.forTestConfig)
+        self.parametersTable = ParametersTableView(self, forParamsOutput=self.forParamsOutput, 
+                                                    forTestConfig=self.forTestConfig)
         self.parametersTable.setColumnHidden(COL_DESCRIPTION, 
                                     QtHelper.str2bool(Settings.instance().readValue( key = 'TestProperties/parameters-hide-description' ))
                                 )

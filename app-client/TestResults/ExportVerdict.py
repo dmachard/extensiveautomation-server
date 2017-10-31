@@ -24,6 +24,8 @@
 """
 Module to export the verdict
 """
+from __future__ import print_function
+
 import sys
 import codecs
 
@@ -34,12 +36,12 @@ if sys.version_info > (3,):
 try:
     from PyQt4.QtGui import (QWidget, QToolBar, QHBoxLayout, QLabel, QPushButton, QLineEdit, 
                             QVBoxLayout, QFont, QPrinter, QPrintDialog, QDialog, QFileDialog, QGroupBox, 
-                            QCheckBox, QIcon, QTextDocument, QDialogButtonBox, QTabWidget)
+                            QCheckBox, QIcon, QTextDocument, QDialogButtonBox, QTabWidget, QTextEdit)
     from PyQt4.QtCore import (QSize, Qt)
 except ImportError:
     from PyQt5.QtGui import (QFont, QIcon, QTextDocument)
     from PyQt5.QtWidgets import (QWidget, QToolBar, QHBoxLayout, QLabel, QPushButton, QLineEdit, 
-                                QVBoxLayout, QDialog, QFileDialog, 
+                                QVBoxLayout, QDialog, QFileDialog, QTextEdit,
                                 QGroupBox, QCheckBox, QDialogButtonBox, QTabWidget)
     from PyQt5.QtPrintSupport import (QPrinter, QPrintDialog)
     from PyQt5.QtCore import (QSize, Qt)
@@ -55,7 +57,8 @@ class RawView(QWidget, Logger.ClassLogger):
     """
     Raw view widget
     """
-    def __init__(self, parent, data, toCsv=False, toHtml=False, toXml=False, toPrinter=False, toTxt=False, toPdf=False):
+    def __init__(self, parent, data, toCsv=False, toHtml=False, toXml=False, 
+                toPrinter=False, toTxt=False, toPdf=False):
         """
         Raw view widget
 
@@ -254,16 +257,33 @@ class RawView(QWidget, Logger.ClassLogger):
 
         if dialog.exec_() != QDialog.Accepted:
             return
+            
+        if QtHelper.IS_QT5: # new in v18
+            self.fileName = printer
+            self.txtEdit.page().toHtml(self.__toPrinter)
+        else:
+            doc = QTextDocument()
+            doc.setPlainText( self.txtEdit.text() )
+            doc.print_(printer)
 
-        doc = QTextDocument()
-        doc.setPlainText( self.txtEdit.text() )
-        doc.print_(printer)
-
+    def __toPrinter(self, html):
+        """
+        New in v18
+        Callback from QWebpage
+        """
+        textEdit = QTextEdit(self)
+        textEdit.setHtml(html)
+        textEdit.print(self.fileName)
+        textEdit.deleteLater()
+        
+        self.fileName = None
+        
     def saveCsv(self):
         """
         Save to csv file
         """
-        fileName = QFileDialog.getSaveFileName(self, "Save CSV file", "", "CSV file (*.csv);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, "Save CSV file", "", 
+                                                "CSV file (*.csv);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
@@ -284,7 +304,8 @@ class RawView(QWidget, Logger.ClassLogger):
         """
         Save to txt file
         """
-        fileName = QFileDialog.getSaveFileName(self, "Save TXT file", "", "TXT file (*.txt);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, "Save TXT file", "", 
+                                                "TXT file (*.txt);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
@@ -305,7 +326,8 @@ class RawView(QWidget, Logger.ClassLogger):
         """
         Save to xml file
         """
-        fileName = QFileDialog.getSaveFileName(self, "Save XML file", "", "XML file (*.xml);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, "Save XML file", "",
+                                                "XML file (*.xml);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
@@ -325,7 +347,8 @@ class RawView(QWidget, Logger.ClassLogger):
         """
         Save to html file
         """
-        fileName = QFileDialog.getSaveFileName(self, "Save HTML file", "", "HTML file (*.html);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, "Save HTML file", "", 
+                                                "HTML file (*.html);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
@@ -346,7 +369,8 @@ class RawView(QWidget, Logger.ClassLogger):
         """
         Save pdf file
         """
-        fileName = QFileDialog.getSaveFileName(self, 'Save to PDF', "", "PDF file (*.pdf);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, 'Save to PDF', "", 
+                                                "PDF file (*.pdf);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
@@ -454,8 +478,10 @@ class WExportVerdict(QtHelper.EnhancedQDialog, Logger.ClassLogger):
 
         layout = QVBoxLayout()
 
-        self.rawWidget = RawView(self, self.__data, toCsv=True, toHtml=False, toXml=False, toPrinter=True, toTxt=False, toPdf=True)
-        self.xmlWidget = RawView(self, self.__dataXml, toCsv=False, toHtml=False, toXml=True, toPrinter=True, toTxt=False, toPdf=True)
+        self.rawWidget = RawView(self, self.__data, toCsv=True, toHtml=False, 
+                                toXml=False, toPrinter=True, toTxt=False, toPdf=True)
+        self.xmlWidget = RawView(self, self.__dataXml, toCsv=False, toHtml=False, 
+                                toXml=True, toPrinter=True, toTxt=False, toPdf=True)
         
         self.mainTab = QTabWidget()
         self.mainTab.addTab( self.rawWidget , 'Raw')

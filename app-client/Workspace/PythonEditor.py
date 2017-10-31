@@ -947,7 +947,7 @@ class FindReplace(QWidget):
     Find replace widget bar
     """
     NbReplaced = pyqtSignal(int)
-    def __init__(self, parent):
+    def __init__(self, parent=None):
         """
         This class provides an graphical interface to find and replace text
 
@@ -957,7 +957,7 @@ class FindReplace(QWidget):
         QWidget.__init__(self, parent)
         self.editor = None
         self.styleEdit = { False: "background-color:rgb(255, 175, 90);", True: "" }
-        
+
         self.createButton()
         self.createWidgets()
         self.createConnections()
@@ -999,25 +999,29 @@ class FindReplace(QWidget):
              QLabel: QLineEdit QButton QCheckBox |
         ....--------------------------------------
         """
+        # self.setFocusPolicy( Qt.StrongFocus )
+        
         glayout = QGridLayout()
-        glayout.setContentsMargins(0, 0, 0, 0)
+        # glayout.setContentsMargins(0, 0, 0, 0)
 
         self.edit = QLineEditMore(parent=self)
         self.edit.setEditable(1)
         self.edit.setMaxCount(10)
         self.edit.setSizePolicy( QSizePolicy.Expanding, QSizePolicy.Fixed )
         self.edit.lineEdit().setPlaceholderText("Search text in your test?")
+        self.edit.setMinimumWidth(200)
 
         self.replaceEdit = QComboBox(self)
         self.replaceEdit.setEditable(1)
         self.replaceEdit.setMaxCount(10)
         self.replaceEdit.setSizePolicy( QSizePolicy.Expanding, QSizePolicy.Fixed )
         self.replaceEdit.lineEdit().setPlaceholderText("Replace the text with?")
+        self.replaceEdit.setMinimumWidth(200)
         
-        self.line = QFrame()
-        self.line.setGeometry( QRect(110, 221, 51, 20) )
-        self.line.setFrameShape( QFrame.VLine )
-        self.line.setFrameShadow( QFrame.Sunken )
+        # self.line = QFrame()
+        # self.line.setGeometry( QRect(110, 221, 51, 20) )
+        # self.line.setFrameShape( QFrame.VLine )
+        # self.line.setFrameShadow( QFrame.Sunken )
 
         self.caseCheck = QCheckBox( self.tr("Case Sensitive") )
         self.caseCheck.setChecked( 
@@ -1049,27 +1053,39 @@ class FindReplace(QWidget):
                                                             Settings.instance().readValue( key = 'Editor/find-wrap' )
                                                          )
                                       )
-        hlayout = QHBoxLayout()
-        hlayout.addWidget(self.allCheck)
-        hlayout.addWidget(self.line)
+        # hlayout = QHBoxLayout()
+        # hlayout.addWidget(self.allCheck)
+        # hlayout.addWidget(self.line)
 
         glayout.addWidget( self.edit, 0, 1 )
-        glayout.addWidget( self.nextButton, 0, 2 )
-        glayout.addWidget( self.previousButton, 0, 3 )
-        glayout.addWidget( self.caseCheck, 0, 4 )
-        glayout.addWidget( self.caseWrapCheck, 0, 5 )
-        glayout.addWidget( self.caseWordCheck, 1, 4 )
-        glayout.addWidget( self.caseRegexpCheck, 1, 5 )
+        glayout.addWidget( self.nextButton, 0, 3 )
+        glayout.addWidget( self.previousButton, 0, 2 )
+        glayout.addWidget( self.caseCheck, 2, 2 )
+        glayout.addWidget( self.caseWrapCheck, 2, 3 )
+        glayout.addWidget( self.caseWordCheck, 3, 2 )
+        glayout.addWidget( self.caseRegexpCheck, 3, 3 )
 
         glayout.addWidget( self.replaceEdit, 1, 1 )
         glayout.addWidget( self.replaceButton, 1, 2 )
-        glayout.addLayout( hlayout, 1, 3)
+        glayout.addWidget( self.allCheck, 1, 3)
 
         self.previousButton.setDisabled(True)
         self.nextButton.setDisabled(True)
 
         self.setLayout(glayout)
+        
+        flags = Qt.WindowFlags()
+        flags |= Qt.Window
+        flags |= Qt.WindowTitleHint
+        # flags |= Qt.WindowStaysOnTopHint
+        flags |= Qt.WindowCloseButtonHint
+        flags |= Qt.MSWindowsFixedSizeDialogHint
+        # flags |= Qt.CustomizeWindowHint
+        self.setWindowFlags(flags)
 
+        self.setWindowIcon( QIcon(":/main.png") )
+        self.setWindowTitle("Find And Replace")
+        
     def createConnections (self):
         """
         create qt connection
@@ -1085,6 +1101,20 @@ class FindReplace(QWidget):
         """
         self.findNext()
 
+    # def focusOutEvent (self, event):
+        # """
+        # Set the windows opacity to 0.5 on lost focus
+        # """
+        # self.setWindowOpacity(0.5)
+        # QWidget.focusOutEvent(self, event)
+        
+    # def focusInEvent (self, event):
+        # """
+        # Set the windows opacity to 1 on focus
+        # """
+        # self.setWindowOpacity(1)
+        # QWidget.focusInEvent(self, event)
+        
     def setEditor(self, editor):
         """
         Set the target to find the text

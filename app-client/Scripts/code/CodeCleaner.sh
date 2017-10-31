@@ -22,9 +22,13 @@
 
 rm -rf ../Scripts/build/
 rm -rf ../__build__
+rm -rf ../dist
+rm -rf ../build
 rm -rf ../Logs/*
 rm -rf ../Update/*
 rm -rf ../Plugins/*
+rm -rf ../ResultLogs/*
+rm -rf ../Tmp/*
 find ../. -name "*.pyo" -exec rm -rf {} \;
 find ../. -name "*.pyc" -exec rm -rf {} \;
 find ../. -type d -name __pycache__ -not -path "./.*" -delete

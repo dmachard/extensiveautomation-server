@@ -24,6 +24,8 @@
 """
 Module to export the design of a test
 """
+from __future__ import print_function
+
 import sys
 import codecs
 
@@ -33,13 +35,14 @@ if sys.version_info > (3,):
     
 try:
     from PyQt4.QtGui import (QWidget, QToolBar, QVBoxLayout, QFont, QIcon, QPrinter, QPrintDialog, QHBoxLayout, 
-                            QDialog, QTextDocument, QFileDialog, QDialogButtonBox, QTabWidget, QGroupBox)
+                            QDialog, QTextDocument, QFileDialog, QDialogButtonBox, QTabWidget, QGroupBox,
+                            QTextEdit)
     from PyQt4.QtCore import (Qt, QSize, QByteArray)
     from PyQt4.QtWebKit import (QWebView)
 except ImportError:
     from PyQt5.QtGui import (QFont, QIcon, QTextDocument)
     from PyQt5.QtWidgets import (QWidget, QToolBar, QVBoxLayout, QGroupBox, QHBoxLayout,
-                                QDialog, QFileDialog, QDialogButtonBox, QTabWidget)
+                                QDialog, QFileDialog, QDialogButtonBox, QTabWidget, QTextEdit)
     from PyQt5.QtCore import (Qt, QSize, QByteArray)
     from PyQt5.QtWebEngineWidgets import QWebEngineView as QWebView
     from PyQt5.QtPrintSupport import (QPrinter, QPrintDialog)
@@ -55,7 +58,8 @@ class RawView(QWidget, Logger.ClassLogger):
     """
     Raw view widget
     """
-    def __init__(self, parent, data, toCsv=False, toHtml=False, toXml=False, toPrinter=False, toTxt=False, toPdf=False):
+    def __init__(self, parent, data, toCsv=False, toHtml=False, toXml=False, 
+                toPrinter=False, toTxt=False, toPdf=False):
         """
         Raw view widget
 
@@ -71,7 +75,10 @@ class RawView(QWidget, Logger.ClassLogger):
         self.toPrinter = toPrinter
         self.toTxt = toTxt
         self.toPdf = toPdf
-
+        
+        self.fileName = None
+        self.cacheHtml = ""
+        
         self.createWidgets()
         self.createActions()
         self.createToolbars()
@@ -126,6 +133,7 @@ class RawView(QWidget, Logger.ClassLogger):
             tmp_ = QByteArray()
             tmp_.append(self.__data)
             
+            self.cacheHtml = self.__data
             self.txtEdit.setContent( tmp_, "text/html; charset=utf-8") 
 
         layoutToolbars = QHBoxLayout()
@@ -185,16 +193,34 @@ class RawView(QWidget, Logger.ClassLogger):
         if dialog.exec_() != QDialog.Accepted:
             return
 
-        doc = QTextDocument()
-        doc.setPlainText( self.txtEdit.text() )
-        doc.print_(printer)
+        if QtHelper.IS_QT5: # new in v18
+            self.fileName = printer
+            self.txtEdit.page().toHtml(self.__toPrinter)
+        else:
+            frame = self.txtEdit.page().mainFrame()
+        
+            doc = QTextDocument()
+            doc.setPlainText( frame.toPlainText() )
+            doc.print_(printer)
 
-
+    def __toPrinter(self, html):
+        """
+        New in v18
+        Callback from QWebpage
+        """
+        textEdit = QTextEdit(self)
+        textEdit.setHtml(html)
+        textEdit.print(self.fileName)
+        textEdit.deleteLater()
+        
+        self.fileName = None
+        
     def saveTxt(self):
         """
         Save to txt file
         """
-        fileName = QFileDialog.getSaveFileName(self, "Save TXT file", "", "TXT file (*.txt);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, "Save TXT file", "", 
+                                                "TXT file (*.txt);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
@@ -204,18 +230,39 @@ class RawView(QWidget, Logger.ClassLogger):
         # end of new
         
         if _filename:
-            try:
-                frame = self.txtEdit.page().mainFrame()
-                with codecs.open(_filename, "w", "utf-8") as f:
-                    f.write( frame.toPlainText()  )
-            except Exception as e:
-                self.error('unable to save design file as txt: %s' % str(e) )
+            if QtHelper.IS_QT5: # new in v18
+                self.fileName = _filename
+                self.txtEdit.page().toPlainText(self.__toPlainText)
+            else:
+                try:
+                    frame = self.txtEdit.page().mainFrame()
+                    with codecs.open(_filename, "w", "utf-8") as f:
+                        f.write( frame.toPlainText()  )
+                except Exception as e:
+                    self.error('unable to save design file as txt: %s' % str(e) )
 
+    def __toPlainText(self, text):
+        """
+        New in v18
+        Callback from QWebpage
+        """
+        if self.fileName is None:
+            return
+            
+        try:
+            with codecs.open(self.fileName, "w", "utf-8") as f:
+                f.write( text )
+        except Exception as e:
+            self.error('unable to save report file as txt: %s' % str(e) )
+
+        self.fileName = None
+        
     def saveXml(self):
         """
         Save to xml file
         """
-        fileName = QFileDialog.getSaveFileName(self, "Save XML file", "", "XML file (*.xml);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, "Save XML file", "", 
+                                               "XML file (*.xml);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
@@ -235,7 +282,8 @@ class RawView(QWidget, Logger.ClassLogger):
         """
         Save to html file
         """
-        fileName = QFileDialog.getSaveFileName(self, "Save HTML file", "", "HTML file (*.html);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, "Save HTML file", "", 
+                                                "HTML file (*.html);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
@@ -245,18 +293,39 @@ class RawView(QWidget, Logger.ClassLogger):
         # end of new
         
         if _filename:
-            frame = self.txtEdit.page().mainFrame()
-            try:
-                with codecs.open(_filename, "w", "utf-8") as f:
-                    f.write( frame.toHtml()  )
-            except Exception as e:
-                self.error('unable to save design file as html: %s' % str(e) )
+            if QtHelper.IS_QT5: # new in v18
+                self.fileName = _filename
+                self.txtEdit.page().toHtml(self.__toHtml)
+            else:
+                frame = self.txtEdit.page().mainFrame()
+                try:
+                    with codecs.open(_filename, "w", "utf-8") as f:
+                        f.write( frame.toHtml()  )
+                except Exception as e:
+                    self.error('unable to save design file as html: %s' % str(e) )
 
+    def __toHtml(self, html):
+        """
+        New in v18
+        Callback from QWebpage
+        """
+        if self.fileName is None:
+            return
+            
+        try:
+            with codecs.open(self.fileName, "w", "utf-8") as f:
+                f.write( html  )
+        except Exception as e:
+            self.error('unable to save report file as html: %s' % str(e) )
+
+        self.fileName = None
+        
     def savePdf(self):
         """
         Save to pdf file
         """
-        fileName = QFileDialog.getSaveFileName(self, 'Save to PDF', "", "PDF file (*.pdf);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, 'Save to PDF', "", 
+                                                "PDF file (*.pdf);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
@@ -266,22 +335,42 @@ class RawView(QWidget, Logger.ClassLogger):
         # end of new 
         
         if _filename:
-            printer = QPrinter(QPrinter.HighResolution)
-            printer.setPageSize(QPrinter.A4)
-            printer.setColorMode(QPrinter.Color)
-            printer.setOutputFormat(QPrinter.PdfFormat)
-            printer.setOutputFileName(_filename)
-
-            if isinstance(self.txtEdit, QWebView):
-                self.txtEdit.print_(printer)
+            if QtHelper.IS_QT5: # new in v18
+                self.fileName = _filename
+                self.txtEdit.page().printToPdf(self.__toPdf)            
             else:
-                doc = QTextDocument()
-                if self.toXml:
-                    doc.setPlainText( self.txtEdit.text())
+                printer = QPrinter(QPrinter.HighResolution)
+                printer.setPageSize(QPrinter.A4)
+                printer.setColorMode(QPrinter.Color)
+                printer.setOutputFormat(QPrinter.PdfFormat)
+                printer.setOutputFileName(_filename)
+
+                if isinstance(self.txtEdit, QWebView):
+                    self.txtEdit.print_(printer)
                 else:
-                    doc.setHtml( self.txtEdit.toHtml() )
-                doc.print_(printer)
-                
+                    doc = QTextDocument()
+                    if self.toXml:
+                        doc.setPlainText( self.txtEdit.text())
+                    else:
+                        doc.setHtml( self.txtEdit.toHtml() )
+                    doc.print_(printer)
+                    
+    def __toPdf(self, pdf):
+        """
+        New in v18
+        Callback from QWebpage
+        """
+        if self.fileName is None:
+            return
+            
+        try:
+            with codecs.open(self.fileName, "wb") as f:
+                f.write( pdf  )
+        except Exception as e:
+            self.error('unable to save report file as pdf: %s' % str(e) )
+
+        self.fileName = None
+        
 class WExportDesign(QtHelper.EnhancedQDialog, Logger.ClassLogger):
     """
     Export design widget
@@ -343,10 +432,8 @@ class WExportDesign(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         """
         Return data to plugins
         """
-        frame = self.rawWidget.txtEdit.page().mainFrame()
-        
         return {
-                    'design-html': frame.toHtml(),
+                    'design-html': self.rawWidget.cacheHtml,
                     'design-xml': self.xmlWidget.txtEdit.text()
                 }
         
@@ -375,8 +462,10 @@ class WExportDesign(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         layout = QVBoxLayout()
         self.mainTab = QTabWidget()
         
-        self.rawWidget = RawView(self, self.__data, toCsv=True, toHtml=True, toXml=False, toPrinter=True, toTxt=True, toPdf=True)
-        self.xmlWidget = RawView(self, self.__dataXml, toCsv=False, toHtml=False, toXml=True, toPrinter=True, toTxt=False, toPdf=True)
+        self.rawWidget = RawView(self, self.__data, toCsv=True, toHtml=True, toXml=False, 
+                                    toPrinter=True, toTxt=True, toPdf=True)
+        self.xmlWidget = RawView(self, self.__dataXml, toCsv=False, toHtml=False, toXml=True, 
+                                    toPrinter=True, toTxt=False, toPdf=True)
         self.mainTab.addTab( self.rawWidget , 'Raw')
         self.mainTab.addTab( self.xmlWidget , 'Xml')
 

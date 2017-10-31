@@ -1860,6 +1860,12 @@ class Repository(QWidget, Logger.ClassLogger):
                 break
         if pid == 0:
             self.error( 'project not found: %s' % project )
+            
+            # added in v18
+            # Force to return the default project common (1)
+            pid = 1
+            # end of add
+            
         return pid
 
     def getProjectName(self, project):

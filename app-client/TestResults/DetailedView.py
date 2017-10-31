@@ -36,12 +36,12 @@ try:
                             QColor, QTreeWidget, QTreeView, QWidget, QLabel, QFont, QDialog, 
                             QIcon, QToolBar, QPalette, QSizePolicy, QScrollArea, QPixmap, 
                             QFileDialog, QImage, QHBoxLayout, QSplitter, QTabWidget, QTableWidget, 
-                            QAbstractItemView, QApplication, QMenu)
+                            QAbstractItemView, QApplication, QMenu, QBrush)
     from PyQt4.QtCore import (Qt, pyqtSignal, QSize)
     if sys.version_info < (3,):
         from PyQt4.QtCore import (QString)
 except ImportError:
-    from PyQt5.QtGui import (QColor, QFont, QIcon, QPalette, QPixmap, QImage)
+    from PyQt5.QtGui import (QColor, QFont, QIcon, QPalette, QPixmap, QImage, QBrush)
     from PyQt5.QtWidgets import (QTextEdit, QDialogButtonBox, QVBoxLayout, QTreeWidgetItem, 
                                 QTreeWidget, QTreeView, QWidget, QLabel, QDialog, QToolBar, 
                                 QSizePolicy, QScrollArea, QFileDialog, QHBoxLayout, QSplitter, 
@@ -295,31 +295,42 @@ class KeyItem(QTreeWidgetItem):
         @type color: 
         """
         if color == "b":
-            # self.setTextColor(col, QColor(Qt.black) )
             self.setForeground(col, QColor(Qt.black) )
+            
         elif color == "r":
-            # self.setTextColor(col, QColor(Qt.white) )
             self.setForeground(col, QColor(Qt.white) )
-            self.setBackgroundColor(col, QColor(Qt.red) )
+            
+            # new in v18
+            self.setBackground(col, QBrush(QColor(Qt.red)) )
+            # end of new
+            
             if col == INDEX_COL_KEY:
                 self.setToolTip(INDEX_COL_KEY, 'mismatched')
             if col == INDEX_COL_VALUE:
                 self.setToolTip(INDEX_COL_VALUE, 'mismatched')
+                
         elif color == "g":
-            # self.setTextColor(col, QColor(Qt.white) )
             self.setForeground(col, QColor(Qt.white) )
-            self.setBackgroundColor(col, QColor(Qt.darkGreen) )
+            
+            # new in v18
+            self.setBackground(col, QBrush(QColor(Qt.darkGreen)) )
+            # end of new
+            
             if col == INDEX_COL_KEY:
                 self.setToolTip(INDEX_COL_KEY, 'matched')
             if col == INDEX_COL_VALUE:
                 self.setToolTip(INDEX_COL_VALUE, 'matched')
+                
         elif color == "bl":
-            # self.setTextColor(col, QColor(Qt.blue) )
             self.setForeground(col, QColor(Qt.blue) )
+            
         elif color == "y":
-            # self.setTextColor(col, QColor(Qt.black) )
             self.setForeground(col, QColor(Qt.black) )
-            self.setBackgroundColor(col, QColor(Qt.yellow) )
+            
+            # new in v18
+            self.setBackground(col, QBrush(QColor(Qt.yellow)) )
+            # end of new
+            
             if col == INDEX_COL_KEY:
                 self.setToolTip(INDEX_COL_KEY, 'ignored')
             if col == INDEX_COL_VALUE:
@@ -719,6 +730,10 @@ class ImageView(QWidget):
         """
         Set the image
         """
+        if sys.version_info > (3,):
+            if isinstance(content, str): # convert to bytes
+                content = content.encode()
+                
         image = QImage()
         ret = image.loadFromData(content)
         if image.isNull():

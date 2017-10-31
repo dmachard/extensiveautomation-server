@@ -48,7 +48,8 @@ if sys.version_info > (3,):
 try:
     from PyQt4.QtGui import (QWidget, QVBoxLayout, QLabel, QHBoxLayout, QApplication, QCursor, QFrame, 
                             QPixmap, QMessageBox, QDesktopServices, QTabWidget, QToolBar, 
-                            QIcon, QKeySequence, QMenu, QDialog, QTextDocument, QPrinter, QPrintPreviewDialog,
+                            QIcon, QKeySequence, QMenu, QDialog, QTextDocument, 
+                            QPrinter, QPrintPreviewDialog,
                             QFileDialog, QToolButton, QTabBar)
     from PyQt4.QtCore import (Qt, pyqtSignal, QUrl, QSize)
 except ImportError:
@@ -213,7 +214,7 @@ class QLabelEnhanced(QWidget):
                                    padding-top: 6px;
                              } """)
             event.accept()
-        
+
     def leaveEvent (self, event):
         """
         On mouse move event
@@ -344,15 +345,8 @@ class WelcomePage(QWidget):
                             padding: 4px;
                             font-weight: bold;
                          } """)
-        
-        # self.wsdlLink = QLabelEnhanced(self)
-        # self.wsdlLink.setTextLink("New Adapter from WSDL")
-        # self.wsdlLink.setTextDescription("Web services interface testing")
-        # self.wsdlLink.setIcon(QPixmap(":/api48.png") )
-        # self.wsdlLink.onClicked = self.onWsdlLinkClicked
-        
+
         self.devLayout.addWidget(titleDev)
-        # devLayout.addWidget(self.wsdlLink)
         self.devLayout.setSpacing(0)
         self.devLayout.addStretch(1)
         
@@ -788,7 +782,7 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
         self.createConnections()
         self.createToolbar()
 
-        self.initFindReplaceBarDisplay()
+        # self.initFindReplaceBarDisplay()
         
         # add default tab
         if QtHelper.str2bool( Settings.instance().readValue( key = 'Common/welcome-page' ) ):
@@ -833,7 +827,7 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
         layout.addLayout( layoutBar )
         layout.addLayout( layoutBar2 )
         layout.addWidget( self.tab )
-        layout.addWidget( self.findWidget )
+        # layout.addWidget( self.findWidget )
         layout.setContentsMargins(0,0,0,0)
 
         
@@ -1216,13 +1210,6 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
         self.dockToolbar.addAction(self.saveAction)
         self.dockToolbar.addAction(self.saveAllAction)
         self.dockToolbar.addAction(self.printAction)
-        # self.dockToolbar.addSeparator()
-        # self.dockToolbar.addAction(self.undoAction)
-        # self.dockToolbar.addAction(self.redoAction)
-        # self.dockToolbar.addSeparator()
-        # self.dockToolbar.addAction(self.commentAction)
-        # self.dockToolbar.addAction(self.uncommentAction)
-        # self.dockToolbar.addAction(self.foldAllAction)
         self.dockToolbar.addSeparator()
         self.dockToolbar.addAction(self.findAction)
         self.dockToolbar.setIconSize(QSize(16, 16))
@@ -1335,6 +1322,12 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
             self.hideFindReplaceAction.setChecked(False)
             self.findWidget.hide()
 
+    def hideFindReplaceWidget(self):
+        """
+        Hide find/Replace widget
+        """
+        self.findWidget.hide()
+        
     def hideFindReplace(self):
         """
         Hide find/replace
@@ -1353,7 +1346,7 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                 return
                 
             if currentDoc.extension in [ TestUnit.TYPE, TestSuite.TYPE, TestAdapter.TYPE,
-                                            TestLibrary.TYPE, TestTxt.TYPE  ]:
+                                          TestData.TYPE, TestLibrary.TYPE, TestTxt.TYPE  ]:
                 self.findWidget.show()
     
     def searchText(self):
@@ -1368,7 +1361,7 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
             return
             
         if currentDoc.extension in [ TestUnit.TYPE, TestSuite.TYPE, TestAdapter.TYPE,
-                                        TestLibrary.TYPE, TestTxt.TYPE  ]:
+                                      TestData.TYPE,  TestLibrary.TYPE, TestTxt.TYPE  ]:
             selectedText = ''
             if currentDoc.editor().hasSelectedText():
                 selectedText = currentDoc.editor().selectedText()
@@ -1507,7 +1500,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
             return
         
         extension = str(_fileName).rsplit(".", 1)[1]
-        if not ( extension.lower() in [ TestSuite.TYPE, TestPlan.TYPE, TestPlan.TYPE_GLOBAL, TestConfig.TYPE, TestData.TYPE, TestUnit.TYPE, TestAbstract.TYPE  ] ):
+        if not ( extension.lower() in [ TestSuite.TYPE, TestPlan.TYPE, TestPlan.TYPE_GLOBAL, TestConfig.TYPE,
+                                        TestData.TYPE, TestUnit.TYPE, TestAbstract.TYPE  ] ):
             QMessageBox.critical(self, self.tr("Open Failed") , self.tr("File not supported") )
             return
         
@@ -1567,8 +1561,9 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                 newTab = False
         
         if newTab:
-            self.newTab( path = path_file, filename = name_file, extension = ext_file, remoteFile=True, contentFile=content, 
-                        repoDest=repoType, newAdp=adpDetected, newLib=libDetected, project=project, isReadOnly=isReadOnly, isLocked=locked)
+            self.newTab( path = path_file, filename = name_file, extension = ext_file, 
+                        remoteFile=True, contentFile=content,  repoDest=repoType, newAdp=adpDetected, 
+                        newLib=libDetected, project=project, isReadOnly=isReadOnly, isLocked=locked)
 
     def remoteFileSaved(self, data):
         """
@@ -1693,7 +1688,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
 
         tabId = None # issue Issue 224
         if file_already_exists:
-            tabId = self.checkAlreadyOpened(path = complete_path, remoteFile=True, repoType=repoType, project=project)
+            tabId = self.checkAlreadyOpened(path = complete_path, remoteFile=True, 
+                                            repoType=repoType, project=project)
         else:
             for tid in xrange( self.tab.count() ):
                 doc = self.tab.widget(tid)
@@ -1729,7 +1725,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
         if currentDoc.extension == TestPlan.TYPE_GLOBAL :
             content = base64.b64decode(encoded_data)
             if parametersOnly:
-                currentDoc.onUpdateRemotePropertiesSubItem(path_file, name_file, ext_file, content, testId, project, mergeParameters=mergeParameters)
+                currentDoc.onUpdateRemotePropertiesSubItem(path_file, name_file, ext_file, content, 
+                                                            testId, project, mergeParameters=mergeParameters)
             else:
                 currentDoc.onUpdateRemoteTestSubItem(path_file, name_file, ext_file, content, testId, project)
 
@@ -1768,7 +1765,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
  
         if currentDoc.extension == TestPlan.TYPE_GLOBAL :
             content = base64.b64decode(encoded_data)
-            currentDoc.insertRemoteSubItem(path_file, name_file, ext_file, content, project, below, testParentId=testParentId)
+            currentDoc.insertRemoteSubItem(path_file, name_file, ext_file, content, 
+                                            project, below, testParentId=testParentId)
 
     def updateRemoteTestOnTestplan(self, data, parametersOnly=True, mergeParameters=False):
         """
@@ -1789,9 +1787,11 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
         if currentDoc.extension == TestPlan.TYPE :
             content = base64.b64decode(encoded_data)
             if parametersOnly:
-                currentDoc.onUpdateRemotePropertiesSubItem(path_file, name_file, ext_file, content, testId, project, mergeParameters=mergeParameters)
+                currentDoc.onUpdateRemotePropertiesSubItem(path_file, name_file, ext_file, content, 
+                                                            testId, project, mergeParameters=mergeParameters)
             else:
-                currentDoc.onUpdateRemoteTestSubItem(path_file, name_file, ext_file, content, testId, project)
+                currentDoc.onUpdateRemoteTestSubItem(path_file, name_file, ext_file, 
+                                                    content, testId, project)
 
     def addRemoteTestToTestplan(self, data, testParentId=0):
         """
@@ -1808,7 +1808,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
         # 
         if currentDoc.extension == TestPlan.TYPE :
             content = base64.b64decode(encoded_data)
-            currentDoc.addRemoteSubItem(path_file, name_file, ext_file, content, project, testParentId=testParentId)
+            currentDoc.addRemoteSubItem(path_file, name_file, ext_file, content, 
+                                        project, testParentId=testParentId)
 
     def insertRemoteTestToTestplan(self, data, below=False, testParentId=0):
         """
@@ -1825,7 +1826,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
 
         if currentDoc.extension == TestPlan.TYPE :
             content = base64.b64decode(encoded_data)
-            currentDoc.insertRemoteSubItem(path_file, name_file, ext_file, content, project, below, testParentId=testParentId)
+            currentDoc.insertRemoteSubItem(path_file, name_file, ext_file, content, 
+                                            project, below, testParentId=testParentId)
 
     def setDefaultActionsValues (self):
         """
@@ -2427,12 +2429,10 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                 return
             if wdocument.isModified():
                 self.saveAction.setEnabled(True)
-#                self.saveAllAction.setEnabled(True)
             else:
                 self.saveAction.setEnabled(False)
-#                self.saveAllAction.setEnabled(False)
-            
-            self.findAction.setEnabled(False)
+   
+            self.findAction.setEnabled(True)
             self.printAction.setEnabled(True)
             self.commentAction.setEnabled(True)
             self.uncommentAction.setEnabled(True)
@@ -2496,10 +2496,12 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
         @type title: string
         """
         tabId = self.tab.indexOf(wdoc)
-        self.tab.setTabText( tabId, self.addTag( repoType=wdoc.repoDest, txt=title, addSlash=False, project=wdoc.project) )
+        self.tab.setTabText( tabId, self.addTag( repoType=wdoc.repoDest, txt=title, 
+                                                addSlash=False, project=wdoc.project) )
         self.updateActions(wdocument=wdoc)
         windowTitle = wdoc.getPath( absolute=True, withAsterisk = True )
-        windowTitleFinal = self.addTag( repoType=wdoc.repoDest, txt=windowTitle, project=wdoc.project )
+        windowTitleFinal = self.addTag( repoType=wdoc.repoDest, txt=windowTitle, 
+                                        project=wdoc.project )
         # emit signal
         self.UpdateWindowTitle.emit(windowTitleFinal)
 
@@ -2513,7 +2515,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
          * undefined
          * unknown
         """
-        # add fix to support & in filename, ampersand is used as a shortcut for the tab by pyqt
+        # add fix to support & in filename, ampersand is used 
+        # as a shortcut for the tab by pyqt
         txt = txt.replace("&", "&&")
         # end of fix
          
@@ -2600,7 +2603,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
         
         if doc.isSaved():
             project_name = self.iRepo.remote().getProjectName(project=doc.project)
-            self.addToRecent( filepath = doc.getPath(absolute=True), repodest=doc.repoDest, project=project_name )
+            self.addToRecent( filepath = doc.getPath(absolute=True), 
+                                repodest=doc.repoDest, project=project_name )
         
         # destroy doc
         del doc
@@ -2617,7 +2621,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
         if doc.extension not in [ TestPng.TYPE ]:
             if doc.isRemote:
                 if UCI.instance().isAuthenticated():
-                    UCI.instance().unlockFileRepo( document=doc, repo=doc.repoDest, project=doc.project)
+                    UCI.instance().unlockFileRepo( document=doc, repo=doc.repoDest, 
+                                                    project=doc.project)
         
     def resetTab(self):
         """
@@ -2655,7 +2660,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
 
             if not isinstance(wdoc, WelcomePage):
                 windowTitle = wdoc.getPath( absolute=True, withAsterisk = True )
-                windowTitleFinal = self.addTag( repoType=wdoc.repoDest, txt=windowTitle, project=wdoc.project )
+                windowTitleFinal = self.addTag( repoType=wdoc.repoDest, 
+                                                txt=windowTitle, project=wdoc.project )
 
             # emit signal
             self.CurrentDocumentChanged.emit(wdoc)
@@ -2667,15 +2673,15 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                 self.findWidget.setDisabled(True)
                 self.findWidget.hide()
             elif wdoc.extension == TestUnit.TYPE:
-                self.findWidget.show()
+                # self.findWidget.show()
                 self.findWidget.setDisabled(False)
                 self.findWidget.setEditor( editor = wdoc.srcEditor)
             elif wdoc.extension == TestData.TYPE:
-                self.findWidget.show()
+                # self.findWidget.show()
                 self.findWidget.setDisabled(False)
                 self.findWidget.setEditor( editor = wdoc.srcEditor)
             elif wdoc.extension == TestSuite.TYPE:
-                self.findWidget.show()
+                # self.findWidget.show()
                 self.findWidget.setDisabled(False)
                 self.findWidget.setEditor( editor = wdoc.srcEditor)
             elif wdoc.extension == TestPlan.TYPE or wdoc.extension == TestPlan.TYPE_GLOBAL:
@@ -2686,15 +2692,15 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                 self.findWidget.setDisabled(True)
                 self.findWidget.hide()
             elif wdoc.extension == TestAdapter.TYPE:
-                self.findWidget.show()
+                # self.findWidget.show()
                 self.findWidget.setDisabled(False)
                 self.findWidget.setEditor( editor = wdoc.srcEditor)
             elif wdoc.extension == TestLibrary.TYPE:
-                self.findWidget.show()
+                # self.findWidget.show()
                 self.findWidget.setDisabled(False)
                 self.findWidget.setEditor( editor = wdoc.srcEditor)
             elif wdoc.extension == TestTxt.TYPE:
-                self.findWidget.show()
+                # self.findWidget.show()
                 self.findWidget.setDisabled(False)
                 self.findWidget.setEditor( editor = wdoc.srcEditor)
             else:
@@ -2795,8 +2801,6 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
             if len(path) == 0:
                 absPath = r'%s.%s' % (filename, extension)
 
-        # cur_project = self.iRepo.remote().getCurrentProject()
-        # cur_prj_id = self.iRepo.remote().getProjectId(cur_project)
         if extension == TestAdapter.TYPE or extension == TestLibrary.TYPE or  extension == TestTxt.TYPE:
             cur_prj_id = 0
         else:
@@ -2807,13 +2811,15 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
         nameLimit = int(nameLimit)
         # end of new
         
-        tabId = self.checkAlreadyOpened(path = absPath, remoteFile=remoteFile, repoType=repoDest, project=cur_prj_id)
+        tabId = self.checkAlreadyOpened(path = absPath, remoteFile=remoteFile, 
+                                        repoType=repoDest, project=cur_prj_id)
         if tabId is not None:
             self.tab.setCurrentIndex(tabId)
         else:
             __error__ = False
             if extension == TestAbstract.TYPE:
-                doc = TestAbstract.WTestAbstract(self, path, filename, extension, self.nonameIdTp,remoteFile,repoDest, project, isLocked)
+                doc = TestAbstract.WTestAbstract(self, path, filename, extension, self.nonameIdTp,
+                                                remoteFile,repoDest, project, isLocked)
                 if filename is None:
                     doc.defaultLoad()
                     doc.setModify()
@@ -2827,7 +2833,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                         del doc
                         QMessageBox.critical(self, self.tr("Open Failed") , self.tr("Corrupted Test Abstract file") )
                 if not __error__:
-                    tabName = self.addTag( repoType=doc.repoDest, txt=doc.getShortName(), addSlash=False, project=doc.project )
+                    tabName = self.addTag( repoType=doc.repoDest, txt=doc.getShortName(), 
+                                            addSlash=False, project=doc.project )
 
                     # new in v17
                     if nameLimit == 0:
@@ -2846,10 +2853,12 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                     self.setCloseButton(tabId=tabId, doc=doc)
  
             elif extension == TestUnit.TYPE:
-                self.findWidget.show()
-                doc = TestUnit.WTestUnit(self, path, filename, extension, self.nonameIdTs, remoteFile, repoDest, project, isLocked)
+                # self.findWidget.show()
+                doc = TestUnit.WTestUnit(self, path, filename, extension, self.nonameIdTs, 
+                                            remoteFile, repoDest, project, isLocked)
                 if filename is None:
-                    doc.defaultLoad(testDef=testDef, testInputs=testInputs, testOutputs=testOutputs, testAgents=testAgents)
+                    doc.defaultLoad(testDef=testDef, testInputs=testInputs, 
+                                    testOutputs=testOutputs, testAgents=testAgents)
                     doc.setModify()
                     self.nonameIdTs += 1
                 else:
@@ -2861,7 +2870,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                         del doc
                         QMessageBox.critical(self, self.tr("Open Failed") , self.tr("Corrupted Test Unit file") )
                 if not __error__:
-                    tabName = self.addTag( repoType=doc.repoDest, txt=doc.getShortName(), addSlash=False, project=doc.project )
+                    tabName = self.addTag( repoType=doc.repoDest, txt=doc.getShortName(), 
+                                            addSlash=False, project=doc.project )
 
                     # new in v17
                     if nameLimit == 0:
@@ -2888,7 +2898,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                     doc.setDefaultCursorPosition()
             
             elif extension == TestPng.TYPE:
-                doc = TestPng.WTestPng(self, path, filename, extension, self.nonameIdTs, remoteFile, repoDest, project)
+                doc = TestPng.WTestPng(self, path, filename, extension, self.nonameIdTs, 
+                                        remoteFile, repoDest, project)
                 self.BusyCursor.emit()
                 res = doc.load(contentFile)
                 self.ArrowCursor.emit()
@@ -2897,7 +2908,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                     del doc
                     QMessageBox.critical(self, self.tr("Open Failed") , self.tr("Corrupted Png file") )
                 if not __error__:
-                    tabName = self.addTag( repoType=doc.repoDest, txt=doc.getShortName(), addSlash=False, project=doc.project )
+                    tabName = self.addTag( repoType=doc.repoDest, txt=doc.getShortName(), 
+                                            addSlash=False, project=doc.project )
                     
                     # new in v17
                     if nameLimit == 0:
@@ -2914,8 +2926,9 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                     self.setCloseButton(tabId=tabId, doc=doc)
 
             elif extension == TestSuite.TYPE:
-                self.findWidget.show()
-                doc = TestSuite.WTestSuite(self, path, filename, extension, self.nonameIdTs, remoteFile, repoDest, project, isLocked)
+                # self.findWidget.show()
+                doc = TestSuite.WTestSuite(self, path, filename, extension, self.nonameIdTs, 
+                                            remoteFile, repoDest, project, isLocked)
                 if filename is None:
                     doc.defaultLoad(testDef=testDef, testExec=testExec, testInputs=testInputs, 
                                         testOutputs=testOutputs, testAgents=testAgents)
@@ -2928,10 +2941,12 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                     if not res:
                         __error__ = True
                         del doc
-                        QMessageBox.critical(self, self.tr("Open Failed") , self.tr("Corrupted Test Suite file") )
+                        QMessageBox.critical(self, self.tr("Open Failed") , 
+                                            self.tr("Corrupted Test Suite file") )
                 if not __error__:
 
-                    tabName = self.addTag( repoType=doc.repoDest, txt=doc.getShortName(), addSlash=False, project=doc.project )
+                    tabName = self.addTag( repoType=doc.repoDest, txt=doc.getShortName(), 
+                                            addSlash=False, project=doc.project )
                     
                     # new in v17
                     if nameLimit == 0:
@@ -2973,7 +2988,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                         del doc
                         QMessageBox.critical(self, self.tr("Open Failed") , self.tr("Corrupted Test Plan file") )
                 if not __error__:
-                    tabName = self.addTag( repoType=doc.repoDest, txt=doc.getShortName(), addSlash=False, project=doc.project )
+                    tabName = self.addTag( repoType=doc.repoDest, txt=doc.getShortName(), 
+                                            addSlash=False, project=doc.project )
                     
                     # new in v17
                     if nameLimit == 0:
@@ -3008,7 +3024,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                         del doc
                         QMessageBox.critical(self, self.tr("Open Failed") , self.tr("Corrupted Test Global file") )
                 if not __error__:
-                    tabName = self.addTag( repoType=doc.repoDest, txt=doc.getShortName(), addSlash=False, project=doc.project )
+                    tabName = self.addTag( repoType=doc.repoDest, txt=doc.getShortName(), 
+                                            addSlash=False, project=doc.project )
                     
                     # new in v17
                     if nameLimit == 0:
@@ -3028,7 +3045,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                         self.ShowPropertiesTab.emit()
 
             elif extension == TestConfig.TYPE:
-                doc = TestConfig.WTestConfig(self, path, filename, extension, self.nonameIdTp,remoteFile,repoDest, project, isLocked)
+                doc = TestConfig.WTestConfig(self, path, filename, extension, self.nonameIdTp,
+                                            remoteFile,repoDest, project, isLocked)
                 if filename is None:
                     doc.defaultLoad()
                     doc.setModify()
@@ -3042,7 +3060,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                         del doc
                         QMessageBox.critical(self, self.tr("Open Failed") , self.tr("Corrupted config file") )
                 if not __error__:
-                    tabName = self.addTag( repoType=doc.repoDest, txt=doc.getShortName(), addSlash=False, project=doc.project )
+                    tabName = self.addTag( repoType=doc.repoDest, txt=doc.getShortName(), 
+                                            addSlash=False, project=doc.project )
                     
                     # new in v17
                     if nameLimit == 0:
@@ -3059,8 +3078,9 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                     self.setCloseButton(tabId=tabId, doc=doc)
 
             elif extension == TestAdapter.TYPE and newAdp:
-                self.findWidget.show()
-                doc = TestAdapter.WTestAdapter(self, path, filename, extension, self.nonameIdTs, remoteFile, repoDest, project=0, isLocked=isLocked)
+                # self.findWidget.show()
+                doc = TestAdapter.WTestAdapter(self, path, filename, extension, self.nonameIdTs,
+                                                remoteFile, repoDest, project=0, isLocked=isLocked)
 
                 if filename is None:
                     doc.defaultLoad()
@@ -3075,7 +3095,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                         del doc
                         QMessageBox.critical(self, self.tr("Open Failed") , self.tr("Corrupted adapter file") )
                 if not __error__:
-                    tabName = self.addTag( repoType=doc.repoDest, txt=doc.getShortName(), addSlash=False, project=doc.project )
+                    tabName = self.addTag( repoType=doc.repoDest, txt=doc.getShortName(), 
+                                            addSlash=False, project=doc.project )
                     
                     # new in v17
                     if nameLimit == 0:
@@ -3098,8 +3119,9 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                     doc.setDefaultCursorPosition()
 
             elif extension == TestLibrary.TYPE and newLib:
-                self.findWidget.show()
-                doc = TestLibrary.WTestLibrary(self, path, filename, extension, self.nonameIdTs, remoteFile, repoDest, project=0, isLocked=isLocked)
+                # self.findWidget.show()
+                doc = TestLibrary.WTestLibrary(self, path, filename, extension, self.nonameIdTs, 
+                                                remoteFile, repoDest, project=0, isLocked=isLocked)
 
                 if filename is None:
                     doc.defaultLoad()
@@ -3114,7 +3136,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                         del doc
                         QMessageBox.critical(self, self.tr("Open Failed") , self.tr("Corrupted library file") )
                 if not __error__:
-                    tabName = self.addTag( repoType=doc.repoDest, txt=doc.getShortName(), addSlash=False, project=doc.project )
+                    tabName = self.addTag( repoType=doc.repoDest, txt=doc.getShortName(), 
+                                            addSlash=False, project=doc.project )
                     
                     # new in v17
                     if nameLimit == 0:
@@ -3137,8 +3160,9 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                     doc.setDefaultCursorPosition()
 
             elif extension == TestTxt.TYPE:
-                self.findWidget.show()
-                doc = TestTxt.WTestTxt(self, path, filename, extension, self.nonameIdTs, remoteFile, repoDest, project=0, isLocked=isLocked)
+                # self.findWidget.show()
+                doc = TestTxt.WTestTxt(self, path, filename, extension, self.nonameIdTs, remoteFile,
+                                        repoDest, project=0, isLocked=isLocked)
                 if filename is None:
                     doc.defaultLoad()
                     doc.setModify()
@@ -3152,7 +3176,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                         del doc
                         QMessageBox.critical(self, self.tr("Open Failed") , self.tr("Corrupted Txt file") )
                 if not __error__:
-                    tabName = self.addTag( repoType=doc.repoDest, txt=doc.getShortName(), addSlash=False, project=doc.project )
+                    tabName = self.addTag( repoType=doc.repoDest, txt=doc.getShortName(), 
+                                            addSlash=False, project=doc.project )
                     
                     # new in v17
                     if nameLimit == 0:
@@ -3175,8 +3200,9 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                     doc.setDefaultCursorPosition()
             
             elif extension == TestData.TYPE:
-                self.findWidget.show()
-                doc = TestData.WTestData(self, path, filename, extension, self.nonameIdTs, remoteFile, repoDest, project, isLocked)
+                # self.findWidget.show()
+                doc = TestData.WTestData(self, path, filename, extension, self.nonameIdTs, 
+                                        remoteFile, repoDest, project, isLocked)
                 if filename is None:
                     doc.defaultLoad()
                     doc.setModify()
@@ -3203,7 +3229,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                         del doc
                         QMessageBox.critical(self, self.tr("Open Failed") , self.tr("Corrupted Test Data file") )
                 if not __error__:
-                    tabName = self.addTag( repoType=doc.repoDest, txt=doc.getShortName(), addSlash=False, project=doc.project )
+                    tabName = self.addTag( repoType=doc.repoDest, txt=doc.getShortName(), 
+                                            addSlash=False, project=doc.project )
                     
                     # new in v17
                     if nameLimit == 0:
@@ -3226,6 +3253,7 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                     doc.setWhitespaceVisible( self.whitespaceVisible )
                     doc.setLinesNumbering( self.linesNumbering )
                     doc.setDefaultCursorPosition()
+            
             else:
                 self.error( "extension unknown %s" % extension )
             
@@ -3296,12 +3324,14 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
         """
         self.newTab( extension = TestSuite.TYPE, repoDest=UCI.REPO_UNDEFINED )
 
-    def newTestSuiteWithContent (self, testDef=None, testExec=None, testInputs=None, testOutputs=None, testAgents=None):
+    def newTestSuiteWithContent (self, testDef=None, testExec=None, testInputs=None, 
+                                    testOutputs=None, testAgents=None):
         """
         Creates one new empty TestSuite file
         Call the function newTab()
         """
-        self.newTab( extension = TestSuite.TYPE, repoDest=UCI.REPO_UNDEFINED, testDef=testDef, testExec=testExec, testInputs=testInputs, 
+        self.newTab( extension = TestSuite.TYPE, repoDest=UCI.REPO_UNDEFINED, testDef=testDef, 
+                        testExec=testExec, testInputs=testInputs, 
                         testOutputs=testOutputs, testAgents=testAgents )
  
     def newTestUnitWithContent(self, testDef=None, testInputs=None, testOutputs=None, testAgents=None):
@@ -3309,7 +3339,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
         Creates one new empty TestAbstract file
         Call the function newTab()
         """
-        self.newTab( extension = TestAbstract.TYPE, repoDest=UCI.REPO_UNDEFINED, testDef=testDef, testInputs=testInputs,
+        self.newTab( extension = TestAbstract.TYPE, repoDest=UCI.REPO_UNDEFINED, 
+                        testDef=testDef, testInputs=testInputs,
                         testOutputs=testOutputs, testAgents=testAgents )
                         
     def newTestPlan (self):
@@ -3361,10 +3392,6 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                 if currentDoc.isModified():
                     if UCI.instance().isAuthenticated():
                         if currentDoc.isLocked():
-                            # reply = QMessageBox(self).question(self, self.tr("Overwrite File"),
-                                                            # self.tr("This file is already locked by someone.\nAre you really sure to overwrite change?"),
-                                                            # QMessageBox.Yes | QMessageBox.Cancel )
-                            # if reply == QMessageBox.Yes:
                             repoDest = currentDoc.repoDest
                             UCI.instance().putFileRepo( document=currentDoc, updateFile=True, repo=repoDest, 
                                                         project=currentDoc.project, closeTabAfter=closeTabAfter)
@@ -3440,7 +3467,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
             else:
                 if self.localConfigured != "Undefined":
                     buttons = QMessageBox.Yes | QMessageBox.No
-                    answer = QMessageBox.question(self, Settings.instance().readValue( key = 'Common/name' ), self.tr("Save in the local repository?") , buttons)
+                    answer = QMessageBox.question(self, Settings.instance().readValue( key = 'Common/name' ), 
+                                                    self.tr("Save in the local repository?") , buttons)
                     if answer == QMessageBox.Yes:
                         ret = self.saveToLocal(tabId,currentDoc)
                     else:
@@ -3467,7 +3495,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
         """
         ret = False
 
-        self.iRepo.localDialogSave().setFilename( filename=currentDoc.getShortName(withAsterisk = False, withExtension = False, withLocalTag=False) )
+        self.iRepo.localDialogSave().setFilename( filename=currentDoc.getShortName(withAsterisk = False, withExtension = False, 
+                                                                                    withLocalTag=False) )
         self.iRepo.localDialogSave().refresh()
         dialog = self.iRepo.localDialogSave()
         if dialog.exec_() == QDialog.Accepted:
@@ -3494,30 +3523,37 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
 
         if isinstance(currentDoc, TestAdapter.WTestAdapter):
             repoDest = UCI.REPO_ADAPTERS
-            self.iRepo.remoteAdapter().saveAs.setFilename( currentDoc.getShortName(withAsterisk = False, withExtension = False, withLocalTag=False) )
+            self.iRepo.remoteAdapter().saveAs.setFilename( currentDoc.getShortName(withAsterisk = False, withExtension = False, 
+                                                                                    withLocalTag=False) )
             dialog = self.iRepo.remoteAdapter().saveAs
         
         elif isinstance(currentDoc, TestLibrary.WTestLibrary):
             repoDest = UCI.REPO_LIBRARIES
-            self.iRepo.remoteLibrary().saveAs.setFilename( currentDoc.getShortName(withAsterisk = False, withExtension = False, withLocalTag=False) )
+            self.iRepo.remoteLibrary().saveAs.setFilename( currentDoc.getShortName(withAsterisk = False, withExtension = False, 
+                                                                                    withLocalTag=False) )
             dialog = self.iRepo.remoteLibrary().saveAs
         
         elif currentDoc.extension == TestTxt.TYPE:
             buttons = QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel
-            answer = QMessageBox.question(self, Settings.instance().readValue( key = 'Common/name' ),  self.tr("Save in the adapters repository ?") , buttons)
+            answer = QMessageBox.question(self, Settings.instance().readValue( key = 'Common/name' ),  
+                                            self.tr("Save in the adapters repository ?") , buttons)
             if answer == QMessageBox.Yes:
                 repoDest = UCI.REPO_ADAPTERS
-                self.iRepo.remoteAdapter().saveAs.setFilename( currentDoc.getShortName(withAsterisk = False, withExtension = False, withLocalTag=False) )
+                self.iRepo.remoteAdapter().saveAs.setFilename( currentDoc.getShortName(withAsterisk = False, withExtension = False, 
+                                                                                        withLocalTag=False) )
                 dialog = self.iRepo.remoteAdapter().saveAs
             elif answer == QMessageBox.No:
                 buttons = QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel
-                answer = QMessageBox.question(self, Settings.instance().readValue( key = 'Common/name' ),  self.tr("Save in the libraries repository ?") , buttons)
+                answer = QMessageBox.question(self, Settings.instance().readValue( key = 'Common/name' ),  
+                                                self.tr("Save in the libraries repository ?") , buttons)
                 if answer == QMessageBox.Yes:
                     repoDest = UCI.REPO_LIBRARIES
-                    self.iRepo.remoteLibrary().saveAs.setFilename( currentDoc.getShortName(withAsterisk = False, withExtension = False, withLocalTag=False) )
+                    self.iRepo.remoteLibrary().saveAs.setFilename( currentDoc.getShortName(withAsterisk = False, withExtension = False, 
+                                                                                            withLocalTag=False) )
                     dialog = self.iRepo.remoteLibrary().saveAs
         else:
-            self.iRepo.remote().saveAs.setFilename( currentDoc.getShortName(withAsterisk = False, withExtension = False, withLocalTag=False), project=project )
+            self.iRepo.remote().saveAs.setFilename( currentDoc.getShortName(withAsterisk = False, withExtension = False, withLocalTag=False), 
+                                                    project=project )
             dialog = self.iRepo.remote().saveAs
 
         if dialog is not None:
@@ -3539,7 +3575,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                         QMessageBox.warning(self, self.tr("Save") , self.tr("Invalid name!") )
                     else:
                         currentDoc.isRemote = True
-                        ret = self.save( fileName = fileName, document = currentDoc, tabId = tabId, repoDest=repoDest, project=projectid)
+                        ret = self.save( fileName = fileName, document = currentDoc, tabId = tabId, 
+                                        repoDest=repoDest, project=projectid)
         return ret
 
     def saveToAnywhere(self, tabId, currentDoc):
@@ -3554,7 +3591,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
         """
         ret = False
         #
-        fileName = QFileDialog.getSaveFileName(self, self.tr("Save file"), currentDoc.filename, "*.%s" % currentDoc.extension)
+        fileName = QFileDialog.getSaveFileName(self, self.tr("Save file"), 
+                                                currentDoc.filename, "*.%s" % currentDoc.extension)
                 
         # new in v17.1
         if QtHelper.IS_QT5:
@@ -3568,7 +3606,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                 QMessageBox.warning(self, self.tr("Save") , self.tr("Invalid name!") )
             else:
                 currentDoc.isRemote=False
-                ret = self.save( fileName = _fileName, document = currentDoc, tabId = tabId, newFile=True, fromAnywhere=True )
+                ret = self.save( fileName = _fileName, document = currentDoc, 
+                                tabId = tabId, newFile=True, fromAnywhere=True )
         return ret
 
     def save (self, fileName, document, tabId, newFile=False, fromAnywhere=False, repoDest=None, project=''):
@@ -3716,7 +3755,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
             UCI.instance().checkSyntaxLibrary(  wdocument = currentDocument )
         else:
             testId = TestResults.instance().getTestId()
-            UCI.instance().checkSyntaxTest(  wdocument = currentDocument, testId = testId, runAt = (0,0,0,0,0,0), runType=UCI.SCHED_NOW )
+            UCI.instance().checkSyntaxTest(  wdocument = currentDocument, testId = testId, 
+                                            runAt = (0,0,0,0,0,0), runType=UCI.SCHED_NOW )
 
     def schedRunDocument (self):
         """
@@ -3728,7 +3768,8 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
             recursive = False
             if runType > UCI.SCHED_IN:
                 recursive = True
-            self.runDocument( background = True, runAt = runAt, runType=runType, runNb=runNb, withoutProbes=withoutProbes, noKeepTr=noKeepTr, 
+            self.runDocument( background = True, runAt = runAt, runType=runType, runNb=runNb, 
+                                withoutProbes=withoutProbes, noKeepTr=noKeepTr, 
                                withoutNotif=withoutNotifs, fromTime=runFrom, toTime=runTo)
         
     def runDocumentNoKeepTr(self):

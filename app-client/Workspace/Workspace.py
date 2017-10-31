@@ -116,9 +116,11 @@ class WWorkspace(QWidget):
         # create each part
         WRepositories.initialize( parent = self )
         WDocumentViewer.initialize( parent = self, iRepo=WRepositories.instance(),
-                                        lRepo=WRepositories.LocalRepository, rRepo=WRepositories.RemoteRepository )
+                                    lRepo=WRepositories.LocalRepository, 
+                                    rRepo=WRepositories.RemoteRepository )
         WDocumentProperties.initialize( parent = self, iRepo=WRepositories.instance(),
-                                            lRepo=WRepositories.LocalRepository, rRepo=WRepositories.RemoteRepository )
+                                        lRepo=WRepositories.LocalRepository, 
+                                        rRepo=WRepositories.RemoteRepository )
         WHelper.initialize( parent = self )
         
         # splitter state
