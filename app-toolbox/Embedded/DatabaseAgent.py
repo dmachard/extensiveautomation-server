@@ -21,6 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Database agent
+"""
+
 import Core.GenericTool as GenericTool
 import Libs.Settings as Settings
 import Libs.FifoQueue as FifoQueue
@@ -94,13 +98,19 @@ def initialize (controllerIp, controllerPort, toolName, toolDesc,
                         defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
     
 class DbContext(object):
+    """
+    Database context class
+    """
     def __init__(self):
         """
+        Constructor
         """
         self.DB_PTR = None
         self.connected = False
+        
     def onReset(self):
         """
+        Called to reset the context
         """
         try:
             if self.DB_PTR is not None: self.DB_PTR.close()
@@ -111,10 +121,13 @@ class DbContext(object):
         
         
 class Database(GenericTool.Tool):
+    """
+    Database agent class
+    """
     def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
                 supportProxy=0, proxyIp=None, proxyPort=None, sslSupport=True):
         """
-        Database agent
+        Database agent constructor
 
         @param controllerIp: controller ip/host
         @type controllerIp: string
@@ -139,6 +152,7 @@ class Database(GenericTool.Tool):
     
     def checkPrerequisites(self):
         """
+        Check the prerequisistes (database module installed)
         """
         if not MYSQL_CONNECTOR_READY:
             self.onToolLogErrorCalled("MySQL connector is missing!")
@@ -280,6 +294,7 @@ class Database(GenericTool.Tool):
         
     def onResetTestContext(self, testUuid, scriptId, adapterId):
         """
+        On reset test context event
         """
         self.onToolLogWarningCalled( "<< Resetting Context TestID=%s AdapterId=%s" % (scriptId, adapterId) )
         self.trace("Resetting TestUuid=%s ScriptId=%s AdapterId=%s" % (testUuid, scriptId, adapterId) )
@@ -297,7 +312,9 @@ class Database(GenericTool.Tool):
         """
         currentTest = self.context()[request['uuid']][request['source-adapter']]
         
-        self.onToolLogWarningCalled( "<< Starting SQL=%s TestId=%s AdapterId=%s" % (request['data']['cmd'],request['script_id'], request['source-adapter']) )
+        self.onToolLogWarningCalled( "<< Starting SQL=%s TestId=%s AdapterId=%s" % (request['data']['cmd'],
+                                                                                    request['script_id'], 
+                                                                                    request['source-adapter']) )
         try:
             cmd = request['data']['cmd']
             data = request['data']
@@ -307,7 +324,8 @@ class Database(GenericTool.Tool):
                 try:
                     if data['dbtype'] == 'mysql':
                         currentTest.ctx().DB_PTR = pymysql.connect( host = data['host'],  user = data['user'], passwd = data['password'], 
-                                                                    port=data['port'], connect_timeout=int(data['timeout']), db = data['db-name'] )
+                                                                    port=data['port'], connect_timeout=int(data['timeout']), 
+                                                                    db = data['db-name'] )
                         self.onToolLogSuccessCalled( "<< MySQL connector initialized" )
                     elif data['dbtype'] == 'mssql':
                         self.onToolLogErrorCalled("MsSQL connector not yet supported!")
@@ -333,7 +351,8 @@ class Database(GenericTool.Tool):
                     self.sendError( request , data={"cmd": cmd , "generic-err-msg": str(e)} )
                 else:
                     currentTest.ctx().connected = True
-                    self.sendNotify(request, data={ 'cmd': cmd, 'host': data['host'], 'port': data['port'], 'user': data['user'], 'password': data['password']  } )
+                    self.sendNotify(request, data={ 'cmd': cmd, 'host': data['host'], 'port': data['port'], 
+                                                    'user': data['user'], 'password': data['password']  } )
                         
             # disconnect
             elif cmd == 'Disconnect':
@@ -352,7 +371,8 @@ class Database(GenericTool.Tool):
                 except Exception as e:
                     self.sendError( request , data={"cmd": cmd , "generic-err-msg": str(e)} )
                 else:
-                    self.sendNotify(request, data={ 'cmd': cmd, 'host': data['host'], 'port': data['port'], 'user': data['user'], 'password': data['password']  } )
+                    self.sendNotify(request, data={ 'cmd': cmd, 'host': data['host'], 'port': data['port'], 
+                                                    'user': data['user'], 'password': data['password']  } )
             
             # query
             elif cmd == 'Query':
@@ -363,8 +383,10 @@ class Database(GenericTool.Tool):
                     cursor.execute ( data['query'] )
 
                     i = 0
-                    self.sendNotify(request, data={ 'cmd': 'Executed', 'host': data['host'], 'port': data['port'], 'user': data['user'],
-                                                        'password': data['password'],  'nb-changed': str(cursor.rowcount) } )
+                    self.sendNotify(request, data={ 'cmd': 'Executed', 'host': data['host'], 
+                                                    'port': data['port'], 'user': data['user'],
+                                                    'password': data['password'],  
+                                                    'nb-changed': str(cursor.rowcount) } )
                     
                     try:
                         row = cursor.fetchone()
@@ -380,14 +402,16 @@ class Database(GenericTool.Tool):
                             for k,v in ret.items(): ret_str[k] = str(v)
 
                             # log response event
-                            self.sendNotify(request, data={ 'cmd': cmd, 'host': data['host'], 'port': data['port'], 'user': data['user'], 'password': data['password'],
-                                                            'row': ret_str, 'row-index': i, 'row-max': cursor.rowcount} )
+                            self.sendNotify(request, data={ 'cmd': cmd, 'host': data['host'], 
+                                                            'port': data['port'], 'user': data['user'], 
+                                                            'password': data['password'],  'row': ret_str, 
+                                                            'row-index': i, 'row-max': cursor.rowcount} )
                             
                             row = cursor.fetchone()
                     except psycopg2.ProgrammingError as e:
                         pass # no more to read 
-                    except MySQLdb.Error as e:
-                        pass # no more to read 
+                    # except MySQLdb.Error as e:
+                        # pass # no more to read 
                     except pymysql.Error as e:
                         pass # no more to read 
                         
@@ -406,8 +430,9 @@ class Database(GenericTool.Tool):
                     self.sendError( request , data={"cmd": cmd , "generic-err-msg": str(e)} )
                 else:
                     # log response event
-                    self.sendNotify(request, data={ 'cmd': 'Terminated', 'host': data['host'], 'port': data['port'], 'user': data['user'], 'password': data['password'],
-                                                        'nb-row': i } )
+                    self.sendNotify(request, data={ 'cmd': 'Terminated', 'host': data['host'], 'port': data['port'], 
+                                                    'user': data['user'], 'password': data['password'],
+                                                    'nb-row': i } )
 
             else:
                 raise Exception('cmd not supported: %s' % cmd )
@@ -416,7 +441,9 @@ class Database(GenericTool.Tool):
             self.error( 'unable to run sql query: %s' % str(e) )
             self.sendError( request , data="unable to run sql query")
 
-        self.onToolLogWarningCalled( "<< Terminating SQL=%s TestId=%s AdapterId=%s" % (request['data']['cmd'],request['script_id'], request['source-adapter']) )
+        self.onToolLogWarningCalled( "<< Terminating SQL=%s TestId=%s AdapterId=%s" % (request['data']['cmd'],
+                                                                                        request['script_id'], 
+                                                                                        request['source-adapter']) )
 
     def onAgentNotify(self, client, tid, request):
         """

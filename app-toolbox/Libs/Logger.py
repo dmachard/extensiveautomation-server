@@ -60,6 +60,7 @@ def caller():
     
 def log_exception(*args):
     """
+    Log exception
     """
     timestamp = time.time()
     c,e,traceback = args
@@ -208,9 +209,7 @@ def initialize (logPathFile=None, level="INFO", size="5", nbFiles="10", noSettin
                                                     maxBytes=maxBytes,
                                                     backupCount=nbFilesMax
                                                 )
-    
-    #format='%(asctime)-6s: %(name)s - %(levelname)s - %(module)s - %(funcName)s - %(lineno)d - %(message)s',
-    # %(funcName)s ==> not supported with python 2.4
+
     formatter = logging.Formatter( "%(asctime)s - %(levelname)s - %(message)s")
     handler.setFormatter(formatter)
 

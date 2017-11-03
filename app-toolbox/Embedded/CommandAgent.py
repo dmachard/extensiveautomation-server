@@ -21,6 +21,9 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Command agent
+"""
 
 import Core.GenericTool as GenericTool
 import Libs.Settings as Settings
@@ -76,6 +79,7 @@ Targetted operating system: Windows and Linux"""
 
 class CommandThread(threading.Thread):
     """
+    Command thread object
     """
     def __init__(self, parent):
         """
@@ -90,16 +94,19 @@ class CommandThread(threading.Thread):
 
     def error(self, msg):
         """
+        Log error
         """
         self.parent.error( msg )
         
     def trace(self, msg):
         """
+        Log a trace
         """
         self.parent.trace( msg )
         
     def readData(self, maxTimeout=50.0, prompt=b'[FAKEPROMPT]', searchPrompt=True):
         """
+        Read data from the process
         """
         timeout = False
         startTime = time.time()
@@ -137,6 +144,7 @@ class CommandThread(threading.Thread):
     
     def sendData(self, data, maxTimeout=50.0):
         """
+        Send data to the process
         """
         cmd = '%s & echo [FAKEPROMPT]\n' % data
         if sys.version_info > (3,):
@@ -209,10 +217,11 @@ def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, s
     
 class Command(GenericTool.Tool):
     """
+    Command agent class
     """
     def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy=0, proxyIp=None, proxyPort=None, sslSupport=True):
         """
-        Command agent
+        Command agent constructor
         """
         GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy=supportProxy, proxyIp=proxyIp, proxyPort=proxyPort, sslSupport=sslSupport)
         self.__type__ = __TYPE__
@@ -256,6 +265,7 @@ class Command(GenericTool.Tool):
         
     def getType(self):
         """
+        Return agent type
         """
         return self.__type__
 
@@ -341,7 +351,8 @@ class Command(GenericTool.Tool):
         if sys.platform == "win32" :
             self.trace("command to run: %s" % request['data']['cmd'])
             if 'timeout' in request['data']:
-                output = self.commandThread.sendData(data=request['data']['cmd'], maxTimeout=request['data']['timeout'])
+                output = self.commandThread.sendData(data=request['data']['cmd'], 
+                                                    maxTimeout=request['data']['timeout'])
             else:
                 output = self.commandThread.sendData(data=request['data']['cmd'])
             self.sendNotify(request, data={'result':output, 'get': request['data']['get'] })
@@ -363,7 +374,8 @@ class Command(GenericTool.Tool):
                 else:
                     __cmd = request['data']['cmd']
                     __cmd_args = shlex.split(__cmd)
-                    p = subprocess.Popen(__cmd_args, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
+                    p = subprocess.Popen(__cmd_args, shell=False, stdin=subprocess.PIPE, 
+                                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
                     out, err = p.communicate()
                     self.trace( str(out) )
                     self.trace( str(err) )

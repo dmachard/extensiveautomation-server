@@ -21,6 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Settings
+"""
+
 try:
     import ConfigParser
 except ImportError: # python 3 support
@@ -28,11 +32,6 @@ except ImportError: # python 3 support
 import sys
 import os
 import time
-
-#try:
-#    import Logger
-#except ImportError: # python 3 support
-#    from . import Logger
 
 arg = sys.argv[0]
 pathname = os.path.dirname(arg)
@@ -57,7 +56,6 @@ def getVersion ():
         ver = f.read()
         f.close()
     except Exception as e:
-        #Logger.error( "[getVersion] Unable to read version: " + str(e) )
         print( "[getVersion] Unable to read version: " + str(e) )
     return ver.strip()
 
@@ -79,41 +77,48 @@ SETTINGS = None # singleton
 
 def getInt (section, key):
     """
+    Return integer
     """
     val = SETTINGS.get(section, key)
     return int(val)
 
 def getBool (section, key):
     """
+    Return bool
     """
     val = SETTINGS.getboolean(section, key)
     return val
 
 def get (section, key):
     """
+    Return value
     """
     val = SETTINGS.get(section, key)
     return val
 
 def getItems (section):
     """
+    Return all items in section
     """
     val = SETTINGS.items(section)
     return val
 
 def set (section, key, value):
     """
+    Set a value
     """
     val = SETTINGS.set(section, key, value)
     return val
 
 def addSection (section):
     """
+    Add a section
     """
     SETTINGS.add_section(section)
     
 def removeSection (section):
     """
+    Remove a section
     """
     SETTINGS.remove_section(section)
     
@@ -128,6 +133,7 @@ def instance ():
 
 def save(path="./", cfgname='settings.ini'):
     """
+    Save settings
     """
     global SETTINGS
     if sys.version_info > (3,):

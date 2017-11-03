@@ -21,6 +21,11 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+
+"""
+Dummy agent
+"""
+
 import Core.GenericTool as GenericTool
 import Libs.Settings as Settings
 import Libs.FifoQueue as FifoQueue
@@ -71,6 +76,9 @@ def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, s
     
 
 class Dummy(GenericTool.Tool):
+    """
+    Dummy agent class
+    """
     def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy=0,
                         proxyIp=None, proxyPort=None, sslSupport=True):
         """
@@ -92,7 +100,8 @@ class Dummy(GenericTool.Tool):
         @type defaultTool: boolean
         """
         GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
-                                    supportProxy=supportProxy, proxyIp=proxyIp, proxyPort=proxyPort, sslSupport=sslSupport)
+                                    supportProxy=supportProxy, proxyIp=proxyIp, 
+                                    proxyPort=proxyPort, sslSupport=sslSupport)
         self.__type__ = __TYPE__
 
     def getType(self):

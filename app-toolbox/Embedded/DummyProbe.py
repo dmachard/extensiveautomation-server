@@ -21,6 +21,11 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+
+"""
+Dummy probe
+"""
+
 import Core.GenericTool as GenericTool
 import Libs.Settings as Settings
 
@@ -61,6 +66,9 @@ def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, s
     return Dummy( controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
     
 class Dummy(GenericTool.Tool):
+    """
+    Dummy probe
+    """
     def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy=0, 
                         proxyIp=None, proxyPort=None, sslSupport=True):
         """
@@ -209,9 +217,6 @@ class Dummy(GenericTool.Tool):
             
         self.probestarted = False
         self.onToolLogWarningCalled(msg="Stop called")
-
-        # send response without data
-#        self.stopResponse(tid, ret, data, dataToSend=False)
 
         # send response and data too
         # the temp file created during the start is automatically sent to the server

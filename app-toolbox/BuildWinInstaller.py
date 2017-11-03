@@ -21,6 +21,9 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Build installer for windows
+"""
 
 from Libs import QtHelper, Settings
 import os
@@ -52,15 +55,22 @@ VERSION_SELENIUM2       =   "2.53.1"
 VERSION_ADB             =   "1.0.39"
 # VERSION_SMS_APK         =   "2.22"
 
-class InnoScript:
+class InnoScript(object):
+    """
+    Inno script object
+    """
     def __init__ (self, pathName):
         """
+        Constructor
         """
         self.scriptName = 'script_ino.iss'
         self.pathName = "%s\%s" % ( pathName, self.scriptName )
         self.path = pathName
 
     def create(self):
+        """
+        Create the inno file
+        """
         appName = Settings.get( section = 'Common', key='name' )
         appAcronym = Settings.get( section = 'Common', key='acronym' )
         appVersion = Settings.getVersion()
@@ -102,12 +112,9 @@ class InnoScript:
         d.append( r"[Components]" )
         d.append( r'Name: "main"; Description: "Engine"; Types: full compact custom; Flags: fixed;' )
         d.append( r'Name: "java8"; Description: "Java %s"; Types: full ;' % VERSION_JAVA )
-        # d.append( r'Name: "wireshark"; Description: "Wireshark %s"; Types: full;' % VERSION_WIRESHARK )
         d.append( r'Name: "sikulix"; Description: "SikuliX %s"; Types: full;' % VERSION_SIKULIX )
-        # d.append( r'Name: "soapui"; Description: "SoapUI %s"; Types: full;' % VERSION_SOAPUI )
         d.append( r'Name: "selenium3"; Description: "Selenium %s"; Types: full;' % VERSION_SELENIUM3 )
         d.append( r'Name: "selenium2"; Description: "Selenium %s"; Types: full;' % VERSION_SELENIUM2 )
-        # d.append( r'Name: "smsapk"; Description: "Gateway APK %s"; Types: full;' % VERSION_SMS_APK )
         d.append( r'Name: "adb"; Description: "Android Debug Bridge %s"; Types: full;' % VERSION_ADB )
         
         d.append( r"[Files]" )
@@ -126,11 +133,6 @@ class InnoScript:
         for f in os.listdir("%s/Bin/Adb" % self.path):
             if os.path.isfile( "%s/Bin/Adb/%s" % (self.path, f) ):
                 d.append( r'Source: "Bin/Adb/%s"; DestDir: "{app}\Bin\Adb\"; Flags: ignoreversion; Permissions: users-modify; Components: adb' % f)
-                
-        # adding apk files
-        # for f in os.listdir("%s/Bin/Apk" % self.path):
-            # if os.path.isfile( "%s/Bin/Apk/%s" % (self.path, f) ):
-                # d.append( r'Source: "Bin/Apk/%s"; DestDir: "{app}\Bin\Apk\"; Flags: ignoreversion; Permissions: users-modify; Components: smsapk' % f)
 
         # adding selenium files
         for f in os.listdir("%s/Bin/Selenium3" % self.path):
@@ -146,17 +148,6 @@ class InnoScript:
         for f in os.listdir("%s/Bin/Sikuli" % self.path):
             if os.path.isfile( "%s/Bin/Sikuli/%s" % (self.path, f) ):
                 d.append( r'Source: "Bin/Sikuli/%s"; DestDir: "{app}\Bin\Sikuli\"; Flags: ignoreversion; Permissions: users-modify; Components: sikulix' % f )
-
-        # adding soapui files
-        # for f in os.listdir("%s/Bin/SoapUI" % self.path):
-            # if os.path.isfile( "%s/Bin/SoapUI/%s" % (self.path, f) ):
-                # d.append( r'Source: "Bin/SoapUI/%s"; DestDir: "{app}\Bin\SoapUI\"; Flags: ignoreversion; Permissions: users-modify; Components: soapui' % f )
-        # for f in os.listdir("%s/Bin/SoapUI/bin/" % self.path):
-            # if os.path.isfile( "%s/Bin/SoapUI/bin/%s" % (self.path, f) ):
-                # d.append( r'Source: "Bin/SoapUI/bin/%s"; DestDir: "{app}\Bin\SoapUI\bin\"; Flags: ignoreversion; Permissions: users-modify; Components: soapui' % f )
-        # for f in os.listdir("%s/Bin/SoapUI/lib/" % self.path):
-            # if os.path.isfile( "%s/Bin/SoapUI/lib/%s" % (self.path, f) ):
-                # d.append( r'Source: "Bin/SoapUI/lib/%s"; DestDir: "{app}\Bin\SoapUI\lib\"; Flags: ignoreversion; Permissions: users-modify; Components: soapui' % f )
 
         # other files
         for f in os.listdir("%s/imageformats/" % self.path):
@@ -188,6 +179,9 @@ class InnoScript:
         ofi.close()
 
     def compile(self):
+        """
+        Compile the ino file
+        """
         cmd = '"%s" "%s"' % (INNOSETUP_COMPILER, self.pathName)
         print("Running InnoSetup: %s" % cmd)
         errorlevel = os.system('"%s"' % cmd)

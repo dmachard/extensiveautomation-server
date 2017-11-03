@@ -21,6 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Network probe
+"""
+
 import Core.GenericTool as GenericTool
 import Libs.Settings as Settings
 
@@ -58,14 +62,18 @@ Targetted operating system: Windows, Linux"""
 
 def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport=True):
     """
-    Wrapper to initialize the object agent
+    Wrapper to initialize the object
     """
     return Network( controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport)
     
 class Network(GenericTool.Tool):
+    """
+    Network class
+    """
     def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
                     supportProxy=0, proxyIp=None, proxyPort=None, sslSupport=True):
         """
+        Network constructor
         """
         GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, toolDesc, 
                     defaultTool, supportProxy=supportProxy, proxyIp=proxyIp, proxyPort=proxyPort,
@@ -165,6 +173,7 @@ class Network(GenericTool.Tool):
         
     def getType(self):
         """
+        Return the probe type
         """
         return self.__type__
 

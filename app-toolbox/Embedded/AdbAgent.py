@@ -21,6 +21,9 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+ADB agent
+"""
 
 import Core.GenericTool as GenericTool
 import Libs.Settings as Settings
@@ -62,10 +65,6 @@ except NameError: # support python3
 # unicode = str with python3
 if sys.version_info > (3,):
     unicode = str
-    
-    
-# if sys.platform == "win32" :
-    # from PyQt4 import QtCore, QtGui
 
 __TOOL_TYPE__ = GenericTool.TOOL_AGENT
 __WITH_IDE__ = False  
@@ -95,6 +94,7 @@ import sys
     
 class UiAutomatorThread(threading.Thread):
     """
+    UiAutomator Thread class
     """
     def __init__(self, parent):
         """
@@ -145,6 +145,7 @@ class UiAutomatorThread(threading.Thread):
             
     def run(self):
         """
+        On running thread
         """
         self.parent.onToolLogWarningCalled("Starting UIautomator on device...")
 
@@ -153,18 +154,20 @@ class UiAutomatorThread(threading.Thread):
         
         self.trace("uploading jar files on devices")
         __cmd__ = '"%s" push "%s\\Adb\\bundle.jar" /data/local/tmp/' % (__adbexe__, __adbbin__ )
-        ret = subprocess.call(__cmd__, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,   stderr=subprocess.STDOUT)
+        ret = subprocess.call(__cmd__, shell=True, stdin=subprocess.PIPE, 
+                                stdout=subprocess.PIPE,   stderr=subprocess.STDOUT)
         self.trace("uploading ret: %s" % ret)
         
         __cmd__ = '"%s" push "%s\\Adb\\uiautomator-stub.jar" /data/local/tmp/' % (__adbexe__,  __adbbin__)
-        ret = subprocess.call(__cmd__, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,   stderr=subprocess.STDOUT)
+        ret = subprocess.call(__cmd__, shell=True, stdin=subprocess.PIPE, 
+                                stdout=subprocess.PIPE,   stderr=subprocess.STDOUT)
         self.trace("uploading ret: %s" % ret)
 
         __cmd__ = r'"%s" shell uiautomator runtest uiautomator-stub.jar bundle.jar -c com.github.uiautomatorstub.Stub' % __adbexe__
         self.parent.trace(__cmd__)
         try:
-            self.uiProcess = subprocess.Popen(__cmd__, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, 
-                                                    stderr=subprocess.STDOUT, bufsize=0 )
+            self.uiProcess = subprocess.Popen(__cmd__, shell=True, stdin=subprocess.PIPE, 
+                                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0 )
             pid = self.uiProcess.pid
             self.parent.trace("UIautomator thread started with pid=%s" % pid)
             if sys.version_info > (3,):
@@ -216,10 +219,11 @@ MAX_ERROR_SCREEN=5
 
 class AdbScreenThread(threading.Thread):
     """
+    ADB screen thread
     """
     def __init__(self, parent):
         """
-        Individual adb thread
+        Individual screen thread
         """
         threading.Thread.__init__(self)
         self.stopEvent = threading.Event()
@@ -234,6 +238,7 @@ class AdbScreenThread(threading.Thread):
         
     def run(self):
         """
+        On running thread
         """
         __adbexe__ = '%s\%s\%s' % (Settings.getDirExec(), Settings.get('Paths', 'bin'), Settings.get('BinWin', 'adb-exe') )
         __ret__ = '%s\screncapture.png' % self.parent.getTemp()
@@ -268,6 +273,7 @@ class AdbScreenThread(threading.Thread):
 
     def stop(self):
         """
+        Stop the thread
         """
         self.parent.onToolLogWarningCalled("Stopping screen capture...")
         self.stopEvent.set()
@@ -275,10 +281,11 @@ class AdbScreenThread(threading.Thread):
         
 class AdbServerThread(threading.Thread):
     """
+    ADB server thread
     """
     def __init__(self, parent):
         """
-        Individual adb thread
+        Individual ADB server thread
         """
         threading.Thread.__init__(self)
         self.stopEvent = threading.Event()
@@ -383,9 +390,13 @@ def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, s
     
 
 class Adb(GenericTool.Tool):
-    def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy=0, proxyIp=None, proxyPort=None, sslSupport=True):
+    """
+    ADB agent class
+    """
+    def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                        supportProxy=0, proxyIp=None, proxyPort=None, sslSupport=True):
         """
-        Android Debug Bridge
+        Android Debug Bridge constructor
         """
         GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy=supportProxy,
                                         proxyIp=proxyIp, proxyPort=proxyPort, sslSupport=sslSupport)
@@ -426,17 +437,20 @@ class Adb(GenericTool.Tool):
         
     def startUiautomator(self):
         """
+        Start the UiAutomator
         """
         self.userConfirm( msg='Please to use USB for transfer (PTP or MTP)\nand accept RSA connection on the device!' )
 
     def onUserConfirmed(self):
         """
+        On confirm received by user
         """
         self.adbUiThread = UiAutomatorThread(parent=self)
         self.adbUiThread.start()
         
     def startScreenCapture(self):
         """
+        Start to capture the screen
         """
         self.adbScreenThread = AdbScreenThread(parent=self)
         self.adbScreenThread.start()
@@ -449,11 +463,13 @@ class Adb(GenericTool.Tool):
         
     def startAutomaticRefresh(self):
         """
+        Activate automatic refresh
         """
         self.adbScreenThread.running = True
         
     def stopAutomaticRefresh(self):
         """
+        Stop the automatic refresh
         """
         self.adbScreenThread.running = False
         
@@ -471,11 +487,13 @@ class Adb(GenericTool.Tool):
         
     def getType(self):
         """
+        Return the agent type
         """
         return self.__type__
 
     def onScreenCaptured(self, filename, xml=''):
         """
+        On screen captured event
         """
         pass
         
@@ -540,6 +558,7 @@ class Adb(GenericTool.Tool):
        
     def onResetTestContext(self, testUuid, scriptId, adapterId):
         """
+        On reset test context event
         """
         pass
         
@@ -589,12 +608,14 @@ class Adb(GenericTool.Tool):
         
     def tapOn(self, x, y):
         """
+        Tap on the screen to the x,y position
         """
         t = threading.Thread(target=self.__tapOn, kwargs={'x': x, 'y': y} )
         t.start()
  
     def __tapOn(self, x, y):
         """
+        Internal function to tap on position
         """    
         __adbexe__ = '%s\%s\%s' % (Settings.getDirExec(), Settings.get('Paths', 'bin'), Settings.get('BinWin', 'adb-exe') )
         __cmd__ = '"%s" shell input tap %s %s' % (__adbexe__, x,y)
@@ -605,12 +626,14 @@ class Adb(GenericTool.Tool):
                 
     def getScreen(self):
         """
+        Retreive screen capture from device
         """
         t = threading.Thread(target=self.__getScreen, kwargs={} )
         t.start()
 
     def __getScreen(self):
         """
+        Internal function to retreive the screen from the device
         """
         __adbexe__ = '%s\%s\%s' % (Settings.getDirExec(), Settings.get('Paths', 'bin'), Settings.get('BinWin', 'adb-exe') )
         __ret__ = '%s\screncapture.png' % self.getTemp()
@@ -636,6 +659,7 @@ class Adb(GenericTool.Tool):
                 
     def runAction(self, request):
         """
+        Run action received from server
         """
         try:
             globalId = "%s_%s_%s" % (request['script_id'], request['source-adapter'], request['data']['command-id'] )
@@ -649,6 +673,7 @@ class Adb(GenericTool.Tool):
 
     def __runAction(self, request, method, params):
         """
+        Internal function to run action
         """
         if method == 'adb':
             __adbexe__ = '%s\%s\%s' % (Settings.getDirExec(), Settings.get('Paths', 'bin'), Settings.get('BinWin', 'adb-exe') )
@@ -656,7 +681,8 @@ class Adb(GenericTool.Tool):
             stdout = ''
             returncode = 1
             try:
-                proc = subprocess.Popen(__cmd__, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,   stderr=subprocess.STDOUT)
+                proc = subprocess.Popen(__cmd__, shell=True, stdin=subprocess.PIPE, 
+                                        stdout=subprocess.PIPE,   stderr=subprocess.STDOUT)
                 stdout, stderr = proc.communicate()
                 returncode =  proc.returncode
             except Exception as e:

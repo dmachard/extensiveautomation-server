@@ -21,6 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Textual probe
+"""
+
 import Core.GenericTool as GenericTool
 import Libs.Settings as Settings
 
@@ -57,14 +61,18 @@ Targetted operating system: Linux"""
 
 def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport=True):
     """
-    Wrapper to initialize the object agent
+    Wrapper to initialize the object probe
     """
     return Textual( controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport)
     
 class Textual(GenericTool.Tool):
+    """
+    Textual probe class
+    """
     def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool,
                     supportProxy=0, proxyIp=None, proxyPort=None, sslSupport=True):
         """
+        Constructor for probe
         """
         GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, toolDesc, 
                     defaultTool, supportProxy=supportProxy, proxyIp=proxyIp, proxyPort=proxyPort, 
@@ -76,6 +84,7 @@ class Textual(GenericTool.Tool):
     
     def getType(self):
         """
+        Return the probe type
         """
         return self.__type__
 
@@ -144,6 +153,7 @@ class Textual(GenericTool.Tool):
         
     def getFileName(self, completePath):
         """
+        Return filename extracted from the provided path
         """
         fileName = completePath.rsplit('/', 1)
         if len(fileName) == 1:

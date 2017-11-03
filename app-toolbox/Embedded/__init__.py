@@ -21,6 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+All embeded agents and probes
+"""
+
 from Embedded import DummyAgent
 from Embedded import SocketAgent
 from Embedded import CommandAgent

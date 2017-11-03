@@ -21,6 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Configure binary
+"""
+
 import datetime
 import os
 import sys

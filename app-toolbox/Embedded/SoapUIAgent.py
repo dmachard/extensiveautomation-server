@@ -21,10 +21,15 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+SoapUI agent
+"""
+
 import Core.GenericTool as GenericTool
 import Libs.Settings as Settings
 import Libs.FifoQueue as FifoQueue
 
+import os
 import sys
 import threading
 import subprocess
@@ -70,7 +75,11 @@ def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, s
     
 
 class SoapUI(GenericTool.Tool):
-    def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy=0, proxyIp=None, proxyPort=None, sslSupport=True):
+    """
+    SoapUI agent class
+    """
+    def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                    supportProxy=0, proxyIp=None, proxyPort=None, sslSupport=True):
         """
         File agent
 
@@ -89,7 +98,9 @@ class SoapUI(GenericTool.Tool):
         @param defaultTool: True if the agent is started by the server, False otherwise
         @type defaultTool: boolean
         """
-        GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy=supportProxy, proxyIp=proxyIp, proxyPort=proxyPort, sslSupport=sslSupport)
+        GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, toolDesc, 
+                                    defaultTool, supportProxy=supportProxy, proxyIp=proxyIp, 
+                                    proxyPort=proxyPort, sslSupport=sslSupport)
         self.__type__ = __TYPE__
         
         self.thread_actions = []
@@ -125,12 +136,12 @@ class SoapUI(GenericTool.Tool):
         Cleanup all
         In this function, you can stop your program
         """
-        for thread in self.thread_actions:
-            thread.join()
+        for th in self.thread_actions:
+            th.join()
         while len(self.thread_actions):
             try:
-                thead = self.thread_actions.pop()
-                del thread
+                t = self.thread_actions.pop()
+                del t
             except Exception as e:
                 pass
                 
@@ -139,12 +150,12 @@ class SoapUI(GenericTool.Tool):
         Called on successful registration
         In this function, you can start your program automatically.
         """
-        for thread in self.thread_actions:
-            thread.join()
+        for th in self.thread_actions:
+            th.join()
         while len(self.thread_actions):
             try:
-                thead = self.thread_actions.pop()
-                del thread
+                t = self.thread_actions.pop()
+                del t
             except Exception as e:
                 pass
             
@@ -270,20 +281,29 @@ class SoapUI(GenericTool.Tool):
             self.onToolLogWarningCalled( "<< Run test [%s->%s]" % (testsuiteName,testcaseName) )
 
             if sys.platform == "win32":
-                #testrunnerBin = '%s\%s\%s' % (Settings.getDirExec(), Settings.get('Paths', 'bin'), Settings.get('BinWin', 'soapui-testrunner') )
                 testrunnerBin = Settings.get('BinWin', 'soapui-testrunner')
-                testRunnerCmd = '"%s" %s -s "%s" -c "%s" "%s\%s"' % (testrunnerBin, " ".join(soapuiOptions), testsuiteName, testcaseName, projectPath, projectFile)
+                testRunnerCmd = '"%s" %s -s "%s" -c "%s" "%s\%s"' % (   testrunnerBin, 
+                                                                        " ".join(soapuiOptions), 
+                                                                        testsuiteName, 
+                                                                        testcaseName, 
+                                                                        projectPath, 
+                                                                        projectFile)
             elif sys.platform == "linux2":
-                #testrunnerBin = '%s/%s/%s' % (Settings.getDirExec(), Settings.get('Paths', 'bin'), Settings.get('BinLinux', 'soapui-testrunner') )
                 testrunnerBin = '%s' % Settings.get('BinLinux', 'soapui-testrunner')
-                testRunnerCmd = '"%s" %s -s "%s" -c "%s" "%s/%s"' % (testrunnerBin, " ".join(soapuiOptions), testsuiteName, testcaseName, projectPath, projectFile)
+                testRunnerCmd = '"%s" %s -s "%s" -c "%s" "%s/%s"' % (   testrunnerBin, 
+                                                                        " ".join(soapuiOptions), 
+                                                                        testsuiteName, 
+                                                                        testcaseName, 
+                                                                        projectPath, 
+                                                                        projectFile)
             else:
                 self.error( 'Platform not yet supported: %s' % sys.platform )
 
             try:
                 self.trace("cmd: %s" % testRunnerCmd)
-                proc = subprocess.Popen(testRunnerCmd, shell=True, bufsize=0, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                                            stderr=subprocess.PIPE)
+                proc = subprocess.Popen(testRunnerCmd, shell=True, bufsize=0, 
+                                        stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                                        stderr=subprocess.PIPE)
             except Exception as e:
                 self.error('unable to lauch testrunner: %s' % e )
             else:

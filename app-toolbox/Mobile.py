@@ -20,6 +20,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
+
+"""
+Mobile widget
+"""
+
 try:
 	from PyQt4.QtGui import (QWidget, QLabel, QCheckBox, QVBoxLayout, QTreeView, QAbstractItemView, 
 							QHBoxLayout, QIcon, QMenu, QCursor, QApplication, QPainter, QPen,
@@ -43,6 +48,9 @@ class DomItem(object):
     Dom item object
     """
     def __init__(self, node, row, parent=None):
+        """
+        Constructor
+        """
         self.domNode = node
         # Record the item's location within its parent.
         self.rowNumber = row
@@ -88,7 +96,7 @@ class DomModel(QAbstractItemModel):
     """
     def __init__(self, document, parent=None):
         """
-        Construct
+        Constructor
         """
         super(DomModel, self).__init__(parent)
 
@@ -104,6 +112,7 @@ class DomModel(QAbstractItemModel):
 
     def data(self, index, role):
         """
+        Data
         """
         if not index.isValid():
             return None
@@ -139,6 +148,7 @@ class DomModel(QAbstractItemModel):
 
     def flags(self, index):
         """
+        Flags
         """
         if not index.isValid():
             return Qt.NoItemFlags
@@ -147,6 +157,7 @@ class DomModel(QAbstractItemModel):
 
     def headerData(self, section, orientation, role):
         """
+        Header
         """
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             if section == 0:
@@ -156,6 +167,7 @@ class DomModel(QAbstractItemModel):
 
     def index(self, row, column, parent):
         """
+        Index
         """
         if not self.hasIndex(row, column, parent):
             return QModelIndex()
@@ -173,6 +185,7 @@ class DomModel(QAbstractItemModel):
 
     def parent(self, child):
         """
+        Get parent of the child
         """
         if not child.isValid():
             return QModelIndex()
@@ -187,6 +200,7 @@ class DomModel(QAbstractItemModel):
 
     def rowCount(self, parent):
         """
+        Return the number of row
         """
         if parent.column() > 0:
             return 0
@@ -200,9 +214,11 @@ class DomModel(QAbstractItemModel):
 
 class MyTableModel(QAbstractTableModel):
     """
+    Table model
     """
     def __init__(self, parent, mylist, header, *args):
         """
+        Constructor
         """
         QAbstractTableModel.__init__(self, parent, *args)
         self.mylist = mylist
@@ -210,16 +226,19 @@ class MyTableModel(QAbstractTableModel):
         
     def rowCount(self, parent):
         """
+        Return the number of row
         """
         return len(self.mylist)
         
     def columnCount(self, parent):
         """
+        Return the number of column
         """
         return len(self.header)
         
     def data(self, index, role):
         """
+        Return data
         """
         if not index.isValid():
             return None
@@ -229,6 +248,7 @@ class MyTableModel(QAbstractTableModel):
         
     def headerData(self, col, orientation, role):
         """
+        Return header
         """
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             return self.header[col]
@@ -236,12 +256,14 @@ class MyTableModel(QAbstractTableModel):
 
 class MobileWidget(QWidget): 
     """
+    Mobile widget
     """
     RefreshScreen = pyqtSignal()  
     RefreshAutomatic = pyqtSignal(bool)  
     TapOn = pyqtSignal(int, int)  
     def __init__(self, parent=None):
         """
+        Constructor
         """
         super(MobileWidget, self).__init__(parent)
 
@@ -256,6 +278,7 @@ class MobileWidget(QWidget):
         
     def createActions(self):
         """
+        Create qt actions
         """
         self.refreshAction = QtHelper.createAction(self, self.tr("&Refresh"), self.refreshScreen, icon = None )
         self.refreshAction.setEnabled(False)
@@ -264,7 +287,7 @@ class MobileWidget(QWidget):
         
     def createWidget(self):
         """
-        Create widget
+        Create qt widget
         """
         
         self.screenResolutionLabel = QLabel(self)
@@ -276,8 +299,7 @@ class MobileWidget(QWidget):
         self.mobileDockToolbar = QToolBar(self)
         self.mobileDockToolbar.setStyleSheet("QToolBar { border: 0px }");
         self.mobileDockToolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-        # self.mobileDockToolbar.setOrientation(Qt.Vertical)
-        
+
         self.mobileImageLabel = QLabel(self)
         self.mobileImageLabel.setMouseTracking(True)
         self.mobileImageLabel.installEventFilter(self)
@@ -291,12 +313,9 @@ class MobileWidget(QWidget):
         self.clickCheckbox = QCheckBox("Enable Tap", self)
         self.clickCheckbox.setEnabled(False)
 
-        # mobileXmlLayout = QVBoxLayout()
-        
         self.model = DomModel(QDomDocument(), self)
         self.mobileTreeView = QTreeView(self)
         self.mobileTreeView.setMinimumWidth(300)
-        # self.mobileTreeView.hide()
         self.mobileTreeView.setModel(self.model)
         self.mobileTreeView.clicked.connect(self.onTreeViewClicked)
         
@@ -309,28 +328,21 @@ class MobileWidget(QWidget):
         self.mobileTableView.setContextMenuPolicy(Qt.CustomContextMenu)
         self.mobileTableView.customContextMenuRequested.connect( self.onContextMenuEvent )
         self.mobileTableView.setMinimumWidth(300)
-        
-        # mobileXmlLayout.addWidget(self.mobileTreeView)
-        # mobileXmlLayout.addWidget(self.mobileTableView)
-        
+
         mobileViewLayout = QHBoxLayout()
         mobileViewLayout.addWidget(self.mobileImageLabel)
         mobileViewLayout.addWidget(self.mobileTreeView)
         mobileViewLayout.addWidget(self.mobileTableView)
-        # mobileViewLayout.addLayout(mobileXmlLayout)
-        
+
         mobileLayout.addWidget(self.mobileDockToolbar)
         mobileLayout.addLayout(mobileViewLayout)
 
         
         self.setLayout(mobileLayout)
 
-        # self.setWindowIcon(QIcon(':/toolbox.png'))
-        # self.setWindowTitle( "%s %s - Mobile Preview" % (Settings.get('Common', 'name'), Settings.getVersion()) )
-        # self.setWindowFlags(Qt.WindowMinimizeButtonHint )
-
     def createToolbar(self):
         """
+        Create qt toolbar
         """
         self.mobileDockToolbar.setObjectName("Toolbar")
         self.mobileDockToolbar.addWidget(self.refreshCheckbox)
@@ -355,6 +367,7 @@ class MobileWidget(QWidget):
         
     def eventFilter(self, srcEvent, event):   
         """
+        On event filtering
         """
         if srcEvent==self.mobileImageLabel:
             
@@ -372,6 +385,7 @@ class MobileWidget(QWidget):
         
     def onContextMenuEvent(self, event):
         """
+        On context menu event
         """
         menu = QMenu(self)
         menu.addAction(self.copyAction)
@@ -379,6 +393,7 @@ class MobileWidget(QWidget):
 
     def copyItem(self):
         """
+        Copy the item
         """
         indexes = self.mobileTableView.selectedIndexes()
         if len(indexes):
@@ -389,6 +404,7 @@ class MobileWidget(QWidget):
             
     def onTreeViewClicked(self, qindex):
         """
+        On click in the treeview
         """
         item = qindex.internalPointer()
         attributes = []
@@ -433,6 +449,7 @@ class MobileWidget(QWidget):
         
     def onDeviceReady(self):
         """
+        On device ready
         """
         self.refreshAction.setEnabled(True)
         self.refreshCheckbox.setEnabled(True)
@@ -440,11 +457,13 @@ class MobileWidget(QWidget):
     
     def refreshScreen(self):
         """
+        Refresh the screen
         """
         self.RefreshScreen.emit()
 
     def onRefreshChanged(self, state):
         """
+        On refresh changed
         """
         if state == Qt.Checked:
             self.RefreshAutomatic.emit(True)
@@ -454,6 +473,7 @@ class MobileWidget(QWidget):
                         
     def pixelSelect( self, event ):
         """
+        Select pixel to click
         """
         position = QPoint( event.pos().x(),  event.pos().y())
         
@@ -472,8 +492,8 @@ class MobileWidget(QWidget):
         
     def drawRectangle(self, x=0, y=0, w=0, h=0):
         """
+        Draw a rectangle
         """
-        
         self.mobileImageLabel.update()
         pixmap = self.mobileImageLabel.pixmap()
         if pixmap is not None:
@@ -486,6 +506,7 @@ class MobileWidget(QWidget):
 
     def reloadScreen(self, x, y, w, h):
         """
+        Reload the screen
         """
         if self.imagePath is not None:
             self.updateScreen(filename=self.imagePath, xmlPath='', x=x,y=y,w=w,h=h, reloadMode=True)
@@ -498,7 +519,6 @@ class MobileWidget(QWidget):
         
         if not reloadMode:
             self.tableModel.mylist = []
-            # self.tableModel.reset()
             self.tableModel.beginResetModel()
             self.tableModel.endResetModel()
             

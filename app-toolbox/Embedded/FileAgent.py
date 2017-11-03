@@ -21,6 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+File agent
+"""
+
 import Core.GenericTool as GenericTool
 import Libs.Settings as Settings
 import Libs.FifoQueue as FifoQueue
@@ -70,6 +74,9 @@ Events messages:
 Targetted operating system: Windows and Linux"""
 
 def get_size_path(path):
+    """
+    Return the size of the given path
+    """
     total_size = 0
     for dirpath, dirnames, filenames in os.walk(path):
         for f in filenames:
@@ -86,9 +93,12 @@ def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, s
     return File( controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
     
 class FollowThread(threading.Thread):
+    """
+    Follow thread
+    """
     def __init__(self, parent, request):
         """
-        Individual sikuli thread
+        Constructor
         """
         threading.Thread.__init__(self)
         self.stopEvent = threading.Event()
@@ -115,6 +125,7 @@ class FollowThread(threading.Thread):
 
     def startFollow(self, path, extensions):
         """
+        Start to follow the path
         """
         self.following = True	
         self.trace("To inspect Path=%s" % path)
@@ -123,6 +134,7 @@ class FollowThread(threading.Thread):
 		
     def callback(self, filename, lines):
         """
+        Callback function
         """
         for line in lines:
             if self.filter is not None:
@@ -159,6 +171,7 @@ class FollowThread(threading.Thread):
         
     def log(self, content):
         """
+        Log
         """
         self.sendFollow(content)
         
@@ -193,6 +206,9 @@ class FollowThread(threading.Thread):
         self.stopEvent.set()
 
 class File(GenericTool.Tool):
+    """
+    File agent class
+    """
     def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
                             supportProxy=0, proxyIp=None, proxyPort=None, sslSupport=True):
         """
@@ -217,7 +233,6 @@ class File(GenericTool.Tool):
                                     supportProxy=supportProxy, proxyIp=proxyIp, proxyPort=proxyPort, sslSupport=sslSupport)
         self.__type__ = __TYPE__
 
-        # self.testsContext = {}
         self.followThreads = {}
        
     def getType(self):
@@ -271,21 +286,24 @@ class File(GenericTool.Tool):
 
     def onResetTestContext(self, testUuid, scriptId, adapterId):
         """
+        On reset test context event
         """
         self.onToolLogWarningCalled( "<< Resetting ScriptId=%s AdapterId=%s" % (scriptId, adapterId) )
         self.trace("Resetting follow threads ScriptId=%s - AdapterId=%s" % (scriptId, adapterId) )
         
         threadDetected = False
+        testId = None
         for testId, followThread in self.followThreads.items():
             if testId.startswith( "%s_%s" % (scriptId, adapterId) ):
                 threadDetected = True
                 break
 
         if threadDetected:
-            fThread = self.followThreads.pop(testId)
-            fThread.stop()
-            fThread.join()
-            del fThread
+            if testId is not None:
+                fThread = self.followThreads.pop(testId)
+                fThread.stop()
+                fThread.join()
+                del fThread
             
         
         self.trace("reset test terminated")

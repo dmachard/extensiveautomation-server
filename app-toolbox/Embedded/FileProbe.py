@@ -21,6 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+File probe
+"""
+
 import Core.GenericTool as GenericTool
 
 import shutil
@@ -58,9 +62,13 @@ def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, s
     return File( controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
     
 class File(GenericTool.Tool):
+    """
+    File agent class
+    """
     def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
                         supportProxy=0, proxyIp=None, proxyPort=None, sslSupport=True):
         """
+        Constructor
         """
         GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, toolDesc, 
                         defaultTool, supportProxy=supportProxy, proxyIp=proxyIp, proxyPort=proxyPort, 
@@ -95,6 +103,7 @@ class File(GenericTool.Tool):
         
     def getType(self):
         """
+        Return the agent type
         """
         return self.__type__
 

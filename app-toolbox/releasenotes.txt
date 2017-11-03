@@ -1,14 +1,7 @@
 
-12.1.0
-	Date: 22/10/2017
+13.0.0
+	Date: xx/xx/201x
 	What's new		
-		1. (medium) Binary SoapUI is no more embedded by default, must be installed manually
-		2. (medium) SoapUI agent updated to support full path to lauch testrunner in local
-		3. (medium) Support tcp server on socket agent 
-		4. (medium) Build: android.smsgateway apk no more embedded by default
-		5. (minor) Build: Gecko Driver updated to 0.18.0
-		6. (minor) Build: Chrome driver updated to 2.30
-		7. (minor) Build: Opera driver updated to 2.29
-		8. (minor) Build: Java JRE updated to the version 8u141 x64
+		1. (minor) code cleanup after static analysis
 	Issues Fixed
-		1. None
+		1. (minor) fix some code issues thanks to static analysis 

@@ -21,6 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Sms agent
+"""
+
 import Core.GenericTool as GenericTool
 import Libs.Settings as Settings
 import Libs.FifoQueue as FifoQueue
@@ -99,6 +103,9 @@ class GetHandler(BaseHTTPRequestHandler):
         return
         
 class SmsGateway(GenericTool.Tool):
+    """
+    SMS gateway agent class
+    """
     def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy=0, 
                         proxyIp=None, proxyPort=None, sslSupport=True):
         """
@@ -288,8 +295,10 @@ class SmsGateway(GenericTool.Tool):
         
         try:
             if reqData['action'] == 'SEND SMS':
-                self.onToolLogWarningCalled( "<< Action=%s Id=%s to the mobile gateway ip=%s port=%s" % (reqData['action'], reqData['action-id'],
-                                                                                            reqData['gw-ip'], reqData['gw-port']) )
+                self.onToolLogWarningCalled( "<< Action=%s Id=%s to the mobile gateway ip=%s port=%s" % (reqData['action'], 
+                                                                                                         reqData['action-id'],
+                                                                                                         reqData['gw-ip'], 
+                                                                                                         reqData['gw-port']) )
                 
                 # http://xxxx:9090/sendsms?phone=xxx&text=fdsfds&password=qdsds
                 conn = httpclient.HTTPConnection(reqData['gw-ip'], reqData['gw-port'])
@@ -307,10 +316,14 @@ class SmsGateway(GenericTool.Tool):
                 self.trace("response received: %s" % data)
                 if b'SENT' not in data:
                     self.trace( 'send sms failed' )
-                    self.sendNotify(request=request, data={'action': reqData['action'], 'action-id': reqData['action-id'], 'result': 'FAILED'} )
+                    self.sendNotify(request=request, data={'action': reqData['action'], 
+                                                            'action-id': reqData['action-id'], 
+                                                            'result': 'FAILED'} )
                 else:
                     self.trace( 'action ok' )
-                    self.sendNotify(request=request, data={'action': reqData['action'], 'action-id': reqData['action-id'], 'result': 'OK'} )
+                    self.sendNotify(request=request, data={'action': reqData['action'], 
+                                                            'action-id': reqData['action-id'], 
+                                                            'result': 'OK'} )
                 
                 self.onToolLogWarningCalled( "<< SMS sent" )
                 

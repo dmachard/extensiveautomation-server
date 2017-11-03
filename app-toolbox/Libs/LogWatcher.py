@@ -15,7 +15,8 @@ import stat
 import sys
 
 class LogWatcher(object):
-    """Looks for changes in all files of a directory.
+    """
+    Looks for changes in all files of a directory.
     This is useful for watching log file changes in real-time.
     It also supports files rotation.
 
@@ -30,7 +31,8 @@ class LogWatcher(object):
 
     def __init__(self, folder, callback, extensions=["log"], tail_lines=0,
                        sizehint=1048576, parent=None):
-        """Arguments:
+        """
+        Arguments:
 
         (str) @folder:
             the folder to watch
@@ -73,16 +75,26 @@ class LogWatcher(object):
                         self._callback(file.name, lines)
 
     def __enter__(self):
+        """
+        Enter
+        """
         return self
 
     def __exit__(self, *args):
+        """
+        Exit
+        """
         self.close()
 
     def __del__(self):
+        """
+        Del
+        """
         self.close()
 
     def loop(self, interval=0.1, blocking=True):
-        """Start a busy loop checking for file changes every *interval*
+        """
+        Start a busy loop checking for file changes every *interval*
         seconds. If *blocking* is False make one loop then return.
         """
         # May be overridden in order to use pyinotify lib and block
@@ -99,7 +111,8 @@ class LogWatcher(object):
 
             
     def listdir(self):
-        """List directory and filter files by extension.
+        """
+        List directory and filter files by extension.
         You may want to override this to add extra logic or globbing
         support.
         """
@@ -112,7 +125,8 @@ class LogWatcher(object):
 
     @classmethod
     def open(cls, file):
-        """Wrapper around open().
+        """
+        Wrapper around open().
         By default files are opened in binary mode and readlines()
         will return bytes on both Python 2 and 3.
         This means callback() will deal with a list of bytes.
@@ -127,7 +141,9 @@ class LogWatcher(object):
 
     @classmethod
     def tail(cls, fname, window):
-        """Read last N lines from file fname."""
+        """
+        Read last N lines from file fname.
+        """
         if window <= 0:
             raise ValueError('invalid window value %r' % window)
         with cls.open(fname) as f:
@@ -159,6 +175,9 @@ class LogWatcher(object):
             return data.splitlines()[-window:]
 
     def update_files(self):
+        """
+        Update files
+        """
         ls = []
         for name in self.listdir():
             absname = os.path.realpath(os.path.join(self.folder, name))
@@ -194,7 +213,8 @@ class LogWatcher(object):
                 self.watch(fname)
 
     def readlines(self, file):
-        """Read file lines since last access until EOF is reached and
+        """
+        Read file lines since last access until EOF is reached and
         invoke callback.
         """
         while True:
@@ -204,6 +224,9 @@ class LogWatcher(object):
             self._callback(file.name, lines)
 
     def watch(self, fname):
+        """
+        Watch
+        """
         try:
             file = self.open(fname)
             fid = self.get_file_id(os.stat(fname))
@@ -215,6 +238,9 @@ class LogWatcher(object):
             self._files_map[fid] = file
 
     def unwatch(self, file, fid):
+        """
+        Unwatch
+        """
         # File no longer exists. If it has been renamed try to read it
         # for the last time in case we're dealing with a rotating log
         # file.
@@ -227,20 +253,18 @@ class LogWatcher(object):
 
     @staticmethod
     def get_file_id(st):
+        """
+        Get file id
+        """
         if os.name == 'posix':
             return "%xg%x" % (st.st_dev, st.st_ino)
         else:
             return "%f" % st.st_ctime
 
     def close(self):
+        """
+        Close
+        """
         for id, file in self._files_map.items():
             file.close()
         self._files_map.clear()
-		
-# if __name__ == '__main__':
-	# def callback(filename, lines):
-		# for line in lines:
-			# print(line)
-
-	# watcher = LogWatcher("/home/www/xtc/current/Var/Logs/", callback)
-	# watcher.loop()

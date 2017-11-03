@@ -21,6 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+FTP agent
+"""
+
 import Core.GenericTool as GenericTool
 import Libs.Settings as Settings
 import Libs.FifoQueue as FifoQueue
@@ -89,15 +93,21 @@ def initialize (controllerIp, controllerPort, toolName, toolDesc,
                         defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
     
 class FtpContext(object):
+    """
+    FTP context object
+    """
     def __init__(self):
         """
+        Constructor
         """
         self.FTP_LIB = None
         self.useTls = False
         self.connected = False
         self.logged = False
+        
     def onReset(self):
         """
+        On reset 
         """
         try:
             if self.FTP_LIB is not None: self.FTP_LIB.close()
@@ -108,10 +118,13 @@ class FtpContext(object):
         self.logged = False
         
 class Ftp(GenericTool.Tool):
+    """
+    FTP agent class
+    """
     def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
                 supportProxy=0, proxyIp=None, proxyPort=None, sslSupport=True):
         """
-        File agent
+        File agent constructor
 
         @param controllerIp: controller ip/host
         @type controllerIp: string
@@ -143,6 +156,7 @@ class Ftp(GenericTool.Tool):
         
     def getId(self):
         """
+        Return the ID
         """
         self.__mutexActionId__.acquire()
         self.nbGetFile += 1
@@ -279,6 +293,7 @@ class Ftp(GenericTool.Tool):
     
     def onResetTestContext(self, testUuid, scriptId, adapterId):
         """
+        On reset test context event
         """
         self.onToolLogWarningCalled( "<< Resetting Context TestId=%s AdapterId=%s" % (scriptId, adapterId) )
         self.trace("Resetting TestUuid=%s ScriptId=%s AdapterId=%s" % (testUuid, scriptId, adapterId) )
@@ -296,7 +311,9 @@ class Ftp(GenericTool.Tool):
         """
         currentTest = self.context()[request['uuid']][request['source-adapter']]
 
-        self.onToolLogWarningCalled( "<< Starting Command=%s TestId=%s AdapterId=%s" % (request['data']['cmd'],request['script_id'], request['source-adapter']) )
+        self.onToolLogWarningCalled( "<< Starting Command=%s TestId=%s AdapterId=%s" % (request['data']['cmd'],
+                                                                                        request['script_id'], 
+                                                                                        request['source-adapter']) )
         try:
             cmd = request['data']['cmd']
             data = request['data']
@@ -440,6 +457,9 @@ class Ftp(GenericTool.Tool):
                             ret.extend(	currentTest.ctx().FTP_LIB.nlst() )
                     else:
                         def append_data(line):
+                            """
+                            Append data
+                            """
                             ret.append( line )
                         if 'path' in data: 
                             currentTest.ctx().FTP_LIB.dir(data['path'], append_data)
@@ -459,6 +479,9 @@ class Ftp(GenericTool.Tool):
                 
                 read_data = []
                 def handle_binary(more_data):
+                    """
+                    Handle binary data
+                    """
                     read_data.append(more_data)
                     
                 toPrivate = False
@@ -533,6 +556,9 @@ class Ftp(GenericTool.Tool):
                     true_filename=''
                     list_files = []
                     def append_data(line):
+                        """
+                        Append data
+                        """
                         list_files.append( line )
                     while (not timeoutEvent):
                         if (time.time() - startTime) >= data['timeout']:
@@ -541,11 +567,9 @@ class Ftp(GenericTool.Tool):
                             # list path
                             list_files = []
                             currentTest.ctx().FTP_LIB.dir(data['path'], append_data)
-                            # 2016-02-01 11:26:16,936 - DEBUG - [Ftp] file detected: ['-rw-r--r--    1 501      501            49 Jan 20 18:03 SSU-TEMPS-SIMULE.xml']
                             for f in list_files:
                                 # inspect only folders
                                 if not f.startswith('d'): # only file  'drwxr-xr-x 2 0 0 4096 Nov 12 16:51 toto'
-
                                     # extract filename
                                     #['-rw-r--r--', '1', '501', '501', '49', 'Jan', '20', '18:03', 'xxxxx.xml']
                                     tmp_filename = f.split()
@@ -561,7 +585,8 @@ class Ftp(GenericTool.Tool):
                 except Exception as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
                 else:
-                    self.sendNotify(request, data={ 'cmd': cmd, 'result': ret, 'path':data['path'], 'filename': true_filename   } )
+                    self.sendNotify(request, data={ 'cmd': cmd, 'result': ret, 'path':data['path'], 
+                                                    'filename': true_filename   } )
 
             # wait folder
             elif cmd == 'Wait Folder':
@@ -574,6 +599,9 @@ class Ftp(GenericTool.Tool):
                     true_folder=''
                     list_files = []
                     def append_data(line):
+                        """
+                        Append data
+                        """
                         list_files.append( line )
                     while (not timeoutEvent):
                         if (time.time() - startTime) >= data['timeout']:
@@ -584,7 +612,6 @@ class Ftp(GenericTool.Tool):
                             currentTest.ctx().FTP_LIB.dir(data['path'], append_data)
                             for f in list_files:
                                 if f.startswith('d'): # only file  'drwxr-xr-x 2 0 0 4096 Nov 12 16:51 toto'
-
                                     # extract filename
                                     #['-rw-r--r--', '1', '501', '501', '49', 'Jan', '20', '18:03', 'xxxxx.xml']
                                     tmp_filename = f.split()
@@ -637,7 +664,9 @@ class Ftp(GenericTool.Tool):
             self.error( 'unable to run ftp command: %s' % str(e) )
             self.sendError( request , data="unable to run ftp command")
 
-        self.onToolLogWarningCalled( "<< Terminated Command=%s TestId=%s AdapterId=%s" % (request['data']['cmd'],request['script-id'], request['source-adapter']) )
+        self.onToolLogWarningCalled( "<< Terminated Command=%s TestId=%s AdapterId=%s" % (request['data']['cmd'],
+                                                                                          request['script-id'], 
+                                                                                          request['source-adapter']) )
 
     def onAgentNotify(self, client, tid, request):
         """
@@ -662,7 +691,8 @@ class Ftp(GenericTool.Tool):
                     ctx_test.ctx_plugin = FtpContext()
                 ctx_test.putItem( lambda: self.execAction(request) )
             else:
-                self.error("Adapter context does not exists TestUuid=%s AdapterId=%s" % (request['uuid'], request['source-adapter'] ) )
+                self.error("Adapter context does not exists TestUuid=%s AdapterId=%s" % (request['uuid'], 
+                                                                                         request['source-adapter'] ) )
         else:
             self.error("Test context does not exits TestUuid=%s" % request['uuid'])
         self.__mutex__.release()

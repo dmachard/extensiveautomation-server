@@ -21,6 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Sikuli agent
+"""
+
 import Core.GenericTool as GenericTool
 import Libs.Settings as Settings
 import Libs.FifoQueue as FifoQueue
@@ -95,6 +99,9 @@ def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, s
     
 
 class SikulixServer(GenericTool.Tool):
+    """
+    Sikulix Server agent class
+    """
     def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy=0,
                         proxyIp=None, proxyPort=None, sslSupport=True, sikulixIp="127.0.0.1", sikulixPort=50001):
         """
@@ -201,6 +208,7 @@ class SikulixServer(GenericTool.Tool):
     
     def stopProcess(self):
         """
+        Stop the process
         """
         self.onToolLogWarningCalled("Stopping Sikulix Server...")
         try:
@@ -212,6 +220,7 @@ class SikulixServer(GenericTool.Tool):
         
     def __stopProcess(self):
         """
+        Internal function to stop the process
         """
         if self.sikulixProcess is not None:
             self.trace('killing process with pid %s' % self.sikulixProcess.pid)
@@ -240,6 +249,7 @@ class SikulixServer(GenericTool.Tool):
         
     def startProcess(self):
         """
+        Start the sikulix process
         """
         self.onToolLogWarningCalled("Starting Sikulix Server...")
         try:
@@ -251,11 +261,14 @@ class SikulixServer(GenericTool.Tool):
             
     def __startProcess(self, timeout=20):
         """
+        Internal function to start the process
         """
         try:
             # prepare path
             if sys.platform == "win32" :
-                __cmd__ = '%s\%s\%s' % (Settings.getDirExec(), Settings.get('Paths', 'bin'), Settings.get('BinWin', 'sikuli') )
+                __cmd__ = '%s\%s\%s' % (Settings.getDirExec(), 
+                                        Settings.get('Paths', 'bin'), 
+                                        Settings.get('BinWin', 'sikuli') )
             else:
                 __cmd__ = Settings.get('BinLinux', 'sikulix')
             __cmd__ = r'"%s" -s' % __cmd__
@@ -297,6 +310,7 @@ class SikulixServer(GenericTool.Tool):
         
     def configurePlugin(self):
         """
+        Configure the plugin
         """
         self.onToolLogWarningCalled("Configuring Sikulix Server...")
         
@@ -309,7 +323,7 @@ class SikulixServer(GenericTool.Tool):
 
     def __configurePlugin(self):
         """
-        Function to reimplement
+        Internal function to configure the plugin
         """
         self.trace("Initialize server")
 
@@ -472,32 +486,36 @@ class SikulixServer(GenericTool.Tool):
                 a = self.context()[request['uuid']][request['source-adapter']]
                 a.putItem( lambda: self.execAction(request) )
             else:
-                self.error("Adapter context does not exists ScriptId=%s AdapterId=%s" % (request['uuid'], request['source-adapter'] ) )
+                self.error("Adapter context does not exists ScriptId=%s AdapterId=%s" % (request['uuid'], 
+                                                                                         request['source-adapter'] ) )
         else:
             self.error("Test context does not exits ScriptId=%s" % request['uuid'])
         self.__mutex__.release()
         
     def takeScreenshot(self, request, action, actionId, adapterId, testcaseName, replayId=0):
         """
+        Take a screenshot
         """
         self.trace('taking a screenshot')
-        
-        # extension = Settings.get( 'Screenshot', 'extension' )
 
         if sys.platform == "win32" :
-            self.onTakeScreenshot(request, action, str(actionId), str(adapterId), testcaseName, int(replayId) )
+            self.onTakeScreenshot(request, action, str(actionId), str(adapterId), 
+                                    testcaseName, int(replayId) )
         elif sys.platform == "linux2" and not self.getFromCmd() :
-            self.onTakeScreenshot(request, action, str(actionId), str(adapterId), testcaseName, int(replayId) )
+            self.onTakeScreenshot(request, action, str(actionId), str(adapterId), 
+                                    testcaseName, int(replayId) )
         else:
             self.error( 'take screenshot not supported on system=%s from cmd=%s' %  (sys.platform, self.getFromCmd()) )
         
     def onFinalizeScreenshot(self, request, action, actionId, adapterId, testcaseName, replayId, screenshot, thumbnail):
         """
+        On finalize the screenshot procedure
         """
         self.trace('ReplayId=%s screenshot size=%s and thumbnail size=%s' % (replayId, len(screenshot), len(thumbnail)) )
         
         extension = Settings.get( 'Screenshot', 'extension' )
-        fileName = "%s_%s_ADP%s_step%s_%s.%s" % (testcaseName, replayId, request['source-adapter'], actionId, action, extension.lower())
+        fileName = "%s_%s_ADP%s_step%s_%s.%s" % (testcaseName, replayId, request['source-adapter'], 
+                                                 actionId, action, extension.lower())
 
         # send screenshot
         if 'result-path' in request: 
@@ -518,7 +536,8 @@ class SikulixServer(GenericTool.Tool):
         Exec action
         """
         # globalID = <id_script>_<test_replay_id>_<id_adapter>_<id_action>
-        globalId = "%s_%s_%s_%s" % (request['script_id'], request['test-replay-id'],request['source-adapter'], request['data']['action-id'] )
+        globalId = "%s_%s_%s_%s" % (request['script_id'], request['test-replay-id'],
+                                    request['source-adapter'], request['data']['action-id'] )
         self.onToolLogWarningCalled( "<< Action (%s) called: %s" % (globalId, request['data']['action'])  )
         
         # dispatch action

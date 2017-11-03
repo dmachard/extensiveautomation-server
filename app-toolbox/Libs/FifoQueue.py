@@ -21,6 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Provide a fifo queue
+"""
+
 import threading
 
 try:
@@ -70,9 +74,6 @@ class FifoCallbackThread(threading.Thread):
                     try:
                         callback = self.queue.get(False)
                         callback()
-                        # item = self.queue.get(False)
-                        # callback = item['func']
-                        # callback()
                     except Queue.Empty:
                         self.event.clear()
                     except Exception:

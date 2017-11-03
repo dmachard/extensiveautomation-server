@@ -21,6 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Generic tool class
+Used on plugins
+"""
 
 import Libs.NetLayerLib.ClientAgent as NetLayerLib
 import Libs.NetLayerLib.Messages as Messages
@@ -74,6 +78,9 @@ TOOL_AGENT=0
 TOOL_PROBE=1
 
 class TestThread(threading.Thread):
+    """
+    Test Thread
+    """
     def __init__(self, parent, testUuid, scriptId, adapterId, interval=40, shared=False):
         """
         """
@@ -95,16 +102,19 @@ class TestThread(threading.Thread):
     
     def ctx(self):
         """
+        Return the context
         """
         return self.ctx_plugin
         
     def updateTimestamp(self):
         """
+        Update the timestamp
         """
         self.timestamp = time.time()
         
     def run(self):
         """
+        On run
         """
         while not self.stopEvent.isSet():
             if (time.time() - self.timestamp) > self.interval:
@@ -115,6 +125,7 @@ class TestThread(threading.Thread):
     
     def putItem(self, item):
         """
+        Add item in the queue
         """
         self.__fifo_incoming_events_thread.putItem(item)
         
@@ -135,12 +146,13 @@ class TestThread(threading.Thread):
         
     def onTerminated(self, testUuid, scriptId, adapterId):
         """
+        On terminated event
         """
         pass
         
 class Tool(NetLayerLib.ClientAgent):
     """
-    Tool
+    Tool client agent
     """
     def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
                     supportProxy=False, proxyIp=None, proxyPort=None, sslSupport=True,
@@ -205,9 +217,11 @@ class Tool(NetLayerLib.ClientAgent):
         self.regRequest =  None
         
         if sys.platform == "win32" :
-            self.__tmpPath__ =  "%s\\%s\\[%s]_%s\\" % ( Settings.getDirExec(), self.pathTraces, toolType, self.toolName  )
+            self.__tmpPath__ =  "%s\\%s\\[%s]_%s\\" % ( Settings.getDirExec(), self.pathTraces, 
+                                                        toolType, self.toolName  )
         else:
-            self.__tmpPath__ =  "%s/%s/[%s]_%s/" % ( Settings.getDirExec(), self.pathTraces, toolType, self.toolName  )
+            self.__tmpPath__ =  "%s/%s/[%s]_%s/" % ( Settings.getDirExec(), self.pathTraces, 
+                                                     toolType, self.toolName  )
         self.__callId__ =  0
         self.__callIds__ = {}
         self.__args__ = []
@@ -229,6 +243,7 @@ class Tool(NetLayerLib.ClientAgent):
         
     def getTemp(self):
         """
+        Return the path of the temp area
         """
         return self.__tmpPath__
    
@@ -351,9 +366,13 @@ class Tool(NetLayerLib.ClientAgent):
         """
         Function to reimplement on plugin
         """
-        self.trace("Init agent testUuid=%s ScriptId=%s AdapterId=%s" % (request['uuid'], request['script_id'], request['source-adapter'])  )
+        self.trace("Init agent testUuid=%s ScriptId=%s AdapterId=%s" % (request['uuid'], 
+                                                                        request['script_id'], 
+                                                                        request['source-adapter'])  )
         self.trace("Tests context before init: %s" % self.testsContext)
-        test_ctx = TestThread(parent=self, testUuid=request['uuid'], scriptId=request['script_id'], adapterId=request['source-adapter'] )
+        test_ctx = TestThread(parent=self, testUuid=request['uuid'], 
+                              scriptId=request['script_id'], 
+                              adapterId=request['source-adapter'] )
         if 'shared' in request['data']: 
             test_ctx.shared = request['data']['shared']
         if request['uuid'] in self.testsContext:
@@ -364,7 +383,9 @@ class Tool(NetLayerLib.ClientAgent):
         test_ctx.start()
 
         self.sendNotify(request, data={ 'cmd': AGENT_INITIALIZED, 'ready': True } )                         
-        self.trace("Agent initialized testUuid=%s ScriptId=%s AdapterId=%s" % (request['uuid'], request['script_id'], request['source-adapter']) )
+        self.trace("Agent initialized testUuid=%s ScriptId=%s AdapterId=%s" % (request['uuid'], 
+                                                                               request['script_id'], 
+                                                                               request['source-adapter']) )
         
         self.onAgentReady(client, tid, request)
  
@@ -384,7 +405,9 @@ class Tool(NetLayerLib.ClientAgent):
         """
         Function to reimplement on plugin
         """
-        self.trace("Resetting agent testUuid=%s ScriptId=%s AdapterId=%s" % (request['uuid'], request['script_id'], request['source-adapter']) )
+        self.trace("Resetting agent testUuid=%s ScriptId=%s AdapterId=%s" % (request['uuid'], 
+                                                                             request['script_id'], 
+                                                                             request['source-adapter']) )
         self.trace("Tests context before reset: %s" % self.testsContext)
         
         # workaround to support old plugins
@@ -405,7 +428,9 @@ class Tool(NetLayerLib.ClientAgent):
                         if not len(self.testsContext[request['uuid']]):
                             test_ctx  = self.testsContext.pop(request['uuid'])
                             del test_ctx
-                        self.trace("Agent resetted testUuid=%s ScriptId=%s AdapterId=%s" % (request['uuid'], request['script_id'], request['source-adapter']) ) 
+                        self.trace("Agent resetted testUuid=%s ScriptId=%s AdapterId=%s" % (request['uuid'], 
+                                                                                            request['script_id'], 
+                                                                                            request['source-adapter']) ) 
                         self.onAgentReset(client, tid, request)
                 else:
                     self.trace("AdapterId=%s does not exists in test context" % request['source-adapter'] )
@@ -418,12 +443,16 @@ class Tool(NetLayerLib.ClientAgent):
         """
         Function to reimplement on plugin
         """
-        self.trace("Updating keepalive testUuid=%s ScriptId=%s AdapterId=%s" % (request['uuid'], request['script_id'], request['source-adapter']) )
+        self.trace("Updating keepalive testUuid=%s ScriptId=%s AdapterId=%s" % (request['uuid'], 
+                                                                                request['script_id'], 
+                                                                                request['source-adapter']) )
         if request['uuid'] in self.testsContext:
             if request['source-adapter'] in self.testsContext[request['uuid']]:
                 test_ctx = self.testsContext[request['uuid']][request['source-adapter']]
                 test_ctx.updateTimestamp()
-                self.trace("Agent alive testUuid=%s ScriptId=%s AdapterId=%s" % (request['uuid'], request['script_id'], request['source-adapter']) )                 
+                self.trace("Agent alive testUuid=%s ScriptId=%s AdapterId=%s" % (request['uuid'], 
+                                                                                 request['script_id'], 
+                                                                                 request['source-adapter']) )                 
                 self.onAgentAlive(client, tid, request)
     
     def onAgentReady(self, client, tid, request):
@@ -979,7 +1008,8 @@ class Tool(NetLayerLib.ClientAgent):
             completepath = "%s\\%s" % ( self.__tmpPath__ , callId )
         else:
             completepath = "%s/%s" % ( self.__tmpPath__ , callId )
-        fileName = '%s_%s_%s_%s_%s_%s' % ( zipPrefix, self.__type__, self.toolName, callId , self.getTimestamp(), zipReplayId)
+        fileName = '%s_%s_%s_%s_%s_%s' % ( zipPrefix, self.__type__, self.toolName, 
+                                            callId , self.getTimestamp(), zipReplayId)
         
         self.trace( 'Starting to create the zip file %s ' % fileName )
         if sys.platform == "win32" :
@@ -1036,6 +1066,7 @@ class Tool(NetLayerLib.ClientAgent):
 
     def __callXmlrpcFile(self, xmlrpcFunc, pathZip, xmlrpcData={}):
         """
+        Internal function to make a xmlrpc call
         """
         # adding the file to the request
         try:
@@ -1060,7 +1091,6 @@ class Tool(NetLayerLib.ClientAgent):
 
             # prepare the ip and port
             httpsMode = Settings.getBool( 'Server', 'xmlrpc-https' )
-            #dstPort = Settings.get( 'Server', 'port-xmlrpc' )
             dstPort = self.controllerPort # Fix issue to upload file with a different tcp port than the default tcp/443
         
             # set proxy is activated
@@ -1086,10 +1116,6 @@ class Tool(NetLayerLib.ClientAgent):
 
             # set proxy is activated
             if eval( Settings.get( 'Server', 'proxy-active' ) ):
-                # proxyAddr = Settings.get( 'Server', 'addr-proxy-http' )
-                # proxyPort = Settings.get( 'Server', 'port-proxy-http' )
-                # self.trace("Proxy activated for xmlrpc file Ip=%s Port=%s" % (proxyAddr, proxyPort) )
-                # conn.set_tunnel(host=proxyAddr, port=int(proxyPort) )
                 conn.set_tunnel(host=self.controllerIp, port=int(dstPort) ) # fix bad usage of the proxy
             
             uri = Settings.get( 'Server', 'xmlrpc-path' )
@@ -1142,7 +1168,8 @@ class Tool(NetLayerLib.ClientAgent):
         Send data
         """
         self.trace("Upload binary data")
-        t = threading.Thread(target=self.__callXmlrpcFile, args=("uploadLogs", pathZip, { 'filename': fileName, 'result-path': resultPath, 'call-id': callId}) )
+        t = threading.Thread(target=self.__callXmlrpcFile, args=("uploadLogs", pathZip, 
+                                                                { 'filename': fileName, 'result-path': resultPath, 'call-id': callId}) )
         t.start()
         
     def onUploadError(self):
@@ -1159,6 +1186,8 @@ class Tool(NetLayerLib.ClientAgent):
         
     def __callXmlrpc(self, xmlrpcFunc, xmlrpcData={}):
         """
+        Internal function 
+        XMLRPC call
         """
         self.trace("upload data through xml rpc")
         # prepare the xml body
@@ -1175,7 +1204,6 @@ class Tool(NetLayerLib.ClientAgent):
 
         # prepare the ip and port
         httpsMode = Settings.getBool( 'Server', 'xmlrpc-https' )
-        #dstPort = Settings.get( 'Server', 'port-xmlrpc' )
         dstPort = self.controllerPort # Fix issue to upload file with a different tcp port than the default tcp/443
         
         # set proxy is activated
@@ -1201,10 +1229,6 @@ class Tool(NetLayerLib.ClientAgent):
 
         # set proxy is activated
         if eval( Settings.get( 'Server', 'proxy-active' ) ):
-            # proxyAddr = Settings.get( 'Server', 'addr-proxy-http' )
-            # proxyPort = Settings.get( 'Server', 'port-proxy-http' )
-            # self.trace("Proxy activated for xmlrpc Ip=%s Port=%s" % (proxyAddr, proxyPort) )
-            # conn.set_tunnel(host=proxyAddr, port=int(proxyPort) )
             conn.set_tunnel(host=self.controllerIp, port=int(dstPort) )
         
         self.trace("http request ready to send")
@@ -1239,9 +1263,11 @@ class Tool(NetLayerLib.ClientAgent):
                 else:
                     if not appRet['ret']: self.onUploadError()
                     else:
-                        self.onUploadTerminated(resultPath=xmlrpcData['result-path'], fileName=xmlrpcData['filename'])
+                        self.onUploadTerminated(resultPath=xmlrpcData['result-path'], 
+                                                fileName=xmlrpcData['filename'])
     
-    def onTakeScreenshot(request, action, actionId, adapterId, testcaseName, replayId):
+    def onTakeScreenshot(self, request, action, actionId, adapterId, testcaseName, replayId):
         """
+        On take screenshot
         """
         pass

@@ -21,6 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Ssh agent
+"""
+
 import Core.GenericTool as GenericTool
 import Libs.Settings as Settings
 
@@ -28,6 +32,7 @@ import sys
 import threading
 import socket
 import os
+import errno
 import select
 import io
 import time
@@ -137,6 +142,7 @@ class SockTcpThread(threading.Thread):
         
     def getId(self):
         """
+        Return ID
         """
         self.__mutexActionId__.acquire()
         self.nbGetFile += 1
@@ -152,6 +158,7 @@ class SockTcpThread(threading.Thread):
         
     def onReset(self):
         """
+        Stop on reset
         """
         self.stop()
         
@@ -246,6 +253,8 @@ class SockTcpThread(threading.Thread):
     
     def __opensession(self, sftpSupport, vterm='vt100', width=300, height=300):
         """
+        Internal function
+        Open a ssh channel
         """
         try:
             if sftpSupport:
@@ -271,6 +280,8 @@ class SockTcpThread(threading.Thread):
     
     def __listingfolder(self, path, extended):
         """
+        Internal function
+        Make a listing of the folder provided
         """
         try:
             if extended:
@@ -287,6 +298,8 @@ class SockTcpThread(threading.Thread):
     
     def __addfolder(self, path, mode):
         """
+        Internal function
+        Add a folder in the ssh channel
         """
         try:
             self.sshChannel.mkdir(path, mode)
@@ -297,6 +310,8 @@ class SockTcpThread(threading.Thread):
     
     def __renamefolder(self, currentPath, newPath):
         """
+        Internal function
+        Rename a folder
         """
         try:
             self.sshChannel.rename(currentPath, newPath)
@@ -307,6 +322,8 @@ class SockTcpThread(threading.Thread):
 
     def __deleteFile(self, filename):
         """
+        Internal function
+        Delete a file
         """
         try:
             self.sshChannel.remove(filename)
@@ -317,6 +334,8 @@ class SockTcpThread(threading.Thread):
         
     def __renameFile(self, currentFilename, newFilename):
         """
+        Internal function
+        Rename a file
         """
         try:
             self.sshChannel.rename(currentFilename, newFilename)
@@ -327,6 +346,8 @@ class SockTcpThread(threading.Thread):
         
     def __deleteFolder(self, path):
         """
+        Internal function
+        Delete a folder
         """
         try:
             self.sshChannel.rmdir(path)
@@ -337,6 +358,8 @@ class SockTcpThread(threading.Thread):
                 
     def __getFile(self, filename, toPrivate=False):
         """
+        Internal function
+        Get a file
         """
         internalID = self.getId()
 
@@ -385,6 +408,8 @@ class SockTcpThread(threading.Thread):
         
     def __putFile(self, toFilename, fromFilename, rawContent):
         """
+        Internal function
+        Upload a file in the remote side
         """
         try:
             if len(rawContent):
@@ -404,6 +429,8 @@ class SockTcpThread(threading.Thread):
     
     def __waitFile(self, path, filename, timeout, watchEvery=0.1):
         """
+        Internal function
+        Wait a file to appear in the remote side
         """
         timeoutEvent = False
         ret = False
@@ -431,6 +458,8 @@ class SockTcpThread(threading.Thread):
 
     def __waitFolder(self, path, folder, timeout, watchEvery=0.1):
         """
+        Internal function
+        Wait a folder to appear in the remote side
         """
         timeoutEvent = False
         ret = False
@@ -458,6 +487,8 @@ class SockTcpThread(threading.Thread):
       
     def __putFolder(self, fromPath, toPath, overwrite=False):
         """
+        Internal function
+        Upload a folder in the remote side
         """
         try:
             rsp = 0 # nb files uploaded
@@ -469,6 +500,8 @@ class SockTcpThread(threading.Thread):
             
     def __putFolderSub(self, fromPath, toPath, overwrite=False):
         """
+        Internal function
+        Upload a sub folders
         """
         nb_file = 0
         for item in os.listdir(fromPath):
@@ -495,6 +528,8 @@ class SockTcpThread(threading.Thread):
         
     def __getFolder(self, fromPath, toPath, overwrite=False):
         """
+        Internal function
+        Download a folder
         """
         try:
             rsp = 0 # nb files detected
@@ -506,6 +541,8 @@ class SockTcpThread(threading.Thread):
 
     def __getFolderSub(self, fromPath, toPath, overwrite=False):
         """
+        Internal function
+        Download all sub folders
         """
         nb_file = 0
         ret_tmp = self.sshChannel.listdir_attr(path=fromPath)
@@ -518,10 +555,12 @@ class SockTcpThread(threading.Thread):
                     os.mkdir( destFolder, 755 )
                 except OSError as e:
                     if e.errno == errno.EEXIST and not overwrite:
-                        self.sendNotify(data={'sftp-event': 'response-error', 'cmd': GET_FOLDER, 'err': "os error folder: %s" % e} )
+                        self.sendNotify(data={'sftp-event': 'response-error', 'cmd': GET_FOLDER, 
+                                                'err': "os error folder: %s" % e} )
                         break
                 # recursive call
-                nb_file += self.__getFolderSub(fromPath="%s/%s/" % (fromPath,f.filename), toPath=destFolder, overwrite=overwrite)
+                nb_file += self.__getFolderSub(fromPath="%s/%s/" % (fromPath,f.filename), 
+                                                toPath=destFolder, overwrite=overwrite)
             
             # handle files
             else:
@@ -540,13 +579,16 @@ class SockTcpThread(threading.Thread):
                     f.close()
                 except OSError as e:
                     if e.errno == errno.EEXIST and not overwrite:
-                        self.sendNotify(data={'sftp-event': 'response-error', 'cmd': GET_FOLDER, 'err': "os error file: %s" % e} )
+                        self.sendNotify(data={'sftp-event': 'response-error', 'cmd': GET_FOLDER, 
+                                            'err': "os error file: %s" % e} )
                         break
                 del read_data
         return nb_file
         
     def __senddata(self, data):
         """
+        Internal function
+        Send data
         """
         try:
             self.sshChannel.send(data)
@@ -565,7 +607,8 @@ class SockTcpThread(threading.Thread):
             t.start()
         
         elif cmd['cmd'] == 'authentication':
-            t = threading.Thread(target=self.__authentication, kwargs={'login':cmd['login'], 'password': cmd['password'], 'privateKey': cmd['private-key'] } )
+            t = threading.Thread(target=self.__authentication, kwargs={'login':cmd['login'], 
+                                    'password': cmd['password'], 'privateKey': cmd['private-key'] } )
             t.start()
 
         elif cmd['cmd'] == 'open-session':
@@ -574,8 +617,10 @@ class SockTcpThread(threading.Thread):
             if "terminal-width" in cmd: termWidth=cmd['terminal-width']
             if "terminal-height" in cmd: termHeight=cmd['terminal-height']
 
-            t = threading.Thread(target=self.__opensession, kwargs={'sftpSupport':cmd['sftp-support'], 'vterm': cmd['terminal-type'],
-                                                                    'width': cmd['terminal-width'], 'height': cmd['terminal-height'] } )
+            t = threading.Thread(target=self.__opensession, kwargs={'sftpSupport':cmd['sftp-support'], 
+                                                                    'vterm': cmd['terminal-type'],
+                                                                    'width': cmd['terminal-width'], 
+                                                                    'height': cmd['terminal-height'] } )
             t.start()
             
         elif cmd['cmd'] == 'send-data':
@@ -583,59 +628,70 @@ class SockTcpThread(threading.Thread):
         
         # sftp command
         elif cmd['cmd'] == LISTING_FOLDER:
-            t = threading.Thread(target=self.__listingfolder, kwargs={'path':cmd['path'], 'extended': cmd['extended']} )
+            t = threading.Thread(target=self.__listingfolder, kwargs={ 'path':cmd['path'], 
+                                                                       'extended': cmd['extended']} )
             t.start()
 
         elif cmd['cmd'] == ADD_FOLDER:
-            t = threading.Thread(target=self.__addfolder, kwargs={'path':cmd['path'], 'mode': cmd['mode']} )
+            t = threading.Thread(target=self.__addfolder, kwargs={ 'path':cmd['path'], 
+                                                                   'mode': cmd['mode']} )
             t.start()
 
         elif cmd['cmd'] == RENAME_FOLDER:
-            t = threading.Thread(target=self.__renamefolder, kwargs={'currentPath':cmd['current-path'], 'newPath':cmd['new-path']} )
+            t = threading.Thread(target=self.__renamefolder, kwargs={ 'currentPath':cmd['current-path'], 
+                                                                      'newPath':cmd['new-path']} )
             t.start()
 
         elif cmd['cmd'] == RENAME_FILE:
-            t = threading.Thread(target=self.__renameFile, kwargs={'currentFilename':cmd['current-filename'],
-                                'newFilename':cmd['new-filename']} )
+            t = threading.Thread(target=self.__renameFile, kwargs={ 'currentFilename':cmd['current-filename'],
+                                                                    'newFilename':cmd['new-filename']} )
             t.start()
 
         elif cmd['cmd'] == DELETE_FILE:
-            t = threading.Thread(target=self.__deleteFile, kwargs={'filename':cmd['filename']} )
+            t = threading.Thread(target=self.__deleteFile, kwargs={ 'filename':cmd['filename']} )
             t.start()
 
         elif cmd['cmd'] == DELETE_FOLDER:
-            t = threading.Thread(target=self.__deleteFolder, kwargs={'path':cmd['path']} )
+            t = threading.Thread(target=self.__deleteFolder, kwargs={ 'path':cmd['path']} )
             t.start()
 
         elif cmd['cmd'] == PUT_FILE:
-            t = threading.Thread(target=self.__putFile, kwargs={'toFilename':cmd['to-filename'], 
-                                'fromFilename':cmd['from-filename'], 'rawContent':cmd['raw-content']} )
+            t = threading.Thread(target=self.__putFile, kwargs={ 'toFilename':cmd['to-filename'], 
+                                                                 'fromFilename':cmd['from-filename'], 
+                                                                 'rawContent':cmd['raw-content']} )
             t.start()
 
         elif cmd['cmd'] == GET_FILE:
             toPrivate = False
             if 'to-private' in cmd: toPrivate = cmd['to-private']
-            t = threading.Thread(target=self.__getFile, kwargs={'filename':cmd['filename'], 'toPrivate': toPrivate } )
+            t = threading.Thread(target=self.__getFile, kwargs={ 'filename':cmd['filename'], 
+                                                                 'toPrivate': toPrivate } )
             t.start()
 
         elif cmd['cmd'] == WAIT_FILE:
-            t = threading.Thread(target=self.__waitFile, kwargs={'path':cmd['path'], 'filename':cmd['filename'], 
-                                    'timeout':cmd['timeout'], 'watchEvery': cmd['watch-every']})
+            t = threading.Thread(target=self.__waitFile, kwargs={ 'path':cmd['path'], 
+                                                                  'filename':cmd['filename'], 
+                                                                  'timeout':cmd['timeout'], 
+                                                                  'watchEvery': cmd['watch-every']})
             t.start()
 
         elif cmd['cmd'] == WAIT_FOLDER:
-            t = threading.Thread(target=self.__waitFolder, kwargs={'path':cmd['path'], 'folder':cmd['folder'], 
-                                'timeout':cmd['timeout'], 'watchEvery': cmd['watch-every']})
+            t = threading.Thread(target=self.__waitFolder, kwargs={ 'path':cmd['path'], 
+                                                                    'folder':cmd['folder'], 
+                                                                    'timeout':cmd['timeout'], 
+                                                                    'watchEvery': cmd['watch-every']})
             t.start()
             
         elif cmd['cmd'] == GET_FOLDER:
-            t = threading.Thread( target=self.__getFolder, kwargs={'fromPath':cmd['from-path'], 
-                                    'toPath':cmd['to-path'], 'overwrite':cmd['overwrite']} )
+            t = threading.Thread( target=self.__getFolder, kwargs={ 'fromPath':cmd['from-path'], 
+                                                                    'toPath':cmd['to-path'], 
+                                                                    'overwrite':cmd['overwrite']} )
             t.start()
             
         elif cmd['cmd'] == PUT_FOLDER:
-            t = threading.Thread( target=self.__putFolder, kwargs={'fromPath':cmd['from-path'], 
-                                    'toPath':cmd['to-path'], 'overwrite':cmd['overwrite']} )
+            t = threading.Thread( target=self.__putFolder, kwargs={ 'fromPath':cmd['from-path'], 
+                                                                    'toPath':cmd['to-path'], 
+                                                                    'overwrite':cmd['overwrite']} )
             t.start()
             
         else:
@@ -653,7 +709,8 @@ class SockTcpThread(threading.Thread):
             elif  self.cfg['sock-family'] == IPv6:
                 sockType = INIT6_STREAM_SOCKET
             else:
-                self.sendError( { 'ssh-event':'socket-family-unknown', 'more': '%s' % str(self.cfg['socket-family'])} )
+                self.sendError( { 'ssh-event':'socket-family-unknown', 
+                                    'more': '%s' % str(self.cfg['socket-family'])} )
                 self.stop()
                 
             # Create the socket
@@ -787,12 +844,14 @@ class SockTcpThread(threading.Thread):
     
     def closeSocket(self):
         """
+        Close the socket
         """
         self.cleanSocket()
         self.sendNotify(data={'ssh-event': 'closed' } )
 
     def cleanSocket(self):
         """
+        Clean the socket
         """
         if self.socket is not None: 
             self.socket.close()
@@ -816,6 +875,9 @@ def initialize (controllerIp, controllerPort, toolName, toolDesc,
     
 
 class Ssh(GenericTool.Tool):
+    """
+    Ssh agent class
+    """
     def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
                 supportProxy=0, proxyIp=None, proxyPort=None, sslSupport=True):
         """
@@ -841,10 +903,14 @@ class Ssh(GenericTool.Tool):
                     proxyPort=proxyPort, sslSupport=sslSupport)
         
         self.__type__ = __TYPE__
-        if EXT_SSH_LIB_INSTALLED: paramiko.util.log_to_file( "%s/%s/sshlog_%s.txt" % (Settings.getDirExec(), Settings.get( 'Paths', 'logs' ), toolName) )
+        if EXT_SSH_LIB_INSTALLED: 
+            paramiko.util.log_to_file( "%s/%s/sshlog_%s.txt" % (Settings.getDirExec(), 
+                                                                Settings.get( 'Paths', 'logs' ), 
+                                                                toolName) )
 
     def checkPrerequisites(self):
         """
+        Check prerequisites before to execute the agent
         """
         if not EXT_SSH_LIB_INSTALLED: 
             self.onToolLogErrorCalled("SSH library is not installed")
@@ -962,6 +1028,8 @@ class Ssh(GenericTool.Tool):
 
     def onAgentReset(self, client, tid, request):
         """
+        To reimplement
+        Called on reset
         """
         pass
 
@@ -971,7 +1039,9 @@ class Ssh(GenericTool.Tool):
         """
         currentTest = self.context()[request['uuid']][request['source-adapter']]
         
-        self.onToolLogWarningCalled( "<< Starting SSH=%s TestId=%s AdapterId=%s" % (request['data']['cmd'], request['script_id'], request['source-adapter']) )
+        self.onToolLogWarningCalled( "<< Starting SSH=%s TestId=%s AdapterId=%s" % (request['data']['cmd'], 
+                                                                                    request['script_id'], 
+                                                                                    request['source-adapter']) )
         try:
             cmd = request['data']['cmd']
             if cmd == 'connect':
@@ -985,10 +1055,13 @@ class Ssh(GenericTool.Tool):
         except Exception as e:
             self.error( 'unable to run ssh action: %s' % str(e) )
             self.sendError( request , data="unable to run ssh action")
-        self.onToolLogWarningCalled( "<< Terminating SSH=%s TestId=%s AdapterId=%s" % (request['data']['cmd'], request['script_id'], request['source-adapter']) )
+        self.onToolLogWarningCalled( "<< Terminating SSH=%s TestId=%s AdapterId=%s" % ( request['data']['cmd'], 
+                                                                                        request['script_id'], 
+                                                                                        request['source-adapter']) )
 
     def onResetTestContext(self, testUuid, scriptId, adapterId):
         """
+        Called on reset of the test context
         """
         self.onToolLogWarningCalled( "<< Resetting Context TestID=%s AdapterId=%s" % (scriptId, adapterId) )
         self.trace("Resetting TestUuid=%s ScriptId=%s AdapterId=%s" % (testUuid, scriptId, adapterId) )
@@ -1030,7 +1103,8 @@ class Ssh(GenericTool.Tool):
                     ctx_test.ctx_plugin = SockTcpThread(parent=self, request=request, sshlib=paramiko)
                 ctx_test.putItem( lambda: self.execAction(client, tid, request) )
             else:
-                self.error("Adapter context does not exists TestUuid=%s AdapterId=%s" % (request['uuid'], request['source-adapter'] ) )
+                self.error("Adapter context does not exists TestUuid=%s AdapterId=%s" % (request['uuid'], 
+                                                                                         request['source-adapter'] ) )
         else:
             self.error("Test context does not exits TestUuid=%s" % request['uuid'])
         self.__mutex__.release()
