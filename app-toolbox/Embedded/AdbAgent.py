@@ -154,20 +154,27 @@ class UiAutomatorThread(threading.Thread):
         
         self.trace("uploading jar files on devices")
         __cmd__ = '"%s" push "%s\\Adb\\bundle.jar" /data/local/tmp/' % (__adbexe__, __adbbin__ )
-        ret = subprocess.call(__cmd__, shell=True, stdin=subprocess.PIPE, 
-                                stdout=subprocess.PIPE,   stderr=subprocess.STDOUT)
+        ret = subprocess.call(  __cmd__, shell=True, 
+                                stdin=subprocess.PIPE, 
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT)
         self.trace("uploading ret: %s" % ret)
         
         __cmd__ = '"%s" push "%s\\Adb\\uiautomator-stub.jar" /data/local/tmp/' % (__adbexe__,  __adbbin__)
-        ret = subprocess.call(__cmd__, shell=True, stdin=subprocess.PIPE, 
-                                stdout=subprocess.PIPE,   stderr=subprocess.STDOUT)
+        ret = subprocess.call(  __cmd__, shell=True, 
+                                stdin=subprocess.PIPE, 
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT)
         self.trace("uploading ret: %s" % ret)
 
         __cmd__ = r'"%s" shell uiautomator runtest uiautomator-stub.jar bundle.jar -c com.github.uiautomatorstub.Stub' % __adbexe__
         self.parent.trace(__cmd__)
         try:
-            self.uiProcess = subprocess.Popen(__cmd__, shell=True, stdin=subprocess.PIPE, 
-                                              stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=0 )
+            self.uiProcess = subprocess.Popen(  __cmd__, shell=True, 
+                                                stdin=subprocess.PIPE, 
+                                                stdout=subprocess.PIPE,
+                                                stderr=subprocess.STDOUT,
+                                                bufsize=0 )
             pid = self.uiProcess.pid
             self.parent.trace("UIautomator thread started with pid=%s" % pid)
             if sys.version_info > (3,):
@@ -258,7 +265,10 @@ class AdbScreenThread(threading.Thread):
                     response = urllib2.urlopen(req, b'{"jsonrpc":"2.0","method":"takeScreenshot","id":1, "params": [ "screncapture.png", 1.0, 90] }' )
                     
                     response2 = urllib2.urlopen(req, b'{"jsonrpc":"2.0","method":"dumpWindowHierarchy","id":1, "params": [ true, "layout.xml" ] }' )
-                    subprocess.call(__cmd2__, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,   stderr=subprocess.STDOUT)
+                    subprocess.call(__cmd2__, shell=True, 
+                                    stdin=subprocess.PIPE, 
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT)
 
                 except Exception as e:
                     self.parent.error("error on adb screen thread: %s" % e )
@@ -266,9 +276,11 @@ class AdbScreenThread(threading.Thread):
                     if nbError >= MAX_ERROR_SCREEN: self.stop()
                 else:
                 
-                    ret = subprocess.call(__cmd__, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,   stderr=subprocess.STDOUT)
+                    ret = subprocess.call(  __cmd__, shell=True, 
+                                            stdin=subprocess.PIPE, 
+                                            stdout=subprocess.PIPE,
+                                            stderr=subprocess.STDOUT)
                     if not ret:
-                        # self.parent.onScreenCaptured(filename=__ret__,xml=rsp_body['result'])
                         self.parent.onScreenCaptured(filename=__ret__,xml=__ret2__)
 
     def stop(self):
@@ -337,8 +349,10 @@ class AdbServerThread(threading.Thread):
         __cmd__ = r'"%s"' % __APP_PATH__
         self.parent.trace(__cmd__)
         try:
-            self.adbProcess = subprocess.Popen(__cmd__, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, 
-                                                    stderr=subprocess.STDOUT, bufsize=0 )
+            self.adbProcess = subprocess.Popen( __cmd__, shell=True, 
+                                                stdin=subprocess.PIPE, 
+                                                stdout=subprocess.PIPE, 
+                                                stderr=subprocess.STDOUT, bufsize=0 )
             pid = self.adbProcess.pid
             self.parent.trace("Adb thread started with pid=%s" % pid)
             if sys.version_info > (3,):
@@ -382,11 +396,13 @@ class AdbServerThread(threading.Thread):
         self.parent.onToolLogWarningCalled("Adb server is stopped")
 
 
-def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport):
+def initialize (controllerIp, controllerPort, toolName, toolDesc, 
+                    defaultTool, supportProxy, proxyIp, proxyPort, sslSupport):
     """
     Wrapper to initialize the object agent
     """
-    return Adb( controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
+    return Adb( controllerIp, controllerPort, toolName, toolDesc, 
+                    defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
     
 
 class Adb(GenericTool.Tool):
@@ -398,8 +414,9 @@ class Adb(GenericTool.Tool):
         """
         Android Debug Bridge constructor
         """
-        GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy=supportProxy,
-                                        proxyIp=proxyIp, proxyPort=proxyPort, sslSupport=sslSupport)
+        GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                                    supportProxy=supportProxy, proxyIp=proxyIp, proxyPort=proxyPort, 
+                                    sslSupport=sslSupport)
         self.__type__ = __TYPE__
         self.__mutex__ = threading.RLock()
    
@@ -601,7 +618,8 @@ class Adb(GenericTool.Tool):
                 a = self.context()[request['uuid']][request['source-adapter']]
                 a.putItem( lambda: self.runAction(request) )
             else:
-                self.error("Adapter context does not exists ScriptId=%s AdapterId=%s" % (request['uuid'], request['source-adapter'] ) )
+                self.error("Adapter context does not exists ScriptId=%s AdapterId=%s" % (request['uuid'], 
+                                                                                         request['source-adapter'] ) )
         else:
             self.error("Test context does not exits ScriptId=%s" % request['uuid'])
         self.__mutex__.release()
@@ -617,10 +635,15 @@ class Adb(GenericTool.Tool):
         """
         Internal function to tap on position
         """    
-        __adbexe__ = '%s\%s\%s' % (Settings.getDirExec(), Settings.get('Paths', 'bin'), Settings.get('BinWin', 'adb-exe') )
+        __adbexe__ = '%s\%s\%s' % ( Settings.getDirExec(), 
+                                    Settings.get('Paths', 'bin'), 
+                                    Settings.get('BinWin', 'adb-exe') )
         __cmd__ = '"%s" shell input tap %s %s' % (__adbexe__, x,y)
         try:
-            subprocess.call(__cmd__, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,   stderr=subprocess.STDOUT)
+            subprocess.call(__cmd__, shell=True, 
+                            stdin=subprocess.PIPE, 
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.STDOUT)
         except Exception as e:
             self.error("error on adb click thread: %s" % e )
                 
@@ -635,7 +658,9 @@ class Adb(GenericTool.Tool):
         """
         Internal function to retreive the screen from the device
         """
-        __adbexe__ = '%s\%s\%s' % (Settings.getDirExec(), Settings.get('Paths', 'bin'), Settings.get('BinWin', 'adb-exe') )
+        __adbexe__ = '%s\%s\%s' % ( Settings.getDirExec(), 
+                                    Settings.get('Paths', 'bin'), 
+                                    Settings.get('BinWin', 'adb-exe') )
         __ret__ = '%s\screncapture.png' % self.getTemp()
         __ret2__ = '%s\layout.xml' % self.getTemp()  
         __cmd__ = '"%s" pull /data/local/tmp/screncapture.png "%s"' % ( __adbexe__, __ret__)
@@ -647,13 +672,19 @@ class Adb(GenericTool.Tool):
             response = urllib2.urlopen(req, b'{"jsonrpc":"2.0","method":"takeScreenshot","id":1, "params": [ "screncapture.png", 1.0, 90] }' )
             
             response2 = urllib2.urlopen(req, b'{"jsonrpc":"2.0","method":"dumpWindowHierarchy","id":1, "params": [ true, "layout.xml" ] }' )
-            subprocess.call(__cmd2__, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            subprocess.call(__cmd2__, shell=True, 
+                            stdin=subprocess.PIPE, 
+                            stdout=subprocess.PIPE, 
+                            stderr=subprocess.STDOUT)
 
         except Exception as e:
             self.error("error on adb get screen thread: %s" % e )
         else:
         
-            ret = subprocess.call(__cmd__, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            ret = subprocess.call(  __cmd__, shell=True,
+                                    stdin=subprocess.PIPE, 
+                                    stdout=subprocess.PIPE, 
+                                    stderr=subprocess.STDOUT)
             if not ret:
                 self.onScreenCaptured(filename=__ret__,xml=__ret2__)
                 
@@ -676,13 +707,17 @@ class Adb(GenericTool.Tool):
         Internal function to run action
         """
         if method == 'adb':
-            __adbexe__ = '%s\%s\%s' % (Settings.getDirExec(), Settings.get('Paths', 'bin'), Settings.get('BinWin', 'adb-exe') )
+            __adbexe__ = '%s\%s\%s' % ( Settings.getDirExec(), 
+                                        Settings.get('Paths', 'bin'), 
+                                        Settings.get('BinWin', 'adb-exe') )
             __cmd__ = '"%s" %s' % (__adbexe__, params)
             stdout = ''
             returncode = 1
             try:
-                proc = subprocess.Popen(__cmd__, shell=True, stdin=subprocess.PIPE, 
-                                        stdout=subprocess.PIPE,   stderr=subprocess.STDOUT)
+                proc = subprocess.Popen(__cmd__, shell=True, 
+                                        stdin=subprocess.PIPE, 
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.STDOUT)
                 stdout, stderr = proc.communicate()
                 returncode =  proc.returncode
             except Exception as e:

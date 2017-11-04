@@ -55,11 +55,13 @@ Command messages:
 This probe must be deployed on the target machine.
 Targetted operating system: Linux, Windows"""
 
-def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport=True):
+def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                supportProxy, proxyIp, proxyPort, sslSupport=True):
     """
     Wrapper to initialize the object agent
     """
-    return File( controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
+    return File( controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                supportProxy, proxyIp, proxyPort, sslSupport )
     
 class File(GenericTool.Tool):
     """

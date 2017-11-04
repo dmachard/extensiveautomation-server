@@ -22,7 +22,7 @@
 
 set Project=%~dp0..\..\
 
-set PythonPath=C:\Python36-32
+set PythonPath=C:\Python36
 set Python=%PythonPath%\python.exe
 
 :: make resources
@@ -32,6 +32,6 @@ set Python=%PythonPath%\python.exe
 echo Build the project...
 cd "%Project%"
 %Python% "%Project%\ConfigureExe.py" portable
-%Python% "%Project%\BuildWinCx.py" build_exe -b __build__ -O2 --zip-include-packages * --zip-exclude-packages none
+%PythonPath%\Scripts\pyinstaller.exe --clean --noconfirm BuildWinIns.spec
 
 pause

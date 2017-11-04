@@ -99,11 +99,13 @@ Events messages:
 
 Targetted operating system: Windows and Linux"""
 
-def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport):
+def initialize (controllerIp, controllerPort, toolName, toolDesc, 
+                defaultTool, supportProxy, proxyIp, proxyPort, sslSupport):
     """
     Wrapper to initialize the object agent
     """
-    return SeleniumServer( controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
+    return SeleniumServer( controllerIp, controllerPort, toolName, toolDesc, 
+                            defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
 
 class SeleniumWait(object):
     """
@@ -125,7 +127,8 @@ class SeleniumServer(GenericTool.Tool):
         Selenium tool constructor
         """
         GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
-                                    supportProxy=supportProxy, proxyIp=proxyIp, proxyPort=proxyPort, sslSupport=sslSupport)
+                                    supportProxy=supportProxy, proxyIp=proxyIp, proxyPort=proxyPort, 
+                                    sslSupport=sslSupport)
         self.__type__ = __TYPE__
         self.__mutex__ = threading.RLock()
 
@@ -257,33 +260,45 @@ class SeleniumServer(GenericTool.Tool):
         """
         try:
             if sys.platform == "win32" :
-                __cmd__ = r'"%s\%s\%s" -jar ' % ( Settings.getDirExec(), Settings.get( 'Paths', 'bin' ), Settings.get( 'BinWin', 'selenium3' ) )
+                __cmd__ = r'"%s\%s\%s" -jar ' % (   Settings.getDirExec(), 
+                                                    Settings.get( 'Paths', 'bin' ), 
+                                                    Settings.get( 'BinWin', 'selenium3' ) )
                 __cmd__ += r' -Dwebdriver.ie.driver="%s\Selenium3\IEDriverServer.exe" ' % (
-                                                                                "%s\%s" % ( Settings.getDirExec(), Settings.get( 'Paths', 'bin' ))
+                                                                                "%s\%s" % ( Settings.getDirExec(), 
+                                                                                            Settings.get( 'Paths', 'bin' ))
                                                                                 )
                 __cmd__ += r' -Dwebdriver.chrome.driver="%s\Selenium3\chromedriver.exe" ' % (
-                                                                                "%s\%s" % ( Settings.getDirExec(), Settings.get( 'Paths', 'bin' ))
+                                                                                "%s\%s" % ( Settings.getDirExec(), 
+                                                                                            Settings.get( 'Paths', 'bin' ))
                                                                                 )
                 __cmd__ += r' -Dwebdriver.opera.driver="%s\Selenium3\operadriver.exe" ' % (
-                                                                                "%s\%s" % ( Settings.getDirExec(), Settings.get( 'Paths', 'bin' ))
+                                                                                "%s\%s" % ( Settings.getDirExec(), 
+                                                                                            Settings.get( 'Paths', 'bin' ))
                                                                                 )
                 __cmd__ += r' -Dwebdriver.gecko.driver="%s\Selenium3\geckodriver.exe" ' % (
-                                                                                "%s\%s" % ( Settings.getDirExec(), Settings.get( 'Paths', 'bin' ))
+                                                                                "%s\%s" % ( Settings.getDirExec(), 
+                                                                                            Settings.get( 'Paths', 'bin' ))
                                                                                 )
                 __cmd__ += r' -Dwebdriver.edge.driver="%s\Selenium3\MicrosoftWebDriver.exe" ' % (
-                                                                                "%s\%s" % ( Settings.getDirExec(), Settings.get( 'Paths', 'bin' ))
+                                                                                "%s\%s" % ( Settings.getDirExec(), 
+                                                                                            Settings.get( 'Paths', 'bin' ))
                                                                                 )
                                                                                 
                 __cmd__ +=  r' "%s\Selenium3\selenium-server-standalone.jar"' % (
-                                                                                "%s\%s" % ( Settings.getDirExec(), Settings.get( 'Paths', 'bin' ))
+                                                                                "%s\%s" % ( Settings.getDirExec(), 
+                                                                                            Settings.get( 'Paths', 'bin' ))
                                                                                 )
                 
-                __cmd__ += r' -log "%s\selenium3_%s.log" -debug true' % ( "%s\%s" % ( Settings.getDirExec(), Settings.get( 'Paths', 'logs' )), self.toolName)
+                __cmd__ += r' -log "%s\selenium3_%s.log" -debug true' % ( "%s\%s" % ( Settings.getDirExec(), 
+                                                                                        Settings.get( 'Paths', 'logs' )), 
+                                                                          self.toolName)
             else:
                 __cmd__ = r'%s -jar \"%s/%s/%s\" -log "%s/selenium_%s.log" -debug true' % (
                                                                                 Settings.get( 'BinLinux', 'java' ),  
-                                                                                Settings.getDirExec(), Settings.get('Paths', 'bin'), Settings.get('BinLinux', 'selenium' ),
-                                                                                "%s\%s" % ( Settings.getDirExec(), Settings.get( 'Paths', 'logs' )),
+                                                                                Settings.getDirExec(), Settings.get('Paths', 'bin'), 
+                                                                                Settings.get('BinLinux', 'selenium' ),
+                                                                                "%s\%s" % ( Settings.getDirExec(), 
+                                                                                            Settings.get( 'Paths', 'logs' )),
                                                                                 self.toolName
                                                                                 )
             self.trace( "external program called: %s" % __cmd__)
@@ -416,8 +431,9 @@ class SeleniumServer(GenericTool.Tool):
 
         # send through notify only a thumbnail
         try:
-            self.sendData(request=request, data={ 'data': thumbnail, 'filename': '%s_%s.%s' % (commandName, commandId, extension),
-                                                    'command-name': commandName, 'command-id': "%s" % commandId, 'adapter-id': "%s" % adapterId  } )
+            self.sendData(request=request, data={   'data': thumbnail, 'filename': '%s_%s.%s' % (commandName, commandId, extension),
+                                                    'command-name': commandName, 'command-id': "%s" % commandId, 
+                                                    'adapter-id': "%s" % adapterId  } )
         except Exception as e:
             self.error("unable to send notify through notify: %s" % e)
             

@@ -1505,11 +1505,13 @@ class SockTcpServerThread(threading.Thread):
         self.sendNotify(data={'tcp-event': 'client-data', 'ip': ip, 'port': port, 'payload': pdu } )
 # END OF NEW
 
-def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport):
+def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                supportProxy, proxyIp, proxyPort, sslSupport):
     """
     Wrapper to initialize the object agent
     """
-    return Socket( controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
+    return Socket( controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                    supportProxy, proxyIp, proxyPort, sslSupport )
 
 class Socket(GenericTool.Tool):
     """

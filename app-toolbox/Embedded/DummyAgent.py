@@ -68,11 +68,13 @@ The data argument can contains anything, but a dictionary is prefered.
 
 Targetted operating system: Windows, Linux"""
 
-def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport):
+def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                supportProxy, proxyIp, proxyPort, sslSupport):
     """
     Wrapper to initialize the object agent
     """
-    return Dummy( controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
+    return Dummy( controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                    supportProxy, proxyIp, proxyPort, sslSupport )
     
 
 class Dummy(GenericTool.Tool):

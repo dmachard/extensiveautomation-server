@@ -323,7 +323,8 @@ class Database(GenericTool.Tool):
             if cmd == 'Connect':
                 try:
                     if data['dbtype'] == 'mysql':
-                        currentTest.ctx().DB_PTR = pymysql.connect( host = data['host'],  user = data['user'], passwd = data['password'], 
+                        currentTest.ctx().DB_PTR = pymysql.connect( host = data['host'],  user = data['user'], 
+                                                                    passwd = data['password'], 
                                                                     port=data['port'], connect_timeout=int(data['timeout']), 
                                                                     db = data['db-name'] )
                         self.onToolLogSuccessCalled( "<< MySQL connector initialized" )
@@ -333,8 +334,10 @@ class Database(GenericTool.Tool):
                     elif data['dbtype'] == 'postgresql':
                         sslMode = 'disable'
                         if data['ssl-support']: sslMode = 'require'
-                        currentTest.ctx().DB_PTR = psycopg2.connect( host = data['host'],  user = data['user'], password = data['password'], 
-                                                                    port=data['port'], database = data['db-name'], sslmode=sslMode,
+                        currentTest.ctx().DB_PTR = psycopg2.connect( host = data['host'],  user = data['user'], 
+                                                                    password = data['password'], 
+                                                                    port=data['port'], database = data['db-name'], 
+                                                                    sslmode=sslMode,
                                                                     connect_timeout=int(data['timeout'])      )
                         self.onToolLogSuccessCalled( "<< PosgreSQL connector initialized" )
                     else:
@@ -441,7 +444,7 @@ class Database(GenericTool.Tool):
             self.error( 'unable to run sql query: %s' % str(e) )
             self.sendError( request , data="unable to run sql query")
 
-        self.onToolLogWarningCalled( "<< Terminating SQL=%s TestId=%s AdapterId=%s" % (request['data']['cmd'],
+        self.onToolLogWarningCalled( "<< Terminating SQL=%s TestId=%s AdapterId=%s" % ( request['data']['cmd'],
                                                                                         request['script_id'], 
                                                                                         request['source-adapter']) )
 
@@ -468,7 +471,8 @@ class Database(GenericTool.Tool):
                     ctx_test.ctx_plugin = DbContext()
                 ctx_test.putItem( lambda: self.execAction(request) )
             else:
-                self.error("Adapter context does not exists TestUuid=%s AdapterId=%s" % (request['uuid'], request['source-adapter'] ) )
+                self.error("Adapter context does not exists TestUuid=%s AdapterId=%s" % (request['uuid'], 
+                                                                                         request['source-adapter'] ) )
         else:
             self.error("Test context does not exits TestUuid=%s" % request['uuid'])
         self.__mutex__.release()

@@ -91,11 +91,13 @@ CODE_OK = 0
 CODE_ERROR = 1
 CODE_GET = 2
 
-def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport):
+def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                supportProxy, proxyIp, proxyPort, sslSupport):
     """
     Wrapper to initialize the object agent
     """
-    return SikulixServer( controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
+    return SikulixServer( controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                          supportProxy, proxyIp, proxyPort, sslSupport )
     
 
 class SikulixServer(GenericTool.Tool):
@@ -123,7 +125,8 @@ class SikulixServer(GenericTool.Tool):
         @type defaultTool: boolean
         """
         GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
-                                    supportProxy=supportProxy, proxyIp=proxyIp, proxyPort=proxyPort, sslSupport=sslSupport)
+                                    supportProxy=supportProxy, proxyIp=proxyIp, proxyPort=proxyPort, 
+                                    sslSupport=sslSupport)
         self.__type__ = __TYPE__
         self.__mutex__ = threading.RLock()
         
@@ -524,8 +527,9 @@ class SikulixServer(GenericTool.Tool):
 
         # send through notify only a thumbnail
         try:
-            self.sendData(request=request, data={ 'data': thumbnail, 'filename': '%s_%s.%s' % (action, actionId, extension),
-                                                    'action': action, 'action-id': "%s" % actionId, 'adapter-id': "%s" % adapterId  } )
+            self.sendData(request=request, data={   'data': thumbnail, 'filename': '%s_%s.%s' % (action, actionId, extension),
+                                                    'action': action, 'action-id': "%s" % actionId, 
+                                                    'adapter-id': "%s" % adapterId  } )
         except Exception as e:
             self.error("unable to send notify through notify: %s" % e)
             

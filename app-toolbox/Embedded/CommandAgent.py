@@ -165,7 +165,8 @@ class CommandThread(threading.Thread):
         """
         __cmd__ = r'C:\Windows\System32\cmd.exe'
         try:
-            self.commandProcess = subprocess.Popen(__cmd__, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            self.commandProcess = subprocess.Popen(__cmd__, shell=True, stdin=subprocess.PIPE, 
+                                                    stdout=subprocess.PIPE,
                                                     stderr=subprocess.STDOUT, bufsize=0 )
             pid = self.commandProcess.pid
             self.parent.trace("command thread started Pid=%s" % pid)
@@ -209,21 +210,26 @@ class CommandThread(threading.Thread):
         except Exception as e:
             self.parent.error( "unable to stop interactive Command: %s" % str(e))  
 
-def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport):
+def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                supportProxy, proxyIp, proxyPort, sslSupport):
     """
     Wrapper to initialize the object agent
     """
-    return Command( controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
+    return Command( controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                    supportProxy, proxyIp, proxyPort, sslSupport )
     
 class Command(GenericTool.Tool):
     """
     Command agent class
     """
-    def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy=0, proxyIp=None, proxyPort=None, sslSupport=True):
+    def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                    supportProxy=0, proxyIp=None, proxyPort=None, sslSupport=True):
         """
         Command agent constructor
         """
-        GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy=supportProxy, proxyIp=proxyIp, proxyPort=proxyPort, sslSupport=sslSupport)
+        GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, toolDesc, 
+                                    defaultTool, supportProxy=supportProxy, proxyIp=proxyIp, 
+                                    proxyPort=proxyPort, sslSupport=sslSupport)
         self.__type__ = __TYPE__
         self.__mutex__ = threading.RLock()
         if sys.platform not in [ "win32", "linux2" ] :
@@ -404,7 +410,8 @@ class Command(GenericTool.Tool):
                 a = self.context()[request['uuid']][request['source-adapter']]
                 a.putItem( lambda: self.execAction(request) )
             else:
-                self.error("Adapter context does not exists TestUuid=%s AdapterId=%s" % (request['uuid'], request['source-adapter'] ) )
+                self.error("Adapter context does not exists TestUuid=%s AdapterId=%s" % (request['uuid'],
+                                                                                         request['source-adapter'] ) )
         else:
             self.error("Test context does not exits TestUuid=%s" % request['uuid'])
         self.__mutex__.release()

@@ -386,7 +386,8 @@ class SockTcpThread(threading.Thread):
                 f.close()
                 
                 # zip the file and upload them
-                ret, pathZip, filenameZip = self.parent.createZip(callId=internalID, zipReplayId=self.request['test-replay-id'],
+                ret, pathZip, filenameZip = self.parent.createZip(  callId=internalID, 
+                                                                    zipReplayId=self.request['test-replay-id'],
                                                                     zipPrefix="agent") 
                 if not ret:
                     self.parent.error('unable to create zip file')
@@ -402,9 +403,11 @@ class SockTcpThread(threading.Thread):
             self.sendNotify(data={'sftp-event': 'response-error', 'cmd': GET_FILE, 'err': "%s" % e } )
         else:
             if toPrivate:
-                self.sendNotify(data={'sftp-event': 'file-downloaded', 'cmd': GET_FILE, 'content': "%s" % len(read_data) } )
+                self.sendNotify(data={'sftp-event': 'file-downloaded', 
+                                        'cmd': GET_FILE, 'content': "%s" % len(read_data) } )
             else:
-                self.sendNotify(data={'sftp-event': 'file-downloaded', 'cmd': GET_FILE, 'content': read_data} )
+                self.sendNotify(data={'sftp-event': 'file-downloaded', 
+                                    'cmd': GET_FILE, 'content': read_data} )
         
     def __putFile(self, toFilename, fromFilename, rawContent):
         """
@@ -454,7 +457,8 @@ class SockTcpThread(threading.Thread):
         except Exception as e:
             self.sendNotify(data={'sftp-event': 'response-error', 'cmd': WAIT_FILE, 'err': "%s" % e } )
         else:
-            self.sendNotify(data={'sftp-event': 'wait-file', 'cmd': WAIT_FILE, 'result': ret, 'filename': true_filename, 'path': path } )
+            self.sendNotify(data={'sftp-event': 'wait-file', 'cmd': WAIT_FILE, 'result': ret, 
+                                  'filename': true_filename, 'path': path } )
 
     def __waitFolder(self, path, folder, timeout, watchEvery=0.1):
         """
@@ -483,7 +487,8 @@ class SockTcpThread(threading.Thread):
         except Exception as e:
             self.sendNotify(data={'sftp-event': 'response-error', 'cmd': WAIT_FOLDER, 'err': "%s" % e } )
         else:
-            self.sendNotify(data={'sftp-event': 'wait-folder', 'cmd': WAIT_FOLDER, 'result': ret, 'folder': true_folder, 'path': path } )
+            self.sendNotify(data={  'sftp-event': 'wait-folder', 'cmd': WAIT_FOLDER, 'result': ret, 
+                                    'folder': true_folder, 'path': path } )
       
     def __putFolder(self, fromPath, toPath, overwrite=False):
         """

@@ -24,8 +24,6 @@ set Project=%~dp0..\..\
 
 set PythonPath=C:\Python34
 set Python=%PythonPath%\python.exe
-set PyQtPath=Lib\site-packages\PyQt4\
-set PyRcc=pyrcc4.exe
 
 :: make resources
 %PythonPath%\Lib\site-packages\PyQt4\pyrcc4.exe -py3 -o "%Project%\Resources\Resources.py" "%Project%\Resources\__resources.qrc"

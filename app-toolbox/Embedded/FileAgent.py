@@ -86,11 +86,13 @@ def get_size_path(path):
 
     return total_size   # in megabytes
     
-def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport):
+def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                supportProxy, proxyIp, proxyPort, sslSupport):
     """
     Wrapper to initialize the object agent
     """
-    return File( controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
+    return File( controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                supportProxy, proxyIp, proxyPort, sslSupport )
     
 class FollowThread(threading.Thread):
     """
@@ -230,7 +232,8 @@ class File(GenericTool.Tool):
         @type defaultTool: boolean
         """
         GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
-                                    supportProxy=supportProxy, proxyIp=proxyIp, proxyPort=proxyPort, sslSupport=sslSupport)
+                                    supportProxy=supportProxy, proxyIp=proxyIp, proxyPort=proxyPort, 
+                                    sslSupport=sslSupport)
         self.__type__ = __TYPE__
 
         self.followThreads = {}

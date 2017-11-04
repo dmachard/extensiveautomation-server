@@ -627,7 +627,8 @@ class Ftp(GenericTool.Tool):
                 except Exception as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
                 else:
-                    self.sendNotify(request, data={ 'cmd': cmd, 'result': ret, 'path':data['path'], 'foldername': true_folder } )
+                    self.sendNotify(request, data={ 'cmd': cmd, 'result': ret, 'path':data['path'], 
+                                                    'foldername': true_folder } )
  
             elif cmd == 'Get Folder':
                 pass

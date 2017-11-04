@@ -37,7 +37,7 @@ cd "%Project%"
 
 :: build the installer
 echo Build the installer...
-"%Python%" "%Project%\BuildWinInno.py" "%Output%\" "dist\ExtensiveTestingClient"
+"%Python%" "%Project%\BuildWinInno.py" "%Output%\" "dist\ExtensiveTestingToolbox"
 
 
 pause

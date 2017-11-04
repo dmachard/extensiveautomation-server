@@ -24,7 +24,19 @@
 """
 Main app
 """
+                            
+import sip
+import sys
 
+# to support py2.7 and pyqt4 on linux
+if sys.version_info < (3,):
+    sip.setapi('QString', 2)
+    
+try:
+    sip.setdestroyonexit(False)
+except:
+    pass
+    
 try:
 	from PyQt4.QtCore import (pyqtSignal, QTimer, Qt, QRect, QSize, QT_VERSION_STR, PYQT_VERSION_STR, 
 							 QFile, QByteArray, QBuffer, QIODevice, QTranslator, QLibraryInfo,
@@ -47,13 +59,7 @@ except ImportError:
 							QAction, QMenu, QSystemTrayIcon, qApp, QListWidget)
 	from PyQt5.QtGui import (QTextCursor, QIcon, QFont, QIntValidator,
 							QPixmap, QGuiApplication, QStandardItem, QColor )
-                            
-import sip
-try:
-    sip.setdestroyonexit(False)
-except:
-    pass
-    
+
 from Libs import Logger, Settings, QtHelper
 from Resources import Resources
 from Translations import Translations
@@ -74,7 +80,7 @@ __BEGIN__ = "2010"
 # year of the latest build
 __END__="2017"
 # date and time of the buid
-__BUILDTIME__="16/10/2017 21:44:00"
+__BUILDTIME__="04/11/2017 18:04:27"
 # Redirect stdout and stderr to log file only on production
 REDIRECT_STD=True
 
@@ -94,7 +100,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 MA 02110-1301 USA"""
 
 import ReleaseNotes as RN
-import sys
 import time
 import os
 import inspect
@@ -1283,7 +1288,7 @@ class OptionPage(QWidget):
         if sys.platform == "win32" :
             self.nameEdit = QLineEdit( "%s" % Settings.get( 'DefaultWin','agent-name' ) )
             self.descriptionEdit = QLineEdit( Settings.get( 'DefaultWin','agent-description' ) )
-        elif sys.platform == "linux2" :
+        elif sys.platform.startswith("linux") :
             self.nameEdit = QLineEdit( "%s" % Settings.get( 'DefaultLinux','agent-name' ) )
             self.descriptionEdit = QLineEdit( Settings.get( 'DefaultLinux','agent-description' ) )
         else:
@@ -1563,6 +1568,10 @@ class OptionPage(QWidget):
             self.ideButton.setEnabled(False)
             return 
             
+        # to support py2.7 and pyqt4 on linux
+        if sys.version_info < (3,):
+            pluginType = str(pluginType)
+            
         # check combobox
         pluginDetected=None
         for pId, pluginObj in plugins.items():
@@ -1593,6 +1602,10 @@ class OptionPage(QWidget):
             return
         else:
             self.deployButton.setEnabled(True)
+            
+        # to support py2.7 and pyqt4 on linux
+        if sys.version_info < (3,):
+            pluginType = str(pluginType)
             
         pluginDetected=None
         for pId, pluginObj in plugins.items():

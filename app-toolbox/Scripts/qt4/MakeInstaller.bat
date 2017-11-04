@@ -45,6 +45,6 @@ cd "%Project%"
 %Python% "%Project%\BuildWin.py" py2exe
 
 :: create installer
-"%Python%" "%Project%\BuildWinInstaller.py" "%Output%\"
+"%Python%" "%Project%\BuildWinInno.py" "%Output%\" "__build__"
 
 pause

@@ -60,11 +60,13 @@ Command messages:
 This probe can be deployed on server or on the target machine.
 Targetted operating system: Windows, Linux"""
 
-def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport=True):
+def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                supportProxy, proxyIp, proxyPort, sslSupport=True):
     """
     Wrapper to initialize the object
     """
-    return Network( controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport)
+    return Network( controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                    supportProxy, proxyIp, proxyPort, sslSupport)
     
 class Network(GenericTool.Tool):
     """
