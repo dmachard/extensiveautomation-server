@@ -3334,7 +3334,7 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                         testExec=testExec, testInputs=testInputs, 
                         testOutputs=testOutputs, testAgents=testAgents )
  
-    def newTestUnitWithContent(self, testDef=None, testInputs=None, testOutputs=None, testAgents=None):
+    def newTestAbstractWithContent(self, testDef=None, testInputs=None, testOutputs=None, testAgents=None):
         """
         Creates one new empty TestAbstract file
         Call the function newTab()
@@ -3343,6 +3343,15 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                         testDef=testDef, testInputs=testInputs,
                         testOutputs=testOutputs, testAgents=testAgents )
                         
+    def newTestUnitWithContent(self, testDef=None, testInputs=None, testOutputs=None, testAgents=None):
+        """
+        Creates one new empty TestUnit file
+        Call the function newTab()
+        """
+        self.newTab( extension = TestUnit.TYPE, repoDest=UCI.REPO_UNDEFINED, 
+                    testDef=testDef, testInputs=testInputs,
+                    testOutputs=testOutputs, testAgents=testAgents )
+    
     def newTestPlan (self):
         """
         Creates one new empty TestPlan file

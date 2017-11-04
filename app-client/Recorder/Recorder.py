@@ -140,7 +140,8 @@ class WRecorder(object):
         """
         if not self.offlineMode:
             if not UCI.instance().isAuthenticated():
-                QMessageBox.warning(Gui.instance(), "Assistant Automation" , "Connect to the test center in first!")
+                QMessageBox.warning(Gui.instance(), "Assistant Automation" , 
+                                    "Connect to the test center in first!")
                 return
 
         plugin = Tcp.DTcpReplay( offlineMode=self.offlineMode )
@@ -159,7 +160,8 @@ class WRecorder(object):
         """
         if not self.offlineMode:
             if not UCI.instance().isAuthenticated():
-                QMessageBox.warning(Gui.instance(), "Assistant Automation" , "Connect to the test center in first!")
+                QMessageBox.warning(Gui.instance(), "Assistant Automation" , 
+                                    "Connect to the test center in first!")
                 return
 
         plugin = Http.DHttpReplay( offlineMode=self.offlineMode )
@@ -204,13 +206,15 @@ class WRecorder(object):
         """
         if not self.offlineMode:
             if not UCI.instance().isAuthenticated():
-                QMessageBox.warning(Gui.instance(), "Assistant Automation" , "Connect to the test center in first!")
+                QMessageBox.warning(Gui.instance(), "Assistant Automation" , 
+                                    "Connect to the test center in first!")
                 return
             
         # extract the current test
         currentDocument = WWorkspace.DocumentViewer.instance().getCurrentDocument()
         if isinstance(currentDocument, WWorkspace.WDocumentViewer.WelcomePage):
-            QMessageBox.warning(Gui.instance(), "Assistant Automation" , "No valid test detected!")
+            QMessageBox.warning(Gui.instance(), "Assistant Automation" , 
+                                "No valid test detected!")
             return
         else:
             if currentDocument is not None:
@@ -222,15 +226,19 @@ class WRecorder(object):
                     Gui.instance().clearSteps()
                     Gui.instance().loadAgents()
                     Gui.instance().show()
-                    Gui.instance().loadCurrentTest(currentDoc=currentDocument, testContent=testContent,
-                                                    testInputs=testInputs, testAgents=testAgents, 
+                    Gui.instance().loadCurrentTest( currentDoc=currentDocument, 
+                                                    testContent=testContent,
+                                                    testInputs=testInputs, 
+                                                    testAgents=testAgents, 
                                                     isTu=isTu, isTs=isTs)
       
                 else:
-                    QMessageBox.warning(Gui.instance(), "Assistant Automation" , "No valid test detected!" )
+                    QMessageBox.warning(Gui.instance(), "Assistant Automation" , 
+                                        "No valid test detected!" )
                 return
             else:
-                QMessageBox.warning(Gui.instance(), "Assistant Automation" , "No valid test detected!" )
+                QMessageBox.warning(Gui.instance(), "Assistant Automation" , 
+                                    "No valid test detected!" )
                 return
             
     def startGui(self, mode=MODE_APP):
@@ -239,7 +247,8 @@ class WRecorder(object):
         """
         if not self.offlineMode:
             if not UCI.instance().isAuthenticated():
-                QMessageBox.warning(Gui.instance(), "Assistant Automation" , "Connect to the test center in first!")
+                QMessageBox.warning(Gui.instance(), "Assistant Automation" , 
+                                    "Connect to the test center in first!")
                 return
 
         Gui.instance().clearSteps()

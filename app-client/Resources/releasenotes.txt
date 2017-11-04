@@ -13,4 +13,5 @@
 		2. (minor) fix some undefined variable after static code analysis
 		3. (minor) tests results archives: add protection to avoid errors on add/delete comments
 		4. (medium) fix missing find/replace feature for test data file
-		5. (minor) Initialize recorder rather to avoid issue on plugins loading
+		5. (minor) initialize recorder rather to avoid issue on plugins loading
+		6. (minor) fix duplicate function name in document viewer

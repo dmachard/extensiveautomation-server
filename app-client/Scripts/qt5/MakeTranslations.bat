@@ -24,7 +24,6 @@ set Project=%~dp0..\..\
 
 set PythonVersion=36
 set PythonPath=C:\Python%PythonVersion%\
-set PyQtPath=Lib\site-packages\PyQt5\
 
 :: convert xml translations files
 :: C:\Qt\5.8\mingw53_32\bin\lrelease.exe "%Project%\Translations\us_US.ts"

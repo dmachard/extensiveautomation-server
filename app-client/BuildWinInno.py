@@ -27,7 +27,6 @@ Settings.initialize()
 settings = Settings.instance()
 
 # destination folder
-print(sys.argv)
 PACKAGE_DEST = sys.argv[1]
 SRC_FROM = sys.argv[2]
 

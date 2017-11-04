@@ -98,7 +98,7 @@ else:
     pathName = "code_analysis"
     prefixName = "Code"
 
-# exceptions
+# exceptions, because there are generated automatically
 EXCEPTIONS = [
     ( "Resources.py", "" ),
     ( "Translations.py", "" ),
