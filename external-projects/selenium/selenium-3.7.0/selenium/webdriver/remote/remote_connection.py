@@ -36,6 +36,8 @@ from . import utils
 
 LOGGER = logging.getLogger(__name__)
 
+# disable system proxy for urllib, use only in localhost
+proxy_handler = url_request.ProxyHandler({})
 
 class Request(url_request.Request):
     """
@@ -515,10 +517,12 @@ class RemoteConnection(object):
             if password_manager:
                 opener = url_request.build_opener(url_request.HTTPRedirectHandler(),
                                                   HttpErrorHandler(),
-                                                  url_request.HTTPBasicAuthHandler(password_manager))
+                                                  url_request.HTTPBasicAuthHandler(password_manager),
+                                                  proxy_handler)
             else:
                 opener = url_request.build_opener(url_request.HTTPRedirectHandler(),
-                                                  HttpErrorHandler())
+                                                  HttpErrorHandler(),
+                                                  proxy_handler)
             resp = opener.open(request, timeout=self._timeout)
             statuscode = resp.code
             if not hasattr(resp, 'getheader'):
