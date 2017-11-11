@@ -23,16 +23,6 @@
 
 from Libs import Settings, Logger
 
-# ADMINISTRATOR = Settings.get('Server', 'level-admin')
-# TESTER = Settings.get('Server', 'level-tester')
-# DEVELOPER = Settings.get('Server', 'level-developer')
-# LEADER = Settings.get('Server', 'level-leader')
-
-# ADMINISTRATOR = "Administrator"
-# TESTER = "Tester"
-# DEVELOPER = "Developer"
-# LEADER = "Leader"
-
 class XmlRpcRights(object):
     """
     XmlRPC rights

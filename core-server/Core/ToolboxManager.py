@@ -23,30 +23,38 @@
 
 import base64
 import zlib
+# import ConfigParser
+import os
+# import signal
+# import shlex
+import subprocess
+import sys
+import time
+import shutil
+# import tarfile
+
 try:
     # python 2.4 support
     import simplejson as json
 except ImportError:
     import json
 
-import ProbeServerInterface as PSI
-import EventServerInterface as ESI
-import Context
-import Common
-import ProbesManager
-import AgentsManager
-
+try:
+    import ProbeServerInterface as PSI
+    import EventServerInterface as ESI
+    import Context
+    import Common
+    import ProbesManager
+    import AgentsManager
+except ImportError: # python3 support
+    from . import ProbeServerInterface as PSI
+    from . import EventServerInterface as ESI
+    from . import Context
+    from . import Common
+    from . import ProbesManager
+    from . import AgentsManager
+    
 from Libs import Settings, Logger
-
-import ConfigParser
-import os
-import signal
-import shlex
-import subprocess
-import sys
-import time
-import shutil
-import tarfile
 
 
 class ToolboxManager(Logger.ClassLogger):    
@@ -133,29 +141,6 @@ class ToolboxManager(Logger.ClassLogger):
         
         # return the package name
         return latestPkgName
-
-    # def installPkg(self, pkgName):
-        # """
-        # Install the package 
-
-        # @type  pkgName:
-        # @param pkgName:
-        # """
-        # t = time.time()
-        # try:
-            # tar file 
-            # tar = tarfile.open('%s/%s' % (self.pkgsToolsPath, pkgName))
-
-            # Issue 117 begin, to support python 2.4
-            # if not hasattr(tarfile.TarFile, 'extractall'):
-                # tarfile.TarFile.extractall = Common._extractall
-            # Issue 117 end
-
-            # tar.extractall(Settings.getDirExec())
-            # tar.close()
-        # except Exception as e:
-            # self.error("toolbox installation failed: %s" % str(e) )
-        # self.trace("untar file in %s sec." % (time.time()-t) )
 
     def installPkgV2(self, pkgName):
         """
@@ -246,7 +231,8 @@ class ToolboxManager(Logger.ClassLogger):
         if not self.TOOLS_INSTALLED:
             return ''
         else:
-            return Context.instance().getRn( pathRn="%s/%s/" % ( Settings.getDirExec(), Settings.get( 'Paths', 'tools' )  ),
+            return Context.instance().getRn( pathRn="%s/%s/" % ( Settings.getDirExec(),
+                                                                Settings.get( 'Paths', 'tools' )  ),
                                              b64=b64 )
 
     def trace(self, txt):

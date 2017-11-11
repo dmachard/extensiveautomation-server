@@ -21,14 +21,6 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-import RepoManager
-import EventServerInterface as ESI
-import Context
-
-from Libs import Scheduler, Settings, Logger
-import Libs.FileModels.TestResult as TestResult
-import TaskManager
-
 import scandir
 import os
 import base64
@@ -43,9 +35,28 @@ import time
 import scandir
 import hashlib
 import re
+try:
+    import cStringIO
+except ImportError: # support python 3
+    import io as cStringIO
+try:
+    import cPickle
+except ImportError: # support python 3
+    import pickle as cPickle
 
-import cStringIO
-import cPickle
+try:
+    import RepoManager
+    import EventServerInterface as ESI
+    # import Context
+    # import TaskManager
+except ImportError: # python3 support
+    from . import RepoManager
+    from . import EventServerInterface as ESI
+    # from . import Context
+    # from . import TaskManager
+    
+from Libs import Scheduler, Settings, Logger
+import Libs.FileModels.TestResult as TestResult
 
 REPO_TYPE = 4
 
@@ -53,15 +64,19 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
     """
     Repository Archives
     """
-    def __init__(self):
+    def __init__(self, context, taskmgr):
         """
         Repository manager for archives files
         """
         RepoManager.RepoManager.__init__(self,
-            pathRepo='%s%s' % ( Settings.getDirExec(), Settings.get( 'Paths', 'testsresults' ) ),
-                extensionsSupported = [ RepoManager.TEST_RESULT_EXT, RepoManager.TXT_EXT, 
-                                        RepoManager.CAP_EXT, RepoManager.ZIP_EXT,
-                                        RepoManager.PNG_EXT, RepoManager.JPG_EXT ] )
+                                    pathRepo='%s%s' % ( Settings.getDirExec(), Settings.get( 'Paths', 'testsresults' ) ),
+                                    extensionsSupported = [ RepoManager.TEST_RESULT_EXT, RepoManager.TXT_EXT, 
+                                                            RepoManager.CAP_EXT, RepoManager.ZIP_EXT,
+                                                            RepoManager.PNG_EXT, RepoManager.JPG_EXT ],
+                                    context=context)
+        self.context = context
+        self.taskmgr = taskmgr
+        
         self.prefixLogs = "logs"
         self.prefixBackup = "backuparchives"
         self.destBackup = "%s%s" % ( Settings.getDirExec(), Settings.get( 'Paths', 'backups-archives' ) )
@@ -88,18 +103,21 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
         schedAt = schedAt.split('|')[1]
         if int(schedType) == Scheduler.SCHED_WEEKLY:
             d, h, m, s = schedAt.split(',')
-            TaskManager.instance().registerEvent(   id=None, author=None, name=None, weekly=( int(d), int(h), int(m), int(s) ), 
-                                                    daily=None, hourly=None, everyMin=None, everySec=None, at=None, delay=None, timesec=None,
+            self.taskmgr.registerEvent(   id=None, author=None, name=None, weekly=( int(d), int(h), int(m), int(s) ), 
+                                                    daily=None, hourly=None, everyMin=None, everySec=None, 
+                                                    at=None, delay=None, timesec=None,
                                                     callback=self.createBackup, backupName=backupName )
         elif int(schedType) == Scheduler.SCHED_DAILY:
             h, m, s = schedAt.split(',')
-            TaskManager.instance().registerEvent(   id=None, author=None, name=None, weekly=None, 
-                                                    daily=( int(h), int(m), int(s) ), hourly=None, everyMin=None, everySec=None, at=None, delay=None, timesec=None,
+            self.taskmgr.registerEvent(   id=None, author=None, name=None, weekly=None, 
+                                                    daily=( int(h), int(m), int(s) ), hourly=None, 
+                                                    everyMin=None, everySec=None, at=None, delay=None, timesec=None,
                                                     callback=self.createBackup, backupName=backupName )
         elif int(schedType) == Scheduler.SCHED_HOURLY:
             m, s = schedAt.split(',')
-            TaskManager.instance().registerEvent(   id=None, author=None, name=None, weekly=None, 
-                                                    daily=None, hourly=( int(m), int(s) ), everyMin=None, everySec=None, at=None, delay=None, timesec=None,
+            self.taskmgr.registerEvent(   id=None, author=None, name=None, weekly=None, 
+                                                    daily=None, hourly=( int(m), int(s) ), everyMin=None, 
+                                                    everySec=None, at=None, delay=None, timesec=None,
                                                     callback=self.createBackup, backupName=backupName )
         else:
             self.error( 'schedulation type not supported: %s' % schedType )
@@ -111,7 +129,7 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
         @return: response code
         @rtype: int
         """
-        ret = Context.CODE_ERROR
+        ret = self.context.CODE_ERROR
         try:
             # delete all files 
             files=os.listdir(self.destBackup)
@@ -127,10 +145,10 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
             notif['repo-archives'] = {}
             data = ( 'archives', ( 'reset-backups', notif ) )   
             ESI.instance().notifyAll(body = data)
-            return Context.CODE_OK
+            return self.context.CODE_OK
         except OSError as e:
             self.trace( e )
-            return Context.CODE_FORBIDDEN
+            return self.context.CODE_FORBIDDEN
         except Exception as e:
             raise Exception( e )
             return ret
@@ -226,7 +244,7 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
 
         @return: response code
         @rtype: int     """
-        ret = Context.CODE_ERROR
+        ret = self.context.CODE_ERROR
         try:
             backupIndex = self.getLastBackupIndex( pathBackups=self.destBackup )
             backupDate = self.getTimestamp() 
@@ -238,7 +256,7 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                                     includeExt=[ RepoManager.TEST_RESULT_EXT, RepoManager.ZIP_EXT, 
                                                     RepoManager.PNG_EXT, RepoManager.JPG_EXT ])
             ret = zipped
-            if zipped == Context.CODE_OK:
+            if zipped == self.context.CODE_OK:
                 self.info( "backup adapters successfull: %s" % backupFilename )
                 # now notify all connected admin users
                 backupSize = os.path.getsize( "%s/%s.zip" % (self.destBackup, backupFilename) )
@@ -305,12 +323,19 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
         @return: response code
         @rtype: int
         """
-        ret =  Context.CODE_ERROR
+        ret =  self.context.CODE_ERROR
         try:
+            # delete all folders and files
             ret = self.emptyRepo(projectId=projectId)
+            
+            # reset the cache
+            del self.cacheUuids
+            self.cacheUuids = {}
+            
             # update all connected users
-            if ret == Context.CODE_OK:
-                nb, nbf, backups, stats =self.getListingFilesV2(path="%s/%s/" % (self.testsPath, projectId), project=projectId )
+            if ret == self.context.CODE_OK:
+                nb, nbf, backups, stats =self.getListingFilesV2(path="%s/%s/" % (self.testsPath, projectId), 
+                                                                project=projectId )
                 data = ( 'archive', ( 'reset', backups ) )  
                 ESI.instance().notifyAll(body = data)
         except Exception as e:
@@ -358,7 +383,7 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
         @return: response code
         @rtype: int
         """
-        ret = Context.CODE_ERROR
+        ret = self.context.CODE_ERROR
         pathTozip = '%s/%s' % (mainPathTozip,subPathTozip)
         try:
             timeArch, milliArch, testName, testUser = subPathTozip.split(".")
@@ -376,7 +401,7 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                                     fileToExclude = [ '%s.zip' % fileName ],
                                     keepTree=False )
             ret = zipped
-            if zipped == Context.CODE_OK:
+            if zipped == self.context.CODE_OK:
                 self.info( "zip successfull: %s" % fileName )
                 if Settings.getInt( 'Notifications', 'archives'):
                     # now notify all connected users
@@ -444,7 +469,9 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
             self.trace("userpost: %s" % archivePost)
             self.trace("post timestamp: %s" % archiveTimestamp)
             archivePost = str(archivePost)
-            postAdded = dataModel.addComment(user_name=archiveUser, user_post=archivePost, post_timestamp=archiveTimestamp)
+            postAdded = dataModel.addComment(user_name=archiveUser, 
+                                             user_post=archivePost, 
+                                             post_timestamp=archiveTimestamp)
             if postAdded is None:
                 raise Exception( "failed to add comment in test result" )
             dataModel.properties['properties']['comments'] = postAdded
@@ -463,8 +490,8 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
             os.rename( completePath, "%s/%s" % (self.testsPath,newArchivePath) ) 
         except Exception as e:
             self.error( "[addComment] %s" % str(e) )
-            return ( Context.CODE_ERROR, archivePath, newArchivePath, comments )
-        return ( Context.CODE_OK, archivePath, newArchivePath , comments )
+            return ( self.context.CODE_ERROR, archivePath, newArchivePath, comments )
+        return ( self.context.CODE_OK, archivePath, newArchivePath , comments )
 
     def getComments(self, archivePath):
         """
@@ -506,8 +533,8 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
     
         except Exception as e:
             self.error( "[addComment] %s" % str(e) )
-            return ( Context.CODE_ERROR, archivePath, comments )
-        return ( Context.CODE_OK, archivePath , comments )
+            return ( self.context.CODE_ERROR, archivePath, comments )
+        return ( self.context.CODE_OK, archivePath , comments )
 
     def delComments(self, archivePath):
         """
@@ -555,8 +582,8 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
 
         except Exception as e:
             self.error( "[delComments] %s" % str(e) )
-            return ( Context.CODE_ERROR, archivePath )
-        return ( Context.CODE_OK, archivePath  )
+            return ( self.context.CODE_ERROR, archivePath )
+        return ( self.context.CODE_OK, archivePath  )
 
     def getTestDesign(self, archivePath, archiveName, returnXml=False, projectId=1):
         """
@@ -584,7 +611,7 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                 raise Exception('Test result design not found')
         except Exception as e:
             self.trace( str(e) )
-            return ( Context.CODE_NOT_FOUND, designs )
+            return ( self.context.CODE_NOT_FOUND, designs )
         else:
             try:
                 try:
@@ -597,8 +624,8 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                     designs = self.zipb64(data=raw_designs)
             except Exception as e:
                 self.error( str(e) )
-                return ( Context.CODE_ERROR, designs )
-        return ( Context.CODE_OK, designs )
+                return ( self.context.CODE_ERROR, designs )
+        return ( self.context.CODE_OK, designs )
         
     def getBasicTestReport(self, archivePath, archiveName,projectId=1):
         """
@@ -621,7 +648,7 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                 raise Exception('Basic test result report not found')
         except Exception as e:
             self.trace( str(e) )
-            return ( Context.CODE_NOT_FOUND, reports )
+            return ( self.context.CODE_NOT_FOUND, reports )
         else:
             try:
                 try:
@@ -634,8 +661,8 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                     reports = self.zipb64(data=raw_reports)
             except Exception as e:
                 self.error( str(e) )
-                return ( Context.CODE_ERROR, reports )
-        return ( Context.CODE_OK, reports )
+                return ( self.context.CODE_ERROR, reports )
+        return ( self.context.CODE_OK, reports )
         
     def getTestReport(self, archivePath, archiveName, returnXml=False, projectId=1):
         """
@@ -663,7 +690,7 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                 raise Exception('Test result report not found')
         except Exception as e:
             self.trace( str(e) )
-            return ( Context.CODE_NOT_FOUND, reports )
+            return ( self.context.CODE_NOT_FOUND, reports )
         else:
             try:
                 try:
@@ -676,8 +703,8 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                     reports = self.zipb64(data=raw_reports)
             except Exception as e:
                 self.error( str(e) )
-                return ( Context.CODE_ERROR, reports )
-        return ( Context.CODE_OK, reports )
+                return ( self.context.CODE_ERROR, reports )
+        return ( self.context.CODE_OK, reports )
 
     def getTestVerdict(self, archivePath, archiveName, returnXml=False, projectId=1):
         """
@@ -705,7 +732,7 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                 raise Exception('Test result verdict not found')
         except Exception as e:
             self.trace( str(e) )
-            return ( Context.CODE_NOT_FOUND, verdict )
+            return ( self.context.CODE_NOT_FOUND, verdict )
         else:
             try:
                 try:
@@ -718,8 +745,8 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                     verdict = self.zipb64(data=raw_verdict)
             except Exception as e:
                 self.error( str(e) )
-                return ( Context.CODE_ERROR, verdict )
-        return ( Context.CODE_OK, verdict )
+                return ( self.context.CODE_ERROR, verdict )
+        return ( self.context.CODE_OK, verdict )
 
     def zipb64(self, data):
         """
@@ -801,13 +828,13 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
         
         test id = md5
         """
-        ret = Context.CODE_NOT_FOUND
+        ret = self.context.CODE_NOT_FOUND
         tr = ''
 
         if int(projectId) in self.cacheUuids:
             testUuids = self.cacheUuids[int(projectId)]
             if testId in testUuids:
-                ret = Context.CODE_OK
+                ret = self.context.CODE_OK
                 tr = testUuids[testId]
 
         return (ret, tr)
@@ -934,7 +961,7 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                 return p
         return p 
         
-    def getTrBasicReport(self, trPath):
+    def getTrBasicReport(self, trPath, replayId=0):
         """
         Get the report of the test result passed on argument
         
@@ -945,21 +972,21 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
         
         res = os.path.exists( fullPath )
         if not res:
-            return( Context.CODE_NOT_FOUND, report )  
+            return( self.context.CODE_NOT_FOUND, report )  
         else:
             try:
                 for entry in list(scandir.scandir( fullPath )):
                     if not entry.is_dir(follow_symlinks=False):
-                        if entry.name.endswith( "_0.tbrp" ) :
+                        if entry.name.endswith( "_%s.tbrp" % replayId ) :
                             f = open( "%s/%s" %  (fullPath, entry.name) , 'r'  )
                             report_raw = f.read()
                             report = self.zipb64(data=report_raw)
                             f.close()
                             break
             except Exception as e:
-                self.error("unable to get html test basic report: %s" % e )
-                return ( Context.CODE_ERROR, report )
-        return ( Context.CODE_OK, report )  
+                self.error("unable to get the first one html test basic report: %s" % e )
+                return ( self.context.CODE_ERROR, report )
+        return ( self.context.CODE_OK, report )  
         
     def getTrReport(self, trPath):
         """
@@ -972,7 +999,7 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
         
         res = os.path.exists( fullPath )
         if not res:
-            return( Context.CODE_NOT_FOUND, report )  
+            return( self.context.CODE_NOT_FOUND, report )  
         else:
             try:
                 for entry in list(scandir.scandir( fullPath )):
@@ -985,8 +1012,8 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                             break
             except Exception as e:
                 self.error("unable to get html test report: %s" % e )
-                return ( Context.CODE_ERROR, report )
-        return ( Context.CODE_OK, report )  
+                return ( self.context.CODE_ERROR, report )
+        return ( self.context.CODE_OK, report )  
         
     def getTrReportCsv(self, trPath):
         """
@@ -999,7 +1026,7 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
         
         res = os.path.exists( fullPath )
         if not res:
-            return( Context.CODE_NOT_FOUND, report )  
+            return( self.context.CODE_NOT_FOUND, report )  
         else:
             try:
                 for entry in list(scandir.scandir( fullPath )):
@@ -1012,8 +1039,8 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                             break
             except Exception as e:
                 self.error("unable to get csv test report: %s" % e )
-                return ( Context.CODE_ERROR, report )
-        return ( Context.CODE_OK, report )  
+                return ( self.context.CODE_ERROR, report )
+        return ( self.context.CODE_OK, report )  
         
     def getTrEvents(self, trPath):
         """
@@ -1025,7 +1052,7 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
         
         res = os.path.exists( fullPath )
         if not res:
-            return( Context.CODE_NOT_FOUND, events )  
+            return( self.context.CODE_NOT_FOUND, events )  
         else:
             try:
                 for entry in list(scandir.scandir( fullPath )):
@@ -1038,8 +1065,8 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                             break
             except Exception as e:
                 self.error("unable to get test events: %s" % e )
-                return ( Context.CODE_ERROR, events )
-        return ( Context.CODE_OK, events )  
+                return ( self.context.CODE_ERROR, events )
+        return ( self.context.CODE_OK, events )  
         
     def getTrLogs(self, trPath):
         """
@@ -1051,7 +1078,7 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
         
         res = os.path.exists( fullPath )
         if not res:
-            return( Context.CODE_NOT_FOUND, logs )  
+            return( self.context.CODE_NOT_FOUND, logs )  
         else:
             try:
                 for entry in list(scandir.scandir( fullPath )):
@@ -1064,8 +1091,8 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                             break
             except Exception as e:
                 self.error("unable to get test logs: %s" % e )
-                return ( Context.CODE_ERROR, logs )
-        return ( Context.CODE_OK, logs ) 
+                return ( self.context.CODE_ERROR, logs )
+        return ( self.context.CODE_OK, logs ) 
         
     def __getBasicListing(self, testPath, initialPath, projectId, dateFilter, timeFilter):
         """
@@ -1131,7 +1158,7 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
 
         # check if the test result path exists
         res = os.path.exists( fullPath )
-        if not res: return( Context.CODE_NOT_FOUND, resume )  
+        if not res: return( self.context.CODE_NOT_FOUND, resume )  
 
         # find the trx file
         trxFile = None
@@ -1140,18 +1167,18 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                 if entry.name.endswith( "_0.trx" ) :
                     trxFile = entry.name
                     break
-        if trxFile is None: return (Context.CODE_NOT_FOUND, resume)
+        if trxFile is None: return (self.context.CODE_NOT_FOUND, resume)
 
         # open the trx file
         tr = TestResult.DataModel()
         res = tr.load( absPath = "%s/%s" %  (fullPath, trxFile) )
-        if not res:  return (Context.CODE_ERROR, resume)
+        if not res:  return (self.context.CODE_ERROR, resume)
         
         # decode the file
         try:
             f = cStringIO.StringIO( tr.testresult )
         except Exception as e:
-            return (Context.CODE_ERROR, resume)
+            return (self.context.CODE_ERROR, resume)
         
         try:
             resume = { 
@@ -1184,9 +1211,9 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                 else:
                     resume["nb-others"] += 1
         except Exception as e:
-            return (Context.CODE_ERROR, resume)
+            return (self.context.CODE_ERROR, resume)
         
-        return (Context.CODE_OK, resume)
+        return (self.context.CODE_OK, resume)
         
 ###############################
 RepoArchivesMng = None
@@ -1199,12 +1226,12 @@ def instance ():
     """
     return RepoArchivesMng
 
-def initialize ():
+def initialize (context, taskmgr):
     """
     Instance creation
     """
     global RepoArchivesMng
-    RepoArchivesMng = RepoArchives()
+    RepoArchivesMng = RepoArchives(context=context, taskmgr=taskmgr)
 
 def finalize ():
     """

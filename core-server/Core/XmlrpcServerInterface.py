@@ -68,7 +68,7 @@ def authentication(func):
         """
         # init the wrapper
         t = time.time()
-        responseCode = Context.CODE_OK
+        responseCode = Context.instance().CODE_OK
         funcname = func.__name__
         # extract login, password and from gui arg
         try:
@@ -77,7 +77,7 @@ def authentication(func):
             fromGui = args[4]
         except Exception as e:
             Logger.ClassLogger().error( err="WSI - bad args on authentication: %s" % str(args) )
-            return ( 'authenticateClient', Context.CODE_ERROR, {} )
+            return ( 'authenticateClient', Context.instance().CODE_ERROR, {} )
 
         rightsExpected = XmlrpcServerRights.instance().XMLRPC_RIGHTS[funcname]
         Logger.ClassLogger().info(txt="WSI - calling %s [Login=%s]" % (funcname, login ) )
@@ -89,8 +89,8 @@ def authentication(func):
                                                                 rightsExpected = rightsExpected, 
                                                                 fromGui=fromGui 
                                                             )
-        if rCode is not Context.CODE_OK:
-            return ( 'authenticateClient', Context.CODE_OK, (rCode, False, 0, False) )
+        if rCode is not Context.instance().CODE_OK:
+            return ( 'authenticateClient', Context.instance().CODE_OK, (rCode, False, 0, False) )
         
         # authentication successful so continue, passing users rights according to the function called
         kwargs['rights'] = rights
@@ -99,7 +99,7 @@ def authentication(func):
             responseCode, res = func(*args, **kwargs)
         except Exception as e:
             Logger.ClassLogger().fatal( err="%s exception during call: %s" % (funcname, e) )
-            responseCode = Context.CODE_ERROR
+            responseCode = Context.instance().CODE_ERROR
             
         # endding the function
         Logger.ClassLogger().trace(txt="WSI - ending %s [Login=%s] [Runtime=%s]" % (funcname, login, (time.time()-t)) )
@@ -115,7 +115,7 @@ def unauthenticated(func):
         """
         # init the wrapper
         t = time.time()
-        responseCode = Context.CODE_OK
+        responseCode = Context.instance().CODE_OK
         funcname = func.__name__
 
         rightsExpected = XmlrpcServerRights.instance().XMLRPC_RIGHTS[funcname]
@@ -128,7 +128,7 @@ def unauthenticated(func):
             responseCode, res = func(*args, **kwargs)
         except Exception as e:
             Logger.ClassLogger().fatal( err="%s exception during call: %s" % (funcname, e) )
-            responseCode = Context.CODE_ERROR
+            responseCode = Context.instance().CODE_ERROR
             
         # endding the function
         Logger.ClassLogger().trace(txt="WSI - ending %s [Runtime=%s]" % (funcname, (time.time()-t)) )
@@ -195,7 +195,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not len(data): data = { 'channel-id': (cltIp, cltPort), 'login': userLogin, 'password': userPwd,
                                    'ver': version, 'os': os, 'portable': portable }
@@ -245,7 +245,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
         
         if not len(data): data = {'ver': version, 'os': os, 'portable': portable }
         if 'portable' not in data: data['portable'] = False # for backward compatibility
@@ -284,7 +284,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
         if not len(data): data = {'ver': version, 'os': os, 'portable': portable }
         if 'portable' not in data: data['portable'] = False # for backward compatibility
         
@@ -316,7 +316,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
         if not len(data): data = {'tid': testid }
         rsp = TaskManager.instance().replayTask( tid = data['tid'] )
         return (code,rsp)
@@ -343,7 +343,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not len(data): data = {'prj-id': projectId, 'user-id': userId, 'duration': duration,
                                   'is-ts': isTs, 'is-ta': isTa, 'is-tg': isTg, 'is-tp': isTp, 'is-tu': isTu}
@@ -356,7 +356,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=prjId)
         self.trace( "project is authorized ? %s" % projectAuthorized)
         if not projectAuthorized:
-            code = Context.CODE_FORBIDDEN
+            code = Context.instance().CODE_FORBIDDEN
         else:
             rsp = StatsManager.instance().addWritingDuration(   
                                                                 fromUser=data['user-id'], prjId=prjId,
@@ -387,7 +387,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         try:
             self.trace('decompressing data')
@@ -422,7 +422,8 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
                 task = TaskManager.getObjectTask(   testData=testData, testName=data_['testname'], 
                                                     testPath=data_['testpath'] ,  testUser=data_['user'], 
                                                     testId=data_['test-id'], testBackground=data_['background'],
-                                                    projectId=data_['prj-id']
+                                                    projectId=data_['prj-id'],
+                                                    statsmgr=StatsManager.instance()
                                                 )
                 rsp['result'] = task.parseTestDesign()
                 del task
@@ -449,7 +450,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         ret = {}
         msg_ = ""
@@ -514,7 +515,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not len(data): data = {'path': path, 'extension': ext, 'filename': filename, 'content': content}
         
@@ -548,7 +549,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         ret, ret_msg = RepoAdapters.instance().checkGlobalSyntax()
         rsp['ret'] = ret
@@ -577,7 +578,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not len(data): data = {'path': path, 'extension': ext, 'filename': filename, 'content': content}
         
@@ -610,7 +611,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         ret, ret_msg = RepoLibraries.instance().checkGlobalSyntax()
         rsp['ret'] = ret
@@ -639,7 +640,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not len(data): data = { 'simultaneous': simultaneous, 'later': later, 'run-at': runAt, 'tests': tests }
         
@@ -653,7 +654,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
                 prjName, absPath = t.split(':', 1)
             except Exception as e:
                 self.error("unable to extract project name: %s" % str(e) )
-                code = Context.CODE_FAILED
+                code = Context.instance().CODE_FAILED
             else:
                 prjID = ProjectsManager.instance().getProjectID(name=prjName)
                 testPath, testExtension = absPath.rsplit('.', 1)
@@ -667,7 +668,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
                     res = doc.load( absPath = "%s/%s/%s.%s" % (RepoTests.instance().testsPath, prjID, testPath, testExtension) )
                     if not res:
                         self.error('unable to read test suite:%s' % testExtension)
-                        code = Context.CODE_FAILED
+                        code = Context.instance().CODE_FAILED
                     else:
                         testData = { 'src-test': doc.testdef, 'src-exec': doc.testexec, 'properties': doc.properties['properties'] }
                         testsRun.append( {  'prj-id': prjID, 'test-extension': testExtension, 'test-name': testName,
@@ -678,7 +679,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
                     res = doc.load( absPath = "%s/%s/%s.%s" % (RepoTests.instance().testsPath, prjID, testPath, testExtension) )
                     if not res:
                         self.error('unable to schedule test unit:%s' % testExtension)
-                        code = Context.CODE_FAILED
+                        code = Context.instance().CODE_FAILED
                     else:
                         testData = { 'testunit': True, 'src-test': doc.testdef, 'src-exec': '', 'properties': doc.properties['properties'] }
                         testsRun.append( {  'prj-id': prjID, 'test-extension': testExtension, 'test-name': testName,
@@ -689,7 +690,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
                     res = doc.load( absPath = "%s/%s/%s.%s" % (RepoTests.instance().testsPath, prjID, testPath, testExtension) )
                     if not res:
                         self.error('unable to schedule test abstract:%s' % testExtension)
-                        code = Context.CODE_FAILED
+                        code = Context.instance().CODE_FAILED
                     else:
                         testData = { 'testabstract': True, 'src-test': doc.testdef, 'src-exec': '', 'properties': doc.properties['properties'] }
                         testsRun.append( {  'prj-id': prjID, 'test-extension': testExtension, 'test-name': testName,
@@ -700,12 +701,12 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
                     res = doc.load( absPath = "%s/%s/%s.%s" % (RepoTests.instance().testsPath, prjID, testPath, testExtension) )
                     if not res:
                         self.error('unable to schedule test plan:%s' % testExtension)
-                        code = Context.CODE_FAILED
+                        code = Context.instance().CODE_FAILED
                     else:
                         rslt = RepoTests.instance().addtf2tp( data_= doc.getSorted() )
                         if rslt is not None:
                             self.error('unable to run several test in test plan')
-                            code = Context.CODE_FAILED
+                            code = Context.instance().CODE_FAILED
                         else:
                             testData = { 'testplan': doc.getSorted(),  'properties': doc.properties['properties'] }
                             testsRun.append( {  'prj-id': prjID, 'test-extension': testExtension, 'test-name': testName, 
@@ -716,21 +717,21 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
                     res = doc.load( absPath = "%s/%s/%s.%s" % (RepoTests.instance().testsPath, prjID, testPath, testExtension) )
                     if not res:
                          self.error('unable to schedule test plan:%s' % testExtension)
-                         code = Context.CODE_FAILED
+                         code = Context.instance().CODE_FAILED
                     else:
                         self.trace('reading the test global to run several tests')
                         rslt, alltests = RepoTests.instance().addtf2tg( data_= doc.getSorted() )
                         self.trace('reading test global finished to run several tests')
                         if rslt is not None:
                             self.error('unable to run several test in test global')
-                            code = Context.CODE_FAILED
+                            code = Context.instance().CODE_FAILED
                         else:
                             testData = { 'testglobal': alltests, 'properties': doc.properties['properties'] }
                             testsRun.append( {  'prj-id': prjID, 'test-extension': testExtension, 'test-name': testName,
                                                 'test-path': testPath, 'test-data': testData } )
                 else:
                     self.error('test not supported: %s' % testExtension )
-                    code = Context.CODE_FAILED
+                    code = Context.instance().CODE_FAILED
 
         if len(testsRun):
             ret = TaskManager.instance().addTasks(userName=login, tests=testsRun, runAt=runAt,
@@ -764,7 +765,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data=(task-id , test-id, test-name, is-background, is-recursive, is-postponed, is-successive)
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         ret_ = rsp
         try:
@@ -772,13 +773,13 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             decompressed_data = zlib.decompress(data.data)
         except Exception as e:
             self.error( "unable to decompress: %s" % e)
-            code = Context.CODE_FAILED
+            code = Context.instance().CODE_FAILED
         else:
             try:
                 data_ = json.loads( decompressed_data )
             except Exception as e:
                 self.error( "unable to decode json: %s" % e)
-                code = Context.CODE_FAILED
+                code = Context.instance().CODE_FAILED
             else:
                 recursive = False
                 postponed = False
@@ -797,7 +798,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
                 projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=int(__prjId))
                 self.trace( "project is authorized ? %s" % projectAuthorized)
                 if not projectAuthorized:
-                    code = Context.CODE_FORBIDDEN
+                    code = Context.instance().CODE_FORBIDDEN
                     return (code,ret_)
                     
                 # no test content
@@ -902,7 +903,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
                 else:
                     ret = task.lastError
                     if ret.startswith('No more space left on'):
-                        code = Context.CODE_FORBIDDEN
+                        code = Context.instance().CODE_FORBIDDEN
 
                 if returnPath:
                     ret_ = (ret,taskPath)
@@ -934,7 +935,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not len(data): data = { 'taskId': taskId, 'runType': runType, 'runEnabled': runEnabled, 'runAt': runAt, 
                                     'runNb': runNb, 'withoutProbes': withoutProbes, 'debugActivated': debugActivated, 'withoutNotif': withoutNotif, 
@@ -946,7 +947,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
                                                     noKeepTr=data['noKeepTr'], schedFrom=data['fromTime'], schedTo=data['toTime'] )
         if rsp is None:
             rsp = False
-            code = Context.CODE_NOT_FOUND
+            code = Context.instance().CODE_NOT_FOUND
 
         return (code,rsp)
     
@@ -971,7 +972,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False };
 
         if not len(data): data = {'main-path': mainPath, 'sub-path': subPath, 'project-id': projectId}
         
@@ -982,7 +983,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=data['project-id'])
         self.trace( "project is authorized ? %s" % projectAuthorized)
         if not projectAuthorized:
-            code = Context.CODE_FORBIDDEN
+            code = Context.instance().CODE_FORBIDDEN
         else:
             # extract the testname from the test folder
             timeArch, milliArch, testName, testUser = trSubPath.split(".")
@@ -1017,7 +1018,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
         if not len(data): data = {'login': userLogin}
         rsp = Context.instance().unregisterUserFromXmlrpc( login=data['login'] )
         return (code,rsp)
@@ -1040,7 +1041,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
         rsp['usage'] = Context.instance().getUsage(b64=True)
         return (code,rsp)
     
@@ -1062,7 +1063,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
         rsp['informations'] = Context.instance().getInformations(user=login, b64=True)
         return (code,rsp)
     
@@ -1084,7 +1085,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         rsp['rn'] = Context.instance().getRn(pathRn=Settings.getDirExec(), b64=True) 
         rsp['rnAdp'] = RepoAdapters.instance().getRn(b64=True)
@@ -1113,7 +1114,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """ 
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         # new in v12, create a context for the user, avoid to make several sql req in database
         USER_CTX = Context.UserContext(login=login)
@@ -1220,7 +1221,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not len(data): data = {'taskid': taskId, 'taskids': taskIds, 'cancelall': False}
         
@@ -1239,7 +1240,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             self.trace('cancelling the task %s' % str(taskId) )
             tsk_cancelled = TaskManager.instance().cancelTask( taskId = taskId )
             if tsk_cancelled is None:
-                code = Context.CODE_NOT_FOUND
+                code = Context.instance().CODE_NOT_FOUND
             else:
                 rsp = tsk_cancelled
         else:
@@ -1269,7 +1270,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
         rsp = TaskManager.instance().cancelAllTasks()
         return (code,rsp)
             
@@ -1294,7 +1295,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not len(data): data = { 'taskid': taskId, 'taskids': taskIds, 'killall': False}
         
@@ -1316,7 +1317,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             self.trace('killing the task %s' % str(taskId) )
             tsk_killed = TaskManager.instance().killTask( taskId = taskId )
             if tsk_killed is None:
-                code = Context.CODE_NOT_FOUND
+                code = Context.instance().CODE_NOT_FOUND
             else:
                 rsp = tsk_killed
         else:
@@ -1346,7 +1347,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
         rsp = TaskManager.instance().killAllTasks()
         return (code,rsp)
             
@@ -1368,7 +1369,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
         rsp['help'] = HelperManager.instance().getHelps()
         return (code,rsp)
     
@@ -1408,7 +1409,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False  };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False  };
 
         if not len(data): data = { 'projectid': projectId, 'repo-dst': repoDst, 'saveas-only': saveasOnly, 
                                     'partial': partialRefresh, 'for-runs': forRuns }
@@ -1432,7 +1433,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=data['projectid'])
             self.trace( "project is authorized ? %s" % projectAuthorized)
             if not projectAuthorized:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
             else:
                 nb_tests, nb_tests_f, tests, stats_tests = RepoTests.instance().getTree(b64=True, project=data['projectid'])
                 rsp['ret'] = tests
@@ -1444,7 +1445,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
                 nb_adps, nb_adps_f, adps, stats_adps = RepoAdapters.instance().getTree(b64=True)
                 rsp['ret'] = adps
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
         
         # libraries
         elif repoType == RepoLibraries.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights \
@@ -1453,7 +1454,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
                 nb_libs, nb_libs_f, libs, stats_libs = RepoLibraries.instance().getTree(b64=True)
                 rsp['ret'] = libs
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         # libraries
         elif repoType == RepoArchives.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights \
@@ -1463,7 +1464,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=data['projectid'])
             self.trace( "project is authorized ? %s" % projectAuthorized)
             if not projectAuthorized:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
             else:
                 nb_archs, nb_archs_f, archs, stats_archs = RepoArchives.instance().getTree(b64=True, fullTree=not data['partial'], project=data['projectid'])
                 rsp['ret'] = archs
@@ -1472,7 +1473,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             if repoType != RepoTests.REPO_TYPE and repoType != RepoAdapters.REPO_TYPE and repoType != RepoLibraries.REPO_TYPE:
                 raise Exception('repo type unknown %s type=%s' % (repoType, type(repoType)) )
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
 
         return (code,rsp)
     
@@ -1497,7 +1498,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False  };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False  };
 
         if not len(data): data = {'repo-dst': repoDst, 'projectid': projectId, 'force-open': forceOpen, 'read-only': readOnly }
         
@@ -1514,7 +1515,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             projectAuthorized, projectsList = ProjectsManager.instance().checkProjectsAuthorizationV2(user=login, projectId=data['projectid'])
             self.trace( "project is authorized ? %s" % projectAuthorized)
             if not projectAuthorized:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
             else:
                 ret = RepoTests.instance().getFile(pathFile=pathFile, project=data['projectid'], login=login,
                                                    forceOpen=data['force-open'], readOnly=data['read-only'], 
@@ -1527,7 +1528,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
                                                         readOnly=data['read-only'])
                 rsp['ret'] = ret
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         elif repoType == RepoLibraries.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights or Settings.get('Server', 'level-developer') in rights):
             if Settings.getInt( 'WebServices', 'remote-dev-libraries' ):
@@ -1535,13 +1536,13 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
                                                         readOnly=data['read-only'])
                 rsp['ret'] = ret
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         else:
             if repoType != RepoTests.REPO_TYPE and repoType != RepoAdapters.REPO_TYPE:
                 raise Exception('repo type unknown %s' % repoType)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
 
         return (code,rsp)
     
@@ -1567,7 +1568,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False  };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False  };
 
         if not len(data): data = { 'repo-dst': repoDst, 'projectid': projectId, 'path': pathFile, 
                                     'for-dest': forDest, 'action-id': actionId, 'test-id': testId}
@@ -1580,7 +1581,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=data['projectid'])
             self.trace( "project is authorized ? %s" % projectAuthorized)
             if not projectAuthorized:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
             else:
                 forDest = data['for-dest']
                 actionId = data['action-id']
@@ -1595,7 +1596,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             if repoType != RepoTests.REPO_TYPE:
                 raise Exception('repo type unknown %s' % repoType)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
 
         return (code, rsp)
     
@@ -1621,7 +1622,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False  };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False  };
 
         if not len(data): data = { 'repo-dst': repoDst, 'projectid': projectId, 'path': pathFile, 
                                     'extension': extFile, 'filename': nameFile, 'content': contentFile,
@@ -1641,7 +1642,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=data['projectid'])
             self.trace( "project is authorized ? %s" % projectAuthorized)
             if not projectAuthorized:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
             else:
                 rsp['ret']  = RepoTests.instance().importFile(pathFile=pathFile, nameFile=nameFile, 
                                                             extFile=extFile,contentFile=contentFile, 
@@ -1651,7 +1652,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             if repoType != RepoTests.REPO_TYPE and repoType != RepoAdapters.REPO_TYPE:
                 raise Exception('repo type unknown %s' % repoType)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
 
         return (code,rsp)
             
@@ -1677,7 +1678,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False  };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False  };
 
         if not len(data): data = {'repo-dst': repoDst, 'projectid': projectId, 'path': pathFile, 
                                     'extension': extFile, 'filename': nameFile}
@@ -1693,7 +1694,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         if repoType == RepoTests.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights or Settings.get('Server', 'level-tester') in rights ):
             projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=data['projectid'])
             self.trace( "project is authorized ? %s" % projectAuthorized)
-            if not projectAuthorized: code = Context.CODE_FORBIDDEN
+            if not projectAuthorized: code = Context.instance().CODE_FORBIDDEN
             else:
                 rsp['ret']  = RepoTests.instance().unlockFile( pathFile=pathFile, nameFile=nameFile, 
                                                                      extFile=extFile, project=data['projectid'], login=login)
@@ -1702,16 +1703,16 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             if Settings.getInt( 'WebServices', 'remote-dev-adapters' ):
                 rsp['ret'] = RepoAdapters.instance().unlockFile(pathFile=pathFile, nameFile=nameFile, extFile=extFile, login=login)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         elif repoType == RepoLibraries.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights or Settings.get('Server', 'level-developer') in rights ):
             if Settings.getInt( 'WebServices', 'remote-dev-libraries' ):
                 rsp['ret'] = RepoLibraries.instance().unlockFile(pathFile=pathFile, nameFile=nameFile, extFile=extFile, login=login)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         else:
-            code = Context.CODE_FORBIDDEN
+            code = Context.instance().CODE_FORBIDDEN
 
         return (code,rsp)
             
@@ -1737,7 +1738,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False  };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False  };
 
         if not len(data): data = {'repo-dst': repoDst, 'projectid': projectId, 'path': pathFile, 
                                     'extension': extFile, 'filename': nameFile, 'content': contentFile, 'update': updateFile }
@@ -1756,7 +1757,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=data['projectid'])
             self.trace( "project is authorized ? %s" % projectAuthorized)
             if not projectAuthorized:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
             else:
                 rsp['ret']  = RepoTests.instance().putFile(pathFile=pathFile, nameFile=nameFile, extFile=extFile,contentFile=contentFile,
                                                         updateFile=updateFile, project=data['projectid'], closeAfter=data['close'], login=login )
@@ -1766,20 +1767,20 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
                 rsp['ret'] = RepoAdapters.instance().putFile(pathFile=pathFile, nameFile=nameFile, extFile=extFile,contentFile=contentFile,
                                                                     updateFile=updateFile, closeAfter=data['close'], login=login )
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         elif repoType == RepoLibraries.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights or Settings.get('Server', 'level-developer') in rights ):
             if Settings.getInt( 'WebServices', 'remote-dev-libraries' ):
                 rsp['ret'] = RepoLibraries.instance().putFile(pathFile=pathFile, nameFile=nameFile, extFile=extFile,contentFile=contentFile,
                                             updateFile=updateFile, closeAfter=data['close'], login=login )
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         else:
             if repoType != RepoTests.REPO_TYPE and repoType != RepoAdapters.REPO_TYPE:
                 raise Exception('repo type unknown %s' % repoType)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
 
         return (code,rsp)
     
@@ -1804,7 +1805,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False  };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False  };
 
         if not len(data): data = { 'repo-dst': repoDst, 'projectid': projectId, 'path': pathFolder, 'name': folderName }
         
@@ -1819,7 +1820,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=data['projectid'])
             self.trace( "project is authorized ? %s" % projectAuthorized)
             if not projectAuthorized:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
             else:
                 rsp['ret'] = RepoTests.instance().addDir(pathFolder, folderName, project=data['projectid'])
                 
@@ -1827,19 +1828,19 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             if Settings.getInt( 'WebServices', 'remote-dev-adapters' ):
                 rsp['ret'] = RepoAdapters.instance().addDir(pathFolder, folderName)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         elif repoType == RepoLibraries.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights or Settings.get('Server', 'level-developer') in rights):
             if Settings.getInt( 'WebServices', 'remote-dev-libraries' ):
                 rsp['ret'] = RepoLibraries.instance().addDir(pathFolder, folderName)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         else:
             if repoType != RepoTests.REPO_TYPE and repoType != RepoAdapters.REPO_TYPE:
                 raise Exception('repo type unknown %s' % repoType)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
 
         return (code,rsp)
     
@@ -1864,7 +1865,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False  };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False  };
 
         if not len(data): data = {'repo-dst': repoDst, 'projectid': projectId, 'path': pathFolder }
         
@@ -1878,7 +1879,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=data['projectid'])
             self.trace( "project is authorized ? %s" % projectAuthorized)
             if not projectAuthorized:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
             else:
                 rsp['ret'] = RepoTests.instance().delDir(pathFolder, project=data['projectid'])
                 
@@ -1886,19 +1887,19 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             if Settings.getInt( 'WebServices', 'remote-dev-adapters' ):
                 rsp['ret'] = RepoAdapters.instance().delDir(pathFolder)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         elif repoType == RepoLibraries.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights or Settings.get('Server', 'level-developer') in rights):
             if Settings.getInt( 'WebServices', 'remote-dev-libraries' ):
                 rsp['ret'] = RepoLibraries.instance().delDir(pathFolder)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         else:
             if repoType != RepoTests.REPO_TYPE and repoType != RepoAdapters.REPO_TYPE:
                 raise Exception('repo type unknown %s' % repoType)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
 
         return (code,rsp)
     
@@ -1923,7 +1924,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False  };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False  };
 
         if not len(data): data = { 'repo-dst': repoDst, 'projectid': projectId, 'path': pathFolder }
         
@@ -1937,7 +1938,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=data['projectid'])
             self.trace( "project is authorized ? %s" % projectAuthorized)
             if not projectAuthorized:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
             else:
                 rsp['ret'] = RepoTests.instance().delDirAll(pathFolder, project=data['projectid'])
                 
@@ -1945,19 +1946,19 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             if Settings.getInt( 'WebServices', 'remote-dev-adapters' ):
                 rsp['ret'] = RepoAdapters.instance().delDirAll(pathFolder)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         elif repoType == RepoLibraries.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights or Settings.get('Server', 'level-developer') in rights):
             if Settings.getInt( 'WebServices', 'remote-dev-libraries' ):
                 rsp['ret'] = RepoLibraries.instance().delDirAll(pathFolder)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         else:
             if repoType != RepoTests.REPO_TYPE and repoType != RepoAdapters.REPO_TYPE:
                 raise Exception('repo type unknown %s' % repoType)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
 
         return (code,rsp)
     
@@ -1982,7 +1983,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False  };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False  };
 
         if not len(data): data = { 'repo-dst': repoType, 'projectid': projectId, 'main-path': mainPath, 'old-path': oldPath, 'new-path': newPath }
         
@@ -1998,7 +1999,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             projectAuthorized, prjsList = ProjectsManager.instance().checkProjectsAuthorizationV2(user=login, projectId=data['projectid'])
             self.trace( "project is authorized ? %s" % projectAuthorized)
             if not projectAuthorized:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
             else:
                 rsp['ret'] = RepoTests.instance().renameDir(mainPath, oldPath,newPath, project=data['projectid'], projectsList=prjsList, renamedBy=login)
                 
@@ -2006,19 +2007,19 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             if Settings.getInt( 'WebServices', 'remote-dev-adapters' ):
                 rsp['ret'] = RepoAdapters.instance().renameDir(mainPath, oldPath,newPath)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         elif repoType == RepoLibraries.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights or Settings.get('Server', 'level-developer') in rights):
             if Settings.getInt( 'WebServices', 'remote-dev-libraries' ):
                 rsp['ret'] = RepoLibraries.instance().renameDir(mainPath, oldPath,newPath)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         else:
             if repoType != RepoTests.REPO_TYPE and repoType != RepoAdapters.REPO_TYPE:
                 raise Exception('repo type unknown %s' % repoType)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
 
         return (code,rsp)
     
@@ -2044,7 +2045,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False  };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False  };
 
         if not len(data): data = {'repo-dst': repoType, 'projectid': projectId, 'main-path': mainPath, 'old-path': oldPath, 
                                 'new-path': newPath, 'new-projectid': newProjectId, 'new-main-path': newMainPath}
@@ -2064,7 +2065,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=data['projectid'])
             self.trace( "project is authorized ? %s" % projectAuthorized)
             if not projectAuthorized:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
             else:
                 rsp['ret'] = RepoTests.instance().duplicateDir(mainPath, oldPath,newPath, newMainPath=newMainPath,
                                                                 project=data['projectid'], newProject=newProjectId)
@@ -2072,19 +2073,19 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             if Settings.getInt( 'WebServices', 'remote-dev-adapters' ):
                 rsp['ret'] = RepoAdapters.instance().duplicateDir(mainPath, oldPath,newPath, newMainPath=newMainPath)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         elif repoType == RepoLibraries.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights or Settings.get('Server', 'level-developer') in rights):
             if Settings.getInt( 'WebServices', 'remote-dev-libraries' ):
                 rsp['ret'] = RepoLibraries.instance().duplicateDir(mainPath, oldPath,newPath, newMainPath=newMainPath)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         else:
             if repoType != RepoTests.REPO_TYPE and repoType != RepoAdapters.REPO_TYPE:
                 raise Exception('repo type unknown %s' % repoType)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
 
         return (code,rsp)
     
@@ -2109,7 +2110,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False  };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False  };
 
         if not len(data): data = {'repo-dst': repoType, 'projectid': projectId,'path-file':pathFile  }
         
@@ -2123,7 +2124,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=data['projectid'])
             self.trace( "project is authorized ? %s" % projectAuthorized)
             if not projectAuthorized:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
             else:
                 rsp['ret'] = RepoTests.instance().delFile(pathFile, project=data['projectid'], supportSnapshot=True)
                 
@@ -2131,19 +2132,19 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             if Settings.getInt( 'WebServices', 'remote-dev-adapters' ):
                 rsp['ret'] = RepoAdapters.instance().delFile(pathFile)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         elif repoType == RepoLibraries.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights or Settings.get('Server', 'level-developer') in rights):
             if Settings.getInt( 'WebServices', 'remote-dev-libraries' ):
                 rsp['ret'] = RepoLibraries.instance().delFile(pathFile)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         else:
             if repoType != RepoTests.REPO_TYPE and repoType != RepoAdapters.REPO_TYPE:
                 raise Exception('repo type unknown %s' % repoType)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
 
         return (code,rsp)
     
@@ -2169,7 +2170,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False  };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False  };
 
         if not len(data): data = { 'repo-dst': repoType, 'projectid': projectId, 'main-path': mainPath, 
                                 'old-filename': oldFilename, 'new-filename': newFilename, 'extension': extFilename}
@@ -2187,7 +2188,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             projectAuthorized, prjsList = ProjectsManager.instance().checkProjectsAuthorizationV2(user=login, projectId=data['projectid'])
             self.trace( "project is authorized ? %s" % projectAuthorized)
             if not projectAuthorized:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
             else:
                 rsp['ret'] = RepoTests.instance().renameFile(mainPath, oldFilename, newFilename, extFilename, 
                                                              project=data['projectid'], supportSnapshot=True, 
@@ -2197,19 +2198,19 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             if Settings.getInt( 'WebServices', 'remote-dev-adapters' ):
                 rsp['ret'] = RepoAdapters.instance().renameFile(mainPath, oldFilename, newFilename, extFilename)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         elif repoType == RepoLibraries.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights or Settings.get('Server', 'level-developer') in rights):
             if Settings.getInt( 'WebServices', 'remote-dev-libraries' ):
                 rsp['ret'] = RepoLibraries.instance().renameFile(mainPath, oldFilename, newFilename, extFilename)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         else:
             if repoType != RepoTests.REPO_TYPE and repoType != RepoAdapters.REPO_TYPE:
                 raise Exception('repo type unknown %s' % repoType)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
 
         return (code,rsp)
     
@@ -2235,7 +2236,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False  };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False  };
 
         if not len(data): data = {'repo-dst': repoType,'projectid': projectId, 'main-path': mainPath, 
                                     'old-filename': oldFilename, 'new-filename': newFilename,
@@ -2257,12 +2258,12 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=data['projectid'])
             self.trace( "source project is authorized ? %s" % projectAuthorized)
             if not projectAuthorized:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
             else:
                 projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=data['new-projectid'])
                 self.trace( "source project is authorized ? %s" % projectAuthorized)
                 if not projectAuthorized:
-                    code = Context.CODE_FORBIDDEN
+                    code = Context.instance().CODE_FORBIDDEN
                 else:
                     rsp['ret'] = RepoTests.instance().duplicateFile(mainPath, oldFilename, newFilename, extFilename,
                                                                   project=data['projectid'], newProject=newProjectId, newMainPath=newMainPath)
@@ -2271,19 +2272,19 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             if Settings.getInt( 'WebServices', 'remote-dev-adapters' ):
                 rsp['ret'] = RepoAdapters.instance().duplicateFile(mainPath, oldFilename, newFilename, extFilename, newMainPath=newMainPath)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         elif repoType == RepoLibraries.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights or Settings.get('Server', 'level-developer') in rights):
             if Settings.getInt( 'WebServices', 'remote-dev-libraries' ):
                 rsp['ret'] = RepoLibraries.instance().duplicateFile(mainPath, oldFilename, newFilename, extFilename, newMainPath=newMainPath)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
                 
         else:
             if repoType != RepoTests.REPO_TYPE and repoType != RepoAdapters.REPO_TYPE:
                 raise Exception('repo type unknown %s' % repoType)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
 
         return (code,rsp)
     
@@ -2305,9 +2306,9 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
         rsp = StatsManager.instance().resetStats()
-        if not rsp: responseCode = Context.CODE_FAILED
+        if not rsp: responseCode = Context.instance().CODE_FAILED
         return (code,rsp)
     
     @authentication
@@ -2331,7 +2332,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not len(data): data = {'repo-dst': repoType, 'projectid': projectId}
         
@@ -2344,30 +2345,30 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         if repoType == RepoTests.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights ):
             rsp['ret'] = RepoTests.instance().emptyRepo(projectId='')
             if not rsp['ret']:
-                code = Context.CODE_FAILED
+                code = Context.instance().CODE_FAILED
         
         # adapters repository
         elif repoType == RepoAdapters.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights ) :
             rsp['ret'] = RepoAdapters.instance().uninstall()
-            if rsp['ret'] != Context.CODE_OK:
-                code = Context.CODE_FAILED
+            if rsp['ret'] != Context.instance().CODE_OK:
+                code = Context.instance().CODE_FAILED
 
         # libraries adapters repository
         elif repoType == RepoLibraries.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights ) :
             rsp['ret'] = RepoLibraries.instance().uninstall()
-            if rsp['ret'] != Context.CODE_OK:
-                code = Context.CODE_FAILED
+            if rsp['ret'] != Context.instance().CODE_OK:
+                code = Context.instance().CODE_FAILED
 
         # archives repository
         elif repoType == RepoArchives.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights ) :
             projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=data['projectid'])
             self.trace( "project is authorized ? %s" % projectAuthorized)
             if not projectAuthorized:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
             else:
                 rsp['ret'] = RepoArchives.instance().resetArchives(projectId=data['projectid'])
-                if rsp['ret'] != Context.CODE_OK:
-                    code = Context.CODE_FAILED
+                if rsp['ret'] != Context.instance().CODE_OK:
+                    code = Context.instance().CODE_FAILED
         else:
             raise Exception('repo type unknown %s' % repoType)
 
@@ -2394,7 +2395,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not len(data): data = { 'project-id': projectId, 'main-path-to-zip': mainPath, 'sub-path-to-zip': subPath}
         
@@ -2404,11 +2405,11 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=data['project-id'])
         self.trace( "project is authorized ? %s" % projectAuthorized)
         if not projectAuthorized:
-            code = Context.CODE_FORBIDDEN
+            code = Context.instance().CODE_FORBIDDEN
         else:
             rsp = RepoArchives.instance().createZip(mainPathToZip, subPathToZip, projectId=projectId)
-            if rsp != Context.CODE_OK:
-                code = Context.CODE_FAILED
+            if rsp != Context.instance().CODE_OK:
+                code = Context.instance().CODE_FAILED
 
         return (code,rsp)
     
@@ -2433,7 +2434,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not len(data): data = {'repo-dst': repoType, 'projectid': projectId, 'partial': True}
         
@@ -2454,7 +2455,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             rsp['stats-repo-tests'] = stats_tests              
             rsp['backups-repo-tests'] = RepoTests.instance().getBackups(b64=True)
             if len(rsp['stats-repo-tests']) == 0:
-                code = Context.CODE_FAILED
+                code = Context.instance().CODE_FAILED
         
         # adapters repository
         elif repoType == RepoAdapters.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights or Settings.get('Server', 'level-system') in rights) :
@@ -2463,7 +2464,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             rsp['stats-repo-adapters'] = stats_adps
             rsp['backups-repo-adapters'] = RepoAdapters.instance().getBackups(b64=True)
             if len(rsp['stats-repo-adapters']) == 0:
-                code = Context.CODE_FAILED
+                code = Context.instance().CODE_FAILED
 
         # libraries adapters repository
         elif repoType == RepoLibraries.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights or Settings.get('Server', 'level-system') in rights ) :
@@ -2472,7 +2473,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             rsp['stats-repo-libraries'] = stats_libs
             rsp['backups-repo-libraries'] = RepoLibraries.instance().getBackups(b64=True)
             if len(rsp['stats-repo-libraries']) == 0:
-                code = Context.CODE_FAILED
+                code = Context.instance().CODE_FAILED
 
         # archives repository
         elif repoType == RepoArchives.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights or \
@@ -2505,7 +2506,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
         rsp = Context.instance().getInformations(user=login, b64=True)
         return (code,rsp)
     
@@ -2527,9 +2528,9 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
         rsp = Context.instance().getStats(b64=True)
-        if len(rsp) == 0: code = Context.CODE_FAILED
+        if len(rsp) == 0: code = Context.instance().CODE_FAILED
         return (code,rsp)
     
     @authentication
@@ -2553,11 +2554,11 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not len(data): data = { 'name': agentName }
         rsp = AgentsManager.instance().stopAgent( aname = data['name'] )
-        if not rsp: code = Context.CODE_NOT_FOUND
+        if not rsp: code = Context.instance().CODE_NOT_FOUND
         return (code,rsp)
     
     @authentication
@@ -2581,28 +2582,28 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not len(data): data = { 'make-default': makeDefault, 'type': agentType, 'name': agentName, 'description': agentDescr}
         
         if not Settings.getInt( 'WebServices', 'local-agents-enabled' ):
-            code = Context.CODE_DISABLED
+            code = Context.instance().CODE_DISABLED
         else:
             # add default probe 
             agentDefault = True
             if data['make-default']:
                 agentAdded = AgentsManager.instance().addDefaultAgent( aType = data['type'], aName = data['name'], 
                                                     aDescr = data['description'])
-                if agentAdded  == Context.CODE_ERROR:
-                    return ( 'addAgent', Context.CODE_ERROR, agentAdded )
+                if agentAdded  == Context.instance().CODE_ERROR:
+                    return ( 'addAgent', Context.instance().CODE_ERROR, agentAdded )
 
             # start the probe
             rsp = AgentsManager.instance().startAgent( atype = data['type'], aname = data['name'], adescr = data['description'],
                                                     adefault=agentDefault )
             if rsp == -1:
-                code = Context.CODE_FAILED
+                code = Context.instance().CODE_FAILED
             else:
-                code = Context.CODE_OK
+                code = Context.instance().CODE_OK
 
         return (code,rsp)
     
@@ -2624,7 +2625,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
         rsp = AgentsManager.instance().getRunning(b64=True)
         return (code,rsp)
     
@@ -2646,10 +2647,10 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not Settings.getInt( 'WebServices', 'local-agents-enabled' ):
-            code = Context.CODE_DISABLED
+            code = Context.instance().CODE_DISABLED
         else:
             rsp = AgentsManager.instance().getDefaultAgents(b64=True)
 
@@ -2676,18 +2677,18 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not len(data): data = { 'type': agentType, 'name': agentName, 'description': agentDescr}
         
         if not Settings.getInt( 'WebServices', 'local-agents-enabled' ):
-            code = Context.CODE_DISABLED
+            code = Context.instance().CODE_DISABLED
         else:
             rsp = AgentsManager.instance().addDefaultAgent( aType = data['type'], aName = data['name'],aDescr = data['description'])
-            if rsp  == Context.CODE_ERROR:
+            if rsp  == Context.instance().CODE_ERROR:
                 code = ret
             else:
-                code = Context.CODE_OK
+                code = Context.instance().CODE_OK
 
         return (code,rsp)
     
@@ -2712,18 +2713,18 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not len(data): data = { 'name': agentName }
         
         if not Settings.getInt( 'WebServices', 'local-agents-enabled' ):
-            code = Context.CODE_DISABLED
+            code = Context.instance().CODE_DISABLED
         else:
             rsp = AgentsManager.instance().delDefaultAgent( aName = data['name'] )
-            if rsp  == Context.CODE_ERROR:
+            if rsp  == Context.instance().CODE_ERROR:
                 code = rsp
             else:
-                code = Context.CODE_OK
+                code = Context.instance().CODE_OK
 
         return (code,rsp)
     
@@ -2748,11 +2749,11 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
         if not len(data): data = { 'name': probeName }
         rsp = ProbesManager.instance().stopProbe( pname = data['name'] )
         if not rsp:
-            code = Context.CODE_NOT_FOUND
+            code = Context.instance().CODE_NOT_FOUND
         return (code,rsp)
     
     @authentication
@@ -2776,28 +2777,28 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not len(data): data = { 'type': probeType, 'name': probeName, 'description': probeDescr}
         
         if not Settings.getInt( 'WebServices', 'local-probes-enabled' ):
-            code = Context.CODE_DISABLED
+            code = Context.instance().CODE_DISABLED
         else:
             # add default probe 
             prDefault = True
             if data['make-default']:
                 prAdded = ProbesManager.instance().addDefaultProbe( pType = data['type'], pName = data['name'], 
                                                                     pDescr = data['description'])
-                if prAdded  == Context.CODE_ERROR:
-                    return ( 'addProbe', Context.CODE_ERROR, prAdded )
+                if prAdded  == Context.instance().CODE_ERROR:
+                    return ( 'addProbe', Context.instance().CODE_ERROR, prAdded )
 
             # start the probe
             rsp = ProbesManager.instance().startProbe( ptype = data['type'], pname = data['name'], pdescr = data['description'],
                                                        pdefault=prDefault )
             if rsp == -1:
-                code = Context.CODE_FAILED
+                code = Context.instance().CODE_FAILED
             else:
-                code = Context.CODE_OK
+                code = Context.instance().CODE_OK
 
         return (code,rsp)
     
@@ -2819,7 +2820,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
         rsp = ProbesManager.instance().getRunning(b64=True)
         return (code,rsp)
     
@@ -2841,10 +2842,10 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not Settings.getInt( 'WebServices', 'local-probes-enabled' ):
-            code = Context.CODE_DISABLED
+            code = Context.instance().CODE_DISABLED
         else:
             rsp = ProbesManager.instance().getDefaultProbes(b64=True)
 
@@ -2871,11 +2872,11 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not len(data): data = { 'project-id': projectId }
         rsp = ProjectsManager.instance().addProject( prjId = data['project-id'])
-        code = Context.CODE_OK
+        code = Context.instance().CODE_OK
 
         return (code,rsp)
     
@@ -2900,11 +2901,11 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not len(data): data = { 'project-id': projectId }
         rsp = ProjectsManager.instance().delProject( prjId = data['project-id'])
-        code = Context.CODE_OK
+        code = Context.instance().CODE_OK
 
         return (code,rsp)
     
@@ -2929,18 +2930,18 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not len(data): data = { 'type': probeType, 'name': probeName, 'description': probeDescr}
         
         if not Settings.getInt( 'WebServices', 'local-probes-enabled' ):
-            code = Context.CODE_DISABLED
+            code = Context.instance().CODE_DISABLED
         else:
             rsp = ProbesManager.instance().addDefaultProbe( pType = data['type'], pName = data['name'], pDescr = data['description'])
-            if rsp  == Context.CODE_ERROR:
+            if rsp  == Context.instance().CODE_ERROR:
                 code = rsp
             else:
-                code = Context.CODE_OK
+                code = Context.instance().CODE_OK
 
         return (code,rsp)
     
@@ -2965,18 +2966,18 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not len(data): data = {'name': probeName}
         
         if not Settings.getInt( 'WebServices', 'local-probes-enabled' ):
-            code = Context.CODE_DISABLED
+            code = Context.instance().CODE_DISABLED
         else:
             rsp = ProbesManager.instance().delDefaultProbe( pName = data['name'] )
-            if rsp  == Context.CODE_ERROR:
+            if rsp  == Context.instance().CODE_ERROR:
                 code = rsp
             else:
-                code = Context.CODE_OK
+                code = Context.instance().CODE_OK
 
         return (code,rsp)
     
@@ -2998,11 +2999,11 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         subRet, details = HelperManager.instance().generateHelps()
         if not subRet:
-            code = Context.CODE_FAILED
+            code = Context.instance().CODE_FAILED
         rsp['result'] = subRet
         rsp['details'] = details
 
@@ -3026,7 +3027,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
         TaskManager.instance().clearHistory()
         return (code,rsp)
     
@@ -3051,7 +3052,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={"ret": False};
+        code = Context.instance().CODE_OK; rsp={"ret": False};
 
         if not len(data): data = { 'task-type': taskType, 'full': fullRefresh}
         
@@ -3092,7 +3093,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={"ret": False};
+        code = Context.instance().CODE_OK; rsp={"ret": False};
 
         if not len(data): data = {'file': archivePath, 'post': archivePost, 'timestamp': archiveTimestamp, 'testid': testId}
         
@@ -3133,7 +3134,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={"ret": False};
+        code = Context.instance().CODE_OK; rsp={"ret": False};
 
         if not len(data): data = { 'file': archivePath }
         archivePath = data['file']
@@ -3162,7 +3163,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={"ret": False};
+        code = Context.instance().CODE_OK; rsp={"ret": False};
 
         if not len(data): data = { 'file': archivePath }
         archivePath = data['file']
@@ -3191,7 +3192,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={"ret": False};
+        code = Context.instance().CODE_OK; rsp={"ret": False};
 
         if not len(data): data = { 'repo-dst': repoType }
         
@@ -3237,7 +3238,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={"ret": False};
+        code = Context.instance().CODE_OK; rsp={"ret": False};
 
         if not len(data): data = { 'repo-dst': repoType }
         
@@ -3282,7 +3283,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={"ret": False};
+        code = Context.instance().CODE_OK; rsp={"ret": False};
         
         if not len(data): data = {'path': pathFolder, 'name': libraryName, 'main-libraries': mainLibraries}
         
@@ -3292,7 +3293,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         if Settings.get('Server', 'level-admin') in rights or Settings.get('Server', 'level-developer') in rights:
             rsp['ret'] = RepoLibraries.instance().addLibrary(pathFolder, libraryName, mainLibraries)
         else:
-            code = Context.CODE_FORBIDDEN
+            code = Context.instance().CODE_FORBIDDEN
 
         return (code,rsp)
     
@@ -3317,7 +3318,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={"ret": False};
+        code = Context.instance().CODE_OK; rsp={"ret": False};
 
         if not len(data): data = { 'path': pathFolder, 'name': adapterName, 'main-adapters': mainAdapters}
         
@@ -3327,7 +3328,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         if Settings.get('Server', 'level-admin') in rights or Settings.get('Server', 'level-developer') in rights:
             rsp['ret'] = RepoAdapters.instance().addAdapter(pathFolder, adapterName, mainAdapters)
         else:
-            code = Context.CODE_FORBIDDEN
+            code = Context.instance().CODE_FORBIDDEN
 
         return (code,rsp)
             
@@ -3352,7 +3353,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={"ret": False};
+        code = Context.instance().CODE_OK; rsp={"ret": False};
 
         if not len(data): data = { 'package-name': packageName }
         packageName = data['package-name']
@@ -3381,7 +3382,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={"ret": False};
+        code = Context.instance().CODE_OK; rsp={"ret": False};
 
         if not len(data): data = { 'package-name': packageName }
         packageName = data['package-name']
@@ -3410,7 +3411,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={"ret": False};
+        code = Context.instance().CODE_OK; rsp={"ret": False};
 
         if not len(data): data = { 'package-name': packageName }
         packageName = data['package-name']
@@ -3439,7 +3440,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={"ret": False};
+        code = Context.instance().CODE_OK; rsp={"ret": False};
 
         if not len(data): data = { 'package-name': packageName }
         packageName = data['package-name']
@@ -3469,7 +3470,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={"ret": False};
+        code = Context.instance().CODE_OK; rsp={"ret": False};
 
         if not len(data): data = { 'repo-dst': repoType, 'projectid': projectId, 'main-path': mainPath, 
                                     'folder-name': folderName, 'new-path': newPath, 'new-projectid': newProjectId}
@@ -3488,12 +3489,12 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             projectAuthorized, prjsList = ProjectsManager.instance().checkProjectsAuthorizationV2(user=login, projectId=data['projectid'])
             self.trace( "source project is authorized ? %s" % projectAuthorized)
             if not projectAuthorized:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
             else:
                 projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=data['new-projectid'])
                 self.trace( "destination project is authorized ? %s" % projectAuthorized)
                 if not projectAuthorized:
-                    code = Context.CODE_FORBIDDEN
+                    code = Context.instance().CODE_FORBIDDEN
                 else:
                     rsp['ret'] = RepoTests.instance().moveDir(mainPath, folderName, newPath, project=data['projectid'], 
                                                                 newProject=newProjectId, projectsList=prjsList, renamedBy=login )
@@ -3502,20 +3503,20 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             if Settings.getInt( 'WebServices', 'remote-dev-adapters' ):
                 rsp['ret'] = RepoAdapters.instance().moveDir(mainPath, folderName, newPath )
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
 
         elif repoType == RepoLibraries.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights or Settings.get('Server', 'level-developer') in rights):
             if Settings.getInt( 'WebServices', 'remote-dev-libraries' ):
                 rsp['ret'] = RepoLibraries.instance().moveDir(mainPath, folderName, newPath )
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
 
 
         else:
             if repoType != RepoTests.REPO_TYPE and repoType != RepoAdapters.REPO_TYPE:
                 raise Exception('repo type unknown %s' % repoType)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
 
         return (code,rsp)
     
@@ -3541,7 +3542,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={"ret": False};
+        code = Context.instance().CODE_OK; rsp={"ret": False};
 
         if not len(data): data = { 'repo-dst': repoType, 'projectid': projectId, 'main-path': mainPath,
                                     'filename': fileName, 'new-path': newPath, 'extension': extFilename, 
@@ -3563,43 +3564,43 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
             projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=data['projectid'])
             self.trace( "source project is authorized ? %s" % projectAuthorized)
             if not projectAuthorized:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
             else:
                 projectAuthorized, prjsList = ProjectsManager.instance().checkProjectsAuthorizationV2(user=login, projectId=data['new-projectid'])
                 self.trace( "destination project is authorized ? %s" % projectAuthorized)
                 if not projectAuthorized:
-                    code = Context.CODE_FORBIDDEN
+                    code = Context.instance().CODE_FORBIDDEN
                 else:
                     ret = RepoTests.instance().moveFile(mainPath, fileName, extFilename, newPath, project=data['projectid'], 
                                                         newProject=newProjectId, supportSnapshot=True,
                                                         projectsList=prjsList, renamedBy=login)
-                    if ret == Context.CODE_ERROR: raise Exception('unable to move the file repo test')
+                    if ret == Context.instance().CODE_ERROR: raise Exception('unable to move the file repo test')
                     else:
                         rsp['ret'] = ret
         elif repoType == RepoAdapters.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights or Settings.get('Server', 'level-developer') in rights):
             if Settings.getInt( 'WebServices', 'remote-dev-adapters' ):
                 ret = RepoAdapters.instance().moveFile(mainPath, fileName, extFilename, newPath )
-                if ret == Context.CODE_ERROR: raise Exception('unable to move the file repo adapter')
+                if ret == Context.instance().CODE_ERROR: raise Exception('unable to move the file repo adapter')
                 else:
                     rsp['ret'] = ret
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
 
         elif repoType == RepoLibraries.REPO_TYPE and ( Settings.get('Server', 'level-admin') in rights or Settings.get('Server', 'level-developer') in rights):
             if Settings.getInt( 'WebServices', 'remote-dev-libraries' ):
                 ret = RepoLibraries.instance().moveFile(mainPath, fileName, extFilename, newPath )
-                if ret == Context.CODE_ERROR: raise Exception('unable to move the file repo lib')
+                if ret == Context.instance().CODE_ERROR: raise Exception('unable to move the file repo lib')
                 else:
                     rsp['ret'] = ret
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
 
 
         else:
             if repoType != RepoTests.REPO_TYPE and repoType != RepoAdapters.REPO_TYPE:
                 raise Exception('repo type unknown %s' % repoType)
             else:
-                code = Context.CODE_FORBIDDEN
+                code = Context.instance().CODE_FORBIDDEN
 
         return (code,rsp)
     
@@ -3625,7 +3626,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={"ret": False};
+        code = Context.instance().CODE_OK; rsp={"ret": False};
 
         # try:
         if not len(data): data = { 'project-id': projectId, 'testid': testId, 'testpath': archivePath, 'testfilename': archiveName}
@@ -3637,14 +3638,14 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=prjId)
         self.trace( "project is authorized ? %s" % projectAuthorized)
         if not projectAuthorized:
-            code = Context.CODE_FORBIDDEN
+            code = Context.instance().CODE_FORBIDDEN
         else:
             testId = data['testid']
             rsp['verdict'] = ''
             if testId > 0:
                 task = TaskManager.instance().getTask( taskId = testId )
                 if task is None:
-                    code = Context.CODE_NOT_FOUND
+                    code = Context.instance().CODE_NOT_FOUND
                     self.info( 'task %s not found' % testId )
                 else:
                     rsp['verdict'] = task.getTestVerdict()
@@ -3681,7 +3682,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={"ret": False};
+        code = Context.instance().CODE_OK; rsp={"ret": False};
 
         # try:
         if not len(data): data = { 'project-id': projectId, 'testid': testId, 'testpath': archivePath, 'testfilename': archiveName}
@@ -3693,14 +3694,14 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=prjId)
         self.trace( "project is authorized ? %s" % projectAuthorized)
         if not projectAuthorized:
-            code = Context.CODE_FORBIDDEN
+            code = Context.instance().CODE_FORBIDDEN
         else:
             testId = data['testid']
             rsp['report'] = ''
             if testId > 0:
                 task = TaskManager.instance().getTask( taskId = testId )
                 if task is None:
-                    code = Context.CODE_NOT_FOUND
+                    code = Context.instance().CODE_NOT_FOUND
                     self.info( 'task %s not found' % testId )
                 else:
                     rsp['report'] = task.getTestReport()
@@ -3733,7 +3734,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={"result": False};
+        code = Context.instance().CODE_OK; rsp={"result": False};
 
         if Context.instance().generateAdapters():
             if Context.instance().generateLibraries():
@@ -3762,7 +3763,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={"result": False};
+        code = Context.instance().CODE_OK; rsp={"result": False};
 
         rsp['result'] = RepoAdapters.instance().generateFromWSDL(
                                                     wsdlUrl=data['wsdl-url'],
@@ -3791,7 +3792,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={"result": False};
+        code = Context.instance().CODE_OK; rsp={"result": False};
         rsp['result'] = RepoTests.instance().setTestsWithDefault()
         return (code,rsp)
     
@@ -3813,19 +3814,19 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         rsp = Context.instance().generateAdapters()
         if not rsp:
-            code = Context.CODE_ERROR
+            code = Context.instance().CODE_ERROR
         else:
             rsp = Context.instance().generateLibraries()
             if not rsp:
-                code = Context.CODE_ERROR
+                code = Context.instance().CODE_ERROR
             else:
                 rsp = Context.instance().generateSamples()
                 if not rsp:
-                    code = Context.CODE_ERROR
+                    code = Context.instance().CODE_ERROR
 
         return (code,rsp)
     
@@ -3847,9 +3848,9 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
         rsp = Context.instance().generateAdapters()
-        if not rsp: code = Context.CODE_ERROR
+        if not rsp: code = Context.instance().CODE_ERROR
         return (code,rsp)
     
     @authentication
@@ -3870,9 +3871,9 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
         rsp = Context.instance().generateLibraries()
-        if not rsp: code = Context.CODE_ERROR
+        if not rsp: code = Context.instance().CODE_ERROR
         return (code,rsp)
     
     @authentication
@@ -3893,9 +3894,9 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
         rsp = Context.instance().generateSamples()
-        if not rsp: code = Context.CODE_ERROR
+        if not rsp: code = Context.instance().CODE_ERROR
         return (code,rsp)
     
     @authentication
@@ -3916,7 +3917,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
         rsp = Context.instance().refreshTestEnvironment()
         return (code,rsp)
     
@@ -3942,7 +3943,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False };
 
         if not len(data): data = { 'project-id': projectId, 'testid': testId, 'testpath': archivePath, 'testfilename': archiveName }
         
@@ -3953,14 +3954,14 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=prjId)
         self.trace( "project is authorized ? %s" % projectAuthorized)
         if not projectAuthorized:
-            code = Context.CODE_FORBIDDEN
+            code = Context.instance().CODE_FORBIDDEN
         else:
             testId = data['testid']
             rsp['design'] = ''
             if testId > 0:
                 task = TaskManager.instance().getTask( taskId = testId )
                 if task is None:
-                    code = Context.CODE_NOT_FOUND
+                    code = Context.instance().CODE_NOT_FOUND
                     self.info( 'task %s not found' % testId )
                 else:
                     rsp['design'] = task.getTestDesign()
@@ -3997,7 +3998,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ };
+        code = Context.instance().CODE_OK; rsp={ };
         if not len(data): data = { 'name': agentName}
         rsp = AgentsManager.instance().disconnectAgent( name=data['name'] )
         return (code,rsp)
@@ -4023,7 +4024,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ };
+        code = Context.instance().CODE_OK; rsp={ };
 
         if not len(data): data = {'cleanup-tests': tests, 'cleanup-adapters': adapters, 'cleanup-libraries': libraries }
         
@@ -4064,7 +4065,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False  };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False  };
 
         if not len(data): data = { 'test-prjid': projectId, 'snapshot-name': snapshotName, 
                                     'snapshot-timestamp': snapshotTimestamp, 'test-path': testPath}
@@ -4097,7 +4098,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False  };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False  };
 
         if not len(data): data = { 'test-prjid': projectId, 'snapshot-path': snapshotPath, 'snapshot-name': snapshotName}
         
@@ -4131,7 +4132,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False  };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False  };
 
         if not len(data): data = {'test-prjid': projectId, 'snapshot-path': snapshotPath, 'snapshot-name': snapshotName}
         
@@ -4165,7 +4166,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False  };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False  };
 
         if not len(data): data = {'test-prjid': projectId, 'test-path': testPath, 'test-name': testName, 'test-ext': testExt}
         
@@ -4199,7 +4200,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False  };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False  };
         if not len(data): data = {'name': probeName}
         rsp = ProbesManager.instance().disconnectProbe( name=data['name'] )
         return (code,rsp)
@@ -4225,7 +4226,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False  };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False  };
 
         if not len(data): data = { 'projectid': projectId, 'tr-path': trPath, 'tr-name': trName,
                                     'to-file': toFile, 'and-save': andSave }
@@ -4233,7 +4234,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=data['projectid'])
         self.trace( "project is authorized ? %s" % projectAuthorized)
         if not projectAuthorized:
-            code = Context.CODE_FORBIDDEN
+            code = Context.instance().CODE_FORBIDDEN
         else:
             projectId = data['projectid']
             trPath = data['tr-path']
@@ -4269,7 +4270,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False  };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False  };
 
         if not len(data): data = { 'from-repo': repoType, 'backup-filename': backupFilename, 'to-file': toFile }
         
@@ -4318,7 +4319,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={ 'ret': False  };
+        code = Context.instance().CODE_OK; rsp={ 'ret': False  };
 
         if not len(data): data = { 'os': os, 'package-name': packageName}
         
@@ -4340,7 +4341,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         f = open( clientPackagePath, 'rb')
         data_read = f.read()
         f.close()
-        rsp['ret']  = [ Context.CODE_OK, base64.b64encode(data_read) ]
+        rsp['ret']  = [ Context.instance().CODE_OK, base64.b64encode(data_read) ]
         rsp['package-name'] = packageName
 
         return (code,rsp)
@@ -4365,11 +4366,11 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={'ret': False};
+        code = Context.instance().CODE_OK; rsp={'ret': False};
 
         if login != "anonymous" and password != "anonymous":
             self.error("authentication failed: anonymous login expected")
-            return ( Context.CODE_FORBIDDEN, rsp)
+            return ( Context.instance().CODE_FORBIDDEN, rsp)
 
         if not len(data): data = {'filename': logName, 'result-path': logPath, 'file-data': logData }
         
@@ -4377,7 +4378,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         if not data['filename'].endswith(".zip") and not data['filename'].endswith(".png") and not data['filename'].endswith(".jpg") \
             and not data['filename'].endswith(".mp4") :
             self.error("unable to upload log, bad file extension: %s" % data['filename'])
-            return ( Context.CODE_FORBIDDEN, rsp)
+            return ( Context.instance().CODE_FORBIDDEN, rsp)
             
         # checking if testresult path exist!
         archiveRepo='%s%s' % ( Settings.getDirExec(), Settings.get( 'Paths', 'testsresults' ) )
@@ -4412,7 +4413,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={'ret': False};
+        code = Context.instance().CODE_OK; rsp={'ret': False};
 
         if not isintance(shift, int): raise Exception("integer expected: %s" % type(shift))
         
@@ -4449,14 +4450,14 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={  'ret': False };
+        code = Context.instance().CODE_OK; rsp={  'ret': False };
 
         if not len(data): data = { 'projectid': projectId, 'tr-path': trPath, 'image-name': trName }
         
         projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=data['projectid'])
         self.trace( "project is authorized ? %s" % projectAuthorized)
         if not projectAuthorized:
-            code = Context.CODE_FORBIDDEN
+            code = Context.instance().CODE_FORBIDDEN
         else:
             projectId = data['projectid']
             trPath = data['tr-path']
@@ -4495,14 +4496,14 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not len(data): data = { 'projectid': projectId, 'tr-path': trPath, 'tr-name': trName }
         
         projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=data['projectid'])
         self.trace( "project is authorized ? %s" % projectAuthorized)
         if not projectAuthorized:
-            code = Context.CODE_FORBIDDEN
+            code = Context.instance().CODE_FORBIDDEN
         else:
             projectId = data['projectid']
             trPath = data['tr-path']
@@ -4557,7 +4558,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         @return: ws function name, response code, response data
         @rtype: tuple 
         """
-        code = Context.CODE_OK; rsp={};
+        code = Context.instance().CODE_OK; rsp={};
 
         if not len(data): data = { 'projectid': projectId, 'tr-path': trPath }
     
@@ -4567,7 +4568,7 @@ class WebServicesUsers(xmlrpc.XMLRPC, Logger.ClassLogger):
         projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=login, projectId=data['projectid'])
         self.trace( "project is authorized ? %s" % projectAuthorized)
         if not projectAuthorized:
-            code = Context.CODE_FORBIDDEN
+            code = Context.instance().CODE_FORBIDDEN
         else:
             rsp['ret'] = RepoArchives.instance().delDirAll(trPath, project=data['projectid'])
             rsp['projectid'] = projectId
@@ -4590,7 +4591,7 @@ class XmlrpcServerInterface(Logger.ClassLogger, threading.Thread):
             key = '%s/%s' % (Settings.getDirExec(),Settings.get('WebServices', 'ssl-key'))
             try:
                 ssl_context = ssl.DefaultOpenSSLContextFactory(key, crt)
-            except ImportError, e:
+            except ImportError as e:
                 self.error("unable to initialize ssl context: %s" % str(e) )
                 self.stop()
             else:

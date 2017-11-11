@@ -31,13 +31,22 @@ import base64
 
 from Libs import Settings
 import Libs.FileModels.TestData as TestData
-import RepoManager
-import RepoTests
-import RepoAdapters
-import RepoLibraries
-import ProjectsManager
-import Common 
 
+try:
+    import RepoManager
+    import RepoTests
+    import RepoAdapters
+    import RepoLibraries
+    import ProjectsManager
+    import Common 
+except ImportError: # support python 3
+    from . import RepoManager
+    from . import RepoTests
+    from . import RepoAdapters
+    from . import RepoLibraries
+    from . import ProjectsManager
+    from . import Common 
+    
 TS_ENABLED				= "2"
 TS_DISABLED				= "0"
 

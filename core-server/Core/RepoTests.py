@@ -21,9 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-import RepoManager
-
-import MySQLdb
+try:
+    import MySQLdb
+except ImportError: # python3 support
+    import pymysql as MySQLdb
 import os
 import sys
 import subprocess
@@ -40,14 +41,25 @@ except ImportError:
     import json
 
 from Libs import Scheduler, Settings, Logger
-import Context
-import EventServerInterface as ESI
-import TaskManager
-import ProjectsManager
-import Common
-import TestModel
-import DbManager
 
+try:
+    import RepoManager
+    # import Context
+    import EventServerInterface as ESI
+    # import TaskManager
+    import ProjectsManager
+    import Common
+    # import TestModel
+    import DbManager
+except ImportError:
+    from . import RepoManager
+    from . import EventServerInterface as ESI
+    # from . import TaskManager
+    from . import ProjectsManager
+    from . import Common
+    # from . import TestModel
+    from . import DbManager
+    
 import Libs.FileModels.TestPlan as TestPlan
 import Libs.FileModels.TestUnit as TestUnit
 import Libs.FileModels.TestAbstract as TestAbstract
@@ -59,25 +71,41 @@ REPO_TYPE = 0
 
 def uniqid():
     """
+    Return a unique id
     """
     from time import time
     return hex(int(time()*10000000))[2:]
 
+    
+TS_ENABLED				= "2"
+TS_DISABLED				= "0"
+
+
 class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
     """
+    Tests repository class
     """
-    def __init__(self):
+    def __init__(self, context, taskmgr):
         """
         Repository manager for tests files
         """
         RepoManager.RepoManager.__init__(self,
-            pathRepo='%s%s' % ( Settings.getDirExec(), Settings.get( 'Paths', 'tests' ) ),
-                extensionsSupported = [ RepoManager.TEST_SUITE_EXT, RepoManager.TEST_PLAN_EXT, RepoManager.TEST_CONFIG_EXT, RepoManager.TEST_DATA_EXT,
-                                        RepoManager.TEST_UNIT_EXT, RepoManager.TEST_ABSTRACT_EXT, RepoManager.PNG_EXT, RepoManager.TEST_GLOBAL_EXT ] )
+                                        pathRepo='%s%s' % ( Settings.getDirExec(), Settings.get( 'Paths', 'tests' ) ),
+                                        extensionsSupported = [ RepoManager.TEST_SUITE_EXT, RepoManager.TEST_PLAN_EXT, 
+                                                                RepoManager.TEST_CONFIG_EXT, RepoManager.TEST_DATA_EXT,
+                                                                RepoManager.TEST_UNIT_EXT, RepoManager.TEST_ABSTRACT_EXT, 
+                                                                RepoManager.PNG_EXT, RepoManager.TEST_GLOBAL_EXT ],
+                                       context=context)
+                                       
+        self.context=context
+        self.taskmgr = taskmgr
+        
         # list of files, used for statistics
         self.prefixBackup = "backuptests"
         self.destBackup = "%s%s" % ( Settings.getDirExec(), Settings.get( 'Paths', 'backups-tests' ) )
-        self.embeddedPath = "%s/%s/%s" % ( Settings.getDirExec(),   Settings.get( 'Paths', 'packages' ),  Settings.get( 'Paths', 'samples' ) )
+        self.embeddedPath = "%s/%s/%s" % (  Settings.getDirExec(),   
+                                            Settings.get( 'Paths', 'packages' ),  
+                                            Settings.get( 'Paths', 'samples' ) )
 
         # contains oldpath: newpath
         self.renameHistory = {}
@@ -102,7 +130,9 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         # Remove the folder on boot
         try:
             if os.path.exists( "%s/%s/%s/" % (self.testsPath, ProjectsManager.DEFAULT_PRJ_ID, Settings.get( 'Paths', 'samples' ) ) ):
-                shutil.rmtree( "%s/%s/%s/" % (self.testsPath, ProjectsManager.DEFAULT_PRJ_ID, Settings.get( 'Paths', 'samples' ) ) )
+                shutil.rmtree( "%s/%s/%s/" % (  self.testsPath, 
+                                                ProjectsManager.DEFAULT_PRJ_ID, 
+                                                Settings.get( 'Paths', 'samples' ) ) )
         except Exception as e:
             self.error( "pre install cleanup: %s" % str(e) )
         else:
@@ -123,7 +153,10 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
             else:
                 try:
                     DEVNULL = open(os.devnull, 'w')
-                    __cmd__ = "%s xf %s/%s -C %s" % (Settings.get( 'Bin', 'tar' ), self.embeddedPath, latestPkgName, Settings.getDirExec())
+                    __cmd__ = "%s xf %s/%s -C %s" % (Settings.get( 'Bin', 'tar' ), 
+                                                     self.embeddedPath, 
+                                                     latestPkgName, 
+                                                     Settings.getDirExec())
                     ret = subprocess.call(__cmd__, shell=True, stdout=DEVNULL, stderr=DEVNULL)  
                     if ret: raise Exception("unable to untar tests pkg")
                         
@@ -131,10 +164,6 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                     self.error("Samples installation failed: %s" % str(e) )
                 else:
                     self.info( "Samples %s deployed succesfully" % str(latestPkg) )
-                    # try:
-                        # ret = self.addDir("./%s/" % ProjectsManager.DEFAULT_PRJ_ID, "Sandbox")
-                    # except Exception as e:
-                        # self.error("unable to add sandbox folder: %s" % str(e) )
 
     def scheduleBackup(self):
         """
@@ -149,19 +178,22 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         schedAt = schedAt.split('|')[1]
         if int(schedType) == Scheduler.SCHED_WEEKLY:
             d, h, m, s = schedAt.split(',')
-            TaskManager.instance().registerEvent(   id=None, author=None, name=None, weekly=( int(d), int(h), int(m), int(s) ), 
-                                                    daily=None, hourly=None, everyMin=None, everySec=None, at=None, delay=None, timesec=None,
-                                                    callback=self.createBackup, backupName=backupName )
+            self.taskmgr.registerEvent( id=None, author=None, name=None, weekly=( int(d), int(h), int(m), int(s) ), 
+                                        daily=None, hourly=None, everyMin=None, everySec=None, 
+                                        at=None, delay=None, timesec=None,
+                                        callback=self.createBackup, backupName=backupName )
         elif int(schedType) == Scheduler.SCHED_DAILY:
             h, m, s = schedAt.split(',')
-            TaskManager.instance().registerEvent(   id=None, author=None, name=None, weekly=None, 
-                                                    daily=( int(h), int(m), int(s) ), hourly=None, everyMin=None, everySec=None, at=None, delay=None, timesec=None,
-                                                    callback=self.createBackup, backupName=backupName )
+            self.taskmgr.registerEvent( id=None, author=None, name=None, weekly=None, 
+                                        daily=( int(h), int(m), int(s) ), hourly=None, 
+                                        everyMin=None, everySec=None, at=None, delay=None, timesec=None,
+                                        callback=self.createBackup, backupName=backupName )
         elif int(schedType) == Scheduler.SCHED_HOURLY:
             m, s = schedAt.split(',')
-            TaskManager.instance().registerEvent(   id=None, author=None, name=None, weekly=None, 
-                                                    daily=None, hourly=( int(m), int(s) ), everyMin=None, everySec=None, at=None, delay=None, timesec=None,
-                                                    callback=self.createBackup, backupName=backupName )
+            self.taskmgr.registerEvent( id=None, author=None, name=None, weekly=None, 
+                                        daily=None, hourly=( int(m), int(s) ), everyMin=None, 
+                                        everySec=None, at=None, delay=None, timesec=None,
+                                        callback=self.createBackup, backupName=backupName )
         else:
             self.error( 'schedulation type not supported: %s' % schedType )
 
@@ -172,7 +204,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         @return: response code
         @rtype: int
         """
-        ret = Context.CODE_ERROR
+        ret = self.context.CODE_ERROR
         try:
             # delete all files 
             files=os.listdir(self.destBackup)
@@ -188,10 +220,10 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
             notif['repo-tests'] = {}
             data = ( 'repositories', ( 'reset', notif ) )   
             ESI.instance().notifyAll(body = data)
-            return Context.CODE_OK
-        except OSError, e:
+            return self.context.CODE_OK
+        except OSError as e:
             self.trace( e )
-            return Context.CODE_FORBIDDEN
+            return self.context.CODE_FORBIDDEN
         except Exception as e:
             raise Exception( e )
             return ret
@@ -203,7 +235,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         """
         tests_ret = []
         nb_tests, nb_tests_f, tests, stats = self.getListingFilesV2(path="%s/%s" % (self.testsPath, str(project)), 
-                                                            project=project, supportSnapshot=True  )
+                                                                    project=project, supportSnapshot=True  )
         tests_ret = self.encodeData(data=tests)
         return nb_tests, nb_tests_f, tests_ret, stats
 
@@ -239,7 +271,8 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         @return:
         @rtype: list
         """
-        nb, nbf, tests, stats = self.getListingFilesV2(path=self.destBackup, extensionsSupported=[RepoManager.ZIP_EXT] )
+        nb, nbf, tests, stats = self.getListingFilesV2( path=self.destBackup, 
+                                                        extensionsSupported=[RepoManager.ZIP_EXT] )
         backups_ret = self.encodeData(data=tests)
         return backups_ret
 
@@ -277,23 +310,25 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         @return: response code
         @rtype: int
         """
-        ret = Context.CODE_ERROR
+        ret = self.context.CODE_ERROR
         try:
             backupIndex = self.getLastBackupIndex( pathBackups=self.destBackup )
             backupDate = self.getTimestamp()  
             backupFilename = '%s%s_%s_%s' % ( self.prefixBackup, backupIndex, backupName, backupDate)
-            self.trace( "backup tests to %s/%s.zip" % (self.destBackup,backupFilename) )
-            # zipped = self.toZip(file= self.testsPath, filename="%s/%s.zip" % (self.destBackup, backupFilename), extToInclude=[], keepTree=True ) 
+            self.trace( "backup tests to %s/%s.zip" % (self.destBackup,backupFilename) ) 
             zipped = self.zipFolder(folderPath=self.testsPath, zipName="%s.zip" % backupFilename,
                                     zipPath=self.destBackup, ignoreExt=[ ])
             ret = zipped
-            if zipped == Context.CODE_OK:
+            if zipped == self.context.CODE_OK:
                 self.info( "backup tests successfull: %s" % backupFilename )
                 # now notify all connected admin users 
                 backupSize = os.path.getsize( "%s/%s.zip" % (self.destBackup, backupFilename) )
                 notif = {}
                 notif['repo-tests'] = {}
-                notif['repo-tests']['backup'] = {'name': backupName, 'date': backupDate, 'size': backupSize, 'fullname': "%s.zip" % backupFilename }
+                notif['repo-tests']['backup'] = {   'name': backupName, 
+                                                    'date': backupDate, 
+                                                    'size': backupSize, 
+                                                    'fullname': "%s.zip" % backupFilename }
                 data = ( 'repositories', ( None, notif) )   
                 ESI.instance().notifyAllAdmins(body = data)
             else:
@@ -326,13 +361,13 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         Add snapshot
         """
         self.trace("adding snapshot Name=%s" % snapshotName )
-        ret = Context.CODE_OK
+        ret = self.context.CODE_OK
         try:
             # checking if the test exists in first
             res = os.path.exists( "%s/%s/%s" % (self.testsPath, testPrjId, testPath) )
             if not res: 
                 self.error( "test not found: %s" % testPath )
-                return Context.CODE_NOT_FOUND
+                return self.context.CODE_NOT_FOUND
                 
             # copy the file and create the snapshot
             snapName = base64.b64encode(snapshotName)
@@ -343,7 +378,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
             self.trace("snapshot created from source Name=%s" % testPath)
         except Exception as e:
             self.error( "unable to add snapshot: %s" % e )
-            ret = Context.CODE_ERROR
+            ret = self.context.CODE_ERROR
         return ret
         
     def deleteAllSnapshots(self, testPath, testPrjId, testName, testExt):
@@ -351,13 +386,13 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         Delete all snapshots
         """
         self.trace("delete all snapshots Name=%s" % testPath )
-        ret = Context.CODE_OK
+        ret = self.context.CODE_OK
         try:
             # checking if the test exists in first
             res = os.path.exists( "%s/%s/%s" % (self.testsPath, testPrjId, testPath) )
             if not res: 
                 self.error( "test not found: %s" % testPath )
-                return Context.CODE_NOT_FOUND
+                return self.context.CODE_NOT_FOUND
                 
             # delete all snapshot according to the file name
             currentPath = testPath.rsplit( "%s.%s" % (testName, testExt) , 1)[0]
@@ -369,7 +404,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
             self.trace("all snapshots removed Name=%s" % testPath)        
         except Exception as e:
             self.error( "unable to delete all snapshots: %s" % e )
-            ret = Context.CODE_ERROR
+            ret = self.context.CODE_ERROR
         return ret
     
     def deleteSnapshot(self, snapshotName, snapshotPath, snapshotPrjId):
@@ -377,7 +412,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         Delete snapshot
         """
         self.trace("delete snapshot Name=%s" % snapshotName )
-        ret = Context.CODE_OK
+        ret = self.context.CODE_OK
         try:
             snapPath = "%s/%s/%s/%s" % (self.testsPath, snapshotPrjId, snapshotPath, snapshotName)
             
@@ -385,13 +420,13 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
             res = os.path.exists( snapPath )
             if not res: 
                 self.error( "snapshot not found: %s in %s" % (snapshotName,snapshotPath)  )
-                return Context.CODE_NOT_FOUND
+                return self.context.CODE_NOT_FOUND
             
             os.remove( snapPath )
             self.trace("snapshot removed Name=%s" % snapshotName)     
         except Exception as e:
             self.error( "unable to delete snapshot: %s" % e )
-            ret = Context.CODE_ERROR
+            ret = self.context.CODE_ERROR
         return ret
         
     def restoreSnapshot(self, snapshotName, snapshotPath, snapshotPrjId):
@@ -399,7 +434,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         Restore snapshot
         """
         self.trace("restore snapshot Name=%s" % snapshotName )
-        ret = Context.CODE_OK
+        ret = self.context.CODE_OK
         try:
             snapPath = "%s/%s/%s/%s" % (self.testsPath, snapshotPrjId, snapshotPath, snapshotName)
             
@@ -407,7 +442,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
             res = os.path.exists( snapPath )
             if not res: 
                 self.error( "snapshot not found: %s in %s" % (snapshotName,snapshotPath)  )
-                return Context.CODE_NOT_FOUND
+                return self.context.CODE_NOT_FOUND
             
             testName = snapshotName.rsplit(".snapshot", 1)[0].rsplit(".", 1)[0]
             destTest = "%s/%s/%s/%s" % (self.testsPath, snapshotPrjId, snapshotPath, testName)
@@ -417,7 +452,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
             self.trace("snapshot restored to source Name=%s" % destTest)
         except Exception as e:
             self.error( "unable to restore snapshot: %s" % e )
-            ret = Context.CODE_ERROR
+            ret = self.context.CODE_ERROR
         return ret
         
     def setTestsWithDefault(self):
@@ -425,7 +460,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         Set tests with defaults values (adapters and libraries)
         """
         self.trace("Set tests with default values")
-        ret = Context.CODE_OK
+        ret = self.context.CODE_OK
         try:
             for path, subdirs, files in os.walk(self.testsPath):
                 for name in files:  
@@ -477,7 +512,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                         
         except Exception as e:
             self.error( "unable to set tests with default: %s" % e )
-            ret = Context.CODE_ERROR
+            ret = self.context.CODE_ERROR
         return ret
 
     def addtf2tg(self, data_):
@@ -515,11 +550,11 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                 testPath = "/"
             ts.update( { 'testpath': testPath } )
             
-            if ts['type'] == "remote" and ts['enable'] == TestModel.TS_DISABLED:
+            if ts['type'] == "remote" and ts['enable'] == TS_DISABLED:
                 ts.update( { 'path': filenameTs, 'depth': 1 } )
                 alltests.append( ts )
                 
-            if ts['type'] == "remote" and ts['enable'] == TestModel.TS_ENABLED:
+            if ts['type'] == "remote" and ts['enable'] == TS_ENABLED:
                 # extract the project name then the project id
                 prjID = 0
                 absPath = ''
@@ -527,7 +562,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                     prjName, absPath = ts['file'].split(':', 1)
                 except Exception as e:
                     self.error("unable to extract project name: %s" % str(e) )
-                    ret = ( Context.CODE_NOT_FOUND, "ID=%s %s" % (ts['id'],ts['file'])  )
+                    ret = ( self.context.CODE_NOT_FOUND, "ID=%s %s" % (ts['id'],ts['file'])  )
                     break   
                 else:
                     prjID = ProjectsManager.instance().getProjectID(name=prjName)
@@ -543,13 +578,13 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                         doc = TestPlan.DataModel()
                     else:
                         self.error("unknown test extension file: %s" % absPath )
-                        ret = ( Context.CODE_NOT_FOUND, "ID=%s %s" % (ts['id'],ts['file'])  )
+                        ret = ( self.context.CODE_NOT_FOUND, "ID=%s %s" % (ts['id'],ts['file'])  )
                         break
                     
                     # load the data model
                     res = doc.load( absPath = "%s/%s/%s" % ( self.testsPath, prjID, absPath ) )
                     if not res:
-                        ret = ( Context.CODE_NOT_FOUND, absPath  )
+                        ret = ( self.context.CODE_NOT_FOUND, absPath  )
                         break   
                     else:
                         # update/add test parameters with the main parameters of the test global
@@ -616,8 +651,10 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                                 self.trace('Read sub test plan finished')
                                 
                                 alltests.extend( sortedTests )
-                                alltests.extend( [{'extension': 'tpx', 'separator': 'terminated',  'enable': "0" , 'depth': 1, 
-                                                    'id': ts['id'], 'testname': filenameTs, 'parent': ts['parent'], 'alias': alias_ts }] ) 
+                                alltests.extend( [{ 'extension': 'tpx', 'separator': 'terminated',  
+                                                    'enable': "0" , 'depth': 1, 
+                                                    'id': ts['id'], 'testname': filenameTs, 
+                                                    'parent': ts['parent'], 'alias': alias_ts }] ) 
 
         return ( ret, alltests )
 
@@ -650,19 +687,19 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                 testPath = "/"
             ts.update( { 'testpath': testPath } )
             
-            if ts['type'] == "remote" and ts['enable'] == TestModel.TS_DISABLED:
+            if ts['type'] == "remote" and ts['enable'] == TS_DISABLED:
                 ts.update( { 'path': filenameTs, 'tpid': tpid } )
                 # backward compatibility
                 self.__fixAliasTp(ts=ts)
                         
-            elif ts['type'] == "remote" and ts['enable'] == TestModel.TS_ENABLED:
+            elif ts['type'] == "remote" and ts['enable'] == TS_ENABLED:
                 prjID = 0
                 absPath = ''
                 try:
                     prjName, absPath = ts['file'].split(':', 1)
                 except Exception as e:
                     self.error("unable to extract project name: %s" % str(e) )
-                    ret = ( Context.CODE_NOT_FOUND, "ID=%s %s" % (ts['id'],ts['file'])  )
+                    ret = ( self.context.CODE_NOT_FOUND, "ID=%s %s" % (ts['id'],ts['file'])  )
                     break   
                 else:
                     prjID = ProjectsManager.instance().getProjectID(name=prjName)
@@ -674,7 +711,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                         doc = TestUnit.DataModel()
                     res = doc.load( absPath = "%s/%s/%s" % ( self.testsPath, prjID, absPath ) )
                     if not res:
-                        ret = ( Context.CODE_NOT_FOUND, "ID=%s %s" % (ts['id'],ts['file'])  )
+                        ret = ( self.context.CODE_NOT_FOUND, "ID=%s %s" % (ts['id'],ts['file'])  )
                         break   
                     else:
 
@@ -771,6 +808,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
 
     def findInstance(self, filePath, projectName, projectId):
         """
+        Find a test instance according to the path of the file
         """
         self.trace("Find tests instance: %s" % filePath)
         
@@ -801,20 +839,22 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
   
         except Exception as e:
             self.error( "unable to find test instance: %s" % e )
-            return (Context.CODE_ERROR, tests)
-        return (Context.CODE_OK, tests)
+            return (self.context.CODE_ERROR, tests)
+        return (self.context.CODE_OK, tests)
     
-    def getFile(self, pathFile, binaryMode=True, project='', addLock=True, login='', forceOpen=False, readOnly=False, projectsList=[]):
+    def getFile(self, pathFile, binaryMode=True, project='', addLock=True, login='', 
+                    forceOpen=False, readOnly=False, projectsList=[]):
         """
         New in v17
         Return the file ask by the tester
         and check the file content for testplan or testglobal
         """
         ret = RepoManager.RepoManager.getFile(self, pathFile=pathFile, binaryMode=binaryMode, project=project, 
-                                                    addLock=addLock, login=login, forceOpen=forceOpen, readOnly=readOnly, 
+                                                    addLock=addLock, login=login, forceOpen=forceOpen, 
+                                                    readOnly=readOnly, 
                                                     projectsList=projectsList)
         result, path_file, name_file, ext_file, data_base64, project, locked = ret
-        if result != Context.CODE_OK:
+        if result != self.context.CODE_OK:
             return ret
         if ext_file in [ RepoManager.TEST_PLAN_EXT, RepoManager.TEST_GLOBAL_EXT]:
             # checking if all links are good
@@ -852,39 +892,42 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
     
     def delDir(self, pathFolder, project=''):
         """
+        Delete a folder
         """
         # folders reserved
         mp = "%s/%s/" % (self.testsPath, project)
         if os.path.normpath( "%s/%s" % (mp,unicode(pathFolder)) ) == os.path.normpath( "%s/@Recycle" % (mp) ) :
-            return Context.CODE_FORBIDDEN
+            return self.context.CODE_FORBIDDEN
         if os.path.normpath( "%s/%s" % (mp,unicode(pathFolder)) ) == os.path.normpath( "%s/@Sandbox" % (mp) ) :
-            return Context.CODE_FORBIDDEN
+            return self.context.CODE_FORBIDDEN
         # end of new
         
         return RepoManager.RepoManager.delDir(self, pathFolder=pathFolder, project=project)
 
     def delDirAll(self, pathFolder, project=''):
         """
+        Delete a folder and all inside
         """
         # folders reserved
         mp = "%s/%s/" % (self.testsPath, project)
         if os.path.normpath( "%s/%s" % (mp,unicode(pathFolder)) ) == os.path.normpath( "%s/@Recycle" % (mp) ) :
-            return Context.CODE_FORBIDDEN
+            return self.context.CODE_FORBIDDEN
         if os.path.normpath( "%s/%s" % (mp,unicode(pathFolder)) ) == os.path.normpath( "%s/@Sandbox" % (mp) ) :
-            return Context.CODE_FORBIDDEN
+            return self.context.CODE_FORBIDDEN
         # end of new
          
         return RepoManager.RepoManager.delDirAll(self, pathFolder=pathFolder, project=project)
   
     def moveDir(self, mainPath, folderName, newPath, project='', newProject='', projectsList=[], renamedBy=None):
         """
+        Move a folder
         """
         # folders reserved new in v17
         mp = "%s/%s/" % (self.testsPath, project)
         if os.path.normpath( "%s/%s/%s" % (mp, mainPath, unicode(folderName)) ) == os.path.normpath( "%s/@Recycle" % (mp) ) :
-            return (Context.CODE_FORBIDDEN, mainPath, folderName, newPath, project)
+            return (self.context.CODE_FORBIDDEN, mainPath, folderName, newPath, project)
         if os.path.normpath( "%s/%s/%s" % (mp, mainPath, unicode(folderName)) ) == os.path.normpath( "%s/@Sandbox" % (mp) ) :
-            return (Context.CODE_FORBIDDEN, mainPath, folderName, newPath, project)
+            return (self.context.CODE_FORBIDDEN, mainPath, folderName, newPath, project)
         # end of new
         
         # execute the rename function as before
@@ -892,7 +935,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                                             project=project, newProject=newProject)
         ( code, mainPath, folderName, newPath, project) = ret
         
-        if code == Context.CODE_OK:
+        if code == self.context.CODE_OK:
             # get the project Name 
             prjName = None
             prjNewName = None
@@ -927,21 +970,25 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                     if new_path.startswith("/"): new_path = new_path[1:]
                     new_path = "%s:%s" % (prjNewName, new_path )
                     
-                    self.saveToHistory(oldPrjId=project, oldPath=old_path, newPrjId=newProject, newPath=new_path) 
+                    self.saveToHistory(oldPrjId=project, oldPath=old_path, 
+                                        newPrjId=newProject, newPath=new_path) 
                 
                 # finished = self.updateAllTestsPlan(renamedBy=renamedBy)
 
         return ret
         
-    def moveFile(self, mainPath, fileName, extFilename, newPath, project='', newProject='', supportSnapshot=False, projectsList=[], renamedBy=None):
+    def moveFile(self, mainPath, fileName, extFilename, newPath, project='', newProject='', 
+                        supportSnapshot=False, projectsList=[], renamedBy=None):
         """
+        Move a file
         """
         # execute the rename function as before
-        ret = RepoManager.RepoManager.moveFile(self, mainPath=mainPath, fileName=fileName, extFilename=extFilename, 
-                                                    newPath=newPath, project=project, newProject=newProject, supportSnapshot=supportSnapshot)
+        ret = RepoManager.RepoManager.moveFile( self, mainPath=mainPath, fileName=fileName, extFilename=extFilename, 
+                                                newPath=newPath, project=project, newProject=newProject, 
+                                                supportSnapshot=supportSnapshot)
         ( code, mainPath, fileName, newPath, extFilename, project) = ret
         
-        if code == Context.CODE_OK:
+        if code == self.context.CODE_OK:
             # get the project Name 
             prjName = None
             prjNewName = None
@@ -963,19 +1010,19 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                 newPath = "%s:%s" % (prjNewName, newPath)
                 
                 self.saveToHistory(oldPrjId=project, oldPath=oldPath, newPrjId=newProject, newPath=newPath) 
-                # finished = self.updateAllTestsPlan(renamedBy=renamedBy)
-                
+   
         return ret
         
     def duplicateDir(self, mainPath, oldPath, newPath, project='', newProject='', newMainPath=''):
         """
+        Duplicate a folder
         """
         # folders reserved new in v17
         mp = "%s/%s/" % (self.testsPath, project)
         if os.path.normpath( "%s/%s/%s" % (mp, mainPath, unicode(oldPath)) ) == os.path.normpath( "%s/@Recycle" % (mp) ) :
-            return (Context.CODE_FORBIDDEN)
+            return (self.context.CODE_FORBIDDEN)
         if os.path.normpath( "%s/%s/%s" % (mp, mainPath, unicode(oldPath)) ) == os.path.normpath( "%s/@Sandbox" % (mp) ) :
-            return (Context.CODE_FORBIDDEN)
+            return (self.context.CODE_FORBIDDEN)
         # end of new
         
         return  RepoManager.RepoManager.duplicateDir(self, mainPath=mainPath, oldPath=oldPath, newPath=newPath, 
@@ -983,13 +1030,14 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                                                      
     def renameDir(self, mainPath, oldPath, newPath, project='', projectsList=[], renamedBy=None):
         """
+        Rename a folder
         """
         # folders reserved new in v17
         mp = "%s/%s/" % (self.testsPath, project)
         if os.path.normpath( "%s/%s/%s" % (mp, mainPath, unicode(oldPath)) ) == os.path.normpath( "%s/@Recycle" % (mp) ) :
-            return (Context.CODE_FORBIDDEN, mainPath, oldPath, newPath, project)
+            return (self.context.CODE_FORBIDDEN, mainPath, oldPath, newPath, project)
         if os.path.normpath( "%s/%s/%s" % (mp, mainPath, unicode(oldPath)) ) == os.path.normpath( "%s/@Sandbox" % (mp) ) :
-            return (Context.CODE_FORBIDDEN, mainPath, oldPath, newPath, project)
+            return (self.context.CODE_FORBIDDEN, mainPath, oldPath, newPath, project)
         # end of new
          
         # execute the rename function as before
@@ -998,7 +1046,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         code, mainPath, oldPath, newPath, project  = ret  
         
         # if ok then update the history
-        if code == Context.CODE_OK:
+        if code == self.context.CODE_OK:
             # get the project Name 
             prjName = None
             for prj in projectsList:
@@ -1029,24 +1077,29 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                     if new_path.startswith("/"): new_path = new_path[1:]
                     new_path = "%s:%s" % (prjName, new_path )
                     
-                    self.saveToHistory(oldPrjId=project, oldPath=old_path, newPrjId=project, newPath=new_path) 
+                    self.saveToHistory( oldPrjId=project, oldPath=old_path, 
+                                        newPrjId=project, newPath=new_path) 
                 
                 # finished = self.updateAllTestsPlan(renamedBy=renamedBy)
 
         return ret
         
-    def renameFile(self, mainPath, oldFilename, newFilename, extFilename, project='', supportSnapshot=False, projectsList=[], renamedBy=None):
+    def renameFile(self, mainPath, oldFilename, newFilename, extFilename, project='', 
+                    supportSnapshot=False, projectsList=[], renamedBy=None):
         """
+        Rename a file
         New in v17
         And save the change in the history
         """
         # execute the rename function as before
-        ret = RepoManager.RepoManager.renameFile(self, mainPath=mainPath, oldFilename=oldFilename, newFilename=newFilename,
-                                                    extFilename=extFilename, project=project, supportSnapshot=supportSnapshot)
+        ret = RepoManager.RepoManager.renameFile(   self, mainPath=mainPath, oldFilename=oldFilename, 
+                                                    newFilename=newFilename,
+                                                    extFilename=extFilename, project=project, 
+                                                    supportSnapshot=supportSnapshot )
         code, mainPath, oldFilename, newFilename, extFilename, project = ret
 
         # if ok then update the history
-        if code == Context.CODE_OK:
+        if code == self.context.CODE_OK:
             # get the project Name 
             prjName = None
             for prj in projectsList:
@@ -1063,7 +1116,8 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                 if newPath.startswith("/"): newPath = newPath[1:]
                 newPath = "%s:%s" % (prjName, newPath)
                 
-                self.saveToHistory(oldPrjId=project, oldPath=oldPath, newPrjId=project, newPath=newPath) 
+                self.saveToHistory(oldPrjId=project, oldPath=oldPath, 
+                                    newPrjId=project, newPath=newPath) 
                 # finished = self.updateAllTestsPlan(renamedBy=renamedBy)
 
         return ret
@@ -1087,6 +1141,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
 
     def getVariablesFromDB(self, projectId=None):
         """
+        Get test variables from database
         """
         # init some shortcut
         prefix = Settings.get( 'MySql', 'table-prefix')
@@ -1105,12 +1160,13 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         dbRet, dbRows = DbManager.instance().querySQL( query = sql, columnName=True  )
         if not dbRet: 
             self.error( "unable to read test environment table" )
-            return (Context.CODE_ERROR, "unable to test environment table")
+            return (self.context.CODE_ERROR, "unable to test environment table")
 
-        return (Context.CODE_OK, dbRows)
+        return (self.context.CODE_OK, dbRows)
         
     def getVariableFromDB(self, projectId, variableName=None, variableId=None):
         """
+        Get a specific variable from database
         """
         # init some shortcut
         prefix = Settings.get( 'MySql', 'table-prefix')
@@ -1131,12 +1187,13 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         dbRet, dbRows = DbManager.instance().querySQL( query = sql, columnName=True  )
         if not dbRet: 
             self.error( "unable to search test environment table" )
-            return (Context.CODE_ERROR, "unable to search variable in test environment table")
+            return (self.context.CODE_ERROR, "unable to search variable in test environment table")
 
-        return (Context.CODE_OK, dbRows)
+        return (self.context.CODE_OK, dbRows)
         
     def addVariableInDB(self, projectId, variableName, variableValue):
         """
+        Add a variable in the database
         """
         # init some shortcut
         prefix = Settings.get( 'MySql', 'table-prefix')
@@ -1144,38 +1201,45 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         projectId = str(projectId)
         
         if ":" in variableName:
-            return (Context.CODE_ERROR, "bad variable name provided")
+            return (self.context.CODE_ERROR, "bad variable name provided")
             
         # check if the name is not already used
-        sql = """SELECT * FROM `%s-test-environment` WHERE name='%s'""" % ( prefix, escape(variableName.upper()) )
+        sql = """SELECT * FROM `%s-test-environment` WHERE name='%s'""" % ( prefix, 
+                                                                            escape(variableName.upper()) )
         sql += """ AND project_id='%s'""" % escape(projectId)
         dbRet, dbRows = DbManager.instance().querySQL( query = sql, columnName=True  )
         if not dbRet: 
             self.error( "unable to get variable by name" )
-            return (Context.CODE_ERROR, "unable to get variable by name")
-        if len(dbRows): return (Context.CODE_ALREADY_EXISTS, "this variable already exists")
+            return (self.context.CODE_ERROR, "unable to get variable by name")
+        if len(dbRows): return (self.context.CODE_ALREADY_EXISTS, "this variable already exists")
         
         # good json ?
         try:
             var_json = json.loads(variableValue)
         except Exception as e:
-            return (Context.CODE_ERROR, "bad json value provided")
+            return (self.context.CODE_ERROR, "bad json value provided")
          
         # this name is free then create project
         sql = """INSERT INTO `%s-test-environment`(`name`, `value`, `project_id` )""" % prefix
         if Settings.getInt( 'MySql', 'test-environment-encrypted'):
-            sql += """VALUES('%s', AES_ENCRYPT('%s', '%s'), '%s')""" % (escape(variableName.upper()), escape(variableValue), Settings.get( 'MySql', 'test-environment-password'), escape(projectId))
+            sql += """VALUES('%s', AES_ENCRYPT('%s', '%s'), '%s')""" % (escape(variableName.upper()), 
+                                                                        escape(variableValue), 
+                                                                        Settings.get( 'MySql', 'test-environment-password'), 
+                                                                        escape(projectId))
         else:
-            sql += """VALUES('%s', '%s', '%s')""" % (escape(variableName.upper()), escape(variableValue), escape(projectId))
+            sql += """VALUES('%s', '%s', '%s')""" % (   escape(variableName.upper()), 
+                                                        escape(variableValue), 
+                                                        escape(projectId))
         dbRet, lastRowId = DbManager.instance().querySQL( query = sql, insertData=True  )
         if not dbRet: 
             self.error("unable to insert variable")
-            return (Context.CODE_ERROR, "unable to insert variable")
+            return (self.context.CODE_ERROR, "unable to insert variable")
             
-        return (Context.CODE_OK, "%s" % int(lastRowId) )
+        return (self.context.CODE_OK, "%s" % int(lastRowId) )
         
     def duplicateVariableInDB(self, variableId, projectId=None):
         """
+        Duplicate a variable in database
         """
         # init some shortcut
         prefix = Settings.get( 'MySql', 'table-prefix')
@@ -1190,8 +1254,8 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         dbRet, dbRows = DbManager.instance().querySQL( query = sql, columnName=True  )
         if not dbRet: 
             self.error( "unable to read variable id" )
-            return (Context.CODE_ERROR, "unable to read variable id")
-        if not len(dbRows): return (Context.CODE_NOT_FOUND, "this variable id does not exist")
+            return (self.context.CODE_ERROR, "unable to read variable id")
+        if not len(dbRows): return (self.context.CODE_NOT_FOUND, "this variable id does not exist")
         variable = dbRows[0]
         
         # duplicate variable
@@ -1201,6 +1265,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         
     def updateVariableInDB(self, variableId, variableName=None, variableValue=None, projectId=None):
         """
+        Update the value of a variable in a database
         """
         # init some shortcut
         prefix = Settings.get( 'MySql', 'table-prefix')
@@ -1212,8 +1277,8 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         dbRet, dbRows = DbManager.instance().querySQL( query = sql, columnName=True  )
         if not dbRet: 
             self.error( "unable to read variable id" )
-            return (Context.CODE_ERROR, "unable to read variable id")
-        if not len(dbRows): return (Context.CODE_NOT_FOUND, "this variable id does not exist")
+            return (self.context.CODE_ERROR, "unable to read variable id")
+        if not len(dbRows): return (self.context.CODE_NOT_FOUND, "this variable id does not exist")
         
         sql_values = []
         if variableName is not None:
@@ -1223,10 +1288,11 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
             try:
                 var_json = json.loads(variableValue)
             except Exception as e:
-                return (Context.CODE_ERROR, "bad json value provided")
+                return (self.context.CODE_ERROR, "bad json value provided")
          
             if Settings.getInt( 'MySql', 'test-environment-encrypted'):
-                sql_values.append( """value=AES_ENCRYPT('%s', '%s')""" % (escape(variableValue), Settings.get( 'MySql', 'test-environment-password')) )
+                sql_values.append( """value=AES_ENCRYPT('%s', '%s')""" % ( escape(variableValue), 
+                                                                           Settings.get( 'MySql', 'test-environment-password')) )
             else:
                 sql_values.append( """value='%s'""" % escape(variableValue))
         if projectId is not None:
@@ -1235,16 +1301,19 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
             
         # update
         if len(sql_values):
-            sql = """UPDATE `%s-test-environment` SET %s WHERE id='%s'""" % (prefix, ','.join(sql_values) , variableId)
+            sql = """UPDATE `%s-test-environment` SET %s WHERE id='%s'""" % (   prefix, 
+                                                                                ','.join(sql_values), 
+                                                                                variableId )
             dbRet, _ = DbManager.instance().querySQL( query = sql )
             if not dbRet: 
                 self.error("unable to update variable")
-                return (Context.CODE_ERROR, "unable to update variable")
+                return (self.context.CODE_ERROR, "unable to update variable")
             
-        return (Context.CODE_OK, "" )
+        return (self.context.CODE_OK, "" )
         
     def delVariableInDB(self, variableId, projectId=None):
         """
+        Delete a variable in database
         """
         # init some shortcut
         prefix = Settings.get( 'MySql', 'table-prefix')
@@ -1259,8 +1328,8 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         dbRet, dbRows = DbManager.instance().querySQL( query = sql, columnName=True  )
         if not dbRet: 
             self.error( "unable to get variable by id" )
-            return (Context.CODE_ERROR, "unable to get variable by id")
-        if not len(dbRows): return (Context.CODE_NOT_FOUND, "variable id provided does not exist")
+            return (self.context.CODE_ERROR, "unable to get variable by id")
+        if not len(dbRows): return (self.context.CODE_NOT_FOUND, "variable id provided does not exist")
         
         # delete from db
         sql = """DELETE FROM `%s-test-environment` WHERE  id='%s'""" % ( prefix, escape(variableId) )
@@ -1270,12 +1339,13 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         dbRet, dbRows = DbManager.instance().querySQL( query = sql  )
         if not dbRet: 
             self.error( "unable to remove variable by id" )
-            return (Context.CODE_ERROR, "unable to remove variable by id")
+            return (self.context.CODE_ERROR, "unable to remove variable by id")
             
-        return (Context.CODE_OK, "" )
+        return (self.context.CODE_OK, "" )
         
     def delVariablesInDB(self, projectId):
         """
+        Delete all variables in database
         """
         # init some shortcut
         prefix = Settings.get( 'MySql', 'table-prefix')
@@ -1287,9 +1357,9 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         dbRet, dbRows = DbManager.instance().querySQL( query = sql  )
         if not dbRet: 
             self.error( "unable to reset variables" )
-            return (Context.CODE_ERROR, "unable to reset variables")
+            return (self.context.CODE_ERROR, "unable to reset variables")
             
-        return (Context.CODE_OK, "" )
+        return (self.context.CODE_OK, "" )
 
         
 ###############################
@@ -1303,12 +1373,12 @@ def instance ():
     """
     return RepoTestsMng
 
-def initialize ():
+def initialize (context, taskmgr):
     """
     Instance creation
     """
     global RepoTestsMng
-    RepoTestsMng = RepoTests()
+    RepoTestsMng = RepoTests(context=context, taskmgr=taskmgr)
 
 def finalize ():
     """

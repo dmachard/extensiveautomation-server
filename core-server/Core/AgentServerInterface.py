@@ -21,19 +21,25 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+import threading
+
+try:
+    import EventServerInterface as ESI
+    # import TestServerInterface as TSI
+    # import Context
+except ImportError: # python3 support
+    from . import EventServerInterface as ESI
+    # from . import TestServerInterface as TSI
+    # from . import Context
+    
 import Libs.NetLayerLib.ServerAgent as NetLayerLib
 import Libs.NetLayerLib.Messages as Messages
 import Libs.NetLayerLib.ClientAgent as ClientAgent
-import EventServerInterface as ESI
-import TestServerInterface as TSI
-import Context
-
 from Libs import Settings, Logger
 
-import threading
-
 class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
-    def __init__ (self, listeningAddress, agentName = 'ASI', sslSupport=False, wsSupport=False):
+    def __init__ (self, listeningAddress, agentName = 'ASI', sslSupport=False, 
+                        wsSupport=False, tsi=None, context=None):
         """
         Construct Agent Server Interface
 
@@ -50,10 +56,15 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
                                             selectTimeout=Settings.get( 'Network', 'select-timeout' ),
                                             sslSupport=sslSupport,
                                             wsSupport=wsSupport,
-                                            certFile='%s/%s' % (Settings.getDirExec(),Settings.get( 'Agent_Channel', 'channel-ssl-cert' )), 
-                                            keyFile='%s/%s' % (Settings.getDirExec(),Settings.get( 'Agent_Channel', 'channel-ssl-key' )),
+                                            certFile='%s/%s' % (Settings.getDirExec(),
+                                                                Settings.get( 'Agent_Channel', 'channel-ssl-cert' )), 
+                                            keyFile='%s/%s' % (Settings.getDirExec(),
+                                                               Settings.get( 'Agent_Channel', 'channel-ssl-key' )),
                                             pickleVer=Settings.getInt( 'Network', 'pickle-version' )
                                         )
+        self.tsi = tsi
+        self.context=context
+        
         self.__mutex = threading.RLock()
         self.__mutexNotif = threading.RLock()
         self.agentsRegistered = {}
@@ -106,9 +117,8 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
             agentName = data['destination-agent']
             agent = self.getAgent( aname=agentName)
             if agent is None:
-                #self.error( "agent '%s' not registered" % agentName )
                 data['event'] = 'agent-system-error'
-                TSI.instance().notify(client=client, data=data)
+                self.tsi.notify(client=client, data=data)
             else:
                 NetLayerLib.ServerAgent.notify(self, client=agent['address'], data=data)
         except Exception as e:
@@ -170,7 +180,7 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         self.__mutexNotif.acquire()
         try:
             clientAddr = None
-            for testClient, testContext in TSI.instance().testsConnected.items():
+            for testClient, testContext in self.tsi.testsConnected.items():
                 if 'task-id' not in request:
                     raise Exception('task id missing: %s' % request)
                 if 'task-id' not in testContext:
@@ -180,12 +190,8 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
                     break
             if clientAddr is not None:
                 self.trace("sending notify through tsi to %s" % str(clientAddr) )
-                TSI.instance().notify(client=clientAddr, data=request)
+                self.tsi.notify(client=clientAddr, data=request)
                 clientAddr = None
-            # else:
-                # self.trace("test no more exist, stop to notify me, force to reset the agent")
-                # data = { 'event': 'agent-reset', 'script_id': request['script_id'], 'source-adapter': request['source-adapter']  }
-                # NetLayerLib.ServerAgent.notify(self, client=client, data=data)
         except Exception as e:
             self.error( 'unable to handle notify: %s' % str(e) )
         self.__mutexNotif.release()
@@ -206,7 +212,7 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         self.trace("on registration" )
         self.__mutex.acquire()
         doNotify=False
-        if len(self.agentsRegistered) >= Context.instance().getLicence()[ 'agents' ] [ 'instance' ]:
+        if len(self.agentsRegistered) >= self.context.getLicence()[ 'agents' ] [ 'instance' ]:
             self.info('license agents reached')
             NetLayerLib.ServerAgent.forbidden(self, client, tid)
         elif request['userid'] in  self.agentsRegistered:
@@ -247,7 +253,8 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         if doNotify:
             # Notify all connected users
             notif = ( 'agents', ( 'add', self.getAgents() ) )
-            ESI.instance().notifyByUserTypes(body = notif, admin=True, leader=False, tester=True, developer=False)
+            ESI.instance().notifyByUserTypes(body = notif, admin=True, 
+                                            leader=False, tester=True, developer=False)
         self.__mutex.release()
 
     def onDisconnection (self, client):
@@ -267,7 +274,8 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
                 del publicip
                 self.info( 'Agent unregistered: Name="%s"' % k )
                 notif = ( 'agents', ( 'del', self.getAgents() ) )
-                ESI.instance().notifyByUserTypes(body = notif, admin=True, leader=False, tester=True, developer=False)
+                ESI.instance().notifyByUserTypes(body = notif, admin=True, 
+                                                leader=False, tester=True, developer=False)
                 del ret
                 break
 
@@ -288,7 +296,7 @@ def instance ():
     """
     return ASI
 
-def initialize (listeningAddress, sslSupport, wsSupport):
+def initialize (listeningAddress, sslSupport, wsSupport, tsi, context):
     """
     Instance creation
 
@@ -296,7 +304,9 @@ def initialize (listeningAddress, sslSupport, wsSupport):
     @type listeningAddress:
     """
     global ASI
-    ASI = AgentServerInterface( listeningAddress = listeningAddress, sslSupport=sslSupport, wsSupport=wsSupport)
+    ASI = AgentServerInterface( listeningAddress = listeningAddress, 
+                                sslSupport=sslSupport, wsSupport=wsSupport,
+                                tsi=tsi, context=context)
 
 def finalize ():
     """

@@ -29,14 +29,24 @@ try:
 except ImportError:
     import json
 
-import ProbeServerInterface as PSI
-import EventServerInterface as ESI
-import Context
-import Common
-
+try:
+    import ProbeServerInterface as PSI
+    import EventServerInterface as ESI
+    # import Context
+    import Common
+except ImportError: # python3 support
+    from . import ProbeServerInterface as PSI
+    from . import EventServerInterface as ESI
+    # from . import Context
+    from . import Common
+    
 from Libs import Settings, Logger
 
-import ConfigParser
+try:
+    import ConfigParser
+except ImportError: # python3 support
+    import configparser as ConfigParser
+    
 import os
 import signal
 import shlex
@@ -48,13 +58,13 @@ import tarfile
 
 
 class ProbesManager(Logger.ClassLogger):    
-    def __init__(self):
+    def __init__(self, context):
         """
         Construct Probes Manager
         """
         self.pkgsProbesPath = "%s/%s/%s/linux2/" % ( Settings.getDirExec(),   Settings.get( 'Paths', 'packages' ), 
                                         Settings.get( 'Paths', 'probes' ) )
-
+        self.context = context
         self.configsFile = None
         self.__pids__ = {}
 
@@ -89,8 +99,8 @@ class ProbesManager(Logger.ClassLogger):
         """
         ret= {}
         try:
-            ret['max-reg'] = Context.instance().getLicence()[ 'probes' ] [ 'instance' ]
-            ret['max-def'] = Context.instance().getLicence()[ 'probes' ] [ 'default' ]
+            ret['max-reg'] = self.context.getLicence()[ 'probes' ] [ 'instance' ]
+            ret['max-def'] = self.context.getLicence()[ 'probes' ] [ 'default' ]
         except Exception as e:
             self.error( "unable to get probes stats: %s" % e )
         else:
@@ -137,12 +147,12 @@ class ProbesManager(Logger.ClassLogger):
         @return:
         @rtype: boolean
         """
-        ret = Context.CODE_ERROR
+        ret = self.context.CODE_ERROR
         try:
             if self.configsFile is not None:
                 # check licence
-                if len(self.configsFile.sections()) >=  Context.instance().getLicence()[ 'probes' ] [ 'default' ]:
-                    ret = Context.CODE_FORBIDDEN
+                if len(self.configsFile.sections()) >=  self.context.getLicence()[ 'probes' ] [ 'default' ]:
+                    ret = self.context.CODE_FORBIDDEN
                 else:
                     # add the section in the config file object
                     self.configsFile.add_section(pName)
@@ -160,13 +170,13 @@ class ProbesManager(Logger.ClassLogger):
                     ESI.instance().notifyByUserTypes(body = notif, admin=True, leader=False, tester=True, developer=False)
                     
                     # return OK
-                    ret = Context.CODE_OK
+                    ret = self.context.CODE_OK
         except ConfigParser.DuplicateSectionError:
             self.error( "probe already exist %s" % str(pName) ) 
-            ret = Context.CODE_ALLREADY_EXISTS
+            ret = self.context.CODE_ALLREADY_EXISTS
         except Exception as e:
             self.error( "unable to add default probe: %s" % str(e) )
-            ret = Context.CODE_FAILED
+            ret = self.context.CODE_FAILED
         return ret
     
     def delDefaultProbe(self, pName):
@@ -179,7 +189,7 @@ class ProbesManager(Logger.ClassLogger):
         @return:
         @rtype: boolean
         """
-        ret = Context.CODE_ERROR
+        ret = self.context.CODE_ERROR
         try:
             if self.configsFile is not None:
                 # remove the section in the config file object
@@ -202,13 +212,13 @@ class ProbesManager(Logger.ClassLogger):
 
 
                 # return OK
-                ret = Context.CODE_OK
+                ret = self.context.CODE_OK
         except ConfigParser.NoSectionError:
             self.error( "probe not found: %s" % str(pName) )    
-            ret = Context.CODE_NOT_FOUND
+            ret = self.context.CODE_NOT_FOUND
         except Exception as e:
             self.error( "unable to delete default probe: %s" % str(e) )
-            ret = Context.CODE_FAILED
+            ret = self.context.CODE_FAILED
         return ret
 
     def getRunning (self, b64=False):
@@ -264,11 +274,11 @@ class ProbesManager(Logger.ClassLogger):
         self.info( "Disconnect probe Name=%s" % name )
         if not name in PSI.instance().probesRegistered:
             self.trace( "disconnect probe, probe %s not found" % name )
-            return Context.CODE_NOT_FOUND
+            return self.context.CODE_NOT_FOUND
         else:
             probeProfile =  PSI.instance().probesRegistered[name]
             PSI.instance().stopClient(client=probeProfile['address'] )
-        return Context.CODE_OK
+        return self.context.CODE_OK
     
     def stopProbe(self, pname):
         """
@@ -377,12 +387,12 @@ def instance ():
     """
     return PM
 
-def initialize ():
+def initialize (context):
     """
     Instance creation
     """
     global PM
-    PM = ProbesManager()
+    PM = ProbesManager(context=context)
 
 def finalize ():
     """

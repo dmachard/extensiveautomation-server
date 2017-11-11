@@ -1,31 +1,13 @@
 
-17.1.0
-	Date: 22/10/2017
+18.0.0
+	Date: xx/xx/2017
 	What's new
-		1. (medium) New script to generate api key for user
-		2. (medium) Rest API: return None instead of undefined when the test result is not yet available
-		3. (major) Build: new nodejs v6.11 embedded by default
-		4. (medium) New email interop library
-		5. (medium) Build: new sut adapters 11.1.0
-		6. (major) Build: executable client, toolboxes and plugins are no more embedded by default, can be always added manually
-		7. (medium) Build: new client 12.1.0
-		8. (medium) Task Manager: new function to send test report in attachment
-		9. (minor) Web server: display download links only if additionals packages exists in server
-		10. (minor) Web server: alphabetical ordered for all users and projects list
-		11. (minor) Build: some improvements in default snippets (run_cmd,...)
-		12. (major) Test Library: new feature to save cache data in memory instead of a file
-		13. (minor) Test Library: new function to get previous step from a testcase
-		14. (medium) Cli: new state to indicate when the server is booting or not
-		15. (minor) Rest API: /results/status updated to return the progress of the execution in percent
-		16. (minor) Test Library: add wait message in the basic report
-		17. (major) Rest API: no more return test report in base64
-		18. (medium) Test Library: new json test properties 
-		19. (major) New function to terminate or interrupt a test or a testcase
+		1. (minor) test library: change open source project url in test report header
+		2. (major) toolboxes windows and linux no more embedded in the package
+		3. (medium) no more default agent and probe running on server side
+		4. (medium) no more toolbox deployed on boot server
+        5. (medium) build: update of the python selenium library with version 3.7.0
+        6. (minor) remove deprecated python modules: commands, compiler
+		7. (minor) rest api: /rest/results/report/basic/html updated to support replay id
 	Issues Fixed
-		1. (minor) Test Model: fix bad generic adapters/libraries version in loading modules event
-		2. (minor) Repo Archives: no more log an error when the test result is not found in repository
-		3. (minor) Task Manager: fix issue to enable to receive basic report by email
-		4. (medium) Test Library/TestModel: bad test executed on fail condition, only for testplan/testglobal
-		5. (minor) Test Library: wrong reference name for TestOperatorsLib in line 4456 - Issue #3
-		6. (minor) Test Library: Condition and Label methods of TestCase class missing in help - Issue #4
-		7. (minor) Test Library: fix error in test logger xml, bad variable name
+		1. (minor) test library: undefined variable in virtualRun function #issue1

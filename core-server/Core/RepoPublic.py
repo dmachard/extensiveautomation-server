@@ -25,8 +25,12 @@ import os
 import sys
 import scandir
 
+try:
+    import RepoManager
+except ImportError: # python3 support
+    from . import RepoManager
+    
 from Libs import Settings, Logger
-import RepoManager
 
 
 REPO_TYPE = 6

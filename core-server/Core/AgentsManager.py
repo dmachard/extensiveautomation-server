@@ -29,14 +29,24 @@ try:
 except ImportError:
     import json
 
-import AgentServerInterface as ASI
-import EventServerInterface as ESI
-import Context
-import Common
-
+try:
+    import AgentServerInterface as ASI
+    import EventServerInterface as ESI
+    # import Context
+    import Common
+except ImportError: # python3 support
+    from . import AgentServerInterface as ASI
+    from . import  EventServerInterface as ESI
+    # from . import Context
+    from . import  Common
+    
 from Libs import Settings, Logger
 
-import ConfigParser
+try:
+    import ConfigParser
+except ImportError: # python3 support
+    import configparser as ConfigParser
+    
 import os
 import signal
 import shlex
@@ -48,13 +58,14 @@ import tarfile
 
 
 class AgentsManager(Logger.ClassLogger):    
-    def __init__(self):
+    def __init__(self, context):
         """
         Construct Probes Manager
         """
-        self.pkgsAgentsPath = "%s/%s/%s/linux2/" % ( Settings.getDirExec(),   Settings.get( 'Paths', 'packages' ), 
-                                        Settings.get( 'Paths', 'agents' ) )
-
+        self.pkgsAgentsPath = "%s/%s/%s/linux2/" % (Settings.getDirExec(),   
+                                                    Settings.get( 'Paths', 'packages' ), 
+                                                    Settings.get( 'Paths', 'agents' ) )
+        self.context = context
         self.configsFile = None
         self.__pids__ = {}
 
@@ -89,8 +100,8 @@ class AgentsManager(Logger.ClassLogger):
         """
         ret= {}
         try:
-            ret['max-reg'] = Context.instance().getLicence()[ 'agents' ] [ 'instance' ]
-            ret['max-def'] = Context.instance().getLicence()[ 'agents' ] [ 'default' ]
+            ret['max-reg'] = self.context.getLicence()[ 'agents' ] [ 'instance' ]
+            ret['max-def'] = self.context.getLicence()[ 'agents' ] [ 'default' ]
         except Exception as e:
             self.error( "unable to get agents stats: %s" % e )
         else:
@@ -137,12 +148,12 @@ class AgentsManager(Logger.ClassLogger):
         @return:
         @rtype: boolean
         """
-        ret = Context.CODE_ERROR
+        ret = self.context.CODE_ERROR
         try:
             if self.configsFile is not None:
                 # check licence
-                if len(self.configsFile.sections()) >=  Context.instance().getLicence()[ 'agents' ] [ 'default' ]:
-                    ret = Context.CODE_FORBIDDEN
+                if len(self.configsFile.sections()) >=  self.context.getLicence()[ 'agents' ] [ 'default' ]:
+                    ret = self.context.CODE_FORBIDDEN
                 else:
                     # add the section in the config file object
                     self.configsFile.add_section(aName)
@@ -160,13 +171,13 @@ class AgentsManager(Logger.ClassLogger):
                     ESI.instance().notifyByUserTypes(body = notif, admin=True, leader=False, tester=True, developer=False)
                     
                     # return OK
-                    ret = Context.CODE_OK
+                    ret = self.context.CODE_OK
         except ConfigParser.DuplicateSectionError:
             self.error( "agent already exist %s" % str(aName) ) 
-            ret = Context.CODE_ALLREADY_EXISTS
+            ret = self.context.CODE_ALLREADY_EXISTS
         except Exception as e:
             self.error( "unable to add default agent: %s" % str(e) )
-            ret = Context.CODE_FAILED
+            ret = self.context.CODE_FAILED
         return ret
     
     def delDefaultAgent(self, aName):
@@ -179,7 +190,7 @@ class AgentsManager(Logger.ClassLogger):
         @return:
         @rtype: boolean
         """
-        ret = Context.CODE_ERROR
+        ret = self.context.CODE_ERROR
         try:
             if self.configsFile is not None:
                 # remove the section in the config file object
@@ -202,13 +213,13 @@ class AgentsManager(Logger.ClassLogger):
 
 
                 # return OK
-                ret = Context.CODE_OK
+                ret = self.context.CODE_OK
         except ConfigParser.NoSectionError:
             self.error( "agent not found: %s" % str(aName) )    
-            ret = Context.CODE_NOT_FOUND
+            ret = self.context.CODE_NOT_FOUND
         except Exception as e:
             self.error( "unable to delete default agent: %s" % str(e) )
-            ret = Context.CODE_FAILED
+            ret = self.context.CODE_FAILED
         return ret
 
     def getRunning (self, b64=False):
@@ -264,11 +275,11 @@ class AgentsManager(Logger.ClassLogger):
         self.info( "Disconnect agent Name=%s" % name )
         if not name in ASI.instance().agentsRegistered:
             self.trace( "disconnect agent, agent %s not found" % name )
-            return Context.CODE_NOT_FOUND
+            return self.context.CODE_NOT_FOUND
         else:
             agentProfile =  ASI.instance().agentsRegistered[name]
             ASI.instance().stopClient(client=agentProfile['address'] )
-        return Context.CODE_OK
+        return self.context.CODE_OK
 
     def stopAgent(self, aname):
         """
@@ -377,12 +388,12 @@ def instance ():
     """
     return AM
 
-def initialize ():
+def initialize (context):
     """
     Instance creation
     """
     global AM
-    AM = AgentsManager()
+    AM = AgentsManager(context=context)
 
 def finalize ():
     """

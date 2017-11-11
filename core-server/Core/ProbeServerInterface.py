@@ -21,21 +21,26 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-import Libs.NetLayerLib.ServerAgent as NetLayerLib
-import Libs.NetLayerLib.Messages as Messages
-import Libs.NetLayerLib.ClientAgent as ClientAgent
-import EventServerInterface as ESI
-import RepoArchives
-import Context
-
-from Libs import Settings, Logger
-
 import threading
 import shutil
 import os
 
+try:
+    import EventServerInterface as ESI
+    import RepoArchives
+    # import Context
+except ImportError: # python3 support
+    from . import EventServerInterface as ESI
+    from . import RepoArchives
+    # from . import Context
+    
+import Libs.NetLayerLib.ServerAgent as NetLayerLib
+import Libs.NetLayerLib.Messages as Messages
+import Libs.NetLayerLib.ClientAgent as ClientAgent
+from Libs import Settings, Logger
+
 class ProbeServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
-    def __init__ (self, listeningAddress, agentName = 'PSI', sslSupport=False, wsSupport=False):
+    def __init__ (self, listeningAddress, agentName = 'PSI', sslSupport=False, wsSupport=False, context=None):
         """
         Construct Probe Server Interface
 
@@ -52,10 +57,13 @@ class ProbeServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
                                             selectTimeout=Settings.get( 'Network', 'select-timeout' ),
                                             sslSupport=sslSupport,
                                             wsSupport=wsSupport,
-                                            certFile='%s/%s' % (Settings.getDirExec(),Settings.get( 'Probe_Channel', 'channel-ssl-cert' )), 
-                                            keyFile='%s/%s' % (Settings.getDirExec(),Settings.get( 'Probe_Channel', 'channel-ssl-key' )),
+                                            certFile='%s/%s' % (Settings.getDirExec(),
+                                                                Settings.get( 'Probe_Channel', 'channel-ssl-cert' )), 
+                                            keyFile='%s/%s' % (Settings.getDirExec(),
+                                                               Settings.get( 'Probe_Channel', 'channel-ssl-key' )),
                                             pickleVer=Settings.getInt( 'Network', 'pickle-version' )
                                         )
+        self.context = context
         self.__mutex = threading.RLock()
         self.probesRegistered = {}
         self.probesPublicIp = {}
@@ -251,8 +259,9 @@ class ProbeServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
                                                     'mb-used': RepoArchives.instance().getSizeRepo(folder=RepoArchives.instance().testsPath),
                                                     'mb-free': RepoArchives.instance().freeSpace(p=RepoArchives.instance().testsPath) }
                     data = ( 'archive', ( None, notif) )    
-                    #ESI.instance().notifyByUserTypes(body = data, admin=True, leader=False, tester=True, developer=False)
-                    ESI.instance().notifyByUserAndProject(body = data, admin=True, leader=False, tester=True, developer=False, projectId="%s" % projectId)
+
+                    ESI.instance().notifyByUserAndProject(body = data, admin=True, leader=False, 
+                                                          tester=True, developer=False, projectId="%s" % projectId)
         
             except Exception as e:
                 self.error( "unable to notify users for this new file: %s" % e )
@@ -279,7 +288,7 @@ class ProbeServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         self.trace(" on registration" )
         self.__mutex.acquire()
         doNotify=False
-        if len(self.probesRegistered) >= Context.instance().getLicence()[ 'probes' ] [ 'instance' ]:
+        if len(self.probesRegistered) >= self.context.getLicence()[ 'probes' ] [ 'instance' ]:
             self.info('license probes reached')
             NetLayerLib.ServerAgent.forbidden(self, client, tid)
         elif request['userid'] in  self.probesRegistered:
@@ -319,7 +328,8 @@ class ProbeServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         if doNotify:
             # Notify all connected users
             notif = ( 'probes', ( 'add', self.getProbes() ) )
-            ESI.instance().notifyByUserTypes(body = notif, admin=True, leader=False, tester=True, developer=False)
+            ESI.instance().notifyByUserTypes(body = notif, admin=True, 
+                                            leader=False, tester=True, developer=False)
         self.__mutex.release()
 
     def onDisconnection (self, client):
@@ -339,7 +349,8 @@ class ProbeServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
                 del publicip
                 self.info( 'Probe unregistered: Name="%s"' % k )
                 notif = ( 'probes', ( 'del', self.getProbes() ) )
-                ESI.instance().notifyByUserTypes(body = notif, admin=True, leader=False, tester=True, developer=False)
+                ESI.instance().notifyByUserTypes(body = notif, admin=True, 
+                                                leader=False, tester=True, developer=False)
                 del ret
                 break
 
@@ -360,7 +371,7 @@ def instance ():
     """
     return PSI
 
-def initialize (listeningAddress, sslSupport, wsSupport):
+def initialize (listeningAddress, sslSupport, wsSupport, context):
     """
     Instance creation
 
@@ -368,7 +379,9 @@ def initialize (listeningAddress, sslSupport, wsSupport):
     @type listeningAddress:
     """
     global PSI
-    PSI = ProbeServerInterface( listeningAddress = listeningAddress, sslSupport=sslSupport, wsSupport=wsSupport)
+    PSI = ProbeServerInterface( listeningAddress = listeningAddress, 
+                                sslSupport=sslSupport, wsSupport=wsSupport,
+                                context=context)
 
 def finalize ():
     """

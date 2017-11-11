@@ -23,14 +23,19 @@
 
 import Libs.NetLayerLib.ServerAgent as NetLayerLib
 from Libs import Logger, Settings
-import Context
 
-import ProjectsManager
+try:
+    # import Context
+    import ProjectsManager
+except ImportError: # python3 support
+    # from . import Context
+    from . import ProjectsManager
+
 import threading
 
 
 class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
-    def __init__ (self, listeningAddress, agentName = 'ESI', sslSupport=False, wsSupport=False):
+    def __init__ (self, listeningAddress, agentName = 'ESI', sslSupport=False, wsSupport=False, context=None):
         """
         Event server interface
 
@@ -47,20 +52,25 @@ class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
                                             selectTimeout=Settings.get( 'Network', 'select-timeout' ),
                                             sslSupport=sslSupport,
                                             wsSupport=wsSupport,
-                                            certFile='%s/%s' % (Settings.getDirExec(),Settings.get( 'Client_Channel', 'channel-ssl-cert' )), 
-                                            keyFile='%s/%s' % (Settings.getDirExec(),Settings.get( 'Client_Channel', 'channel-ssl-key' )),
+                                            certFile='%s/%s' % (Settings.getDirExec(),
+                                                                Settings.get( 'Client_Channel', 'channel-ssl-cert' )), 
+                                            keyFile='%s/%s' % (Settings.getDirExec(),
+                                                                Settings.get( 'Client_Channel', 'channel-ssl-key' )),
                                             pickleVer=Settings.getInt( 'Network', 'pickle-version' )
                                         )
         self.__mutex__ = threading.RLock()
+        self.context = context
 
     def onWsHanshakeSuccess(self, clientId, publicIp):
         """
         Called on ws handshake successful
         """
         self.trace("WS handshake successful for privateip=%s publicip=%s" % (str(clientId),publicIp) )
+        
         client  = self.clients[clientId]
         self.trace('ws sending notify to channel id: %s' % str(client.client_address) )
-        body = ('reg', {'channel-id': client.client_address, 'session-id': '', 'public-ip': publicIp } )
+        body = ('reg', {'channel-id': client.client_address, 
+                        'session-id': '', 'public-ip': publicIp } )
         NetLayerLib.ServerAgent.notify(self, client = client.client_address, data = body)
 
     def onConnection (self, client):
@@ -71,6 +81,7 @@ class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         @type client:
         """
         self.trace("New connection Client=%s" % str(client.client_address) )
+        
         NetLayerLib.ServerAgent.onConnection( self, client )
         if not self.wsSupport:
             self.trace('sending notify to channel id: %s' % str(client.client_address) )
@@ -85,10 +96,11 @@ class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         @type client:
         """
         self.trace("Disconnection Client=%s" % str(client.client_address) )
+        
         NetLayerLib.ServerAgent.onDisconnection(self, client)
         self.__mutex__.acquire()
-        if Context.instance() is not None:
-            Context.instance().unregisterUser( user = client.client_address )
+        if self.context is not None:
+            self.context.unregisterUser( user = client.client_address )
         self.__mutex__.release()
 
     def notify (self, body, toUser=None, toAddress=None):
@@ -107,9 +119,10 @@ class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         else: from_user = body[1]['from']
         
         self.trace('Sending notify User=%s' % from_user)
-        connected = Context.instance().getUsersConnectedCopy()
+        connected = self.context.getUsersConnectedCopy()
         if from_user in connected:
-            NetLayerLib.ServerAgent.notify(self, client = connected[from_user]['address'], data = body)
+            NetLayerLib.ServerAgent.notify( self, client = connected[from_user]['address'], 
+                                            data = body)
         del connected
 
     def interact (self, body, timeout=0.0):
@@ -125,14 +138,15 @@ class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         # search user
         destUser = None
         rsp = None
-        connected = Context.instance().getUsersConnectedCopy()
+        connected = self.context.getUsersConnectedCopy()
         if to_user in connected:
             destUser = connected[to_user]
 
         if destUser is None:
             self.trace( 'user not found: %s' % to_user )
         else:
-            rsp = NetLayerLib.ServerAgent.cmd(self, client = destUser['address'], data = body, timeout=timeout)
+            rsp = NetLayerLib.ServerAgent.cmd(  self, client = destUser['address'], data = body, 
+                                                timeout=timeout)
         # cleanup 
         del connected
         return rsp
@@ -145,16 +159,21 @@ class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         @type body:
         """
         self.trace('Sending notify to all users')
-        connected = Context.instance().getUsersConnectedCopy()
+        
+        connected = self.context.getUsersConnectedCopy()
         for cur_user in connected:
-            NetLayerLib.ServerAgent.notify(self, client = connected[cur_user]['address'], data = body)
+            NetLayerLib.ServerAgent.notify( self, client = connected[cur_user]['address'], 
+                                            data = body)
         del connected
 
     def notifyByUserAndProject(self, body, admin=False, leader=False, tester=False, developer=False, projectId=1):
         """
         """
-        self.trace('Sending notify to the following user types and project: admin=%s, leader=%s, tester=%s, developer=%s' % (admin,leader,tester,developer) )
-        connected = Context.instance().getUsersConnectedCopy()
+        self.trace('Sending notify to admin=%s, leader=%s, tester=%s, developer=%s' % ( admin,
+                                                                                        leader,
+                                                                                        tester,
+                                                                                        developer) )
+        connected = self.context.getUsersConnectedCopy()
         for cur_user in connected:
             # An user can have multiple right so this variable is here to avoid multiple notify
             toNotify = False 
@@ -171,10 +190,12 @@ class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
 
             # Finaly notify the user of not
             if toNotify:
-                projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=cur_user, projectId=projectId)
+                projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(  user=cur_user, 
+                                                                                            projectId=projectId)
                 self.trace( "project is authorized ? %s" % projectAuthorized)
                 if projectAuthorized:    
-                    NetLayerLib.ServerAgent.notify(self, client = connected[cur_user]['address'], data = body)
+                    NetLayerLib.ServerAgent.notify( self, client = connected[cur_user]['address'], 
+                                                    data = body)
         del connected
         
     def notifyByUserTypes (self, body, admin=False, leader=False, tester=False, developer=False):
@@ -196,8 +217,12 @@ class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         @param developer:
         @type developer: boolean
         """
-        self.trace('Sending notify to the following user types: admin=%s, leader=%s, tester=%s, developer=%s' % (admin,leader,tester,developer) )
-        connected = Context.instance().getUsersConnectedCopy()
+        self.trace('Sending notify to admin=%s, leader=%s, tester=%s, developer=%s' % ( admin,
+                                                                                        leader,
+                                                                                        tester,
+                                                                                        developer) )
+                                                                                        
+        connected = self.context.getUsersConnectedCopy()
         for cur_user in connected:
             # An user can have multiple right so this variable is here to avoid multiple notify
             toNotify = False 
@@ -214,7 +239,8 @@ class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
 
             # Finaly notify the user of not
             if toNotify:
-                NetLayerLib.ServerAgent.notify(self, client = connected[cur_user]['address'], data = body)
+                NetLayerLib.ServerAgent.notify( self, client = connected[cur_user]['address'], 
+                                                data = body)
         del connected
 
     def notifyAllAdmins(self, body):
@@ -269,7 +295,7 @@ def instance ():
     """
     return ESI
 
-def initialize (listeningAddress, sslSupport, wsSupport):
+def initialize (listeningAddress, sslSupport, wsSupport, context=None):
     """
     Instance creation
 
@@ -277,7 +303,9 @@ def initialize (listeningAddress, sslSupport, wsSupport):
     @type listeningAddress:
     """
     global ESI
-    ESI = EventServerInterface( listeningAddress = listeningAddress, sslSupport=sslSupport, wsSupport=wsSupport)
+    ESI = EventServerInterface( listeningAddress = listeningAddress, 
+                                sslSupport=sslSupport, wsSupport=wsSupport,
+                                context=context)
 
 def finalize ():
     """

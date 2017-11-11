@@ -21,7 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-import MySQLdb
+try:
+    import MySQLdb
+except ImportError: # python3 support
+    import pymysql as MySQLdb
 import os
 import base64
 import zlib
@@ -32,8 +35,13 @@ try:
 except ImportError:
     import json
 
-import DbManager
-import Context
+try:
+    import DbManager
+    # import Context
+except ImportError: # python3 support
+    from . import DbManager
+    # from . import Context
+
 from Libs import Settings, Logger
 
 DEFAULT_PRJ_ID = "1"
@@ -41,14 +49,15 @@ DEFAULT_PRJ_ID = "1"
 class ProjectsManager(Logger.ClassLogger):  
     """
     """
-    def __init__(self):
+    def __init__(self, context):
         """
         Class Projects Manager
         """
         self.table_name = '%s-projects' % Settings.get( 'MySql', 'table-prefix')
         self.table_name_user = '%s-users' % Settings.get( 'MySql', 'table-prefix')
         self.repoTests ='%s/%s' % ( Settings.getDirExec(), Settings.get( 'Paths', 'tests' ) )
-    
+        self.context = context
+        
         # Initialize the repository
         self.info( 'Deploying default common project...' )
         self.createDefaultCommon()
@@ -84,7 +93,7 @@ class ProjectsManager(Logger.ClassLogger):
         """
         self.trace("adding reserved folders")
         code, prjsList = self.getProjectsFromDB()
-        if code != Context.CODE_OK:
+        if code != self.context.CODE_OK:
             return
         
         for prj in prjsList:
@@ -115,8 +124,12 @@ class ProjectsManager(Logger.ClassLogger):
         """
         # get user id 
         prjs = []
-        sql = 'SELECT r.project_id, p.name FROM `%s-users` u,`%s-relations-projects` r, `%s-projects` p  WHERE u.login="%s" and u.id=r.user_id AND r.project_id=p.id ;' % (
-                    Settings.get( 'MySql', 'table-prefix'), Settings.get( 'MySql', 'table-prefix'), Settings.get( 'MySql', 'table-prefix'),  user )
+        sql = 'SELECT r.project_id, p.name FROM `%s-users` u,`%s-relations-projects` r, `%s-projects` p ' % (
+                                                                                    Settings.get( 'MySql', 'table-prefix'), 
+                                                                                    Settings.get( 'MySql', 'table-prefix'), 
+                                                                                    Settings.get( 'MySql', 'table-prefix')
+                                                                                 )
+        sql += 'WHERE u.login="%s" and u.id=r.user_id AND r.project_id=p.id ;' % ( user )
         ret, rows = DbManager.instance().querySQL( query=sql, columnName=True )
         if not ret:
             self.error( 'unable to get project from db for the user %s: %s' % (user, str(ret)) )
@@ -133,8 +146,12 @@ class ProjectsManager(Logger.ClassLogger):
         Check if the project id provided is authorized for the user
         """
         ret = False
-        sql = 'SELECT r.project_id, p.name FROM `%s-users` u,`%s-relations-projects` r, `%s-projects` p  WHERE u.login="%s" and u.id=r.user_id AND r.project_id=p.id ;' % (
-            Settings.get( 'MySql', 'table-prefix'), Settings.get( 'MySql', 'table-prefix'), Settings.get( 'MySql', 'table-prefix'),  user )
+        sql = 'SELECT r.project_id, p.name FROM `%s-users` u,`%s-relations-projects` r, `%s-projects` p ' % (
+                                                                                        Settings.get( 'MySql', 'table-prefix'),
+                                                                                        Settings.get( 'MySql', 'table-prefix'),
+                                                                                        Settings.get( 'MySql', 'table-prefix')
+                                                                                     )
+        sql += 'WHERE u.login="%s" and u.id=r.user_id AND r.project_id=p.id ;' % (  user )
         retDb, rows = DbManager.instance().querySQL( query=sql, columnName=True )
         if not retDb:
             self.error( 'unable to get project from db for the user %s: %s' % (user, str(retDb)) )
@@ -174,8 +191,8 @@ class ProjectsManager(Logger.ClassLogger):
         """
         self.trace( 'get default project for the user %s from db' % user)
         pid = 1 # default project
-        ret, rows = DbManager.instance().querySQL( query="SELECT defaultproject FROM `%s` WHERE login='%s'" % (self.table_name_user, user ),
-                                                    columnName=True)
+        sql = "SELECT defaultproject FROM `%s` WHERE login='%s'" % (self.table_name_user, user )
+        ret, rows = DbManager.instance().querySQL( query=sql, columnName=True)
         if not ret:
             self.error( 'unable to get the default project for the user %s from db: %s' % ( user, str(ret) ) )
         else:
@@ -191,8 +208,8 @@ class ProjectsManager(Logger.ClassLogger):
         """
         self.trace( 'Get project id by name "%s" from db' % name)
         pid = 0 # default project
-        ret, rows = DbManager.instance().querySQL( query="SELECT id FROM `%s` WHERE name='%s'" % (self.table_name, name ),
-                                                    columnName=True)
+        sql = "SELECT id FROM `%s` WHERE name='%s'" % (self.table_name, name )
+        ret, rows = DbManager.instance().querySQL( query=sql, columnName=True)
         if not ret:
             self.error( 'unable to get the project id for the name %s from db: %s' % ( name, str(ret) ) )
         else:
@@ -211,8 +228,8 @@ class ProjectsManager(Logger.ClassLogger):
         
         if int(prjId) == 0: return prjName
         
-        ret, rows = DbManager.instance().querySQL( query="SELECT name FROM `%s` WHERE id=%s" % (self.table_name, prjId ),
-                                                    columnName=True)
+        sql = "SELECT name FROM `%s` WHERE id=%s" % (self.table_name, prjId )
+        ret, rows = DbManager.instance().querySQL( query=sql, columnName=True)
         if not ret:
             self.error( 'unable to get the project name for id %s from db: %s' % ( prjId, str(ret) ) )
         else:
@@ -264,7 +281,7 @@ class ProjectsManager(Logger.ClassLogger):
             else:
                 shutil.rmtree( "%s/%s" % (self.repoTests,prjId) )
                 ret = True
-        except OSError, e:
+        except OSError as e:
             self.trace( e )
             ret = False
         except Exception as e:
@@ -284,24 +301,24 @@ class ProjectsManager(Logger.ClassLogger):
         dbRet, dbRows = DbManager.instance().querySQL( query = sql  )
         if not dbRet: 
             self.error( "unable to read project's table" )
-            return (Context.CODE_ERROR, "unable to read project's table")
-        if len(dbRows): return (Context.CODE_ALLREADY_EXISTS, "this name already exists")
+            return (self.context.CODE_ERROR, "unable to read project's table")
+        if len(dbRows): return (self.context.CODE_ALLREADY_EXISTS, "this name already exists")
             
         # insert in db
         sql = """INSERT INTO `%s-projects`(`name`, `active` ) VALUES('%s', '1')""" % (prefix, escape(projectName))
         dbRet, lastRowId = DbManager.instance().querySQL( query = sql, insertData=True  )
         if not dbRet: 
             self.error("unable to insert project")
-            return (Context.CODE_ERROR, "unable to insert project")
+            return (self.context.CODE_ERROR, "unable to insert project")
 
         # create the folder according to the id of the project
         added = self.addProject(prjId=int(lastRowId) )
         if not added: 
             self.error("unable to add project")
             # todo, cancel the previous insert
-            return (Context.CODE_ERROR, "unable to add project")
+            return (self.context.CODE_ERROR, "unable to add project")
         
-        return (Context.CODE_OK, "%s" % int(lastRowId) )
+        return (self.context.CODE_OK, "%s" % int(lastRowId) )
         
     def updateProjectFromDB(self, projectName, projectId):
         """
@@ -313,32 +330,32 @@ class ProjectsManager(Logger.ClassLogger):
         # not possible to delete default project common
         if int(projectId) == 1:
             self.error("delete the default project not authorized")
-            return (Context.CODE_ERROR, "delete the default project not authorized")
+            return (self.context.CODE_ERROR, "delete the default project not authorized")
         
         # find the project id
         sql = """SELECT * FROM `%s-projects` WHERE  id='%s'""" % ( prefix, escape(projectId) )
         dbRet, dbRows = DbManager.instance().querySQL( query = sql  )
         if not dbRet: 
             self.error( "unable to read project id" )
-            return (Context.CODE_ERROR, "unable to read project id")
-        if not len(dbRows): return (Context.CODE_NOT_FOUND, "this project id does not exist")
+            return (self.context.CODE_ERROR, "unable to read project id")
+        if not len(dbRows): return (self.context.CODE_NOT_FOUND, "this project id does not exist")
         
         # check if the name of the project already exists
         sql = """SELECT * FROM `%s-projects` WHERE  name='%s'""" % ( prefix, escape(projectName) )
         dbRet, dbRows = DbManager.instance().querySQL( query = sql  )
         if not dbRet: 
             self.error( "unable to read project's table" )
-            return (Context.CODE_ERROR, "unable to read project's table")
-        if len(dbRows): return (Context.CODE_ALLREADY_EXISTS, "this name already exists")
+            return (self.context.CODE_ERROR, "unable to read project's table")
+        if len(dbRows): return (self.context.CODE_ALLREADY_EXISTS, "this name already exists")
         
         # update in db
         sql = """UPDATE `%s-projects` SET name='%s' WHERE id='%s'""" % ( prefix, escape(projectName), escape(projectId) )
         dbRet, dbRows = DbManager.instance().querySQL( query = sql  )
         if not dbRet: 
             self.error( "unable to update project by id" )
-            return (Context.CODE_ERROR, "unable to update project by id")
+            return (self.context.CODE_ERROR, "unable to update project by id")
             
-        return (Context.CODE_OK, "" )
+        return (self.context.CODE_OK, "" )
         
     def delProjectFromDB(self, projectId):
         """
@@ -350,40 +367,40 @@ class ProjectsManager(Logger.ClassLogger):
         # not possible to delete default project common
         if int(projectId) == 1:
             self.error("delete the default project not authorized")
-            return (Context.CODE_ERROR, "delete the default project not authorized")
+            return (self.context.CODE_ERROR, "delete the default project not authorized")
         
         # find the project id
         sql = """SELECT * FROM `%s-projects` WHERE  id='%s'""" % ( prefix, escape(projectId) )
         dbRet, dbRows = DbManager.instance().querySQL( query = sql  )
         if not dbRet: 
             self.error( "unable to read project id" )
-            return (Context.CODE_ERROR, "unable to read project id")
-        if not len(dbRows): return (Context.CODE_NOT_FOUND, "this project id does not exist")
+            return (self.context.CODE_ERROR, "unable to read project id")
+        if not len(dbRows): return (self.context.CODE_NOT_FOUND, "this project id does not exist")
             
         # checking relations projects`
         sql = """SELECT COUNT(*) as nbrelation FROM `%s-relations-projects` WHERE  project_id='%s'""" % ( prefix, escape(projectId) )
         dbRet, dbRows = DbManager.instance().querySQL( query = sql, columnName=True  )
         if not dbRet: 
             self.error( "unable to read project relations" )
-            return (Context.CODE_ERROR, "unable to read project relations")
+            return (self.context.CODE_ERROR, "unable to read project relations")
         if dbRows[0]["nbrelation"]:
-            return (Context.CODE_ERROR, "unable to remove project because this project is linked with %s users" % dbRows["nbrelation"] )
+            return (self.context.CODE_ERROR, "unable to remove project because this project is linked with %s users" % dbRows["nbrelation"] )
         
         # delete from db
         sql = """DELETE FROM `%s-projects` WHERE  id='%s'""" % ( prefix, escape(projectId) )
         dbRet, dbRows = DbManager.instance().querySQL( query = sql  )
         if not dbRet: 
             self.error( "unable to remove project by id" )
-            return (Context.CODE_ERROR, "unable to remove project by id")
+            return (self.context.CODE_ERROR, "unable to remove project by id")
 
         # delete the folder according to the id of the project
         deleted = self.delProject(prjId=int(projectId) )
         if not deleted: 
             self.error("unable to delete project")
             # todo, cancel the previous delete
-            return (Context.CODE_ERROR, "unable to delete project")
+            return (self.context.CODE_ERROR, "unable to delete project")
             
-        return (Context.CODE_OK, "" )
+        return (self.context.CODE_OK, "" )
         
     def getProjectsFromDB(self):
         """
@@ -397,9 +414,9 @@ class ProjectsManager(Logger.ClassLogger):
         dbRet, dbRows = DbManager.instance().querySQL( query = sql, columnName=True  )
         if not dbRet: 
             self.error( "unable to read project's table" )
-            return (Context.CODE_ERROR, "unable to read project's table")
+            return (self.context.CODE_ERROR, "unable to read project's table")
 
-        return (Context.CODE_OK, dbRows )
+        return (self.context.CODE_OK, dbRows )
         
     def getProjectFromDB(self, projectName=None, projectId=None):
         """
@@ -418,9 +435,9 @@ class ProjectsManager(Logger.ClassLogger):
         dbRet, dbRows = DbManager.instance().querySQL( query = sql, columnName=True  )
         if not dbRet: 
             self.error( "unable to search project table" )
-            return (Context.CODE_ERROR, "unable to search project table")
+            return (self.context.CODE_ERROR, "unable to search project table")
 
-        return (Context.CODE_OK, dbRows )
+        return (self.context.CODE_OK, dbRows )
     
     def getStatisticsFromDb(self):
         """
@@ -431,9 +448,9 @@ class ProjectsManager(Logger.ClassLogger):
         dbRet, dbRows = DbManager.instance().querySQL( query = sql, columnName=True  )
         if not dbRet: 
             self.error( "unable to get statitics  for projects" )
-            return (Context.CODE_ERROR, "unable to get statitics  for projects")
+            return (self.context.CODE_ERROR, "unable to get statitics  for projects")
 
-        return (Context.CODE_OK, dbRows[0] )
+        return (self.context.CODE_OK, dbRows[0] )
         
     def trace(self, txt):
         """
@@ -451,12 +468,12 @@ def instance ():
     """
     return PM
 
-def initialize ():
+def initialize (context):
     """
     Instance creation
     """
     global PM
-    PM = ProjectsManager()
+    PM = ProjectsManager(context=context)
 
 def finalize ():
     """

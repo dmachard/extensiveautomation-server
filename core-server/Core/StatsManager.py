@@ -30,17 +30,23 @@ try:
 except ImportError:
     import json
 
-import EventServerInterface as ESI
-import DbManager
-import TaskManager
-
+try:
+    import EventServerInterface as ESI
+    import DbManager
+    import TaskManager
+except ImportError: # python3 support
+    from . import EventServerInterface as ESI
+    from . import DbManager
+    from . import TaskManager
+    
 from Libs import Settings, Logger
 
-PASS = "PASS"
-FAIL = "FAIL"
-UNDEFINED= "UNDEFINED"
-
 class StatsManager(Logger.ClassLogger):
+    """
+    """
+    PASS = "PASS"
+    FAIL = "FAIL"
+    UNDEFINED= "UNDEFINED"
     def __init__ (self):
         """
         Statistics Manager for tests
@@ -486,10 +492,6 @@ class StatsManager(Logger.ClassLogger):
                 raise Exception("unable to add result testcase in db")
         except Exception as e:
             self.error( e )
-        # else:
-            # if self.notifyUsers:
-                # data = ( 'stats', ( None, self.getStats() ) )   
-                # ESI.instance().notifyByUserTypes( body=data, admin=True, leader=True, tester=False, developer=False)
         self.__mutex__.release()
 
     def addResultTestUnit(self, tuResult, fromUser, tuDuration, nbTc, prjId):
@@ -522,10 +524,6 @@ class StatsManager(Logger.ClassLogger):
                 raise Exception("unable to add result testunit in db")
         except Exception as e:
             self.error( e )
-        # else:
-            # if self.notifyUsers:
-                # data = ( 'stats', ( None, self.getStats() ) )   
-                # ESI.instance().notifyByUserTypes( body=data, admin=True, leader=True, tester=False, developer=False)
         self.__mutex__.release()
         
     def addResultTestAbstract(self, taResult, fromUser, taDuration, nbTc, prjId):
@@ -558,10 +556,6 @@ class StatsManager(Logger.ClassLogger):
                 raise Exception("unable to add result testabstract in db")
         except Exception as e:
             self.error( e )
-        # else:
-            # if self.notifyUsers:
-                # data = ( 'stats', ( None, self.getStats() ) )   
-                # ESI.instance().notifyByUserTypes( body=data, admin=True, leader=True, tester=False, developer=False)
         self.__mutex__.release()
         
     def addResultTestSuite(self, tsResult, fromUser, tsDuration, nbTc, prjId):
@@ -594,10 +588,6 @@ class StatsManager(Logger.ClassLogger):
                 raise Exception("unable to add result testsuite in db")
         except Exception as e:
             self.error( e )
-        # else:
-            # if self.notifyUsers:
-                # data = ( 'stats', ( None, self.getStats() ) )   
-                # ESI.instance().notifyByUserTypes( body=data, admin=True, leader=True, tester=False, developer=False)
         self.__mutex__.release()
 
     def addResultTestPlan(self, tpResult, fromUser, tpDuration, nbTs, nbTu, nbTc, prjId):
@@ -633,10 +623,6 @@ class StatsManager(Logger.ClassLogger):
                 raise Exception("unable to add result testplan in db")
         except Exception as e:
             self.error( e )
-        # else:
-            # if self.notifyUsers:
-                # data = ( 'stats', ( None, self.getStats() ) )   
-                # ESI.instance().notifyByUserTypes( body=data, admin=True, leader=True, tester=False, developer=False)
         self.__mutex__.release()
 
     def addResultTestGlobal(self, tgResult, fromUser, tgDuration, nbTs, nbTu, nbTc, prjId):
@@ -678,10 +664,6 @@ class StatsManager(Logger.ClassLogger):
                 raise Exception("unable to add result testglobals in db")
         except Exception as e:
             self.error( e )
-        # else:
-            # if self.notifyUsers:
-                # data = ( 'stats', ( None, self.getStats() ) )   
-                # ESI.instance().notifyByUserTypes( body=data, admin=True, leader=True, tester=False, developer=False)
         self.__mutex__.release()
 
     def addWritingDuration(self, fromUser, prjId, writingDuration, isTs=False, isTp=False, isTu=False, isTg=False, isTa=False):
@@ -724,10 +706,6 @@ class StatsManager(Logger.ClassLogger):
         except Exception as e:
             self.error( e )
             rlt = False
-        # else:
-            # if self.notifyUsers:
-                # data = ( 'stats', ( None, self.getStats() ) )   
-                # ESI.instance().notifyByUserTypes( body=data, admin=True, leader=True, tester=False, developer=False)
         self.__mutex__.release()
         return rlt
 

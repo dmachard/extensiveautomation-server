@@ -25,7 +25,7 @@ import time
 import sys
 import threading
 import os
-import commands
+# import commands
 import zlib
 import base64
 import copy
@@ -34,7 +34,7 @@ from datetime import timedelta
 try:
     import hashlib
     sha1_constructor = hashlib.sha1
-except ImportError, e: # support python 2.4
+except ImportError as e: # support python 2.4
     import sha
     sha1_constructor = sha.new
 try:
@@ -47,33 +47,43 @@ import platform
 import base64 
 import uuid
 
-import EventServerInterface as ESI
-import DbManager
-import UsersManager
-import StatsManager
-import RepoLibraries
-import RepoAdapters
-import ProjectsManager
-
+try:
+    import EventServerInterface as ESI
+    import DbManager
+    import UsersManager
+    import StatsManager
+    import RepoLibraries
+    import RepoAdapters
+    import ProjectsManager
+except ImportError: # python3 support
+    from . import EventServerInterface as ESI
+    from . import  DbManager
+    from . import  UsersManager
+    from . import  StatsManager
+    from . import  RepoLibraries
+    from . import  RepoAdapters
+    from . import  ProjectsManager
+    
 from Libs import Settings, Logger
 
 
-CODE_ERROR                = 500
-CODE_DISABLED             = 405
-CODE_NOT_FOUND            = 404
-CODE_LOCKED               = 421
-CODE_ALLREADY_EXISTS      = 420 # error in the name, should be remove in the future
-CODE_ALREADY_EXISTS       = 420
-CODE_ALLREADY_CONNECTED   = 416 # error in the name, should be remove in the future
-CODE_ALREADY_CONNECTED    = 416
-CODE_FORBIDDEN            = 403
-CODE_FAILED               = 400
-CODE_OK                   = 200
-
-LANG_EN                   = 0
-LANG_FR                   = 1
+def getstatusoutput(cmd):
+    """
+    Return (exitcode, output) of executing cmd in a shell.
+    """
+    try:
+        data = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+        exitcode = 0
+    except subprocess.CalledProcessError as ex:
+        data = ex.output
+        exitcode = ex.returncode
+    if data[-1:] == '\n':
+        data = data[:-1]
+    return exitcode, data
 
 class UserContext(Logger.ClassLogger):
+    """
+    """
     def __init__(self, login):
         """
         Class to construct a user context
@@ -186,6 +196,20 @@ class SessionExpireHandler(threading.Thread, Logger.ClassLogger):
 class Context(Logger.ClassLogger):  
     """
     """
+    CODE_ERROR                = 500
+    CODE_DISABLED             = 405
+    CODE_NOT_FOUND            = 404
+    CODE_LOCKED               = 421
+    CODE_ALLREADY_EXISTS      = 420 # error in the name, should be remove in the future
+    CODE_ALREADY_EXISTS       = 420
+    CODE_ALLREADY_CONNECTED   = 416 # error in the name, should be remove in the future
+    CODE_ALREADY_CONNECTED    = 416
+    CODE_FORBIDDEN            = 403
+    CODE_FAILED               = 400
+    CODE_OK                   = 200
+
+    LANG_EN                   = 0
+    LANG_FR                   = 1
     def __init__(self):
         """
         Construct context server
@@ -232,7 +256,11 @@ class Context(Logger.ClassLogger):
         Set apache version
         """
         try:
-            phpVersion = commands.getoutput( 'php -v' )
+            # phpVersion = commands.getoutput( 'php -v' )
+            phpVersion = subprocess.check_output( 'php -v', stderr=subprocess.STDOUT, shell=True )
+            phpVersion = phpVersion.strip()
+            self.trace("php version: %s" % phpVersion)
+            
             lines = phpVersion.splitlines()
             self.phpVersion = (lines[0].split(' ')[1]).strip()
         except Exception as e:
@@ -244,7 +272,11 @@ class Context(Logger.ClassLogger):
         Set apache version
         """
         try:
-            versionHttpd = commands.getoutput( 'httpd -v' )
+            # versionHttpd = commands.getoutput( 'httpd -v' )
+            versionHttpd = subprocess.check_output( 'httpd -v', stderr=subprocess.STDOUT, shell=True )
+            versionHttpd = versionHttpd.strip()
+            self.trace("httpd version: %s" % versionHttpd)
+            
             lines = versionHttpd.splitlines()
             self.apacheVersion = (lines[0].split(': ')[1]).strip()
         except Exception as e:
@@ -258,13 +290,20 @@ class Context(Logger.ClassLogger):
         ret=  {}
         try:
             ret['disk-usage'] = self.diskUsage(p= Settings.getDirExec() )
-            ret['disk-usage-logs'] = self.getSize(folder= "%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'logs')) )
-            ret['disk-usage-tmp'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'tmp')) )
-            ret['disk-usage-testresults'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'testsresults')) )
-            ret['disk-usage-adapters'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'adapters')) )
-            ret['disk-usage-libraries'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'libraries')) )
-            ret['disk-usage-backups'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'backups')) )
-            ret['disk-usage-tests'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'tests')) )
+            ret['disk-usage-logs'] = self.getSize(folder= "%s/%s" % (   Settings.getDirExec(), 
+                                                                        Settings.get( 'Paths', 'logs')) )
+            ret['disk-usage-tmp'] = self.getSize(folder="%s/%s" % ( Settings.getDirExec(), 
+                                                                    Settings.get( 'Paths', 'tmp')) )
+            ret['disk-usage-testresults'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), 
+                                                                            Settings.get( 'Paths', 'testsresults')) )
+            ret['disk-usage-adapters'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), 
+                                                                        Settings.get( 'Paths', 'adapters')) )
+            ret['disk-usage-libraries'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), 
+                                                                         Settings.get( 'Paths', 'libraries')) )
+            ret['disk-usage-backups'] = self.getSize(folder="%s/%s" % ( Settings.getDirExec(), 
+                                                                        Settings.get( 'Paths', 'backups')) )
+            ret['disk-usage-tests'] = self.getSize(folder="%s/%s" % ( Settings.getDirExec(), 
+                                                                      Settings.get( 'Paths', 'tests')) )
         except Exception as e:
             self.error( "unable to get server usage: %s"  % e )
         else:
@@ -319,9 +358,11 @@ class Context(Logger.ClassLogger):
             raise Exception('unable to extract key and iv: %s' % str(e) )
 
         
-        openssl_cmd = "%s aes-256-cbc -K %s -iv %s -d -in %s/Scripts/product.lic" % ( Settings.get('Bin', 'openssl'), key, iv, 
-                                Settings.getDirExec() ) 
-        code_ret, lic_str = commands.getstatusoutput(openssl_cmd)
+        openssl_cmd = "%s aes-256-cbc -K %s -iv %s -d -in %s/Scripts/product.lic" % ( Settings.get('Bin', 'openssl'), 
+                                                                                      key, iv, 
+                                                                                        Settings.getDirExec() ) 
+        # code_ret, lic_str = commands.getstatusoutput(openssl_cmd)
+        code_ret, lic_str = getstatusoutput(openssl_cmd)
         if code_ret:
             raise Exception('unable to decode licence' )
 
@@ -375,7 +416,8 @@ class Context(Logger.ClassLogger):
         try:
             DEVNULL = open(os.devnull, 'w')
             sys.stdout.write( "Generate all adapters packages...\n")
-            __cmd__ = "%s/Scripts/generate-adapters.sh %s/Scripts/" % (Settings.getDirExec(), Settings.getDirExec())
+            __cmd__ = "%s/Scripts/generate-adapters.sh %s/Scripts/" % (Settings.getDirExec(), 
+                                                                        Settings.getDirExec())
             subprocess.call(__cmd__, shell=True, stdout=DEVNULL, stderr=DEVNULL)  
             ret = True
         except Exception as e:
@@ -391,7 +433,8 @@ class Context(Logger.ClassLogger):
         try:
             DEVNULL = open(os.devnull, 'w')
             sys.stdout.write( "Generate all libraries packages...\n")
-            __cmd__ = "%s/Scripts/generate-libraries.sh %s/Scripts/" % (Settings.getDirExec(), Settings.getDirExec())
+            __cmd__ = "%s/Scripts/generate-libraries.sh %s/Scripts/" % (Settings.getDirExec(), 
+                                                                        Settings.getDirExec())
             subprocess.call(__cmd__, shell=True, stdout=DEVNULL, stderr=DEVNULL)  
             ret = True
         except Exception as e:
@@ -407,7 +450,8 @@ class Context(Logger.ClassLogger):
         try:
             DEVNULL = open(os.devnull, 'w')
             sys.stdout.write( "Generate samples packages...\n") 
-            __cmd__ = "%s/Scripts/generate-samples.sh %s/Scripts/" % (Settings.getDirExec(), Settings.getDirExec())
+            __cmd__ = "%s/Scripts/generate-samples.sh %s/Scripts/" % (Settings.getDirExec(), 
+                                                                      Settings.getDirExec())
             subprocess.call(__cmd__, shell=True, stdout=DEVNULL, stderr=DEVNULL)
             ret = True
         except Exception as e:
@@ -442,14 +486,18 @@ class Context(Logger.ClassLogger):
             raise Exception( 'unable to cleanup in db config' )
 
         ret, rows = DbManager.instance().querySQL( 
-                        query = """INSERT INTO `%s` (opt, value) VALUES ('%s', '%s')""" % (  self.table_name, "paths-main" , Settings.getDirExec() ) 
+                        query = """INSERT INTO `%s` (opt, value) VALUES ('%s', '%s')""" % ( self.table_name, 
+                                                                                            "paths-main" , 
+                                                                                            Settings.getDirExec() ) 
                     )
         if not ret:
             raise Exception( "unable to insert main-path in db config" )
 
         
         ret, rows = DbManager.instance().querySQL( 
-                        query = """INSERT INTO `%s` (opt, value) VALUES ('%s', '%s')""" % (  self.table_name, "server-version" , Settings.getVersion() ) 
+                        query = """INSERT INTO `%s` (opt, value) VALUES ('%s', '%s')""" % ( self.table_name, 
+                                                                                            "server-version" , 
+                                                                                            Settings.getVersion() ) 
                     )
         if not ret:
             raise Exception( "unable to insert version in db config" )
@@ -530,13 +578,20 @@ class Context(Logger.ClassLogger):
         nbLinesTableUsers = 0
         try:
             ret['disk-usage'] = self.diskUsage(p= Settings.getDirExec() )
-            ret['disk-usage-logs'] = self.getSize(folder= "%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'logs')) )
-            ret['disk-usage-tmp'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'tmp')) )
-            ret['disk-usage-testresults'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'testsresults')) )
-            ret['disk-usage-adapters'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'adapters')) )
-            ret['disk-usage-libraries'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'libraries')) )
-            ret['disk-usage-backups'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'backups')) )
-            ret['disk-usage-tests'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'tests')) )
+            ret['disk-usage-logs'] = self.getSize(folder= "%s/%s" % (Settings.getDirExec(), 
+                                                                     Settings.get( 'Paths', 'logs')) )
+            ret['disk-usage-tmp'] = self.getSize(folder="%s/%s" % ( Settings.getDirExec(), 
+                                                                    Settings.get( 'Paths', 'tmp')) )
+            ret['disk-usage-testresults'] = self.getSize(folder="%s/%s" % ( Settings.getDirExec(), 
+                                                                            Settings.get( 'Paths', 'testsresults')) )
+            ret['disk-usage-adapters'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), 
+                                                                        Settings.get( 'Paths', 'adapters')) )
+            ret['disk-usage-libraries'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), 
+                                                                         Settings.get( 'Paths', 'libraries')) )
+            ret['disk-usage-backups'] = self.getSize(folder="%s/%s" % ( Settings.getDirExec(), 
+                                                                        Settings.get( 'Paths', 'backups')) )
+            ret['disk-usage-tests'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), 
+                                                                     Settings.get( 'Paths', 'tests')) )
 
 
             nbLinesTableUsers = UsersManager.instance().getNbOfUsers()
@@ -554,7 +609,6 @@ class Context(Logger.ClassLogger):
                                                     int(nbTests[0]['nbtc'])
                                                 )
                       )
-            # number of tests: [{'nbta': 0L, 'nbtc': 0L, 'nbsc': 0L, 'nbtg': 0L, 'nbtp': 0L, 'nbts': 0L, 'nbtu': 0L}]
 
             ret['nb-line-table-scriptsstats'] = int(nbTests[0]['nbsc'])
             ret['nb-line-table-testplansstats'] = int(nbTests[0]['nbtp'])
@@ -677,25 +731,25 @@ class Context(Logger.ClassLogger):
         usersDb = UsersManager.instance().getUsersByLogin()
         if not login in usersDb:
             self.trace( "%s account not found" % login )
-            return (CODE_NOT_FOUND, expires)
+            return (self.CODE_NOT_FOUND, expires)
         
         user_profile = usersDb[login]
         
         # account disable ?
         if not user_profile['active']: 
             self.trace( "%s account not active" % login )
-            return (CODE_DISABLED, expires)
+            return (self.CODE_DISABLED, expires)
             
         if not user_profile['web']: 
             self.trace( "api access not authorized for %s account" % login )
-            return (CODE_FORBIDDEN, expires)
+            return (self.CODE_FORBIDDEN, expires)
             
         # check password, create a sha1 hash with salt: sha1( salt + sha1(password) )
         sha1 = sha1_constructor()
         sha1.update( "%s%s" % ( Settings.get( 'Misc', 'salt'), password )  )
         if user_profile['password'] != sha1.hexdigest():
             self.trace( "incorrect password for %s account" % login )
-            return (CODE_FAILED, expires)
+            return (self.CODE_FAILED, expires)
             
         session_id = self.generateSessionid()
         user_profile['last_activity'] = time.time()
@@ -738,7 +792,7 @@ class Context(Logger.ClassLogger):
         """
         try:
             self.trace( 'Checking access for Login=%s, Password=%s, FromGui=%s' % (login, password, fromGui) )
-            ret = CODE_ERROR
+            ret = self.CODE_ERROR
             level = []
 
             if not fromGui:
@@ -746,21 +800,23 @@ class Context(Logger.ClassLogger):
                 # check if this login exists on the database
                 usersDb = UsersManager.instance().getUsersByLogin()
                 if not login in usersDb:
-                    ret = CODE_NOT_FOUND
+                    ret = self.CODE_NOT_FOUND
                 else:
                     # login exist in db and not already connected so continue
                     user_profile = usersDb[login]
                     rightsLst = self.getLevels(userProfile=user_profile)
-                    self.trace("Get level for the Login=%s Access=%s ExpectedAccess=%s" % (login, ','.join(rightsLst), ','.join(rightsExpected)) )
+                    self.trace("Get level for the Login=%s Access=%s ExpectedAccess=%s" % (login, 
+                                                                                            ','.join(rightsLst), 
+                                                                                            ','.join(rightsExpected)) )
 
                     if not user_profile['active']: 
                         self.trace('API failed because Login=%s is not activated' % login)
-                        ret = CODE_NOT_FOUND
+                        ret = self.CODE_NOT_FOUND
                     else:
                         if not ( user_profile['web'] or user_profile['cli'] ): 
                             self.trace("user profile: %s" % user_profile)
                             self.trace( "API not authorized for Login=%s account" % login )
-                            return ( CODE_FORBIDDEN, level )
+                            return ( self.CODE_FORBIDDEN, level )
                             
                         # check the password, create a sha1 hash with salt: sha1( salt + sha1(password) )
                         sha1 = sha1_constructor()
@@ -768,7 +824,7 @@ class Context(Logger.ClassLogger):
                         if user_profile['password'] != sha1.hexdigest():
                             self.trace( "API failed, bad password for Login=%s account Pass=%s PassComputed=%s" % 
                                             (login, user_profile['password'], sha1.hexdigest()) )
-                            ret = CODE_FORBIDDEN
+                            ret = self.CODE_FORBIDDEN
                         else:
                             # check rights
                             rightFounded = False
@@ -777,29 +833,31 @@ class Context(Logger.ClassLogger):
                                     rightFounded = True
                                     break
                             if not rightFounded:
-                                ret = CODE_FAILED
+                                ret = self.CODE_FAILED
                                 self.trace( 'API forbidden, rights failed for Login=%s' %  login )
                             else:
-                                ret = CODE_OK
+                                ret = self.CODE_OK
                                 level = rightsLst
                                 self.trace( 'API granted for Login=%s' % login )
             else:
                 # check if the login is already connected
                 if not login in self.usersConnected:
                     self.trace('Authentication failed, user Login=%s not connected' % login)
-                    ret = CODE_NOT_FOUND
+                    ret = self.CODE_NOT_FOUND
                 else:
                     user_connected = self.usersConnected[login]
                     user_profile = user_connected['profile']
                     rightsLst = self.getLevels(userProfile=user_profile)
-                    self.trace("Get level for the Login=%s Access=%s ExpectedAccess=%s" % (login, ','.join(rightsLst), ','.join(rightsExpected) ) )
+                    self.trace("Get level for the Login=%s Access=%s ExpectedAccess=%s" % (login, 
+                                                                                            ','.join(rightsLst), 
+                                                                                            ','.join(rightsExpected) ) )
                     
                     # check the password, create a sha1 hash with salt: sha1( salt + sha1(password) )
                     sha1 = sha1_constructor()
                     sha1.update( "%s%s" % ( Settings.get('Misc', 'salt'), password ) )
                     if user_profile['password'] != sha1.hexdigest():
                         self.trace( 'Authentication failed, bad password for Login=%s' % login )
-                        ret = CODE_FORBIDDEN
+                        ret = self.CODE_FORBIDDEN
                     else:
                         # check rights
                         rightFounded = False
@@ -808,10 +866,10 @@ class Context(Logger.ClassLogger):
                                 rightFounded = True
                                 break
                         if not rightFounded:
-                            ret = CODE_FAILED
+                            ret = self.CODE_FAILED
                             self.trace( 'Access refused, rights failed for Login=%s' % login )
                         else:
-                            ret = CODE_OK
+                            ret = self.CODE_OK
                             level = rightsLst
                             self.trace( 'Access granted for Login=%s' % login )
         except Exception as e:
@@ -842,36 +900,36 @@ class Context(Logger.ClassLogger):
         usersDb = UsersManager.instance().getUsersByLogin()
         if not login in usersDb:
             self.trace( "%s account not found" % login )
-            return ( CODE_NOT_FOUND, False, 0 )
+            return ( self.CODE_NOT_FOUND, False, 0 )
 
         if fromGui:
             # check duplicate connection from the context
             if login in self.usersConnected:
                 self.trace( "%s account already connected" % login )
-                return ( CODE_ALLREADY_CONNECTED, False, 0 )
+                return ( self.CODE_ALLREADY_CONNECTED, False, 0 )
 
         # login exist in db and not already connected so continue
         user_profile = usersDb[login]
         
         if not user_profile['active']: 
             self.trace( "%s account not active" % login )
-            return ( CODE_DISABLED, False, 0 )
+            return ( self.CODE_DISABLED, False, 0 )
         
         if fromGui:
             if not user_profile['gui']: 
                 self.trace( "gui access not authorized for %s account" % login )
-                return ( CODE_FORBIDDEN, False, 0 )
+                return ( self.CODE_FORBIDDEN, False, 0 )
         else:
             if not user_profile['web']: 
                 self.trace( "api access not authorized for %s account" % login )
-                return ( CODE_FORBIDDEN, False, 0 )
+                return ( self.CODE_FORBIDDEN, False, 0 )
                 
         # check password, create a sha1 hash with salt: sha1( salt + sha1(password) )
         sha1 = sha1_constructor()
         sha1.update( "%s%s" % ( Settings.get( 'Misc', 'salt'), password )  )
         if user_profile['password'] != sha1.hexdigest():
             self.trace( "incorrect password for %s account" % login )
-            return ( CODE_FORBIDDEN, False, 0 )
+            return ( self.CODE_FORBIDDEN, False, 0 )
 
         if fromGui:
             # Authent OK, continue register this user on the context
@@ -879,7 +937,7 @@ class Context(Logger.ClassLogger):
 
         # append level of the user authorized and return it
         levels = self.getLevels(userProfile=user_profile)
-        return ( CODE_OK, levels, user_profile['id'] )
+        return ( self.CODE_OK, levels, user_profile['id'] )
 
     def getLevels(self, userProfile):
         """
@@ -906,11 +964,16 @@ class Context(Logger.ClassLogger):
         self.usersConnected[ user['profile']['login'] ] = user
         self.usersConnected[ user['profile']['login'] ]['connected-at'] = connStart
         self.usersConnected[ user['profile']['login'] ]['connection-id'] = connId
-        self.info( "User Registered: ConnectionID=%s PrivateAddress=%s Login=%s" % ( connId, user['address'],  user['profile']['login'] ) )
+        self.info( "User Registered: ConnectionID=%s PrivateAddress=%s Login=%s" % ( connId, 
+                                                                                    user['address'], 
+                                                                                    user['profile']['login'] ) )
 
         # update db
         UsersManager.instance().setOnlineStatus(login=user['profile']['login'], online=True)
-        UsersManager.instance().addStats(user=user['profile']['login'], connId=connId, startTime=connStart, duration=0)
+        UsersManager.instance().addStats(user=user['profile']['login'], 
+                                         connId=connId, 
+                                         startTime=connStart, 
+                                         duration=0)
     
         return True
 
@@ -922,7 +985,7 @@ class Context(Logger.ClassLogger):
         UsersManager.instance().setOnlineStatus(login=login, online=False)
         if not login in self.usersConnected:
             self.trace( "unregister user from api, user %s not found" % login )
-            return CODE_NOT_FOUND
+            return self.CODE_NOT_FOUND
         else:
             userProfile = self.usersConnected[login]
             
@@ -933,7 +996,7 @@ class Context(Logger.ClassLogger):
                 user_removed = self.usersConnected.pop(login)
                 del user_removed
                 
-        return CODE_OK
+        return self.CODE_OK
 
     def unregisterUser (self, user):
         """
@@ -951,7 +1014,9 @@ class Context(Logger.ClassLogger):
             self.trace( 'client %s not connected' % str(user) )
         else:
             user_removed = self.usersConnected.pop(userLogin)
-            self.info( "Conn id %s: User (%s,  %s) unregistered" % ( user_removed['connection-id'], user_removed['address'], userLogin ) )
+            self.info( "Conn id %s: User (%s,  %s) unregistered" % ( user_removed['connection-id'], 
+                                                                     user_removed['address'], 
+                                                                     userLogin ) )
 
             # update db
             UsersManager.instance().setOnlineStatus(login=userLogin, online=False)
@@ -1042,7 +1107,11 @@ class Context(Logger.ClassLogger):
         @return: server date
         @rtype: string
         """
-        dt = commands.getoutput( "%s --rfc-3339=seconds" % Settings.get('Bin', 'date') )
+        # dt = commands.getoutput( "%s --rfc-3339=seconds" % Settings.get('Bin', 'date') )
+        dt = subprocess.check_output( "%s --rfc-3339=seconds" % Settings.get('Bin', 'date'), 
+                                        stderr=subprocess.STDOUT, shell=True )
+        dt = dt.strip()
+        self.trace( 'Date Server: %s' % dt )
         return dt
 
     def getRn (self, pathRn, b64=False):
@@ -1087,8 +1156,12 @@ class Context(Logger.ClassLogger):
         10.0.0.0/8 dev eth1  proto kernel  scope link  src 10.9.1.132
         default via 204.62.14.1 dev eth0
         """
-        iproute = commands.getoutput( Settings.get('Bin', 'iproute') )
-
+        # iproute = commands.getoutput( Settings.get('Bin', 'iproute') )
+        iproute = subprocess.check_output(  Settings.get('Bin', 'iproute'), 
+                                            stderr=subprocess.STDOUT, shell=True )
+        iproute = iproute.strip()
+        self.trace( 'iproute: %s' % iproute )
+        
         # save all eths
         self.networkRoutes = iproute
 
@@ -1109,7 +1182,19 @@ class Context(Logger.ClassLogger):
             inet 10.9.1.132/8 brd 10.255.255.255 scope global eth1
         """
         eths = []
-        ipaddr = commands.getoutput( Settings.get('Bin', 'ipaddr') )
+        
+        # detect installed language 
+        # currentLang = self.detectLanguage()
+        # if currentLang is None:
+            # self.error( 'System language unknown')
+            # return eths
+            
+        # ipaddr = commands.getoutput( Settings.get('Bin', 'ipaddr') )
+        ipaddr = subprocess.check_output( Settings.get('Bin', 'ipaddr'), 
+                                          stderr=subprocess.STDOUT, shell=True )
+        ipaddr = ipaddr.strip()
+        self.trace( 'ipaddr: %s' % ipaddr )
+        
         try:
             eth_tmp = {}
             for line in ipaddr.splitlines():
@@ -1129,6 +1214,7 @@ class Context(Logger.ClassLogger):
                     eth_tmp = {}
         except Exception as e:
             self.error( 'unable to read network interfaces: %s' % e )
+        
         # adding this network
         eths.append( { 'name': 'all', 'ip':'0.0.0.0', 'mask': '255.0.0.0' } )
 
@@ -1143,13 +1229,19 @@ class Context(Logger.ClassLogger):
         @rtype: list
         """
         eths = []
+        
         # detect installed language 
-        currentLang = self.detectLanguage()
-        if currentLang is None:
-            self.error( 'System language unknown')
-            return eths
+        # currentLang = self.detectLanguage()
+        # if currentLang is None:
+            # self.error( 'System language unknown')
+            # return eths
+            
         # retrieve ifconfig command
-        ifconfig = commands.getoutput( Settings.get('Bin', 'ifconfig') )
+        # ifconfig = commands.getoutput( Settings.get('Bin', 'ifconfig') )
+        ifconfig = subprocess.check_output( Settings.get('Bin', 'ifconfig'),
+                                            stderr=subprocess.STDOUT, shell=True )
+        self.trace( 'ifconfig: %s' % ifconfig )
+        
         for eth in ifconfig.split('\n\n'):
             if currentLang == LANG_EN:
                 ret = self.parseEth_En(ethRaw=eth)
@@ -1159,6 +1251,7 @@ class Context(Logger.ClassLogger):
                 ret = self.parseEth_Fr(ethRaw=eth)
                 if ret is not None:
                     eths.append( ret )
+                    
         # adding this network
         eths.append( { 'name': 'all', 'ip':'0.0.0.0', 'mask': '255.0.0.0' } )
 
@@ -1169,7 +1262,11 @@ class Context(Logger.ClassLogger):
         """
         Detect the language
         """
-        lang = commands.getoutput( Settings.get('Bin', 'locale') )
+        # lang = commands.getoutput( Settings.get('Bin', 'locale') )
+        lang = subprocess.check_output( Settings.get('Bin', 'locale'), 
+                                        stderr=subprocess.STDOUT, shell=True )
+        self.trace( 'lang: %s' % lang )
+        
         lines = lang.splitlines()
         if lines[0].startswith('LANG=fr_FR'):
             return LANG_FR
@@ -1350,7 +1447,8 @@ class Context(Logger.ClassLogger):
                                     prj['project_id'] 
                         )
             else:
-                sql = 'SELECT * FROM `%s-test-environment` WHERE project_id="%s";' % ( Settings.get( 'MySql', 'table-prefix'), prj['project_id'] )
+                sql = 'SELECT * FROM `%s-test-environment` WHERE project_id="%s";' % ( Settings.get( 'MySql', 'table-prefix'), 
+                                                                                       prj['project_id'] )
             ret, rows = DbManager.instance().querySQL( query=sql, columnName=True )
             if not ret:
                 self.error( 'unable to get test environment for user %s: %s' % (user, str(ret)) )

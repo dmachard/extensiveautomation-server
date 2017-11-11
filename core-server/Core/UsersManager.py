@@ -21,14 +21,17 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-import MySQLdb
+try:
+    import MySQLdb
+except ImportError: # python3 support
+    import pymysql as MySQLdb
 import time
 import base64
 import zlib
 try:
     import hashlib
     sha1_constructor = hashlib.sha1
-except ImportError, e: # support python 2.4
+except ImportError as e: # support python 2.4
     import sha
     sha1_constructor = sha.new
 try:
@@ -37,23 +40,30 @@ try:
 except ImportError:
     import json
 
-import Context
-import DbManager
+# import Context
+try:
+    import DbManager
+except ImportError: # python3 support
+    from . import DbManager
+    
 from Libs import Settings, Logger
 
 def uniqid():
     """
+    Return a unique id
     """
     from time import time
     return hex(int(time()*10000000))[2:]
     
 class UsersManager(Logger.ClassLogger): 
     """
+    Users manager class
     """
-    def __init__(self):
+    def __init__(self, context):
         """
         Class User Manager
         """
+        self.context=context
         self.table_name = '%s-users' % Settings.get( 'MySql', 'table-prefix')
         self.table_name_stats = '%s-users-stats' % Settings.get( 'MySql', 'table-prefix')
 
@@ -223,8 +233,8 @@ class UsersManager(Logger.ClassLogger):
         dbRet, dbRows = DbManager.instance().querySQL( query = sql, columnName=True  )
         if not dbRet: 
             self.error( "unable to read user by name" )
-            return (Context.CODE_ERROR, "unable to read user by name")
-        if len(dbRows): return (Context.CODE_ALREADY_EXISTS, "this user name already exists")
+            return (self.context.CODE_ERROR, "unable to read user by name")
+        if len(dbRows): return (self.context.CODE_ALREADY_EXISTS, "this user name already exists")
         
         # create user in db
         lang = "en"
@@ -241,7 +251,7 @@ class UsersManager(Logger.ClassLogger):
         dbRet, lastRowId = DbManager.instance().querySQL( query = sql, insertData=True  )
         if not dbRet: 
             self.error("unable to insert user")
-            return (Context.CODE_ERROR, "unable to insert user")
+            return (self.context.CODE_ERROR, "unable to insert user")
         
         # adding relations-projects`
         sql = """INSERT INTO `%s-relations-projects`(`user_id`, `project_id`) VALUES""" % prefix
@@ -253,9 +263,9 @@ class UsersManager(Logger.ClassLogger):
         dbRet, _ = DbManager.instance().querySQL( query = sql, insertData=True  )
         if not dbRet: 
             self.error("unable to insert relations")
-            return (Context.CODE_ERROR, "unable to insert relations")
+            return (self.context.CODE_ERROR, "unable to insert relations")
                 
-        return (Context.CODE_OK, "%s" % int(lastRowId) )
+        return (self.context.CODE_OK, "%s" % int(lastRowId) )
         
     def delUserInDB(self, userId):
         """
@@ -267,34 +277,34 @@ class UsersManager(Logger.ClassLogger):
         # not possible to delete default usrs
         if int(userId) <= 4:
             self.error("delete default users not authorized")
-            return (Context.CODE_ERROR, "delete default users not authorized")
+            return (self.context.CODE_ERROR, "delete default users not authorized")
             
         # find user by id
         sql = """SELECT * FROM `%s-users` WHERE  id='%s'""" % ( prefix, escape(userId) )
         dbRet, dbRows = DbManager.instance().querySQL( query = sql, columnName=True  )
         if not dbRet: 
             self.error( "unable to read user id" )
-            return (Context.CODE_ERROR, "unable to read user id")
-        if not len(dbRows): return (Context.CODE_NOT_FOUND, "this user id does not exist")
+            return (self.context.CODE_ERROR, "unable to read user id")
+        if not len(dbRows): return (self.context.CODE_NOT_FOUND, "this user id does not exist")
         
         # disconnect user before deletion
-        disconnected = Context.instance().unregisterUserFromXmlrpc(login=dbRows[0]['login'])
+        disconnected = self.context.unregisterUserFromXmlrpc(login=dbRows[0]['login'])
         
         # delete from db
         sql = """DELETE FROM `%s-users` WHERE  id='%s'""" % ( prefix, escape(userId) )
         dbRet, dbRows = DbManager.instance().querySQL( query = sql  )
         if not dbRet: 
             self.error( "unable to remove user by id" )
-            return (Context.CODE_ERROR, "unable to remove user by id")
+            return (self.context.CODE_ERROR, "unable to remove user by id")
             
         # delete relations from db
         sql = """DELETE FROM `%s-relations-projects` WHERE  user_id='%s'""" % ( prefix, escape(userId) )
         dbRet, dbRows = DbManager.instance().querySQL( query = sql  )
         if not dbRet: 
             self.error( "unable to remove user relation" )
-            return (Context.CODE_ERROR, "unable to remove user relation")
+            return (self.context.CODE_ERROR, "unable to remove user relation")
             
-        return (Context.CODE_OK, "" )
+        return (self.context.CODE_OK, "" )
         
     def updateUserInDB(self, userId, email=None):
         """
@@ -308,8 +318,8 @@ class UsersManager(Logger.ClassLogger):
         dbRet, dbRows = DbManager.instance().querySQL( query = sql, columnName=True  )
         if not dbRet: 
             self.error( "unable to read user id" )
-            return (Context.CODE_ERROR, "unable to read user id")
-        if not len(dbRows): return (Context.CODE_NOT_FOUND, "this user id does not exist")
+            return (self.context.CODE_ERROR, "unable to read user id")
+        if not len(dbRows): return (self.context.CODE_NOT_FOUND, "this user id does not exist")
         
         sql_values = []
         if email is not None:
@@ -321,9 +331,9 @@ class UsersManager(Logger.ClassLogger):
             dbRet, _ = DbManager.instance().querySQL( query = sql )
             if not dbRet: 
                 self.error("unable to update user")
-                return (Context.CODE_ERROR, "unable to update user")
+                return (self.context.CODE_ERROR, "unable to update user")
             
-        return (Context.CODE_OK, "" )
+        return (self.context.CODE_OK, "" )
         
     def duplicateUserInDB(self, userId):
         """
@@ -338,8 +348,8 @@ class UsersManager(Logger.ClassLogger):
         dbRet, dbRows = DbManager.instance().querySQL( query = sql, columnName=True  )
         if not dbRet: 
             self.error( "unable to read user id" )
-            return (Context.CODE_ERROR, "unable to read user id")
-        if not len(dbRows): return (Context.CODE_NOT_FOUND, "this user id does not exist")
+            return (self.context.CODE_ERROR, "unable to read user id")
+        if not len(dbRows): return (self.context.CODE_NOT_FOUND, "this user id does not exist")
         user = dbRows[0]
         
         # duplicate user
@@ -363,17 +373,17 @@ class UsersManager(Logger.ClassLogger):
         dbRet, dbRows = DbManager.instance().querySQL( query = sql, columnName=True  )
         if not dbRet: 
             self.error( "unable to read user id" )
-            return (Context.CODE_ERROR, "unable to read user id")
-        if not len(dbRows): return (Context.CODE_NOT_FOUND, "this user id does not exist")
+            return (self.context.CODE_ERROR, "unable to read user id")
+        if not len(dbRows): return (self.context.CODE_NOT_FOUND, "this user id does not exist")
         
         # update
         sql = """UPDATE `%s-users` SET active='%s' WHERE id='%s'""" % (prefix, int(status), userId)
         dbRet, _ = DbManager.instance().querySQL( query = sql )
         if not dbRet: 
             self.error("unable to change the status of the user")
-            return (Context.CODE_ERROR, "unable to change the status of the user")
+            return (self.context.CODE_ERROR, "unable to change the status of the user")
             
-        return (Context.CODE_OK, "" )
+        return (self.context.CODE_OK, "" )
         
     def resetPwdUserInDB(self, userId):
         """
@@ -388,11 +398,11 @@ class UsersManager(Logger.ClassLogger):
         dbRet, dbRows = DbManager.instance().querySQL( query = sql, columnName=True  )
         if not dbRet: 
             self.error( "unable to read user id" )
-            return (Context.CODE_ERROR, "unable to read user id")
-        if not len(dbRows): return (Context.CODE_NOT_FOUND, "this user id does not exist")
+            return (self.context.CODE_ERROR, "unable to read user id")
+        if not len(dbRows): return (self.context.CODE_NOT_FOUND, "this user id does not exist")
         
         # disconnect user before 
-        disconnected = Context.instance().unregisterUserFromXmlrpc(login=dbRows[0]['login'])
+        disconnected = self.context.unregisterUserFromXmlrpc(login=dbRows[0]['login'])
         
         # update password
         emptypwd = sha1_constructor()
@@ -404,9 +414,9 @@ class UsersManager(Logger.ClassLogger):
         dbRet, _ = DbManager.instance().querySQL( query = sql )
         if not dbRet: 
             self.error("unable to reset pwd")
-            return (Context.CODE_ERROR, "unable to reset pwd")
+            return (self.context.CODE_ERROR, "unable to reset pwd")
             
-        return (Context.CODE_OK, "" )
+        return (self.context.CODE_OK, "" )
         
     def updatePwdUserInDB(self, userId, newPwd):
         """
@@ -421,11 +431,11 @@ class UsersManager(Logger.ClassLogger):
         dbRet, dbRows = DbManager.instance().querySQL( query = sql, columnName=True  )
         if not dbRet: 
             self.error( "unable to read user id" )
-            return (Context.CODE_ERROR, "unable to read user id")
-        if not len(dbRows): return (Context.CODE_NOT_FOUND, "this user id does not exist")
+            return (self.context.CODE_ERROR, "unable to read user id")
+        if not len(dbRows): return (self.context.CODE_NOT_FOUND, "this user id does not exist")
 
         # disconnect user before 
-        disconnected = Context.instance().unregisterUserFromXmlrpc(login=dbRows[0]['login'])
+        disconnected = self.context.unregisterUserFromXmlrpc(login=dbRows[0]['login'])
         
         # update password
         sha1 = sha1_constructor()
@@ -435,9 +445,9 @@ class UsersManager(Logger.ClassLogger):
         dbRet, _ = DbManager.instance().querySQL( query = sql )
         if not dbRet: 
             self.error("unable to update pwd")
-            return (Context.CODE_ERROR, "unable to update pwd")
+            return (self.context.CODE_ERROR, "unable to update pwd")
             
-        return (Context.CODE_OK, "" )
+        return (self.context.CODE_OK, "" )
         
     def getUsersFromDB(self):
         """
@@ -451,9 +461,9 @@ class UsersManager(Logger.ClassLogger):
         dbRet, dbRows = DbManager.instance().querySQL( query = sql, columnName=True  )
         if not dbRet: 
             self.error( "unable to read user's table" )
-            return (Context.CODE_ERROR, "unable to read user's table")
+            return (self.context.CODE_ERROR, "unable to read user's table")
 
-        return (Context.CODE_OK, dbRows )
+        return (self.context.CODE_OK, dbRows )
         
     def getUserFromDB(self, userId=None, userLogin=None):
         """
@@ -471,9 +481,9 @@ class UsersManager(Logger.ClassLogger):
         dbRet, dbRows = DbManager.instance().querySQL( query = sql, columnName=True  )
         if not dbRet: 
             self.error( "unable to search user table" )
-            return (Context.CODE_ERROR, "unable to search user table")
+            return (self.context.CODE_ERROR, "unable to search user table")
 
-        return (Context.CODE_OK, dbRows[0] )
+        return (self.context.CODE_OK, dbRows[0] )
     
     def getStatisticsFromDb(self):
         """
@@ -485,9 +495,9 @@ class UsersManager(Logger.ClassLogger):
         dbRet, dbRows = DbManager.instance().querySQL( query = sql, columnName=True  )
         if not dbRet: 
             self.error( "unable to get statitics  for users" )
-            return (Context.CODE_ERROR, "unable to get statitics  for users")
+            return (self.context.CODE_ERROR, "unable to get statitics  for users")
 
-        return (Context.CODE_OK, dbRows[0] )
+        return (self.context.CODE_OK, dbRows[0] )
         
     def trace(self, txt):
         """
@@ -506,12 +516,12 @@ def instance ():
     """
     return UM
 
-def initialize ():
+def initialize (context):
     """
     Instance creation
     """
     global UM
-    UM = UsersManager()
+    UM = UsersManager(context=context)
 
 def finalize ():
     """

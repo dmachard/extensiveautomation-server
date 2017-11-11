@@ -21,23 +21,31 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-import RepoManager
-import EventServerInterface as ESI
-import RepoArchives
-import Context
-
-from Libs import Settings, Logger
-
 import os
 import shutil
 import time
 
+try:
+    import RepoManager
+    import EventServerInterface as ESI
+    import RepoArchives
+    # import Context
+except ImportError: # python3 support
+    from . import RepoManager
+    from . import EventServerInterface as ESI
+    from . import RepoArchives
+    # from . import Context
+    
+from Libs import Settings, Logger
+
 class StorageDataAdapters(RepoManager.RepoManager, Logger.ClassLogger):
-    def __init__(self):
+    def __init__(self, context):
         """
         Storage data adapters
         """
-        RepoManager.RepoManager.__init__(self, pathRepo='%s%s' % (Settings.getDirExec(), Settings.get( 'Paths', 'tmp' )) )
+        RepoManager.RepoManager.__init__(self, pathRepo='%s%s' % (Settings.getDirExec(), Settings.get( 'Paths', 'tmp' )),
+                                        context=context)
+        self.context = context
         self.prefixAdapters = "adapter"
         self.prefixAdaptersAll = "private_storage"
         self.adpDataPath = "%s/AdaptersData" % self.testsPath
@@ -64,7 +72,7 @@ class StorageDataAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         mainDir = "%s/%s" % (self.adpDataPath, dirProject)
         try: 
             if not os.path.exists( mainDir ):
-                os.mkdir( mainDir, 0755 ) 
+                os.mkdir( mainDir, 0o755 ) 
                 self.trace( "sub adapters storage created: %s" %  dirProject)
         except Exception as e:
             self.error( "sub adapters folder creation error: %s" % str(e) )
@@ -72,7 +80,7 @@ class StorageDataAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         mainDir = "%s/%s/%s" % (self.adpDataPath, dirProject, dirToday)
         try: 
             if not os.path.exists( mainDir ):
-                os.mkdir( mainDir, 0755 ) 
+                os.mkdir( mainDir, 0o755 ) 
                 self.trace( "sub adapters storage created: %s" %  dirToday)
         except Exception as e:
             self.error( "sub adapters folder creation error: %s" % str(e) )
@@ -83,7 +91,7 @@ class StorageDataAdapters(RepoManager.RepoManager, Logger.ClassLogger):
             if os.path.exists( testDir  ):
                 shutil.rmtree( testDir )
             else:
-                os.mkdir( testDir, 0755 ) 
+                os.mkdir( testDir, 0o755 ) 
                 self.trace( "sub test adapters storage created: %s" %  dirTest)
         except Exception as e:
             self.error( "sub test adapters folder creation error: %s" % str(e) )
@@ -114,7 +122,7 @@ class StorageDataAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         """
         try:
             if not os.path.exists( self.adpDataPath ):
-                os.mkdir( self.adpDataPath, 0755 )
+                os.mkdir( self.adpDataPath, 0o755 )
                 self.trace( "adapters storage created" )
         except Exception as e:
             self.trace( "folder creation error: %s" % str(e) )
@@ -149,7 +157,7 @@ class StorageDataAdapters(RepoManager.RepoManager, Logger.ClassLogger):
             # zip the folder
             zipped = self.zipFolder(folderPath=testDir, zipName="%s.zip" % fileName, zipPath=destPathZip)
 
-            if zipped == Context.CODE_OK:
+            if zipped == self.context.CODE_OK:
                 # notify users
                 if Settings.getInt( 'Notifications', 'archives'):
                     size_ = os.path.getsize( "%s/%s.zip" % (destPathZip, fileName) )
@@ -209,7 +217,7 @@ class StorageDataAdapters(RepoManager.RepoManager, Logger.ClassLogger):
                                             extToInclude = [], # include all files
                                             keepTree=False 
                                         ) 
-                    if zipped == Context.CODE_OK:
+                    if zipped == self.context.CODE_OK:
 
                         # notify users
                         if Settings.getInt( 'Notifications', 'archives'):
@@ -241,12 +249,12 @@ def instance ():
     """
     return SDAMng
 
-def initialize ():
+def initialize (context):
     """
     Instance creation
     """
     global SDAMng
-    SDAMng = StorageDataAdapters()
+    SDAMng = StorageDataAdapters(context=context)
 
 def finalize ():
     """

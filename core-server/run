@@ -34,14 +34,22 @@ import sys
 parser = OptionParser()
 parser.set_usage("./run [start|stop|restart|reload|generate|deploy|run|version]")
 
-parser.add_option('--start', dest='start', default=False, action='store_true', help="Start the server.")
-parser.add_option('--stop', dest='stop', default=False, action='store_true', help="Stop the server.")
-parser.add_option('--status', dest='status', default=False, action='store_true', help='Show the current status of the server.')
-parser.add_option('--reload', dest='reload', default=False, action='store_true', help='Reload the configuration of the server.')
-parser.add_option('--generate', dest='generate', default=False, action='store_true', help='Generate all tar.gz packages (adapters, libraries and samples).')
-parser.add_option('--deploy', dest='deploy', default=False, action='store_true', help='Deploy all clients, agents and probes.')
-parser.add_option('--run', dest='run', default=False, action='store_true', help='Run one test or more (Common:/Samples/Tests_Unit/01_Initial_test.tux)' )
-parser.add_option('--version', dest='version', default=False, action='store_true', help='Show the version.')
+parser.add_option('--start', dest='start', default=False, 
+                    action='store_true', help="Start the server.")
+parser.add_option('--stop', dest='stop', default=False, 
+                    action='store_true', help="Stop the server.")
+parser.add_option('--status', dest='status', default=False, 
+                    action='store_true', help='Show the current status of the server.')
+parser.add_option('--reload', dest='reload', default=False, 
+                    action='store_true', help='Reload the configuration of the server.')
+parser.add_option('--generate', dest='generate', default=False, 
+                    action='store_true', help='Generate all tar.gz packages (adapters, libraries and samples).')
+parser.add_option('--deploy', dest='deploy', default=False, 
+                    action='store_true', help='Deploy all clients, agents and probes.')
+parser.add_option('--run', dest='run', default=False, 
+                    action='store_true', help='Run one test or more (Common:/Samples/Tests_Unit/01_Initial_test.tux)' )
+parser.add_option('--version', dest='version', default=False, 
+                    action='store_true', help='Show the version.')
 
 (options, args) = parser.parse_args()
 

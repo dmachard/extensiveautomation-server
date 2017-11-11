@@ -26,12 +26,17 @@
 # the test is not compliant with python recommandation
 # /!\ WARNING /!\
 
-import TestModel
-
-import RepoAdapters
-import RepoLibraries
-
-import Common 
+try:
+    import TestModel
+    import RepoAdapters
+    import RepoLibraries
+    import Common
+except ImportError: # python3 support
+    from . import TestModel
+    from . import RepoAdapters
+    from . import RepoLibraries
+    from . import Common
+    
 indent = Common.indent
 
 def createSubTest(dataTest, descriptions, trPath, defaultLibrary='', defaultAdapter='', isTestUnit=True, 

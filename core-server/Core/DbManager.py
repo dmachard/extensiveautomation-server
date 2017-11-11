@@ -21,7 +21,10 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-import MySQLdb
+try:
+    import MySQLdb
+except ImportError: # python3 support
+    import pymysql as MySQLdb
 import time
 import inspect
 
@@ -94,7 +97,7 @@ class DbManager(Logger.ClassLogger):
             conn.commit ()
             conn.close ()
             ret = True
-        except MySQLdb.Error, e:
+        except MySQLdb.Error as e:
             self.error( "unable to execute sql query: %s" % e ) 
         return ret, rows
     

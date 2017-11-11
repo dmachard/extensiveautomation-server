@@ -39,25 +39,41 @@ import wrapt
 
 from Libs import Settings, Logger
 
-import Context
-import ProjectsManager
-import RepoTests
-import RepoPublic
-import RepoArchives
-import TaskManager
-import AgentsManager
-import ProbesManager
-import RepoAdapters
-import RepoLibraries
-import ToolboxManager
-import UsersManager
-import CliFunctions
-import HelperManager
-
+try:
+    import Context
+    import ProjectsManager
+    import RepoTests
+    import RepoPublic
+    import RepoArchives
+    import TaskManager
+    import AgentsManager
+    import ProbesManager
+    import RepoAdapters
+    import RepoLibraries
+    import ToolboxManager
+    import UsersManager
+    import CliFunctions
+    import HelperManager
+except ImportError: # python3 support
+    from . import Context
+    from . import ProjectsManager
+    from . import RepoTests
+    from . import RepoPublic
+    from . import RepoArchives
+    from . import TaskManager
+    from . import AgentsManager
+    from . import ProbesManager
+    from . import RepoAdapters
+    from . import RepoLibraries
+    from . import ToolboxManager
+    from . import UsersManager
+    from . import CliFunctions
+    from . import HelperManager
+    
 try:
     import hashlib
     sha1_constructor = hashlib.sha1
-except ImportError, e: # support python 2.4
+except ImportError as e: # support python 2.4
     import sha
     sha1_constructor = sha.new
     
@@ -264,16 +280,16 @@ class SessionLogin(Handler):
         # check user access 
         (userSession, expires) = Context.instance().apiAuthorization(login=login, password=password)
         
-        if userSession == Context.CODE_NOT_FOUND:
+        if userSession == Context.instance().CODE_NOT_FOUND:
             raise HTTP_401("Invalid login")
 
-        if userSession == Context.CODE_DISABLED:
+        if userSession == Context.instance().CODE_DISABLED:
             raise HTTP_401("Account disabled")
 
-        if userSession == Context.CODE_FORBIDDEN:
+        if userSession == Context.instance().CODE_FORBIDDEN:
             raise HTTP_401("Access not authorized")
 
-        if userSession == Context.CODE_FAILED:
+        if userSession == Context.instance().CODE_FAILED:
             raise HTTP_401("Invalid  password")
 
         lease = Settings.get('Users_Session', 'max-expiry-age') #in seconds
@@ -696,7 +712,7 @@ class TasksReset(Handler):
         user_profile = _get_user(request=self.request)
 
         success, details = TaskManager.instance().resetHistoryInDb()
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
         return { "cmd": self.request.path, "message": "tasks successfully reseted" }
     
@@ -816,9 +832,9 @@ class PublicDirectoryAdd(Handler):
         folderPath = os.path.normpath("/" + folderPath )
         
         success = RepoPublic.instance().addDir(pathFolder=folderPath, folderName=folderName)  
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to add directory")
-        if success == Context.CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALLREADY_EXISTS:
             raise HTTP_403("Directory already exists")
             
         return { "cmd": self.request.path, "message": "directory successfully added" } 
@@ -906,11 +922,11 @@ class PublicDirectoryRename(Handler):
         
         success = RepoTests.instance().renameDir(mainPath=folderPath, oldPath=folderName, 
                                                 newPath=newFolderName)  
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to rename directory")
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_500("Unable to rename directory: source directory not found")
-        if success == Context.CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALLREADY_EXISTS:
             raise HTTP_403("Directory already exists")
             
         return { "cmd": self.request.path, "message": "directory successfully renamed" }
@@ -993,19 +1009,19 @@ class PublicDirectoryRemove(Handler):
         
         if recursive:
             success = RepoTests.instance().delDirAll(folderPath)  
-            if success == Context.CODE_ERROR:
+            if success == Context.instance().CODE_ERROR:
                 raise HTTP_500("Unable to remove directory")
-            if success == Context.CODE_NOT_FOUND:
+            if success == Context.instance().CODE_NOT_FOUND:
                 raise HTTP_500("Unable to remove directory (missing)")
-            if success == Context.CODE_FORBIDDEN:
+            if success == Context.instance().CODE_FORBIDDEN:
                 raise HTTP_403("Removing directory denied")
         else:
             success = RepoTests.instance().delDir(folderPath)  
-            if success == Context.CODE_ERROR:
+            if success == Context.instance().CODE_ERROR:
                 raise HTTP_500("Unable to remove directory")
-            if success == Context.CODE_NOT_FOUND:
+            if success == Context.instance().CODE_NOT_FOUND:
                 raise HTTP_500("Unable to remove directory (missing)")
-            if success == Context.CODE_FORBIDDEN:
+            if success == Context.instance().CODE_FORBIDDEN:
                 raise HTTP_403("Cannot remove directory")
                 
         return { "cmd": self.request.path, "message": "directory successfully removed" }
@@ -1090,9 +1106,9 @@ class PublicImport(Handler):
             
         success, _, _, _, _ = RepoTests.instance().importFile( pathFile=filePath, nameFile=fileName, extFile=fileExtension,
                                                                contentFile=fileContent, binaryMode=True)  
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to add file")
-        if success == Context.CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALLREADY_EXISTS:
             raise HTTP_403("File already exists")
             
         return { "cmd": self.request.path, "message": "file sucessfully imported" }
@@ -1126,11 +1142,11 @@ class PublicRemove(Handler):
         filePath = os.path.normpath("/" + filePath )
         
         success = RepoTests.instance().delFile( pathFile=filePath, supportSnapshot=False)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to remove file")
-        if success == Context.CODE_FAILED:
+        if success == Context.instance().CODE_FAILED:
             raise HTTP_403("Remove file denied")
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("File does not exists")
             
         return { "cmd": self.request.path, "message": "file sucessfully removed" }
@@ -1179,11 +1195,11 @@ class PublicRename(Handler):
                                                     extFilename=fileExt,
                                                     supportSnapshot=False
                                                     )
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to rename file")
-        if success == Context.CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALLREADY_EXISTS:
             raise HTTP_403("Rename file denied")
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("File does not exists")
             
         return { "cmd": self.request.path, "message": "file sucessfully renamed" }
@@ -1216,7 +1232,7 @@ class PublicDownload(Handler):
         filePath = os.path.normpath("/" + filePath )
         
         success, _, _, _, content, _, _ = RepoTests.instance().getFile(pathFile=filePath, binaryMode=True, addLock=False)  
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_500("Unable to download file")
 
         return { "cmd": self.request.path, "file-content": content }
@@ -1270,7 +1286,7 @@ class AdaptersSetDefault(Handler):
             raise HTTP_400("Bad request provided (%s ?)" % e)
 
         success =  RepoAdapters.instance().setDefaultV2(packageName)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to set as default the package %s" % adapters )
 
         return { "cmd": self.request.path, "status": success }
@@ -1300,7 +1316,7 @@ class AdaptersSetGeneric(Handler):
             raise HTTP_400("Bad request provided (%s ?)" % e)
 
         success =  RepoAdapters.instance().setGeneric(packageName)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to set as generic the package %s" % adapters )
                 
         return { "cmd": self.request.path, "status": success }
@@ -1373,7 +1389,7 @@ class LibrariesSetDefault(Handler):
             raise HTTP_400("Bad request provided (%s ?)" % e)
 
         success =  RepoLibraries.instance().setDefaultV2(packageName)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to set as default the package %s" % libraries )
 
         return { "cmd": self.request.path, "status": success }
@@ -1403,7 +1419,7 @@ class LibrariesSetGeneric(Handler):
             raise HTTP_400("Bad request provided (%s ?)" % e)
 
         success =  RepoLibraries.instance().setGeneric(packageName)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to set as generic the package %s" % libraries )
                 
         return { "cmd": self.request.path,  "status": success }
@@ -2051,7 +2067,7 @@ class TestsDownload(Handler):
         filePath = os.path.normpath("/" + filePath )
         
         success, _, _, _, content, _, _ = RepoTests.instance().getFile(pathFile=filePath, binaryMode=True, project=prjId, addLock=False)  
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_500("Unable to download file")
 
         return { "cmd": self.request.path, "file-content": content }
@@ -2111,9 +2127,9 @@ class TestsImport(Handler):
             
         success, _, _, _, _ = RepoTests.instance().importFile( pathFile=filePath, nameFile=fileName, extFile=fileExtension,
                                                                                 contentFile=fileContent, binaryMode=True, project=prjId)  
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to add file")
-        if success == Context.CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALLREADY_EXISTS:
             raise HTTP_403("File already exists")
             
         return { "cmd": self.request.path, "message": "file sucessfully imported" }
@@ -2162,11 +2178,11 @@ class TestsRemove(Handler):
         filePath = os.path.normpath("/" + filePath )
         
         success = RepoTests.instance().delFile( pathFile=filePath, project=prjId, supportSnapshot=False)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to remove file")
-        if success == Context.CODE_FAILED:
+        if success == Context.instance().CODE_FAILED:
             raise HTTP_403("Remove file denied")
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("File does not exists")
             
         return { "cmd": self.request.path, "message": "file sucessfully removed" }
@@ -2237,11 +2253,11 @@ class TestsRename(Handler):
                                                     project=prjId, 
                                                     supportSnapshot=False
                                                     )
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to rename file")
-        if success == Context.CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALLREADY_EXISTS:
             raise HTTP_403("Rename file denied")
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("File does not exists")
             
         return { "cmd": self.request.path, "message": "file sucessfully renamed" }
@@ -2333,11 +2349,11 @@ class TestsDuplicate(Handler):
                                                         newProject=newPrjId,
                                                         newMainPath=newFilePath
                                                     )
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to duplicate file")
-        if success == Context.CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALLREADY_EXISTS:
             raise HTTP_403("Duplicate file denied")
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("File does not exists")
             
         return { "cmd": self.request.path, "message": "file sucessfully duplicated" }
@@ -2425,11 +2441,11 @@ class TestsMove(Handler):
                                                         project=prjId, 
                                                         newProject=newPrjId
                                                     )
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to move file")
-        if success == Context.CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALLREADY_EXISTS:
             raise HTTP_403("Move file denied")
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("File does not exists")
             
         return { "cmd": self.request.path, "message": "file sucessfully moved" }
@@ -2481,7 +2497,7 @@ class TestsInstance(Handler):
         filePath = os.path.normpath("/" + filePath )
         
         success, tests = RepoTests.instance().findInstance( filePath=filePath, projectName=projectName, projectId=prjId)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to find tests instance")
 
         return { "cmd": self.request.path, "tests-instance": tests }
@@ -2533,9 +2549,9 @@ class TestsDirectoryAdd(Handler):
         folderPath = os.path.normpath("/" + folderPath )
         
         success = RepoTests.instance().addDir(pathFolder=folderPath, folderName=folderName, project=prjId)  
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to add directory")
-        if success == Context.CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALLREADY_EXISTS:
             raise HTTP_403("Directory already exists")
             
         return { "cmd": self.request.path, "message": "directory successfully added" }
@@ -2596,11 +2612,11 @@ class TestsDirectoryRename(Handler):
         
         success = RepoTests.instance().renameDir(mainPath=folderPath, oldPath=folderName, 
                                                 newPath=newFolderName, project=prjId)  
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to rename directory")
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_500("Unable to rename directory: source directory not found")
-        if success == Context.CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALLREADY_EXISTS:
             raise HTTP_403("Directory already exists")
             
         return { "cmd": self.request.path, "message": "directory successfully renamed" }
@@ -2689,11 +2705,11 @@ class TestsDirectoryDuplicate(Handler):
                                                     newProject=newPrjId, 
                                                     newMainPath=newFolderPath
                                                 )  
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to duplicate directory")
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_500("Unable to duplicate directory: source directory not found")
-        if success == Context.CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALLREADY_EXISTS:
             raise HTTP_403("Directory already exists")
             
         return { "cmd": self.request.path, "message": "directory successfully duplicated" }
@@ -2781,11 +2797,11 @@ class TestsDirectoryMove(Handler):
                                                     project=prjId, 
                                                     newProject=newPrjId
                                                 )  
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to move directory")
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_500("Unable to move directory: source directory not found")
-        if success == Context.CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALLREADY_EXISTS:
             raise HTTP_403("Directory already exists")
             
         return { "cmd": self.request.path, "message": "directory successfully moved" }
@@ -2848,19 +2864,19 @@ class TestsDirectoryRemove(Handler):
         
         if recursive:
             success = RepoTests.instance().delDirAll(folderPath, prjId)  
-            if success == Context.CODE_ERROR:
+            if success == Context.instance().CODE_ERROR:
                 raise HTTP_500("Unable to remove directory")
-            if success == Context.CODE_NOT_FOUND:
+            if success == Context.instance().CODE_NOT_FOUND:
                 raise HTTP_500("Unable to remove directory (missing)")
-            if success == Context.CODE_FORBIDDEN:
+            if success == Context.instance().CODE_FORBIDDEN:
                 raise HTTP_403("Removing directory denied")
         else:
             success = RepoTests.instance().delDir(folderPath, prjId)  
-            if success == Context.CODE_ERROR:
+            if success == Context.instance().CODE_ERROR:
                 raise HTTP_500("Unable to remove directory")
-            if success == Context.CODE_NOT_FOUND:
+            if success == Context.instance().CODE_NOT_FOUND:
                 raise HTTP_500("Unable to remove directory (missing)")
-            if success == Context.CODE_FORBIDDEN:
+            if success == Context.instance().CODE_FORBIDDEN:
                 raise HTTP_403("Cannot remove directory")
                 
         return { "cmd": self.request.path, "message": "directory successfully removed" }
@@ -2967,9 +2983,9 @@ class VariablesAdd(Handler):
             
         success, details = RepoTests.instance().addVariableInDB(projectId=prjId, variableName=variableName,
                                                                 variableValue=variableValue)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
-        if success == Context.CODE_ALREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403(details)
             
         return { "cmd": self.request.path, "message": "variable successfully added", "variable-id": details }
@@ -3062,9 +3078,9 @@ class VariablesDuplicate(Handler):
             raise HTTP_403('Access denied to this project')
             
         success, details = RepoTests.instance().duplicateVariableInDB(variableId=variableId, projectId=prjId)
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404(details)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
 
         return { "cmd": self.request.path, "message": "variable successfully duplicated", "variable-id": details }
@@ -3169,9 +3185,9 @@ class VariablesUpdate(Handler):
             
         success, details = RepoTests.instance().updateVariableInDB(variableId=variableId, variableName=variableName, 
                                                                     variableValue=variableValue, projectId=prjId)
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404(details)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
 
         return { "cmd": self.request.path, "message": "variable successfully updated" }
@@ -3253,7 +3269,7 @@ class VariablesReset(Handler):
             raise HTTP_403('Access denied to this project')
             
         success, details = RepoTests.instance().delVariablesInDB(projectId=prjId)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
 
         return { "cmd": self.request.path, "message": "variables successfully reseted" }
@@ -3343,9 +3359,9 @@ class VariablesRemove(Handler):
             raise HTTP_403('Access denied to this project')
             
         success, details = RepoTests.instance().delVariableInDB(variableId=variableId, projectId=prjId)
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404(details)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
             
         return { "cmd": self.request.path, "message": "variable successfully removed" }
@@ -3450,7 +3466,7 @@ class VariablesListing(Handler):
             
 
         success, details = RepoTests.instance().getVariablesFromDB(projectId=prjId)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
         
         # new in v17 convert as json the result 
@@ -3582,7 +3598,7 @@ class VariablesSearch(Handler):
             raise HTTP_403('Access denied to this project')
             
         success, details = RepoTests.instance().getVariableFromDB(projectId=prjId, variableName=variableName, variableId=variableId)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
         if len(details) == 0:
             raise HTTP_404("Variable not found")
@@ -3701,13 +3717,13 @@ class ResultsDownloadResume(Handler):
         
         # extract the real test path according the test id
         founded, testPath = RepoArchives.instance().findTrInCache(projectId=prjId, testId=testId)
-        if founded == Context.CODE_NOT_FOUND:
+        if founded == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404('test not found')
             
         success, resume = RepoArchives.instance().getTrResume(trPath=testPath)
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("Test resume not found")
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to prepare test resume")
             
         return { "cmd": self.request.path, 'test-id': testId, 'project-id': prjId, 'test-resume': resume }
@@ -3754,13 +3770,13 @@ class ResultsDownloadEvents(Handler):
         
         # extract the real test path according the test id
         founded, testPath = RepoArchives.instance().findTrInCache(projectId=prjId, testId=testId)
-        if founded == Context.CODE_NOT_FOUND:
+        if founded == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404('test not found')
             
         success, events = RepoArchives.instance().getTrEvents(trPath=testPath)
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("Test events not found")
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to download test events")
             
         return { "cmd": self.request.path, 'test-id': testId, 'project-id': prjId, 'test-events': events }
@@ -3807,13 +3823,13 @@ class ResultsDownloadLogs(Handler):
         
         # extract the real test path according the test id
         founded, testPath = RepoArchives.instance().findTrInCache(projectId=prjId, testId=testId)
-        if founded == Context.CODE_NOT_FOUND:
+        if founded == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404('test not found')
             
         success, logs = RepoArchives.instance().getTrLogs(trPath=testPath)
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("Test logs not found")
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to download test logs")
             
         return { "cmd": self.request.path, 'test-id': testId, 'project-id': prjId, 'test-logs': logs }
@@ -3856,9 +3872,9 @@ class ResultsReset(Handler):
             raise HTTP_403('Access denied to this project')
         
         success = RepoArchives.instance().emptyRepo(projectId=prjId)  
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to reset test results")
-        if success == Context.CODE_FORBIDDEN:
+        if success == Context.instance().CODE_FORBIDDEN:
             raise HTTP_403("Reset results forbidden")
             
         return { "cmd": self.request.path, "message": "results successfully reseted", 'project-id': prjId }
@@ -3905,15 +3921,15 @@ class ResultsRemove(Handler):
         
         
         founded, testPath = RepoArchives.instance().findTrInCache(projectId=prjId, testId=testId)
-        if founded == Context.CODE_NOT_FOUND:
+        if founded == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404('test not found')
             
         success = RepoArchives.instance().delDirAll(pathFolder=testPath, project='')  
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to remove test result")
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_500("Unable to remove test result (missing)")
-        if success == Context.CODE_FORBIDDEN:
+        if success == Context.instance().CODE_FORBIDDEN:
             raise HTTP_403("Cannot remove test result")
             
         return { "cmd": self.request.path, "message": "test result successfully removed", 'project-id': prjId }
@@ -3963,7 +3979,7 @@ class ResultsFollow(Handler):
         for testId in testIds:
             result = { "id": testId }
             founded, testPath = RepoArchives.instance().findTrInCache(projectId=prjId, testId=testId)
-            if founded == Context.CODE_NOT_FOUND: raise HTTP_404('test not found')
+            if founded == Context.instance().CODE_NOT_FOUND: raise HTTP_404('test not found')
 
             state = RepoArchives.instance().getTrState(trPath=testPath)
             verdict = RepoArchives.instance().getTrResult(trPath=testPath)
@@ -4070,7 +4086,7 @@ class ResultsStatus(Handler):
             raise HTTP_403('Access denied to this project')
             
         founded, testPath = RepoArchives.instance().findTrInCache(projectId=prjId, testId=testId)
-        if founded == Context.CODE_NOT_FOUND:
+        if founded == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404('Test result not found')
             
         state = RepoArchives.instance().getTrState(trPath=testPath)
@@ -4166,7 +4182,7 @@ class ResultsVerdict(Handler):
             raise HTTP_403('Access denied to this project')
             
         founded, testPath = RepoArchives.instance().findTrInCache(projectId=prjId, testId=testId)
-        if founded == Context.CODE_NOT_FOUND:
+        if founded == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404('Test result not found')
             
         verdict = RepoArchives.instance().getTrResult(trPath=testPath)
@@ -4205,6 +4221,8 @@ class ResultsBasicHtmlReport(Handler):
                   type: string
                 project-id:
                   type: string
+                replay-id:
+                  type: string
         responses:
           '200':
             description: basic test report
@@ -4241,7 +4259,10 @@ class ResultsBasicHtmlReport(Handler):
                 
             projectId = self.request.data.get("project-id")
             projectName = self.request.data.get("project-name")
-            if not projectId and not projectName: raise EmptyValue("Please specify a project name or a project id")
+            if not projectId and not projectName: 
+                raise EmptyValue("Please specify a project name or a project id")
+                
+            replayId = self.request.data.get("replay-id")    
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -4255,18 +4276,19 @@ class ResultsBasicHtmlReport(Handler):
         # get the project id according to the name and checking authorization
         prjId = projectId
         if projectName: prjId = ProjectsManager.instance().getProjectID(name=projectName)   
-        projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=user_profile['login'], projectId=prjId)
+        projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=user_profile['login'], 
+                                                                                  projectId=prjId)
         if not projectAuthorized:
             raise HTTP_403('Access denied to this project')
             
         founded, testPath = RepoArchives.instance().findTrInCache(projectId=prjId, testId=testId)
-        if founded == Context.CODE_NOT_FOUND:
+        if founded == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404('Test result not found')
             
-        success, report = RepoArchives.instance().getTrBasicReport(trPath=testPath)
-        if success == Context.CODE_NOT_FOUND:
+        success, report = RepoArchives.instance().getTrBasicReport(trPath=testPath, replayId=replayId)
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("Basic test report not found")
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to download basic html report")
             
         return { "cmd": self.request.path, 'test-id': testId, 'test-report': report }
@@ -4369,16 +4391,16 @@ class ResultsHtmlReport(Handler):
             basicReport = _basic
             
         founded, testPath = RepoArchives.instance().findTrInCache(projectId=prjId, testId=testId)
-        if founded == Context.CODE_NOT_FOUND:
+        if founded == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404('Test result not found')
            
         if basicReport:
             success, report = RepoArchives.instance().getTrBasicReport(trPath=testPath)
         else:
             success, report = RepoArchives.instance().getTrReport(trPath=testPath)
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("Test events not found")
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to download html report")
             
         return { "cmd": self.request.path, 'test-id': testId, 'test-report': report }
@@ -4473,13 +4495,13 @@ class ResultsCsvReport(Handler):
             raise HTTP_403('Access denied to this project')
             
         founded, testPath = RepoArchives.instance().findTrInCache(projectId=prjId, testId=testId)
-        if founded == Context.CODE_NOT_FOUND:
+        if founded == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404('Test result not found')
             
         success, report = RepoArchives.instance().getTrReportCsv(trPath=testPath)
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("Test events not found")
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to download csv report")
             
         return { "cmd": self.request.path, 'test-id': testId, 'test-report': report }
@@ -4556,7 +4578,7 @@ class AgentsDisconnect(Handler):
             raise HTTP_400("Bad request provided (%s ?)" % e)
 
         disconnected = AgentsManager.instance().disconnectAgent(name=agentName)
-        if disconnected == Context.CODE_NOT_FOUND:
+        if disconnected == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("agent not found")
             
         return { "cmd": self.request.path, "message": "agent successfully disconnected" } 
@@ -4609,7 +4631,7 @@ class ProbesDisconnect(Handler):
             raise HTTP_400("Bad request provided (%s ?)" % e)
 
         disconnected = ProbesManager.instance().disconnectProbe(name=probeName)
-        if disconnected == Context.CODE_NOT_FOUND:
+        if disconnected == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("probe not found")
             
         return { "cmd": self.request.path, "message": "probe successfully disconnected" } 
@@ -4895,7 +4917,7 @@ class AdminProjectsListing(Handler):
             raise HTTP_401("Access refused")
             
         success, details = ProjectsManager.instance().getProjectsFromDB()
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
             
         return { "cmd": self.request.path, "projects": details }
@@ -4917,7 +4939,7 @@ class AdminProjectsStatistics(Handler):
         if not user_profile['administrator']: raise HTTP_401("Access refused")
             
         success, details = ProjectsManager.instance().getStatisticsFromDb()
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
             
         return { "cmd": self.request.path, "projects-statistics": details }
@@ -4949,9 +4971,9 @@ class AdminProjectsAdd(Handler):
             raise HTTP_400("Bad request provided (%s ?)" % e)
         
         success, details = ProjectsManager.instance().addProjectToDB(projectName=projectName)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
-        if success == Context.CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALLREADY_EXISTS:
             raise HTTP_400(details)
             
         return { "cmd": self.request.path, "message": "project successfully added", "project-id": details }
@@ -4988,9 +5010,9 @@ class AdminProjectsRename(Handler):
             raise HTTP_400("Bad request provided (%s ?)" % e)
             
         success, details = ProjectsManager.instance().updateProjectFromDB(projectName=projectName, projectId=projectId)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
-        if success == Context.CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALLREADY_EXISTS:
             raise HTTP_400(details)
             
         return { "cmd": self.request.path, "message": "project successfully updated" }
@@ -5022,7 +5044,7 @@ class AdminProjectsRemove(Handler):
             raise HTTP_400("Bad request provided (%s ?)" % e)
             
         success, details = ProjectsManager.instance().delProjectFromDB(projectId=projectId)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
 
         return { "cmd": self.request.path, "message": "project successfully removed" } 
@@ -5055,7 +5077,7 @@ class AdminProjectsSearch(Handler):
             raise HTTP_400("Bad request provided (%s ?)" % e)
 
         success, details = ProjectsManager.instance().getProjectFromDB(projectName=projectName, projectId=projectId)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
         if len(details) == 0:
             raise HTTP_500("no project found")
@@ -5093,9 +5115,9 @@ class AdminUsersProfile(Handler):
             raise HTTP_401("Access refused")
         else:
             success, details = UsersManager.instance().getUserFromDB(userId=userId)
-            if success == Context.CODE_NOT_FOUND:
+            if success == Context.instance().CODE_NOT_FOUND:
                 raise HTTP_404(details)
-            if success == Context.CODE_ERROR:
+            if success == Context.instance().CODE_ERROR:
                 raise HTTP_500(details)
                 
         return { "cmd": self.request.path, "user": details } 
@@ -5118,7 +5140,7 @@ class AdminUsersListing(Handler):
             raise HTTP_401("Access refused")
             
         success, details = UsersManager.instance().getUsersFromDB()
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
             
         return { "cmd": self.request.path, "users": details }
@@ -5140,7 +5162,7 @@ class AdminUsersStatistics(Handler):
         if not user_profile['administrator']: raise HTTP_401("Access refused")
             
         success, details = UsersManager.instance().getStatisticsFromDb()
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
             
         return { "cmd": self.request.path, "users-statistics": details }
@@ -5178,9 +5200,9 @@ class AdminUsersAdd(Handler):
             raise HTTP_400("Bad request provided (%s ?)" % e)
         
         success, details = UsersManager.instance().addUserToDB(login=login, password=password, email=email)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
-        if success == Context.CODE_ALREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_500(details)
             
         return { "cmd": self.request.path, "message": "user successfully added", "user-id": details }
@@ -5215,9 +5237,9 @@ class AdminUsersUpdate(Handler):
             raise HTTP_400("Bad request provided (%s ?)" % e)
             
         success, details = UsersManager.instance().updateUserInDB(userId=userId, email=email)
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404(details)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
             
         return { "cmd": self.request.path, "message": "user successfully updated" }
@@ -5253,9 +5275,9 @@ class AdminUsersRemove(Handler):
             raise HTTP_403("deletion not authorized")
             
         success, details = UsersManager.instance().delUserInDB(userId=userId)
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404(details)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
             
         return { "cmd": self.request.path, "message": "user successfully removed" } 
@@ -5290,9 +5312,9 @@ class AdminUsersStatus(Handler):
             
         # update 
         success, details = UsersManager.instance().updateStatusUserInDB(userId=userId, status=enabled)
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404(details)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
         
         if enabled:
@@ -5327,7 +5349,7 @@ class AdminUsersDisconnect(Handler):
             raise HTTP_400("Bad request provided (%s ?)" % e)
 
         disconnected = Context.instance().unregisterUserFromXmlrpc(login=userLogin)
-        if disconnected == Context.CODE_NOT_FOUND:
+        if disconnected == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("user not found")
             
         return { "cmd": self.request.path, "message": "user successfully disconnected" } 
@@ -5359,9 +5381,9 @@ class AdminUsersDuplicate(Handler):
             raise HTTP_400("Bad request provided (%s ?)" % e)
             
         success, details = UsersManager.instance().duplicateUserInDB(userId=userId)
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404(details)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
             
         return { "cmd": self.request.path, "message": "user successfully duplicated", "user-id": details  } 
@@ -5393,9 +5415,9 @@ class AdminUsersPasswordReset(Handler):
             raise HTTP_400("Bad request provided (%s ?)" % e)
             
         success, details = UsersManager.instance().resetPwdUserInDB(userId=userId)
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404(details)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
             
         return { "cmd": self.request.path, "message": "password successfully reseted" } 
@@ -5440,9 +5462,9 @@ class AdminUsersPasswordUpdate(Handler):
         
         # update 
         success, details = UsersManager.instance().updatePwdUserInDB(userId=userId, newPwd=newPwd)
-        if success == Context.CODE_NOT_FOUND:
+        if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404(details)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
             
         return { "cmd": self.request.path, "message": "password successfully updated" } 
@@ -5475,7 +5497,7 @@ class AdminUsersSearch(Handler):
             raise HTTP_400("Bad request provided (%s ?)" % e)
 
         success, details = UsersManager.instance().getUserFromDB(userId=userId, userLogin=userLogin)
-        if success == Context.CODE_ERROR:
+        if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
         if len(details) == 0:
             raise HTTP_500("no user found")

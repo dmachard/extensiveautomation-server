@@ -21,9 +21,12 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+try:
+    import RepoManager
+except ImportError: # python3 support
+    from . import RepoManager
+    
 from Libs import Settings, Logger
-
-import RepoManager
 
 REPO_TYPE = 5
 

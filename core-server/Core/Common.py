@@ -22,46 +22,15 @@
 # -------------------------------------------------------------------
 
 import traceback
-import StringIO
+try:
+    import cStringIO
+except ImportError: # support python 3
+    import io as cStringIO
 import time
 
 import copy
 import os
 import tarfile
-
-# def _extractall(self, path=".", members=None ):
-    # """
-    # Python 2.4 support, Fallback extractall method for TarFile
-    # """
-    # directories = []
-
-    # if members is None:
-        # members = self
-
-    # for tarinfo in members:
-        # if tarinfo.isdir():
-            # Extract directories with a safe mode.
-            # directories.append(tarinfo)
-            # tarinfo = copy.copy(tarinfo)
-            # tarinfo.mode = 0700
-        # self.extract(tarinfo, path)
-
-    # Reverse sort directories.
-    # directories.sort(lambda a, b: cmp(a.name, b.name))
-    # directories.reverse()
-
-    # Set correct owner, mtime and filemode on directories.
-    # for tarinfo in directories:
-        # dirpath = os.path.join(path, tarinfo.name)
-        # try:
-            # self.chown(tarinfo, dirpath)
-            # self.utime(tarinfo, dirpath)
-            # self.chmod(tarinfo, dirpath)
-        # except tarfile.ExtractError, e:
-            # if self.errorlevel > 1:
-                # raise
-            # else:
-                # self._dbg(1, "tarfile: %s" % e)
 
 def indent(code, nbTab = 1):
     """
@@ -86,7 +55,7 @@ def getBackTrace():
     @return:
     @rtype:
     """
-    backtrace = StringIO.StringIO()
+    backtrace = cStringIO.StringIO()
     traceback.print_exc(None, backtrace)
     ret = backtrace.getvalue()
     backtrace.close()

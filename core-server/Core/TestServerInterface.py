@@ -21,22 +21,30 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-import Libs.NetLayerLib.ServerAgent as NetLayerLib
-import Libs.NetLayerLib.Messages as Messages
-import Libs.NetLayerLib.FifoCallBack as FifoCallBack
-import EventServerInterface as ESI
-import ProbeServerInterface as PSI
-import AgentServerInterface as ASI
-import StatsManager
-import Context
-
-from Libs import Logger, Settings
-
 import threading
 import time
 
+import Libs.NetLayerLib.ServerAgent as NetLayerLib
+import Libs.NetLayerLib.Messages as Messages
+import Libs.NetLayerLib.FifoCallBack as FifoCallBack
+
+try:
+    import EventServerInterface as ESI
+    import ProbeServerInterface as PSI
+    import AgentServerInterface as ASI
+    # import StatsManager
+    # import Context
+except ImportError: # python3 support
+    from . import EventServerInterface as ESI
+    from . import ProbeServerInterface as PSI
+    from . import AgentServerInterface as ASI
+    # from . import StatsManager
+    # from . import Context
+    
+from Libs import Logger, Settings
+
 class TestServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
-    def __init__ (self, listeningAddress, agentName = 'TSI'):
+    def __init__ (self, listeningAddress, agentName = 'TSI', statsmgr=None, context=None):
         """
         Constructs TCP Server Inferface
 
@@ -50,6 +58,9 @@ class TestServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
                                             selectTimeout=Settings.get( 'Network', 'select-timeout' ),
                                             pickleVer=Settings.getInt( 'Network', 'pickle-version' )
                                             )
+        self.statsmgr = statsmgr
+        self.context = context
+        
         self.__mutex__ = threading.RLock()
         self.__fifoThread = None
 
@@ -98,7 +109,8 @@ class TestServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         @type client:
         """
         NetLayerLib.ServerAgent.onConnection( self, client )
-        self.testsConnected[client.client_address] = {'connected-at': time.time(), 'probes': [], 'agents': [] }
+        self.testsConnected[client.client_address] = {'connected-at': time.time(), 
+                                                      'probes': [], 'agents': [] }
         self.trace('test is starting: %s' % str(client.client_address) )
 
     def onDisconnection (self, client):
@@ -135,8 +147,11 @@ class TestServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
             if 'agent-name' in p:
                 agent = ASI.instance().getAgent(aname=p['agent-name'])
                 if agent is not None:
-                    self.trace( 'Reset Agent=%s for Script=%s and Adapter=%s' % (p['agent-name'], p['script-id'], p['source-adapter']) )
-                    data = { 'event': 'agent-reset', 'script_id': p['script-id'], 'source-adapter': p['source-adapter'], 'uuid': p['uuid']  }
+                    self.trace( 'Reset Agent=%s for Script=%s and Adapter=%s' % (p['agent-name'], 
+                                                                                 p['script-id'], 
+                                                                                 p['source-adapter']) )
+                    data = { 'event': 'agent-reset', 'script_id': p['script-id'], 
+                             'source-adapter': p['source-adapter'], 'uuid': p['uuid']  }
                     ASI.instance().notify(client=agent['address'], data=data)
 
     def onRequest(self, client, tid, request):
@@ -165,12 +180,6 @@ class TestServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
 
             # handle notify and save some statistics on the database
             if request['cmd'] == Messages.RSQ_NOTIFY:
-                #_body_ = request['body']
-
-                # test events
-                #if _body_['event'] == 'script-started':
-                #    self.testsConnected[client]['task-id'] = _body_['task-id']
-
                 try:
                     if _body_['event'] in [ 'agent-data', 'agent-notify', 'agent-init', 'agent-reset', 'agent-alive', 'agent-ready' ]:
                         
@@ -189,48 +198,41 @@ class TestServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
                     self.error('unable to handle notify for agent: %s' % e)
 
                 if _body_['event'] == 'testcase-stopped':
-                    StatsManager.instance().addResultTestCase( testResult =_body_['result'], fromUser=_body_['user-id'],
-                                                                testDuration=_body_['duration'], testProject=_body_['prj-id'] )
+                    self.statsmgr.addResultTestCase( testResult =_body_['result'], fromUser=_body_['user-id'],
+                                                    testDuration=_body_['duration'], testProject=_body_['prj-id'] )
                     # reset agents
                     self.resetRunningAgent( client=self.testsConnected[client] )
                     
                 if _body_['event'] == 'testabstract-stopped':
-                    StatsManager.instance().addResultTestAbstract( taResult =_body_['result'], fromUser=_body_['user-id'],
-                                                                taDuration=_body_['duration'], nbTc=_body_['nb-tc'], prjId=_body_['prj-id'] )
-                    # reset agents
-                    # self.resetRunningAgent( client=self.testsConnected[client], clientAddr=client )
+                    self.statsmgr.addResultTestAbstract( taResult =_body_['result'], fromUser=_body_['user-id'],
+                                                        taDuration=_body_['duration'], nbTc=_body_['nb-tc'], 
+                                                        prjId=_body_['prj-id'] )
 
                 if _body_['event'] == 'testunit-stopped':
-                    StatsManager.instance().addResultTestUnit( tuResult =_body_['result'], fromUser=_body_['user-id'],
-                                                                tuDuration=_body_['duration'], nbTc=_body_['nb-tc'], prjId=_body_['prj-id'] )
-                    # reset agents
-                    # self.resetRunningAgent( client=self.testsConnected[client], clientAddr=client )
+                    self.statsmgr.addResultTestUnit( tuResult =_body_['result'], fromUser=_body_['user-id'],
+                                                    tuDuration=_body_['duration'], nbTc=_body_['nb-tc'], 
+                                                    prjId=_body_['prj-id'] )
 
                 if _body_['event'] == 'testsuite-stopped':
-                    StatsManager.instance().addResultTestSuite( tsResult =_body_['result'], fromUser=_body_['user-id'],
-                                                                tsDuration=_body_['duration'], nbTc=_body_['nb-tc'], prjId=_body_['prj-id'] )
-                    # reset agents
-                    # self.resetRunningAgent( client=self.testsConnected[client], clientAddr=client )
+                    self.statsmgr.addResultTestSuite( tsResult =_body_['result'], fromUser=_body_['user-id'],
+                                                        tsDuration=_body_['duration'], nbTc=_body_['nb-tc'], 
+                                                        prjId=_body_['prj-id'] )
 
                 if _body_['event'] == 'testglobal-stopped':
-                    StatsManager.instance().addResultTestGlobal( tgResult =_body_['result'], fromUser=_body_['user-id'], 
-                                                            tgDuration=_body_['duration'], nbTs=_body_['nb-ts'], nbTu=_body_['nb-tu'],
-                                                            nbTc=_body_['nb-tc'], prjId=_body_['prj-id'] )
-                    # reset agents
-                    # self.resetRunningAgent( client=self.testsConnected[client], clientAddr=client )
+                    self.statsmgr.addResultTestGlobal( tgResult =_body_['result'], fromUser=_body_['user-id'], 
+                                                        tgDuration=_body_['duration'], nbTs=_body_['nb-ts'], nbTu=_body_['nb-tu'],
+                                                        nbTc=_body_['nb-tc'], prjId=_body_['prj-id'] )
 
                 if _body_['event'] == 'testplan-stopped':
-                    StatsManager.instance().addResultTestPlan( tpResult =_body_['result'], fromUser=_body_['user-id'], 
-                                                            tpDuration=_body_['duration'], nbTs=_body_['nb-ts'], nbTu=_body_['nb-tu'],
-                                                            nbTc=_body_['nb-tc'], prjId=_body_['prj-id'] )
-                    # reset agents
-                    # self.resetRunningAgent( client=self.testsConnected[client], clientAddr=client )
+                    self.statsmgr.addResultTestPlan( tpResult =_body_['result'], fromUser=_body_['user-id'], 
+                                                        tpDuration=_body_['duration'], nbTs=_body_['nb-ts'], nbTu=_body_['nb-tu'],
+                                                        nbTc=_body_['nb-tc'], prjId=_body_['prj-id'] )
 
                 if  _body_['task-id'] in self.tests:
                     if not self.tests[ _body_['task-id'] ]:
                         # check connected time of the associated user and  test
                         # if connected-at of the user > connected-at of the test then not necessary to send events
-                        userFounded = Context.instance().getUser( login=_body_['from'] )
+                        userFounded = self.context.getUser( login=_body_['from'] )
                         if userFounded is not None :
                             if not client in self.testsConnected:
                                 self.error( 'unknown test from %s' % str(client) )
@@ -297,13 +299,15 @@ class TestServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
                             if not self.tests[ _body_['task-id'] ]:
                                 # check connected time of the associated user and  test
                                 # if connected-at of the user > connected-at of the test then not necessary to send events
-                                userFounded = Context.instance().getUser( login=_body_['from'] )
+                                userFounded = self.context.getUser( login=_body_['from'] )
                                 if userFounded is not None :
                                     if not client in self.testsConnected:
                                         self.error( 'unknown test from %s' % str(client) )
                                     else:
                                         if userFounded['connected-at'] < self.testsConnected[client]['connected-at']:
-                                            self.__fifoThread.putItem(lambda: self.onInteract(client, tid, bodyReq=_body_, timeout=_body_['timeout'] ))
+                                            self.__fifoThread.putItem(lambda: self.onInteract(client, tid, 
+                                                                                              bodyReq=_body_, 
+                                                                                              timeout=_body_['timeout'] ))
                         else:
                             self.error( 'test unknown: %s' % _body_['task-id'] ) 
                         
@@ -374,7 +378,7 @@ def instance ():
     """
     return TSI
 
-def initialize (listeningAddress):
+def initialize (listeningAddress, statsmgr, context):
     """
     Instance creation
 
@@ -382,7 +386,8 @@ def initialize (listeningAddress):
     @type listeningAddress:
     """
     global TSI
-    TSI = TestServerInterface( listeningAddress = listeningAddress)
+    TSI = TestServerInterface( listeningAddress = listeningAddress, statsmgr=statsmgr,
+                                context=context)
     TSI.startFifo()
 
 def finalize ():

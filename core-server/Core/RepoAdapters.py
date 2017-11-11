@@ -29,26 +29,36 @@ import shutil
 import base64
 import zlib
 import parser
-import compiler
+# import compiler
 import re
 import tempfile
+import tarfile
+try:
+    import ConfigParser
+except ImportError: # python3 support
+    import configparser as ConfigParser
 try:
     # python 2.4 support
     import simplejson as json
 except ImportError:
     import json
 
-import Context
-import RepoManager
-import TaskManager
-import RepoLibraries
-import Common
-
+try:
+    # import Context
+    import RepoManager
+    # import TaskManager
+    import RepoLibraries
+    import Common
+    import EventServerInterface as ESI
+except ImportError: # python3 support
+    # from . import Context
+    from . import RepoManager
+    # from . import TaskManager
+    from . import RepoLibraries
+    from . import Common
+    from . import EventServerInterface as ESI
+    
 from Libs import Scheduler, Settings, Logger
-import EventServerInterface as ESI
-
-import tarfile
-import ConfigParser
 
 REPO_TYPE = 1
 NO_DATA = ''
@@ -100,18 +110,23 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
     """
     Repo adapters manager
     """
-    def __init__(self):
+    def __init__(self, context, taskmgr):
         """
         Construct Adpaters Manager
         """
         RepoManager.RepoManager.__init__(self,
-            pathRepo='%s/%s/' % ( Settings.getDirExec(), Settings.get( 'Paths', 'adapters' ) ), 
-                                    extensionsSupported = [ RepoManager.PY_EXT, RepoManager.TXT_EXT ] )
+                                    pathRepo='%s/%s/' % ( Settings.getDirExec(), Settings.get( 'Paths', 'adapters' ) ), 
+                                    extensionsSupported = [ RepoManager.PY_EXT, RepoManager.TXT_EXT ],
+                                    context = context)
 
+        self.context = context
+        self.taskmgr = taskmgr
         self.__pids__ = {}
         self.prefixBackup = "backupadapters"
         self.destBackup = "%s%s" % ( Settings.getDirExec(), Settings.get( 'Paths', 'backups-adapters' ) )
-        self.embeddedPath = "%s/%s/%s" % ( Settings.getDirExec(),   Settings.get( 'Paths', 'packages' ),  Settings.get( 'Paths', 'adapters' ) )
+        self.embeddedPath = "%s/%s/%s" % (  Settings.getDirExec(),
+                                            Settings.get( 'Paths', 'packages' ),  
+                                            Settings.get( 'Paths', 'adapters' ) )
 
         # Initialize the repository
         self.info( 'Deploying sut adapters ...' )
@@ -161,7 +176,9 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
                     # untar
                     try:
                         DEVNULL = open(os.devnull, 'w')
-                        __cmd__ = "%s xf %s/%s -C %s" % (Settings.get( 'Bin', 'tar' ), self.embeddedPath, pkg, Settings.getDirExec())
+                        __cmd__ = "%s xf %s/%s -C %s" % (Settings.get( 'Bin', 'tar' ), 
+                                                         self.embeddedPath, pkg, 
+                                                         Settings.getDirExec())
                         ret = subprocess.call(__cmd__, shell=True, stdout=DEVNULL, stderr=DEVNULL)  
                         if ret: raise Exception("unable to untar sut adapter pkg")
             
@@ -186,7 +203,7 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         """
         Set the package as default
         """
-        ret =  Context.CODE_ERROR
+        ret =  self.context.CODE_ERROR
         self.trace("set as generic the package -> %s" % packageName)
         try:
             # read the file
@@ -195,12 +212,14 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
             fd_setting.close()
             
             # replace key adapter, settings is not used because comments are removed
-            newsettings_content = re.sub("generic-adapters=.*", "generic-adapters=%s" % packageName, settings_content)
+            newsettings_content = re.sub("generic-adapters=.*", 
+                                         "generic-adapters=%s" % packageName, 
+                                         settings_content)
             fd_setting2 = open( "%s/settings.ini" % Settings.getDirExec(), 'w' )
             fd_setting2.write(newsettings_content)
             fd_setting2.close()
             
-            ret = Context.CODE_OK
+            ret = self.context.CODE_OK
         except Exception as e:
             self.error('unable to set the generic adapter: %s' % e)
         return ret
@@ -219,7 +238,7 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         """
         Set the package as default
         """
-        ret =  Context.CODE_ERROR
+        ret =  self.context.CODE_ERROR
         self.trace("set as default the package -> %s" % packageName)
         try:
             # read the file
@@ -228,12 +247,14 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
             fd_setting.close()
             
             # replace key adapter, settings is not used because comments are removed
-            newsettings_content = re.sub("current-adapters=.*", "current-adapters=%s" % packageName, settings_content)
+            newsettings_content = re.sub("current-adapters=.*", 
+                                         "current-adapters=%s" % packageName, 
+                                         settings_content)
             fd_setting2 = open( "%s/settings.ini" % Settings.getDirExec(), 'w' )
             fd_setting2.write(newsettings_content)
             fd_setting2.close()
             
-            ret = Context.CODE_OK
+            ret = self.context.CODE_OK
         except Exception as e:
             self.error('unable to set the default adapter v2: %s' % e)
         return ret
@@ -287,19 +308,22 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         schedAt = schedAt.split('|')[1]
         if int(schedType) == Scheduler.SCHED_WEEKLY:
             d, h, m, s = schedAt.split(',')
-            TaskManager.instance().registerEvent(   id=None, author=None, name=None, weekly=( int(d), int(h), int(m), int(s) ), 
-                                                    daily=None, hourly=None, everyMin=None, everySec=None, at=None, delay=None, timesec=None,
-                                                    callback=self.createBackup, backupName=backupName )
+            self.taskmgr.registerEvent( id=None, author=None, name=None, weekly=( int(d), int(h), int(m), int(s) ), 
+                                        daily=None, hourly=None, everyMin=None, everySec=None, 
+                                        at=None, delay=None, timesec=None,
+                                        callback=self.createBackup, backupName=backupName )
         elif int(schedType) == Scheduler.SCHED_DAILY:
             h, m, s = schedAt.split(',')
-            TaskManager.instance().registerEvent(   id=None, author=None, name=None, weekly=None, 
-                                                    daily=( int(h), int(m), int(s) ), hourly=None, everyMin=None, everySec=None, at=None, delay=None, timesec=None,
-                                                    callback=self.createBackup, backupName=backupName )
+            self.taskmgr.registerEvent( id=None, author=None, name=None, weekly=None, 
+                                        daily=( int(h), int(m), int(s) ), hourly=None, everyMin=None, 
+                                        everySec=None, at=None, delay=None, timesec=None,
+                                        callback=self.createBackup, backupName=backupName )
         elif int(schedType) == Scheduler.SCHED_HOURLY:
             m, s = schedAt.split(',')
-            TaskManager.instance().registerEvent(   id=None, author=None, name=None, weekly=None, 
-                                                    daily=None, hourly=( int(m), int(s) ), everyMin=None, everySec=None, at=None, delay=None, timesec=None,
-                                                    callback=self.createBackup, backupName=backupName )
+            self.taskmgr.registerEvent( id=None, author=None, name=None, weekly=None, 
+                                        daily=None, hourly=( int(m), int(s) ), everyMin=None, 
+                                        everySec=None, at=None, delay=None, timesec=None,
+                                        callback=self.createBackup, backupName=backupName )
         else:
             self.error( 'schedulation type not supported: %s' % schedType )
 
@@ -317,7 +341,8 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         @rtype: 
         """
         HEADER = ''
-        tpl_path = "%s/%s/adapter_header.tpl" % ( Settings.getDirExec(), Settings.get( 'Paths', 'templates' ) )
+        tpl_path = "%s/%s/adapter_header.tpl" % ( Settings.getDirExec(), 
+                                                  Settings.get( 'Paths', 'templates' ) )
         try:
             fd = open( tpl_path , "r")
             HEADER = fd.read()
@@ -332,9 +357,11 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
                 default_init = ADP_INIT % (HEADER, descr, helper)
             
             if adps:
-                #default_init = ADPS_INIT % (HEADER, self.getDefault(), RepoLibraries.instance().getDefault(), descr, helper)
-                default_init = ADPS_INIT % (HEADER, Settings.get( 'Default', 'current-adapters' ),
-                                                Settings.get( 'Default', 'current-libraries' ), descr, helper)
+                default_init = ADPS_INIT % (HEADER, 
+                                            Settings.get( 'Default', 'current-adapters' ),
+                                            Settings.get( 'Default', 'current-libraries' ), 
+                                            descr, 
+                                            helper)
 
             f = open( '%s/__init__.py' % pathFile, 'w')
             f.write( default_init )
@@ -368,7 +395,7 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         @return: 
         @rtype: 
         """
-        ret =  Context.CODE_ERROR
+        ret =  self.context.CODE_ERROR
         try:
             # remove all files and folders
             ret = self.emptyRepo()
@@ -376,7 +403,7 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
             # create default __init__ file
             initCreated = self.updateMainInit()
             if not initCreated:
-                ret =  Context.CODE_ERROR
+                ret =  self.context.CODE_ERROR
             return ret
         except Exception as e:
             raise Exception( "[uninstall] %s" % str(e) )
@@ -389,7 +416,7 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         @return: 
         @rtype: 
         """
-        ret = Context.CODE_ERROR
+        ret = self.context.CODE_ERROR
         try:
             # delete all files 
             files=os.listdir(self.destBackup)
@@ -405,10 +432,10 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
             notif['repo-adapters'] = {}
             data = ( 'repositories', ( 'reset', notif ) )   
             ESI.instance().notifyAll(body = data)
-            return Context.CODE_OK
-        except OSError, e:
+            return self.context.CODE_OK
+        except OSError as e:
             self.trace( e )
-            return Context.CODE_FORBIDDEN
+            return self.context.CODE_FORBIDDEN
         except Exception as e:
             raise Exception( e )
             return ret
@@ -421,7 +448,8 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         @return: 
         @rtype: 
         """
-        nb, nbf, backups, stats = self.getListingFilesV2(path=self.destBackup, extensionsSupported=[RepoManager.ZIP_EXT])
+        nb, nbf, backups, stats = self.getListingFilesV2(path=self.destBackup, 
+                                                         extensionsSupported=[RepoManager.ZIP_EXT])
         backups_ret = self.encodeData(data=backups)
         return backups_ret
 
@@ -468,7 +496,7 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         @return: 
         @rtype: 
         """
-        ret = Context.CODE_ERROR
+        ret = self.context.CODE_ERROR
         try:
             backupIndex = self.getLastBackupIndex( pathBackups=self.destBackup )
             backupDate = self.getTimestamp() 
@@ -478,18 +506,23 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
             if Settings.getInt( 'Backups', 'adapters-dest-tar-gz' ):
                 self.trace( "backup adapters to %s/%s.tar.gz" % (self.destBackup,backupFilename) )
                 DEVNULL = open(os.devnull, 'w')
-                __cmd__ = "%s cvfz %s/%s.tar.gz -C %s ." % (Settings.get( 'Bin', 'tar' ), self.destBackup, backupFilename, self.testsPath)
+                __cmd__ = "%s cvfz %s/%s.tar.gz -C %s ." % (Settings.get( 'Bin', 'tar' ), 
+                                                            self.destBackup, 
+                                                            backupFilename, 
+                                                            self.testsPath)
                 ret = subprocess.call(__cmd__, shell=True, stdout=DEVNULL, stderr=DEVNULL)  
                 if ret: raise Exception("unable to tar sut adapter pkg")
-                ret = Context.CODE_OK
+                ret = self.context.CODE_OK
                 
             # create a zip file
             if Settings.getInt( 'Backups', 'adapters-dest-zip' ):
                 self.trace( "backup adapters to %s/%s.zip" % (self.destBackup,backupFilename) )
-                zipped = self.zipFolder(folderPath=self.testsPath, zipName="%s.zip" % backupFilename,
-                                        zipPath=self.destBackup, ignoreExt=['.pyc', '.pyo'])
+                zipped = self.zipFolder(folderPath=self.testsPath, 
+                                        zipName="%s.zip" % backupFilename,
+                                        zipPath=self.destBackup, 
+                                        ignoreExt=['.pyc', '.pyo'])
                 ret = zipped
-                if zipped == Context.CODE_OK:
+                if zipped == self.context.CODE_OK:
                     self.info( "backup adapters successfull: %s" % backupFilename )
                     # now notify all connected admin users
                     backupSize = os.path.getsize( "%s/%s.zip" % (self.destBackup, backupFilename) )
@@ -511,14 +544,15 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         """
         descr = ""
         allmodules = self.getInstalled(withQuotes=True)
-        ret = self.addPyInitFile( pathFile = self.testsPath, descr=MAIN_DESCR, allmodules=allmodules, mainInit=True )
+        ret = self.addPyInitFile( pathFile = self.testsPath, descr=MAIN_DESCR, 
+                                    allmodules=allmodules, mainInit=True )
         return ret
 
     def notifyUpdate(self):
         """
         """
         # update context and rns of all connected  users
-        data = ( 'context-server', ( 'update', Context.instance().getInformations() ) )     
+        data = ( 'context-server', ( 'update', self.context.getInformations() ) )     
         ESI.instance().notifyAll(body = data)
 
     def getRn(self, b64=False):
@@ -548,9 +582,9 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
                 version_name = f
                 match = re.search(REGEXP_VERSION, f)
                 if match:
-                    #version_name = '.'.join(f[1:])
                     version_name = f[1:]
                 rns.append( "\n%s\n%s" % (version_name, Common.indent(rn,1) ) )
+                
         # zip and encode in b64
         try: 
             rn_zipped = zlib.compress( '\n'.join(rns) )
@@ -576,8 +610,8 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         try:
             content_decoded = base64.b64decode(content)
             parser.suite(content_decoded).compile()
-            compiler.parse(content_decoded)
-        except SyntaxError, e:
+            # compiler.parse(content_decoded)
+        except SyntaxError as e:
             syntax_msg = str(e)
             return False, str(e)
 
@@ -590,9 +624,11 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         @return: 
         @rtype: tuple
         """
-        __cmd__ = "%s %s/Core/docgenerator.py %s %s False False True True" % ( Settings.get( 'Bin', 'python' ), Settings.getDirExec(), Settings.getDirExec(),
-                                            "%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'tmp' ) )
-                                )
+        __cmd__ = "%s %s/Core/docgenerator.py %s %s False False True True" % ( Settings.get( 'Bin', 'python' ), 
+                                                                               Settings.getDirExec(), Settings.getDirExec(),
+                                                                                "%s/%s" % (Settings.getDirExec(), 
+                                                                                Settings.get( 'Paths', 'tmp' ) )
+                                                                            )
         p = os.popen(__cmd__)
         msg_err = p.readlines()
         if len(msg_err) == 0:
@@ -615,7 +651,7 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         @rtype:
         """
         ret = self.addDir(pathFolder, adapterName)
-        if ret != Context.CODE_OK:
+        if ret != self.context.CODE_OK:
             return ret
         
         allmodules = ''
@@ -623,15 +659,16 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
             # update main init file
             ret = self.updateMainInit()
             if not ret:
-                return Context.CODE_ERROR
+                return self.context.CODE_ERROR
             else:
                 self.notifyUpdate()
         
-        ret = self.addPyInitFile( pathFile = "%s/%s/%s/" % (self.testsPath, pathFolder, adapterName), adps=mainAdapters )
+        ret = self.addPyInitFile( pathFile = "%s/%s/%s/" % (self.testsPath, pathFolder, adapterName), 
+                                  adps=mainAdapters )
         if not ret:
-            return Context.CODE_ERROR
+            return self.context.CODE_ERROR
         else:
-            return Context.CODE_OK
+            return self.context.CODE_OK
 
     def delFile(self, pathFile):
         """
@@ -647,9 +684,9 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         """
         # exceptions
         if pathFile == "releasenotes.txt":
-            return Context.CODE_FORBIDDEN
+            return self.context.CODE_FORBIDDEN
         if pathFile == "__init__.py":
-            return Context.CODE_FORBIDDEN
+            return self.context.CODE_FORBIDDEN
         try:
             if pathFile.endswith('.py'):
                 RepoManager.RepoManager.delFile(self, pathFile="%so" % pathFile)
@@ -680,9 +717,9 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         """
         # exceptions
         if mainPath == "" and oldFilename == "releasenotes":
-            return ( Context.CODE_FORBIDDEN, mainPath, oldFilename, newFilename, extFilename )
+            return ( self.context.CODE_FORBIDDEN, mainPath, oldFilename, newFilename, extFilename )
         if mainPath == "" and oldFilename == "__init__":
-            return ( Context.CODE_FORBIDDEN, mainPath, oldFilename, newFilename, extFilename )
+            return ( self.context.CODE_FORBIDDEN, mainPath, oldFilename, newFilename, extFilename )
         return RepoManager.RepoManager.renameFile(self, mainPath, oldFilename, newFilename, extFilename)
 
     def moveFile(self, mainPath, fileName, extFilename, newPath ):
@@ -707,16 +744,17 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         """
         # exceptions
         if mainPath == "" and fileName == "releasenotes":
-            return ( Context.CODE_FORBIDDEN, mainPath, fileName, extFilename, newPath )
+            return ( self.context.CODE_FORBIDDEN, mainPath, fileName, extFilename, newPath )
         if mainPath == "" and fileName == "__init__":
-            return ( Context.CODE_FORBIDDEN, mainPath, fileName, extFilename, newPath )
+            return ( self.context.CODE_FORBIDDEN, mainPath, fileName, extFilename, newPath )
         return RepoManager.RepoManager.moveFile(self, mainPath, fileName, extFilename, newPath )
 
     def duplicateDir(self, mainPath, oldPath, newPath, newMainPath=''):
         """
         Duplicate folder
         """
-        ret =  RepoManager.RepoManager.duplicateDir(self, mainPath=mainPath, oldPath=oldPath, newPath=newPath, newMainPath=newMainPath)
+        ret =  RepoManager.RepoManager.duplicateDir(self, mainPath=mainPath, oldPath=oldPath, 
+                                                    newPath=newPath, newMainPath=newMainPath)
         ok = self.updateMainInit()
         if ok:
             # BEGING Issue 411, set the package as default
@@ -742,7 +780,8 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         """
         Rename folder
         """
-        ret =  RepoManager.RepoManager.renameDir(self, mainPath=mainPath, oldPath=oldPath, newPath=newPath)
+        ret =  RepoManager.RepoManager.renameDir(self, mainPath=mainPath, 
+                                                 oldPath=oldPath, newPath=newPath)
         ok = self.updateMainInit()
         if ok:
             self.notifyUpdate()
@@ -777,7 +816,8 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         try:
             DEVNULL = open(os.devnull, 'w')
             sys.stdout.write( "Cleanup all lock files for adapters...\n")
-            __cmd__ = "%s/Scripts/unlock-adapters.sh %s/Scripts/" % (Settings.getDirExec(), Settings.getDirExec())
+            __cmd__ = "%s/Scripts/unlock-adapters.sh %s/Scripts/" % (Settings.getDirExec(), 
+                                                                     Settings.getDirExec())
             subprocess.call(__cmd__, shell=True, stdout=DEVNULL, stderr=DEVNULL)  
             ret = True
         except Exception as e:
@@ -846,12 +886,12 @@ def instance ():
     """
     return RA
 
-def initialize ():
+def initialize (context, taskmgr):
     """
     Instance creation
     """
     global RA
-    RA = RepoAdapters()
+    RA = RepoAdapters(context=context, taskmgr=taskmgr)
 
 def finalize ():
     """
