@@ -81,8 +81,8 @@ PWD_BIN="/usr/bin/pwd"
 LS_BIN="/usr/bin/ls"
 
 # python extensions modified
-SELENIUM_ZIP="selenium-3.4.2-extensivetesting"
-SELENIUM="selenium-3.4.2"
+SELENIUM_ZIP="selenium-3.7.0-extensivetesting"
+SELENIUM="selenium-3.7.0"
 PYCRYPTO_ZIP="pycryptodome-3.4.5-extensivetesting"
 PYCRYPTO="pycryptodome-3.4.5"
 PYCNIC_ZIP="pycnic-0.1.1-extensivetesting"
