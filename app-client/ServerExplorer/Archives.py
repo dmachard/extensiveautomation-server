@@ -103,7 +103,7 @@ class ArchiveItem(QTreeWidgetItem, Logger.ClassLogger):
     Treewidget item for archive
     """
     def __init__(self, archiveDescr, icon = None, parent = None, itemType = QTreeWidgetItem.UserType+0, 
-                    colored=False, childTest=None):
+                 colored=False, childTest=None):
         """
         Constructs ArchiveItem widget item
 
@@ -247,7 +247,8 @@ class ArchiveItem(QTreeWidgetItem, Logger.ClassLogger):
         @type archiveName:
         """
         self.setIcon(COL_NAME, QIcon(":/%s.png" % EXTENSION_TESTRESULT) )
-        # extract replay id:  Noname1_0_UNDEFINED_0.trx  [testname] [replayid] [verdict] [nbcomments]
+        # extract replay id:  Noname1_0_UNDEFINED_0.trx  
+        # [testname] [replayid] [verdict] [nbcomments]
         leftover, rightover = str(archiveName).rsplit("_", 1)
         nbComments = rightover.split(".%s" % EXTENSION_TESTRESULT)[0]
         try: # backward compatibility, verdict added on the name
@@ -324,7 +325,7 @@ class PreviewReport(QWidget, Logger.ClassLogger):
     Raw view widget
     """
     def __init__(self, parent, data, toCsv=False, toHtml=False, toPrinter=False, 
-                    toTxt=False, toPdf=False):
+                 toTxt=False, toPdf=False):
         """
         Raw view widget
 
@@ -361,9 +362,9 @@ class PreviewReport(QWidget, Logger.ClassLogger):
 
         self.pluginsBox = QGroupBox("Plugins")
         self.pluginsBox.setStyleSheet( """
-                                           QGroupBox { font: normal; border: 1px solid silver; border-radius: 2px; } 
-                                           QGroupBox { padding-bottom: 10px; background-color: #FAFAFA; } 
-                                           QGroupBox::title { subcontrol-position: bottom center;}
+                                       QGroupBox { font: normal; border: 1px solid silver; border-radius: 2px; } 
+                                       QGroupBox { padding-bottom: 10px; background-color: #FAFAFA; } 
+                                       QGroupBox::title { subcontrol-position: bottom center;}
                                        """ )
         layoutPlugins = QHBoxLayout()
         layoutPlugins.addWidget(self.toolbarPlugins)
@@ -374,9 +375,9 @@ class PreviewReport(QWidget, Logger.ClassLogger):
         
         self.exportBox = QGroupBox("Exports")
         self.exportBox.setStyleSheet( """
-                                           QGroupBox { font: normal; border: 1px solid silver; border-radius: 2px; } 
-                                           QGroupBox { padding-bottom: 10px; background-color: #FAFAFA; } 
-                                           QGroupBox::title { subcontrol-position: bottom center;}
+                                       QGroupBox { font: normal; border: 1px solid silver; border-radius: 2px; } 
+                                       QGroupBox { padding-bottom: 10px; background-color: #FAFAFA; } 
+                                       QGroupBox::title { subcontrol-position: bottom center;}
                                        """ )
         layoutExports = QHBoxLayout()
         layoutExports.addWidget(self.toolbar)
@@ -477,7 +478,7 @@ class PreviewReport(QWidget, Logger.ClassLogger):
         Save to txt file
         """
         fileName = QFileDialog.getSaveFileName(self, "Save TXT file", "", 
-                                                "TXT file (*.txt);;All Files (*.*)")
+                                               "TXT file (*.txt);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
@@ -707,7 +708,7 @@ class PreviewImages(QWidget):
             graphPixmap = QPixmap.grabWidget(self.imageLabel)
         format = 'jpg'
         fileName = QFileDialog.getSaveFileName(self, self.tr("Save As"), "", 
-                                                "%s Files (*.%s);;All Files (*)" % (format.upper(), format))
+                                               "%s Files (*.%s);;All Files (*)" % (format.upper(), format))
         # new in v18 to support qt5
         if QtHelper.IS_QT5:
             _fileName, _type = fileName
@@ -977,7 +978,9 @@ class PreviewComments(QWidget):
                                     + ".%3.3d" % int(( float(archive_comment['datetime']) * 1000) % 1000 )
             post_decoded = base64.b64decode(archive_comment['post'])
             post_decoded = post_decoded.decode('utf8').replace('\n', '<br />')
-            commentsParsed.append( 'By <b>%s</b>, %s<p style="margin-left:20px">%s</p>' % (archive_comment['author'], dt, post_decoded) )
+            commentsParsed.append( 'By <b>%s</b>, %s<p style="margin-left:20px">%s</p>' % (archive_comment['author'], 
+                                                                                           dt, 
+                                                                                           post_decoded) )
         commentsParsed.reverse()
         self.commentsTextarea.setHtml( "<br />".join(commentsParsed)   )
 
@@ -1088,9 +1091,9 @@ class PreviewVerdict(QWidget, Logger.ClassLogger):
 
         self.pluginsBox = QGroupBox("Plugins")
         self.pluginsBox.setStyleSheet( """
-                                           QGroupBox { font: normal; border: 1px solid silver; border-radius: 2px; } 
-                                           QGroupBox { padding-bottom: 10px; background-color: #FAFAFA; } 
-                                           QGroupBox::title { subcontrol-position: bottom center;}
+                                       QGroupBox { font: normal; border: 1px solid silver; border-radius: 2px; } 
+                                       QGroupBox { padding-bottom: 10px; background-color: #FAFAFA; } 
+                                       QGroupBox::title { subcontrol-position: bottom center;}
                                        """ )
         layoutPlugins = QHBoxLayout()
         layoutPlugins.addWidget(self.toolbarPlugins)
@@ -1100,9 +1103,9 @@ class PreviewVerdict(QWidget, Logger.ClassLogger):
         
         self.exportBox = QGroupBox("Exports")
         self.exportBox.setStyleSheet( """
-                                           QGroupBox { font: normal; border: 1px solid silver; border-radius: 2px; } 
-                                           QGroupBox { padding-bottom: 10px; background-color: #FAFAFA; } 
-                                           QGroupBox::title { subcontrol-position: bottom center;}
+                                       QGroupBox { font: normal; border: 1px solid silver; border-radius: 2px; } 
+                                       QGroupBox { padding-bottom: 10px; background-color: #FAFAFA; } 
+                                       QGroupBox::title { subcontrol-position: bottom center;}
                                        """ )
         layoutExports = QHBoxLayout()
         layoutExports.addWidget(self.toolbar)
@@ -1136,10 +1139,10 @@ class PreviewVerdict(QWidget, Logger.ClassLogger):
 
 
         self.delGroup = QGroupBox("Remove line")
-        self.delGroup.setStyleSheet( """
-                                           QGroupBox { font: normal; border: 1px solid silver; border-radius: 2px; } 
-                                           QGroupBox { padding-bottom: 10px; background-color: #FAFAFA; } 
-                                           QGroupBox::title { subcontrol-position: bottom center;}
+        self.delGroup.setStyleSheet(   """
+                                       QGroupBox { font: normal; border: 1px solid silver; border-radius: 2px; } 
+                                       QGroupBox { padding-bottom: 10px; background-color: #FAFAFA; } 
+                                       QGroupBox::title { subcontrol-position: bottom center;}
                                        """ )
         self.delTG  = QCheckBox( "TESTGLOBAL" )
         self.delTP  = QCheckBox( "TESTPLAN" )
@@ -1172,7 +1175,8 @@ class PreviewVerdict(QWidget, Logger.ClassLogger):
         layout.addWidget(self.txtEdit)
 
         if not self.toXml:
-            self.rawFind = QtHelper.RawFind(parent=self, editor=self.txtEdit, buttonNext=True)
+            self.rawFind = QtHelper.RawFind(parent=self, editor=self.txtEdit, 
+                                            buttonNext=True)
             layout.addWidget(self.rawFind)
 
         
@@ -1350,7 +1354,7 @@ class PreviewVerdict(QWidget, Logger.ClassLogger):
         Save pdf file
         """
         fileName = QFileDialog.getSaveFileName(self, 'Save to PDF', "", 
-                                                "PDF file (*.pdf);;All Files (*.*)")
+                                               "PDF file (*.pdf);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
@@ -1530,9 +1534,9 @@ class WArchives(QWidget, Logger.ClassLogger):
         # prepare menu
         self.refreshBox = QGroupBox("Refresh")
         self.refreshBox.setStyleSheet( """
-                                           QGroupBox { font: normal; border: 1px solid silver; border-radius: 2px; } 
-                                           QGroupBox { padding-bottom: 10px; background-color: #FAFAFA; } 
-                                           QGroupBox::title { subcontrol-position: bottom center;}
+                                       QGroupBox { font: normal; border: 1px solid silver; border-radius: 2px; } 
+                                       QGroupBox { padding-bottom: 10px; background-color: #FAFAFA; } 
+                                       QGroupBox::title { subcontrol-position: bottom center;}
                                        """ )
         layoutRefresh = QHBoxLayout()
         layoutRefresh.addWidget(self.dockToolbar)
@@ -1540,10 +1544,10 @@ class WArchives(QWidget, Logger.ClassLogger):
         self.refreshBox.setLayout(layoutRefresh)
         
         self.manageBox = QGroupBox("Manage")
-        self.manageBox.setStyleSheet( """
-                                           QGroupBox { font: normal; border: 1px solid silver; border-radius: 2px; } 
-                                           QGroupBox { padding-bottom: 10px; background-color: #FAFAFA; } 
-                                           QGroupBox::title { subcontrol-position: bottom center;}
+        self.manageBox.setStyleSheet(  """
+                                       QGroupBox { font: normal; border: 1px solid silver; border-radius: 2px; } 
+                                       QGroupBox { padding-bottom: 10px; background-color: #FAFAFA; } 
+                                       QGroupBox::title { subcontrol-position: bottom center;}
                                        """ )
         layoutManage = QHBoxLayout()
         layoutManage.addWidget(self.toolbarManage)
@@ -1551,10 +1555,10 @@ class WArchives(QWidget, Logger.ClassLogger):
         self.manageBox.setLayout(layoutManage)
         
         self.exportBox = QGroupBox("Exports")
-        self.exportBox.setStyleSheet( """
-                                           QGroupBox { font: normal; border: 1px solid silver; border-radius: 2px; } 
-                                           QGroupBox { padding-bottom: 10px; background-color: #FAFAFA; } 
-                                           QGroupBox::title { subcontrol-position: bottom center;}
+        self.exportBox.setStyleSheet(  """
+                                       QGroupBox { font: normal; border: 1px solid silver; border-radius: 2px; } 
+                                       QGroupBox { padding-bottom: 10px; background-color: #FAFAFA; } 
+                                       QGroupBox::title { subcontrol-position: bottom center;}
                                        """ )
         layoutExports = QVBoxLayout()
         layoutExports.addWidget(self.toolbarExports)
@@ -1599,8 +1603,10 @@ class WArchives(QWidget, Logger.ClassLogger):
 
         style = self.style()
         self.folderIcon = QIcon()
-        self.folderIcon.addPixmap(style.standardPixmap(QStyle.SP_DirClosedIcon), QIcon.Normal, QIcon.Off)
-        self.folderIcon.addPixmap(style.standardPixmap(QStyle.SP_DirOpenIcon), QIcon.Normal, QIcon.On)
+        self.folderIcon.addPixmap(style.standardPixmap(QStyle.SP_DirClosedIcon), 
+                                  QIcon.Normal, QIcon.Off)
+        self.folderIcon.addPixmap(style.standardPixmap(QStyle.SP_DirOpenIcon), 
+                                  QIcon.Normal, QIcon.On)
         self.rootIcon = QIcon()       
         self.rootIcon.addPixmap( style.standardPixmap(QStyle.SP_DriveNetIcon) )
 
@@ -1733,11 +1739,11 @@ class WArchives(QWidget, Logger.ClassLogger):
        
             
             reply = messageBox.warning(self, self.tr("Delete Test Result"), 
-                                            self.tr("Are you sure you want to delete?"),
-                                                QMessageBox.Yes |QMessageBox.Cancel )
+                                       self.tr("Are you sure you want to delete?"),
+                                       QMessageBox.Yes |QMessageBox.Cancel )
             #call web service
             if reply == QMessageBox.Yes:   
-                UCI.instance().deleteTestResult(  '%s/%s' % (logDirName,logSubDirName), 
+                UCI.instance().deleteTestResult('%s/%s' % (logDirName,logSubDirName), 
                                                 projectId=projectId )
         else:
             pass
@@ -2199,7 +2205,8 @@ class WArchives(QWidget, Logger.ClassLogger):
         projectId =  cur.archiveDescr['project']
         
         if Settings.instance().readValue( key = 'TestArchives/download-directory' ) != 'Undefined':
-            _destfileName = "%s/%s" % ( Settings.instance().readValue( key = 'TestArchives/download-directory' ), logFileName )
+            _destfileName = "%s/%s" % ( Settings.instance().readValue( key = 'TestArchives/download-directory' ), 
+                                        logFileName )
         else:
             extension = self.tr("All Files (*.*)")
             destfileName = QFileDialog.getSaveFileName(self, self.tr("Save Test Result"), 
@@ -2498,28 +2505,19 @@ class WArchives(QWidget, Logger.ClassLogger):
         if cur.typeItem == TYPE_ITEM_FOLDER_TEST: 
             if cur.childTest is not None:
                 testId = cur.testId
-                # logDirName = cur.parent.archiveDescr['name']
-                # logSubDirName = cur.archiveDescr['name']
-                
-                # logFileName =  cur.childTest['name']
                 projectId =  cur.childTest['project']
-            
             else:
                 return
         else:
             testId = cur.parent.testId
             replayId = cur.runId
-            # logDirName = cur.parent.parent.archiveDescr['name']
-            # logSubDirName = cur.parent.archiveDescr['name']
-            # logFileName =  cur.archiveDescr['name']
             projectId =  cur.archiveDescr['project']
        
         self.tabComments.active(item=self.itemCurrent)
 
         # call web service
-        RCI.instance().getTestReports( testId=testId, replayId=replayId, projectId=projectId )
-        # UCI.instance().getTestPreview(  '%s/%s' % (logDirName,logSubDirName), 
-                                        # logFileName, projectId=projectId )
+        RCI.instance().getTestReports( testId=testId, replayId=replayId, 
+                                       projectId=projectId )
          
     def loadImagePreview(self):
         """
@@ -2546,7 +2544,7 @@ class WArchives(QWidget, Logger.ClassLogger):
             projectId =  cur.archiveDescr['project']
 
             # call web service
-            UCI.instance().getImagePreview(  '%s/%s' % (logDirName,logSubDirName), 
+            UCI.instance().getImagePreview( '%s/%s' % (logDirName,logSubDirName), 
                                             logFileName, projectId=projectId )
         else:
             self.resetPreview()
@@ -2574,7 +2572,6 @@ class WArchives(QWidget, Logger.ClassLogger):
         """
         On get test preview
         """
-        print(content)
         self.previewTab.setCurrentIndex(TAB_REPORTS)   
         
         defaultTab = Settings.instance().readValue( key = 'TestArchives/default-report-tab' )
@@ -2593,9 +2590,8 @@ class WArchives(QWidget, Logger.ClassLogger):
             self.previewTab.setTabEnabled(TAB_COMMENTS, False)
             
         # load comments
-        if 'comments' in content:
-            subRspCode, archivesPath, archivesComments = content['comments']
-            self.tabComments.onLoadComments(archivesPath, archivesComments)
+        if 'comments-report' in content:
+            self.tabComments.onLoadComments(archivePath="", archiveComments=content['comments-report'])
 
         if 'csv-report' in content:
             self.previewTab.setTabEnabled(TAB_VERDICTS, True)

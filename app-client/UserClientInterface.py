@@ -223,7 +223,7 @@ DOWNLOAD_TESTRESULT         =   "downloadTestResult"
 DOWNLOAD_BACKUP             =   "downloadBackup"
 DOWNLOAD_CLIENT             =   "downloadClient"
 
-GET_TEST_PREVIEW            =   "getTestPreview"
+# GET_TEST_PREVIEW            =   "getTestPreview"
 GET_IMAGE_PREVIEW           =   "getImagePreview"
 DELETE_TEST_RESULT          =   "deleteTestResult"
 
@@ -413,7 +413,7 @@ class UserClientInterface(QObject, Logger.ClassLogger, NetLayerLib.ClientAgent):
     RefreshStatsRepoAdapters = pyqtSignal(dict)
     RefreshStatsRepo = pyqtSignal(dict)
     GetImagePreview = pyqtSignal(str)
-    GetTestPreview = pyqtSignal(dict)
+    # GetTestPreview = pyqtSignal(dict)
     WebCall = pyqtSignal(object)
     def __init__(self, parent = None, clientVersion=None):
         """
@@ -1123,8 +1123,8 @@ class UserClientInterface(QObject, Logger.ClassLogger, NetLayerLib.ClientAgent):
                     self.onDownloadClient(responseCode, responseData) 
                 elif requestName ==  SET_DEFAULT_TESTS_VERSION:
                     self.onSetDefaultTestsVersion(responseCode, responseData) 
-                elif requestName ==  GET_TEST_PREVIEW:
-                    self.onGetTestPreview(responseCode, responseData) 
+                # elif requestName ==  GET_TEST_PREVIEW:
+                    # self.onGetTestPreview(responseCode, responseData) 
                 elif requestName ==  GET_IMAGE_PREVIEW:
                     self.onGetImagePreview(responseCode, responseData) 
                 elif requestName ==  DELETE_TEST_RESULT:
@@ -1151,25 +1151,25 @@ class UserClientInterface(QObject, Logger.ClassLogger, NetLayerLib.ClientAgent):
         else:
             raise Exception("On delete test result: responseCode %s unknown" % responseCode)
             
-    def onGetTestPreview(self, responseCode, responseData):
-        """
-        On set default tests
+    # def onGetTestPreview(self, responseCode, responseData):
+        # """
+        # On set default tests
 
-        @param responseCode: 
-        @type responseCode:
+        # @param responseCode: 
+        # @type responseCode:
 
-        @param responseData: 
-        @type responseData:
-        """
-        if responseCode == CODE_OK: 
-            self.GetTestPreview.emit( responseData )
-        elif responseCode == CODE_FORBIDDEN:
-            self.emitCriticalMsg( self.tr("Authorization on get test preview") , 
-                                    self.tr("You are not authorized to do that!") )
-        elif responseCode == CODE_NOT_FOUND:
-            self.GetTestPreview.emit( {} )
-        else:
-            raise Exception("On get test preview: responseCode %s unknown" % responseCode)
+        # @param responseData: 
+        # @type responseData:
+        # """
+        # if responseCode == CODE_OK: 
+            # self.GetTestPreview.emit( responseData )
+        # elif responseCode == CODE_FORBIDDEN:
+            # self.emitCriticalMsg( self.tr("Authorization on get test preview") , 
+                                    # self.tr("You are not authorized to do that!") )
+        # elif responseCode == CODE_NOT_FOUND:
+            # self.GetTestPreview.emit( {} )
+        # else:
+            # raise Exception("On get test preview: responseCode %s unknown" % responseCode)
             
     def onGetImagePreview(self, responseCode, responseData):
         """
@@ -5047,13 +5047,13 @@ class UserClientInterface(QObject, Logger.ClassLogger, NetLayerLib.ClientAgent):
         xmlrpcData = { 'projectid': projectId, 'tr-path':trPath, 'image-name': imageName }
         self.__callXmlrpc( xmlrpcFunc=GET_IMAGE_PREVIEW, xmlrpcData=xmlrpcData )
 
-    @calling_xmlrpc        
-    def getTestPreview(self, trPath, trName, projectId=0):
-        """
-        Get test privew
-        """
-        xmlrpcData = { 'projectid': projectId, 'tr-path':trPath, 'tr-name': trName }
-        self.__callXmlrpc( xmlrpcFunc=GET_TEST_PREVIEW, xmlrpcData=xmlrpcData )
+    # @calling_xmlrpc        
+    # def getTestPreview(self, trPath, trName, projectId=0):
+        # """
+        # Get test privew
+        # """
+        # xmlrpcData = { 'projectid': projectId, 'tr-path':trPath, 'tr-name': trName }
+        # self.__callXmlrpc( xmlrpcFunc=GET_TEST_PREVIEW, xmlrpcData=xmlrpcData )
 
     @calling_xmlrpc
     def deleteTestResult(self, trPath,  projectId=0):

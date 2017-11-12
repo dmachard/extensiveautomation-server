@@ -8,6 +8,7 @@
 		4. (minor) change default url of the website opensource project
 		5. (major) full support of qt5.9 and python3.6
 		6. (medium) new find & replace widget for python editor
+		7. (major) no more use xmlrpc api to get test reports, replace by rest api
 	Issues Fixed
 		1. (minor) unable to print test xml verdict to pdf, missing QTextDocument import
 		2. (minor) fix some undefined variable after static code analysis
