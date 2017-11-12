@@ -2027,7 +2027,10 @@ class MainApplication(QMainWindow, Logger.ClassLogger):
         
         # new in v12
         UCI.instance().GetImagePreview.connect(WServerExplorer.Archives.instance().images().onGetImagePreview)
-        UCI.instance().GetTestPreview.connect(WServerExplorer.Archives.instance().onGetTestPreview)
+        # UCI.instance().GetTestPreview.connect(WServerExplorer.Archives.instance().onGetTestPreview)
+        
+        # new in v18
+        RCI.instance().GetTestReports.connect(WServerExplorer.Archives.instance().onGetTestPreview)
         
     def onTextNbReplaced(self, counter):
         """

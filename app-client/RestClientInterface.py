@@ -45,6 +45,42 @@ CMD_LOGIN           =   "/session/login"
 CMD_LOGOUT          =   "/session/logout"
 CMD_REFRESH         =   "/session/refresh"
 
+CMD_ADD_COMMENT     =   ""
+CMD_READ_COMMENTS   =   ""
+CMD_DEL_COMMENTS    =   ""
+
+CMD_EXPORT_REPORT   =   ""
+CMD_EXPORT_DESIGN   =   ""
+CMD_EXPORT_VERDICT  =   ""
+
+CMD_REFRESH_REPO    =   ""
+CMD_EMPTY_REPO      =   ""
+
+CMD_LOAD_TR         =   ""
+CMD_ZIP_TR          =   ""
+CMD_GET_TR          =   ""
+CMD_GET_TR_REPORTS  =   "/results/reports"
+CMD_GET_TR_IMAGE    =   ""
+CMD_DELETE_TR       =   ""
+
+
+# REPOSITORY TYPE
+REPO_TESTS                          =   0
+REPO_ADAPTERS                       =   1
+REPO_TESTS_LOCAL                    =   2
+REPO_UNDEFINED                      =   3
+REPO_ARCHIVES                       =   4
+REPO_LIBRARIES                      =   5
+
+REPO_TYPES_DICT =   {
+                        REPO_TESTS          :   'remote-tests',
+                        REPO_ADAPTERS       :   'remote-adapters',
+                        REPO_TESTS_LOCAL    :   'local-tests',
+                        REPO_UNDEFINED      :   'undefined',
+                        REPO_ARCHIVES       :   'archives',
+                        REPO_LIBRARIES      :   'remote-libraries'
+                    }
+
 def calling_rest(func):
     """
     Decorator for rest call
@@ -75,6 +111,8 @@ class RestClientInterface(QObject, Logger.ClassLogger):
     IdleCursor = pyqtSignal() 
     BusyCursor = pyqtSignal()
     Authenticated = pyqtSignal()
+    # new in v18
+    GetTestReports = pyqtSignal(dict)
     def __init__(self, parent):
         """
         Constructor
@@ -102,7 +140,7 @@ class RestClientInterface(QObject, Logger.ClassLogger):
             else:
                 self.WarningMsg.emit( self.tr("The REST API interface disabled") )
             
-    def onGenericError(self, err, title="Error"):
+    def onGenericError(self, err, title="Rest Error"):
         """
         Called on rest generic error
 
@@ -159,6 +197,8 @@ class RestClientInterface(QObject, Logger.ClassLogger):
                 self.onLogout(details=response)
             elif response['cmd'] == CMD_REFRESH:
                 self.onRefresh(details=response) 
+            elif response['cmd'] == CMD_GET_TR_REPORTS:
+                self.onGetTestReports(details=response)
             else:
                 self.onGenericError(err=self.tr("Bad cmd provided on response: %s" % response["cmd"]), 
                                     title=self.tr("Bad message") )
@@ -194,7 +234,178 @@ class RestClientInterface(QObject, Logger.ClassLogger):
         Refresh
         """
         self.makeRequest( uri=CMD_REFRESH, request=HTTP_GET )
-      
+    
+    @calling_rest
+    def deleteTestResult(self, trPath,  projectId=0):
+        """
+        Delete test result
+        """
+        pass
+        
+    @calling_rest
+    def addCommentArchive(self, archiveFile, archivePost, postTimestamp, testId=0):
+        """
+        Add comment on archive
+
+        @param archiveFile:
+        @type archiveFile:
+
+        @param archivePost:
+        @type archivePost:
+
+        @param postTimestamp:
+        @type postTimestamp:
+
+        @param testId:
+        @type testId:
+        """
+        pass
+        
+    @calling_rest
+    def readCommentsArchive(self, archiveFile):
+        """
+        Read comments from archive
+
+        @param archiveFile:
+        @type archiveFile:
+        """
+        pass
+        
+    @calling_rest
+    def delCommentsArchive(self, archiveFile):
+        """
+        Delete comments on archives
+
+        @param archiveFile:
+        @type archiveFile:
+        """
+        pass
+        
+    @calling_rest
+    def exportTestReport(self, testId=0, testPath=None, testFileName=None, projectId=1):
+        """
+        Export test report
+
+        @param testId:
+        @type testId:
+
+        @param testPath:
+        @type testPath:
+
+        @param testFileName:
+        @type testFileName:
+        """
+        pass
+        
+    @calling_rest
+    def exportTestDesign(self, testId=0, testPath=None, testFileName=None, projectId=1):
+        """
+        Export test design
+
+        @param testId:
+        @type testId:
+
+        @param testPath:
+        @type testPath:
+
+        @param testFileName:
+        @type testFileName:
+        """
+        pass
+        
+    @calling_rest
+    def exportTestVerdict(self, testId=0, testPath=None, testFileName=None, projectId=1):
+        """
+        Export test verdict
+
+        @param testId:
+        @type testId:
+
+        @param testPath:
+        @type testPath:
+
+        @param testFileName:
+        @type testFileName:
+        """
+        pass
+        
+    @calling_rest
+    def refreshRepo (self, repo=REPO_TESTS, showPopup=True, project=0, saveAsOnly=False, forRuns=False, partialRefresh=False):
+        """
+        Refresh repository
+
+        @param showPopup:
+        @type showPopup: boolean
+
+        @param repo:
+        @type repo:
+
+        @param project:
+        @type project:
+        """
+        pass
+        
+    @calling_rest
+    def loadTestCache (self, mainPath, subPath, project=1):
+        """
+        Load test cache
+
+        @param mainPath:
+        @type mainPath:
+
+        @param subPath:
+        @type subPath:
+        """
+        pass
+        
+    @calling_rest
+    def createZipArchives (self, mainPathToZip, subPathToZip, projectId=1):
+        """
+        Create zip archives
+
+        @param mainPathToZip:
+        @type mainPathToZip:
+
+        @param subPathToZip:
+        @type subPathToZip:
+        """
+        pass
+        
+    @calling_rest
+    def downloadResultLogsV2(self, trPath, trName, projectId=1, andSave=False, destFile=''):
+        """
+        Download test result v2
+        """
+        pass
+        
+    @calling_rest
+    def emptyRepo(self, repo=REPO_TESTS, project=0):
+        """
+        Empty repository
+
+        @param repo:
+        @type repo:
+
+        @param project:
+        @type project:
+        """
+        pass
+        
+    @calling_rest        
+    def getTestReports(self, testId, replayId=0, projectId=0):
+        """
+        Get test basic report
+        """
+        _json = { 'project-id': int(projectId), 'test-id': testId, 'replay-id': replayId }
+        self.makeRequest( uri=CMD_GET_TR_REPORTS, request=HTTP_POST, _json=_json )
+
+    @calling_rest
+    def getImagePreview(self, trPath, imageName, projectId=0):
+        """
+        Get image privew
+        """
+        pass
+        
     # handle rest responses
     def onRefresh(self, details):
         """
@@ -226,6 +437,12 @@ class RestClientInterface(QObject, Logger.ClassLogger):
         
         # emit success signal
         self.Authenticated.emit()
+        
+    def onGetTestReports(self, details):
+        """
+        """
+        self.trace("on get reports")
+        self.GetTestReports.emit( details )
         
 RCI = None # Singleton
 def instance ():

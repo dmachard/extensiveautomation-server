@@ -60,7 +60,8 @@ except ImportError:
     from PyQt5.QtWebEngineWidgets import QWebEngineSettings as QWebSettings
     from PyQt5.QtPrintSupport import (QPrinter, QPrintDialog)
     from PyQt5.QtNetwork import (QNetworkProxy)
-    
+
+import RestClientInterface as RCI
 import UserClientInterface as UCI
 import Settings
 from Libs import QtHelper, Logger
@@ -183,7 +184,7 @@ class ArchiveItem(QTreeWidgetItem, Logger.ClassLogger):
         
         #folders
         if itemType == QTreeWidgetItem.UserType+0:
-        
+
             # folder name example: 2017-06-08_18:23:26.c1692fe3-405a-4b73-b4dc-a10638842563.Tm9uYW1lMQ==.denis.machard
             # YYYY-MM-DD_hh:mm:ss.testid.testname(base64).user
             # the username can contains dot 
@@ -197,8 +198,9 @@ class ArchiveItem(QTreeWidgetItem, Logger.ClassLogger):
             
             # sub directory
             if len(ret) == 4:
-                timeArch, milliArch, testName, testUser = ret
+                timeArch, testid, testName, testUser = ret
 
+                self.testId = testid
                 self.testName = base64.b64decode(testName)
                 self.testUser = testUser
                 
@@ -269,6 +271,7 @@ class ArchiveItem(QTreeWidgetItem, Logger.ClassLogger):
         # end of new
         
         # wrap to str for python3 support
+        self.runId = str(runId)
         self.setText(COL_REPLAY, str(runId) ) 
         self.setText(COL_NAME, str(archiveNameParsed) )
         self.setToolTip(COL_NAME, str(archiveNameParsed) ) 
@@ -912,7 +915,8 @@ class PreviewComments(QWidget):
             postComment_encoded = base64.b64encode( postComment.toUtf8() )
         
         # call web services
-        UCI.instance().addCommentArchive( archiveFile = filePath, archivePost = postComment_encoded, 
+        UCI.instance().addCommentArchive(   archiveFile = filePath, 
+                                            archivePost = postComment_encoded, 
                                             postTimestamp=time.time() )
     
     def readComments(self):
@@ -2487,29 +2491,35 @@ class WArchives(QWidget, Logger.ClassLogger):
         """
         if self.itemCurrent is None: return
 
+        # cursor to the selected item
         cur = self.itemCurrent
+        replayId = "0"
         
-        if cur.typeItem == TYPE_ITEM_FOLDER_TEST:
+        if cur.typeItem == TYPE_ITEM_FOLDER_TEST: 
             if cur.childTest is not None:
-                logDirName = cur.parent.archiveDescr['name']
-                logSubDirName = cur.archiveDescr['name']
+                testId = cur.testId
+                # logDirName = cur.parent.archiveDescr['name']
+                # logSubDirName = cur.archiveDescr['name']
                 
-                logFileName =  cur.childTest['name']
+                # logFileName =  cur.childTest['name']
                 projectId =  cur.childTest['project']
             
             else:
                 return
         else:
-            logDirName = cur.parent.parent.archiveDescr['name']
-            logSubDirName = cur.parent.archiveDescr['name']
-            logFileName =  cur.archiveDescr['name']
+            testId = cur.parent.testId
+            replayId = cur.runId
+            # logDirName = cur.parent.parent.archiveDescr['name']
+            # logSubDirName = cur.parent.archiveDescr['name']
+            # logFileName =  cur.archiveDescr['name']
             projectId =  cur.archiveDescr['project']
        
         self.tabComments.active(item=self.itemCurrent)
 
         # call web service
-        UCI.instance().getTestPreview(  '%s/%s' % (logDirName,logSubDirName), 
-                                        logFileName, projectId=projectId )
+        RCI.instance().getTestReports( testId=testId, replayId=replayId, projectId=projectId )
+        # UCI.instance().getTestPreview(  '%s/%s' % (logDirName,logSubDirName), 
+                                        # logFileName, projectId=projectId )
          
     def loadImagePreview(self):
         """
@@ -2564,6 +2574,7 @@ class WArchives(QWidget, Logger.ClassLogger):
         """
         On get test preview
         """
+        print(content)
         self.previewTab.setCurrentIndex(TAB_REPORTS)   
         
         defaultTab = Settings.instance().readValue( key = 'TestArchives/default-report-tab' )
@@ -2575,8 +2586,8 @@ class WArchives(QWidget, Logger.ClassLogger):
         self.previewTab.setTabEnabled(TAB_COMMENTS, True)
         
         # load reports
-        if 'reports' in content:
-            self.tabReports.loadReports( self.decodeData(content['reports']) )
+        if 'html-report' in content:
+            self.tabReports.loadReports( self.decodeData(content['html-report']) )
         else:
             self.tabReports.loadReports( "No test report available" )
             self.previewTab.setTabEnabled(TAB_COMMENTS, False)
@@ -2586,24 +2597,22 @@ class WArchives(QWidget, Logger.ClassLogger):
             subRspCode, archivesPath, archivesComments = content['comments']
             self.tabComments.onLoadComments(archivesPath, archivesComments)
 
-        # new in v12.2, load verdicts
-        if 'verdicts' in content:
+        if 'csv-report' in content:
             self.previewTab.setTabEnabled(TAB_VERDICTS, True)
-            self.tabVerdicts.loadVerdicts( self.decodeData(content['verdicts']) )
+            self.tabVerdicts.loadVerdicts( self.decodeData(content['csv-report']) )
         else:
             self.tabVerdicts.loadVerdicts( "No test verdict available" )
             self.previewTab.setTabEnabled(TAB_VERDICTS, False)
-            
-        # new in v13.1, load xml verdicts
-        if 'xml-verdicts' in content:
+
+        if 'xml-report' in content:
             self.previewTab.setTabEnabled(TAB_XML_VERDICTS, True)
-            self.tabXmlVerdicts.loadVerdicts( self.decodeData(content['xml-verdicts']) )
+            self.tabXmlVerdicts.loadVerdicts( self.decodeData(content['xml-report']) )
         else:
             self.tabXmlVerdicts.loadVerdicts( "No test verdict available" )
             self.previewTab.setTabEnabled(TAB_XML_VERDICTS, False)
             
-        if 'basic-reports' in content:
-            self.tabBasicReports.loadReports( self.decodeData(content['basic-reports']) )
+        if 'html-basic-report' in content:
+            self.tabBasicReports.loadReports( self.decodeData(content['html-basic-report']) )
         else:
             self.tabBasicReports.loadReports( "No basic test report available" )
             self.previewTab.setTabEnabled(TAB_BASIC_REPORTS, False)
