@@ -4646,4 +4646,4 @@ class TestCase(object):
         """
         todo
         """
-        return _executerun
+        return not _ExecuteTest
