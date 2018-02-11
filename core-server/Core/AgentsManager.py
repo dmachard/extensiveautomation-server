@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -23,20 +23,24 @@
 
 import base64
 import zlib
+import json
+
 try:
-    # python 2.4 support
-    import simplejson as json
-except ImportError:
-    import json
-
-import AgentServerInterface as ASI
-import EventServerInterface as ESI
-import Context
-import Common
-
+    import AgentServerInterface as ASI
+    import EventServerInterface as ESI
+    import Common
+except ImportError: # python3 support
+    from . import AgentServerInterface as ASI
+    from . import  EventServerInterface as ESI
+    from . import  Common
+    
 from Libs import Settings, Logger
 
-import ConfigParser
+try:
+    import ConfigParser
+except ImportError: # python3 support
+    import configparser as ConfigParser
+    
 import os
 import signal
 import shlex
@@ -48,55 +52,16 @@ import tarfile
 
 
 class AgentsManager(Logger.ClassLogger):    
-    def __init__(self):
+    def __init__(self, context):
         """
         Construct Probes Manager
         """
-        self.pkgsAgentsPath = "%s/%s/%s/linux2/" % ( Settings.getDirExec(),   Settings.get( 'Paths', 'packages' ), 
-                                        Settings.get( 'Paths', 'agents' ) )
-
+        self.pkgsAgentsPath = "%s/%s/%s/linux2/" % (Settings.getDirExec(),   
+                                                    Settings.get( 'Paths', 'packages' ), 
+                                                    Settings.get( 'Paths', 'agents' ) )
+        self.context = context
         self.configsFile = None
         self.__pids__ = {}
-
-    def encodeData(self, data):
-        """
-        Encode data
-        """
-        ret = ''
-        try:
-            tasks_json = json.dumps(data)
-        except Exception as e:
-            self.error( "Unable to encode in json: %s" % str(e) )
-        else:
-            try: 
-                tasks_zipped = zlib.compress(tasks_json)
-            except Exception as e:
-                self.error( "Unable to compress: %s" % str(e) )
-            else:
-                try: 
-                    ret = base64.b64encode(tasks_zipped)
-                except Exception as  e:
-                    self.error( "Unable to encode in base 64: %s" % str(e) )
-        return ret
-
-    def getStats(self, b64=False):
-        """
-        Constructs some statistics on agents
-            - Licence definition
-
-        @return: agents statistics
-        @rtype: dict
-        """
-        ret= {}
-        try:
-            ret['max-reg'] = Context.instance().getLicence()[ 'agents' ] [ 'instance' ]
-            ret['max-def'] = Context.instance().getLicence()[ 'agents' ] [ 'default' ]
-        except Exception as e:
-            self.error( "unable to get agents stats: %s" % e )
-        else:
-            if b64:
-                ret = self.encodeData(data=ret)
-        return ret
 
     def getDefaultAgents(self, b64=False):
         """
@@ -117,8 +82,6 @@ class AgentsManager(Logger.ClassLogger):
                     tpl[optKey] = optValue
                 # {'enable': '1', 'type': 'textual', 'name': 'textual01', 'description': 'default probe'},
                 agents.append( tpl )  
-        if b64:
-            agents = self.encodeData(data=agents)
         return agents
 
     def addDefaultAgent(self, aName, aType, aDescr):
@@ -137,36 +100,32 @@ class AgentsManager(Logger.ClassLogger):
         @return:
         @rtype: boolean
         """
-        ret = Context.CODE_ERROR
+        ret = self.context.CODE_ERROR
         try:
             if self.configsFile is not None:
-                # check licence
-                if len(self.configsFile.sections()) >=  Context.instance().getLicence()[ 'agents' ] [ 'default' ]:
-                    ret = Context.CODE_FORBIDDEN
-                else:
-                    # add the section in the config file object
-                    self.configsFile.add_section(aName)
-                    self.configsFile.set( aName, 'enable', 1)
-                    self.configsFile.set( aName, 'type', aType)
-                    self.configsFile.set( aName, 'description', aDescr)
-                    
-                    # write date the file 
-                    f = open(  "%s/agents.ini" % Settings.getDirExec() , 'w')
-                    self.configsFile.write(f)
-                    f.close()
+                # add the section in the config file object
+                self.configsFile.add_section(aName)
+                self.configsFile.set( aName, 'enable', 1)
+                self.configsFile.set( aName, 'type', aType)
+                self.configsFile.set( aName, 'description', aDescr)
+                
+                # write date the file 
+                f = open(  "%s/agents.ini" % Settings.getDirExec() , 'w')
+                self.configsFile.write(f)
+                f.close()
 
-                    # notify all admin and tester
-                    notif = ( 'agents-default', ( 'add', self.getDefaultAgents() ) )
-                    ESI.instance().notifyByUserTypes(body = notif, admin=True, leader=False, tester=True, developer=False)
-                    
-                    # return OK
-                    ret = Context.CODE_OK
+                # notify all admin and tester
+                notif = ( 'agents-default', ( 'add', self.getDefaultAgents() ) )
+                ESI.instance().notifyByUserTypes(body = notif, admin=True, leader=False, tester=True, developer=False)
+                
+                # return OK
+                ret = self.context.CODE_OK
         except ConfigParser.DuplicateSectionError:
             self.error( "agent already exist %s" % str(aName) ) 
-            ret = Context.CODE_ALLREADY_EXISTS
+            ret = self.context.CODE_ALLREADY_EXISTS
         except Exception as e:
             self.error( "unable to add default agent: %s" % str(e) )
-            ret = Context.CODE_FAILED
+            ret = self.context.CODE_FAILED
         return ret
     
     def delDefaultAgent(self, aName):
@@ -179,7 +138,7 @@ class AgentsManager(Logger.ClassLogger):
         @return:
         @rtype: boolean
         """
-        ret = Context.CODE_ERROR
+        ret = self.context.CODE_ERROR
         try:
             if self.configsFile is not None:
                 # remove the section in the config file object
@@ -192,23 +151,25 @@ class AgentsManager(Logger.ClassLogger):
 
                 # notify all admin and tester
                 notif = ( 'agents-default', ( 'del', self.getDefaultAgents() ) )
-                ESI.instance().notifyByUserTypes(body = notif, admin=True, leader=False, tester=True, developer=False)
+                ESI.instance().notifyByUserTypes(body = notif, admin=True, leader=False, 
+                                                 tester=True, developer=False)
 
                 runningAgent = ASI.instance().getAgent(aname=aName)
                 if runningAgent is not None:
                     runningAgent['auto-startup'] = False
                 notif2 = ( 'agents', ( 'del', ASI.instance().getAgents() ) )
-                ESI.instance().notifyByUserTypes(body = notif2, admin=True, leader=False, tester=True, developer=False)
+                ESI.instance().notifyByUserTypes(body = notif2, admin=True, leader=False, 
+                                                 tester=True, developer=False)
 
 
                 # return OK
-                ret = Context.CODE_OK
+                ret = self.context.CODE_OK
         except ConfigParser.NoSectionError:
             self.error( "agent not found: %s" % str(aName) )    
-            ret = Context.CODE_NOT_FOUND
+            ret = self.context.CODE_NOT_FOUND
         except Exception as e:
             self.error( "unable to delete default agent: %s" % str(e) )
-            ret = Context.CODE_FAILED
+            ret = self.context.CODE_FAILED
         return ret
 
     def getRunning (self, b64=False):
@@ -220,8 +181,6 @@ class AgentsManager(Logger.ClassLogger):
         """
         self.trace("get running agents" )
         ret = ASI.instance().getAgents()
-        if b64:
-            ret = self.encodeData(data=ret)
         return ret
 
     def getInstalled (self, b64=False):
@@ -253,8 +212,6 @@ class AgentsManager(Logger.ClassLogger):
                         a['description'] = agentDescr
                     if  len(a) > 0:
                         pluginsInstalled.append( a )
-        if b64:
-            pluginsInstalled = self.encodeData(data=pluginsInstalled)
         return pluginsInstalled
 
     def disconnectAgent(self, name):
@@ -264,11 +221,11 @@ class AgentsManager(Logger.ClassLogger):
         self.info( "Disconnect agent Name=%s" % name )
         if not name in ASI.instance().agentsRegistered:
             self.trace( "disconnect agent, agent %s not found" % name )
-            return Context.CODE_NOT_FOUND
+            return self.context.CODE_NOT_FOUND
         else:
             agentProfile =  ASI.instance().agentsRegistered[name]
             ASI.instance().stopClient(client=agentProfile['address'] )
-        return Context.CODE_OK
+        return self.context.CODE_OK
 
     def stopAgent(self, aname):
         """
@@ -366,7 +323,6 @@ class AgentsManager(Logger.ClassLogger):
         """
         Logger.ClassLogger.trace(self, txt="ATM - %s" % txt)
 
-###############################
 AM = None
 def instance ():
     """
@@ -377,12 +333,12 @@ def instance ():
     """
     return AM
 
-def initialize ():
+def initialize (context):
     """
     Instance creation
     """
     global AM
-    AM = AgentsManager()
+    AM = AgentsManager(context=context)
 
 def finalize ():
     """

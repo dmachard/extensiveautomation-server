@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -20,6 +20,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
+
+"""
+Automation assitant for sikuli
+"""
 
 import sys
 
@@ -156,17 +160,21 @@ LIST_TYPES = ["TEXT", "CACHE", "ALIAS"]
 
 class ValidatorUpper(QValidator):
     """
+    Qvalidator to make in upper case
     """
     def validate(self, string, pos):
         """
+        Validate
         """
         return QValidator.Acceptable, string.upper(), pos
         
 class ValidatorAll(QValidator):
     """
+    Qvalidator 
     """
     def validate(self, string, pos):
         """
+        Validate
         """
         return QValidator.Acceptable, string, pos
         
@@ -244,6 +252,7 @@ class OptionsDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
 
 class WSikuliX(QWidget, Logger.ClassLogger):
     """
+    Sikulix widget
     """
     # action, description, image, text, misc, similar, cache, alias
     AddStep = pyqtSignal(str, str, bytes, str, str, str, bool, bool, dict) 
@@ -254,6 +263,7 @@ class WSikuliX(QWidget, Logger.ClassLogger):
     CancelEdit = pyqtSignal()
     def __init__(self, parent):
         """
+        Constructor
         """
         QWidget.__init__(self)
         
@@ -266,6 +276,7 @@ class WSikuliX(QWidget, Logger.ClassLogger):
         
     def createActions(self):
         """
+        Create all qt actions
         """
         self.takeSnapshotAction = QPushButton(QIcon(":/screenshot.png"), '&Capture Visual Pattern', self)
         self.takeDragSnapshotAction = QPushButton(QIcon(":/screenshot.png"), '&Capture Visual Pattern', self)
@@ -287,12 +298,14 @@ class WSikuliX(QWidget, Logger.ClassLogger):
         
     def openOptions(self):
         """
+        Open the options dialog
         """
         if self.optionsDialog.exec_() == QDialog.Accepted:
             pass
              
     def createWidgets(self):
         """
+        Create all qt widgets
         """
         self.optionsDialog  = OptionsDialog(self)
         
@@ -368,6 +381,7 @@ class WSikuliX(QWidget, Logger.ClassLogger):
   
     def createWidgetLine(self):
         """
+        Create the widget line
         """
         self.lineGroup = QGroupBox(self.tr(""))
         
@@ -385,6 +399,7 @@ class WSikuliX(QWidget, Logger.ClassLogger):
         
     def createWidgetPosXY(self):
         """
+        Create a text widget for x,y position
         """
         self.xyGroup = QGroupBox(self.tr(""))
         self.x = QLineEdit(self)
@@ -412,6 +427,7 @@ class WSikuliX(QWidget, Logger.ClassLogger):
         
     def createWidgetTextTo(self):
         """
+        Create text widget
         """
         self.valueTextToLine = QLineEdit(self)
         self.valueTextToLine.setMinimumWidth(300)
@@ -430,6 +446,7 @@ class WSikuliX(QWidget, Logger.ClassLogger):
         
     def createWidgetText(self):
         """
+        Create text widget
         """
         self.valueTextLine = QLineEdit(self)
         self.valueTextLine.setMinimumWidth(300)
@@ -446,6 +463,7 @@ class WSikuliX(QWidget, Logger.ClassLogger):
         
     def createWidgetSnapshotImage(self):
         """
+        Create widget for snaphost image
         """
 
         self.thresholdSlider = QSlider(Qt.Horizontal)
@@ -479,6 +497,7 @@ class WSikuliX(QWidget, Logger.ClassLogger):
 
     def createWidgetShortcut(self):
         """
+        Create shortcut widget
         """
         self.shortcutGroup = QGroupBox(self.tr(""))
         
@@ -533,6 +552,7 @@ class WSikuliX(QWidget, Logger.ClassLogger):
 
     def createWidgetDragDrop(self):
         """
+        Createa drag/drop widget
         """
 
         self.thresholdSlider2 = QSlider(Qt.Horizontal)
@@ -583,6 +603,7 @@ class WSikuliX(QWidget, Logger.ClassLogger):
         
     def createWidgetLocation(self):
         """
+        Create location widget
         """
         self.valueLocTextLine = QLineEdit(self)
         self.valueLocTextLine.setMinimumWidth(300)
@@ -625,16 +646,19 @@ class WSikuliX(QWidget, Logger.ClassLogger):
 
     def createToolbar(self):
         """
+        Create toolbar
         """
         pass
 
     def pluginDataAccessor(self):
         """
+        Return data for plugin
         """
         return { "data": "" } 
 
     def onPluginImport(self, dataJson):
         """
+        On plugin import
         """
         if "steps" not in dataJson:
             QMessageBox.warning(self, "Recording for Gui" , "bad import")
@@ -655,6 +679,7 @@ class WSikuliX(QWidget, Logger.ClassLogger):
  
     def checkActionName(self, actionName):
         """
+        Check the name of the action
         """
         found = False
         for act in GuiSteps.ACTION_DESCR:
@@ -664,6 +689,7 @@ class WSikuliX(QWidget, Logger.ClassLogger):
            
     def createConnections(self):
         """
+        Create all qt connections
         """
         self.actionsComboBox.currentIndexChanged.connect(self.onActionChanged)
         self.thresholdSlider.valueChanged.connect(self.onSimilarChanged)
@@ -680,6 +706,7 @@ class WSikuliX(QWidget, Logger.ClassLogger):
 
     def onValueTextTypeChanged(self):
         """
+        Called when the text changed
         """
         if self.valueTextCombo.currentText() in [ "TEXT", "CACHE" ]:
             self.valueTextLine.setValidator(self.validatorAll)
@@ -690,6 +717,7 @@ class WSikuliX(QWidget, Logger.ClassLogger):
             
     def onValueLocTextTypeChanged(self):
         """
+        Called when the location changed
         """
         if self.valueLocTextCombo.currentText() in [ "TEXT", "CACHE" ]:
             self.valueLocTextLine.setValidator(self.validatorAll)
@@ -700,11 +728,13 @@ class WSikuliX(QWidget, Logger.ClassLogger):
             
     def onSimilarChanged(self, value):
         """
+        On similar value changed
         """
         self.similarLabel.setText( self.tr("Similarity threshold\n(%s%%)" % value ) )
 
     def onActionChanged(self):
         """
+        On action changed
         """
         descr = 'No description available!'
         i = 0
@@ -848,46 +878,55 @@ class WSikuliX(QWidget, Logger.ClassLogger):
 
     def takeSnapshot(self):
         """
+        Capture a snapshot
         """
         self.TakeSnapshot.emit()
         
     def takeMousePosition(self):
         """
+        Capture the mouse position
         """
         self.TakeMousePosition.emit()
 
     def takeMouseLocation(self):
         """
+        Capture the mouse location
         """
         self.TakeMouseLocation.emit()
 
     def getCurrentAction(self):
         """
+        Return the current action
         """
         return self.actionsComboBox.currentText()
         
     def setTimeout(self, timeout):
         """
+        Set the timeout
         """
         self.optionsDialog.timeoutLine.setText(timeout)
         
     def getTimeout(self):
         """
+        Return the timeout
         """
         return self.optionsDialog.timeoutLine.text()
         
     def getAgentName(self):
         """
+        Return the agent name
         """
         return self.optionsDialog.agentKeyNameLine.text()
         
     def getAgentList(self):
         """
+        Return the list of agent
         """
         return self.optionsDialog.agentsList
      
     def editStep(self, stepData):
         """
+        Edit a step
         """  
         # example stepData
         # {'bold': True, 'active': 'True', 'description': '', 'expected': 'dsq ', 'parameters': {}, 
@@ -1064,6 +1103,7 @@ class WSikuliX(QWidget, Logger.ClassLogger):
     
     def addStep(self):
         """
+        Add a new step
         """
         action = self.actionsComboBox.currentText()
         descr = self.descriptionLine.text()
@@ -1239,6 +1279,7 @@ class WSikuliX(QWidget, Logger.ClassLogger):
             
     def cancelStep(self):
         """
+        Cancel the modification of a step
         """
         self.addStepAction.setText( "&Add" )
         buttonFont = QFont()
@@ -1250,6 +1291,7 @@ class WSikuliX(QWidget, Logger.ClassLogger):
     
     def finalizeUpdate(self):
         """
+        Finalize the edit
         """
         self.addStepAction.setText( "&Add Action" )
         
@@ -1260,21 +1302,25 @@ class WSikuliX(QWidget, Logger.ClassLogger):
         
     def setSnapshotText(self, snapshot):
         """
+        Set the text on widget
         """
         self.snapshotTextLabel.setPixmap(snapshot)
         
     def setSnapshotDrag(self, snapshot):
         """
+        Set the image on widget
         """
         self.snapshotDragImageLabel.setPixmap(snapshot)
         
     def setSnapshotImage(self, snapshot):
         """
+        Set the image on widget
         """
         self.snapshotImageLabel.setPixmap(snapshot)
     
     def setMousePosition(self, posX, posY):
         """
+        Set the mouse position on widget
         """
         self.x.setText( "%s" % posX)
         self.y.setText( "%s" % posY)
@@ -1284,6 +1330,7 @@ class WSikuliX(QWidget, Logger.ClassLogger):
 
     def setMouseLocation(self, posX, posY, posW, posH):
         """
+        Set the mouse location on widget
         """
         self.locX.setText( "%s" % posX)
         self.locY.setText( "%s" % posY)

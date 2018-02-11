@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -21,6 +21,9 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Release notes widget
+"""
 
 try:
 	from PyQt4.QtCore import (Qt, QSize)
@@ -44,11 +47,11 @@ except NameError: # support python3
 # unicode = str with python3
 if sys.version_info > (3,):
     unicode = str
-    
-# FONT_NAME="courier"
-# FONT_SIZE=8
 
 class KeyItem(QTreeWidgetItem):
+    """
+    Key item widget
+    """
     def __init__(self, key, parent = None, type = None ):
         """
         Constructs KeyItem widget item
@@ -64,27 +67,30 @@ class KeyItem(QTreeWidgetItem):
 
     def setKeyFont(self, type):
         """
+        Set the font of thek ey
         """
         font = QFont()
         
         if type == 2:
-            # font = QFont(FONT_NAME, FONT_SIZE)
-            # font = QFont()
             font.setItalic(True)
             self.setFont( 0, font)
         elif type == 0 and self.siz > 0:
-            #self.setTextColor(0, QColor(Qt.darkBlue) )
             self.setForeground(0, QColor(Qt.darkBlue) )
             self.setIcon(0, QIcon(":/dot.png") )
-            # font = QFont(FONT_NAME, FONT_SIZE)
+
             font.setBold(True)
             self.setFont( 0, font)          
         else:
-            # font = QFont(FONT_NAME, FONT_SIZE)
             self.setFont( 0, font) 
 
 class ReleaseNotesDialog(QDialog):
+    """
+    Release notes dialog
+    """
     def __init__(self, dialogName, parent = None):
+        """
+        Constructor for dialog
+        """
         QDialog.__init__(self, parent)
         #
         self.name = dialogName
@@ -92,6 +98,7 @@ class ReleaseNotesDialog(QDialog):
 
     def createDialog(self):
         """
+        Create the qt dialog
         """
         self.setWindowTitle( "%s %s" % (self.tr("Release Notes"), self.name) )
         self.setWindowFlags(self.windowFlags() | Qt.WindowSystemMenuHint | Qt.WindowMinMaxButtonsHint)
@@ -134,6 +141,7 @@ class ReleaseNotesDialog(QDialog):
         
     def parseRn (self, text ):
         """
+        Parse the release note
         """
         rootItem = None
         subItem = None

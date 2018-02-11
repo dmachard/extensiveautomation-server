@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -21,6 +21,9 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Build binary for windows with cx_freeze
+"""
 
 # from distutils.core import setup
 # import py2exe
@@ -36,7 +39,7 @@ from Libs import Settings
 
 # Initialize settings module
 Settings.initialize()
-settings = Settings.instance()
+# settings = Settings.instance()
 
 # prepare the build date
 today = datetime.datetime.today()
@@ -58,25 +61,11 @@ Java8_Files = [ f for f in os.listdir(Java8_Path) if os.path.isfile(os.path.join
 Sikuli_Path = "%s/Bin/Sikuli/" % Settings.getDirExec()
 Sikuli_Files = [ f for f in os.listdir(Sikuli_Path) if os.path.isfile(os.path.join(Sikuli_Path,f)) ]
 
-# adding soapui files
-# SoapUI_Path = "%s/Bin/SoapUI/" % Settings.getDirExec()
-# SoapUI_Files = [ f for f in os.listdir(SoapUI_Path) if os.path.isfile(os.path.join(SoapUI_Path,f)) ]
-
-# SoapUI_Bin_Path = "%s/Bin/SoapUI/bin/" % Settings.getDirExec()
-# SoapUI_Bin_Files = [ f for f in os.listdir(SoapUI_Bin_Path) if os.path.isfile(os.path.join(SoapUI_Bin_Path,f)) ]
-
-# SoapUI_Lib_Path = "%s/Bin/SoapUI/lib/" % Settings.getDirExec()
-# SoapUI_Lib_Files = [ f for f in os.listdir(SoapUI_Lib_Path) if os.path.isfile(os.path.join(SoapUI_Lib_Path,f)) ]
-
 # adding selenium
 Selenium3_Path = "%s/Bin/Selenium3/" % Settings.getDirExec()
 Selenium3_Files = [ f for f in os.listdir(Selenium3_Path) if os.path.isfile(os.path.join(Selenium3_Path,f)) ]
 Selenium2_Path = "%s/Bin/Selenium2/" % Settings.getDirExec()
 Selenium2_Files = [ f for f in os.listdir(Selenium2_Path) if os.path.isfile(os.path.join(Selenium2_Path,f)) ]
-
-# adding apk
-# Apk_Path = "%s/Bin/Apk/" % Settings.getDirExec()
-# Apk_Files = [ f for f in os.listdir(Apk_Path) if os.path.isfile(os.path.join(Apk_Path,f)) ]
 
 # adding adb
 Adb_Path = "%s/Bin/Adb/" % Settings.getDirExec()
@@ -125,10 +114,6 @@ else:
 for f in Adb_Files:
     Mydata_files.append( ( '%s/%s' % (Adb_Path, f) , 'Bin/Adb/%s' % f ) ) 
 
-# apk
-# for f in Apk_Files:
-    # Mydata_files.append( ( '%s/%s' % (Apk_Path, f), 'Bin/Apk/%s' %f ) ) 
-
 # selenium
 for f in Selenium3_Files:
     Mydata_files.append( ( '%s/%s' % (Selenium3_Path, f), 'Bin/Selenium3/%s' %f ) ) 
@@ -142,16 +127,6 @@ for f in Java8_Files:
 # sikuli
 for f in Sikuli_Files:
     Mydata_files.append( (  '%s/%s' % (Sikuli_Path, f) , 'Bin/Sikuli/%s' %f ) ) 
-
-# soap ui
-# for f in SoapUI_Files:
-    # Mydata_files.append( ( '%s/%s' % (SoapUI_Path, f) , 'Bin/SoapUI/%s' %f ) ) 
-
-# for f in SoapUI_Bin_Files:
-    # Mydata_files.append( (  '%s/%s' % (SoapUI_Bin_Path, f) , 'Bin/SoapUI/bin/%s' %f ) ) 
-
-# for f in SoapUI_Lib_Files:
-    # Mydata_files.append( ( '%s/%s' % (SoapUI_Lib_Path, f) , 'Bin/SoapUI/lib/%s' %f ) ) 
 
 # Prepare the build options
 base = None

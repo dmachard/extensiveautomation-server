@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -25,23 +25,17 @@
 Server agent module
 """
 
-try:
-    import TcpServer
-except ImportError: # support python 3
-    from . import TcpServer
-
-try:
-    import Messages
-except ImportError: # support python 3
-    from . import Messages
-
-try:
-    import TransactionManager
-except ImportError: # support python 3
-    from . import TransactionManager
-
 import time
 import sys
+
+try:
+    import TcpServer
+    import Messages
+    import TransactionManager
+except ImportError: # support python 3
+    from . import TcpServer
+    from . import Messages
+    from . import TransactionManager
 
 # unicode = str with python3
 if sys.version_info > (3,):
@@ -51,8 +45,10 @@ class ServerAgent(TcpServer.TcpServerThread, TransactionManager.TransactionManag
     """
     Server agent
     """
-    def __init__(self, listeningAddress, agentName, inactivityTimeout = 60, keepAliveInterval = 40, responseTimeout=30.0,
-                        selectTimeout=0.01, wsSupport=False, sslSupport=False, certFile='', keyFile='', pickleVer=2):
+    def __init__(self, listeningAddress, agentName, inactivityTimeout = 60, 
+                       keepAliveInterval = 40, responseTimeout=30.0,
+                       selectTimeout=0.01, wsSupport=False, sslSupport=False, 
+                       certFile='', keyFile='', pickleVer=2):
         """
         @param listeningAddress:
         @type listeningAddress:
@@ -60,8 +56,10 @@ class ServerAgent(TcpServer.TcpServerThread, TransactionManager.TransactionManag
         @param agentName:
         @type agentName:
         """
-        TcpServer.TcpServerThread.__init__(self, listeningAddress, inactivityTimeout = inactivityTimeout, keepAliveInterval = keepAliveInterval,
-                                            selectTimeout=selectTimeout, wsSupport=wsSupport, sslSupport=sslSupport, certFile=certFile, keyFile=keyFile)
+        TcpServer.TcpServerThread.__init__(self, listeningAddress, inactivityTimeout = inactivityTimeout, 
+                                            keepAliveInterval = keepAliveInterval,
+                                            selectTimeout=selectTimeout, wsSupport=wsSupport, 
+                                            sslSupport=sslSupport, certFile=certFile, keyFile=keyFile)
         self.__responseCmdTimeout = responseTimeout
         TransactionManager.TransactionManager.__init__(self)
         self.__codec = Messages.Messages( userId=agentName, pickleVer=pickleVer )
@@ -95,7 +93,7 @@ class ServerAgent(TcpServer.TcpServerThread, TransactionManager.TransactionManag
         @type data:
         """
         try:
-            tid = TransactionManager.TransactionManager.getNewTransactionId(self)   
+            tid = TransactionManager.TransactionManager.getNewTransactionId(self)
             encoded = self.__codec.notify( tid = tid, body = data )
             TcpServer.TcpServerThread.sendPacket(self, client, encoded)
             self.trace("-> NOTIFY %s" % tid)
@@ -118,14 +116,20 @@ class ServerAgent(TcpServer.TcpServerThread, TransactionManager.TransactionManag
         """
         try:
             ret = None
-            tid, event = TransactionManager.TransactionManager.newTransaction(self, waitResponse = True, client = client)
+            tid, event = TransactionManager.TransactionManager.newTransaction(self, 
+                                                                              waitResponse = True, 
+                                                                              client = client)
             encoded = self.__codec.cmd( tid = tid, body = data)
             TcpServer.TcpServerThread.sendPacket(self, client, encoded)
             maxTime = self.__responseCmdTimeout
             if timeout > 0:
                 maxTime = timeout
             self.trace("-> REQUEST %s, timeout of %s" % (tid,maxTime) )
-            ret = TransactionManager.TransactionManager.waitResponse(self, event, tid, client = client, responseTimeout=maxTime)
+            ret = TransactionManager.TransactionManager.waitResponse(self, 
+                                                                     event, 
+                                                                     tid, 
+                                                                     client = client, 
+                                                                     responseTimeout=maxTime)
         except Exception as e:
             self.error( '[cmd] %s' % str(e) )
         return ret

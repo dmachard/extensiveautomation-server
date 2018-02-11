@@ -1,7 +1,7 @@
 <?php
 	/*
 	---------------------------------------------------------------
-	 Copyright (c) 2010-2017 Denis Machard. All rights reserved.
+	 Copyright (c) 2010-2018 Denis Machard. All rights reserved.
 
 	 This file is part of the extensive testing project; you can redistribute it and/or
 	 modify it under the terms of the GNU General Public License, Version 3.
@@ -70,6 +70,10 @@
 		'gui'							=> 'GUI',
 		'web'							=> 'Web',
 		'api'							=> 'API',
+        'api-key'				        => 'API Key',
+		'tester-api'					=> 'Tester API',
+        'common-api'					=> 'Common API',
+        'admin-api'					    => 'Admin API',
 		'value'							=> 'Value',
 		'account'						=> 'Account',
 		'quickstart'					=> 'Quickstarts',
@@ -116,7 +120,7 @@
 		# Users
 		'administrator'					=> 'Administrator',
 		'tester'						=> 'Tester',
-		'leader'						=> 'Leader',
+		'monitor'						=> 'Monitor',
 		'developer'						=> 'Developer',
 
 		# Menu
@@ -214,7 +218,7 @@
 		'admin-users'					=> 'Users',
 		'admin-users-email'				=> 'Email',
 		'admin-users-lang'				=> 'Language',
-		'admin-users-rights'			=> 'Rights',
+		'admin-users-rights'			=> 'Role',
 		'admin-users-access'			=> 'Access',
 		'admin-users-style'				=> 'Style',
 		'admin-users-old-pwd'			=> 'Current Password',

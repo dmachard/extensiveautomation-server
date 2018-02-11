@@ -26,7 +26,6 @@
 	$INDEX_PAGE = get_pindex('administration');
 	$SUB_PAGE_PROFILE =  get_subpindex( 'administration', 'admin-profile' ) ;
 	$SUB_PAGE_USERS =  get_subpindex( 'administration', 'admin-users' ) ;
-	$SUB_PAGE_LICENSE =  get_subpindex( 'administration', 'admin-license' ) ;
 	$SUB_PAGE_PROJECTS =  get_subpindex( 'administration', 'admin-projects' ) ;
 	$SUB_PAGE_CONFIG =  get_subpindex( 'administration', 'admin-config' ) ;
 
@@ -64,9 +63,6 @@
 
 			( $s == $SUB_PAGE_PROJECTS ) ? $active="selected" : $active ="";
 			echo '<div class="link box-item '.$active.'" onclick="javascript:nav(\'./index.php?p='.$INDEX_PAGE.'&s='.$SUB_PAGE_PROJECTS.'\')" >'.lang('admin-projects').'</div><img onclick="javascript:nav(\'./index.php?p='.$INDEX_PAGE.'&s='.$SUB_PAGE_PROJECTS.'&c=new\')" src="./style/'.$__LWF_APP_DFLT_STYLE.'/img/add-green.png" class="link icon-add" alt="add" title="'.lang('admin-projects-new').'">';
-
-			( $s == $SUB_PAGE_LICENSE ) ? $active="selected" : $active ="";
-			echo '<div class="link box-item '.$active.'" onclick="javascript:nav(\'./index.php?p='.$INDEX_PAGE.'&s='.$SUB_PAGE_LICENSE.'\')" >'.lang('admin-license').'</div>';
 
 			( $s == $SUB_PAGE_CONFIG ) ? $active="selected" : $active ="";
 			echo '<div class="link box-item '.$active.'" onclick="javascript:nav(\'./index.php?p='.$INDEX_PAGE.'&s='.$SUB_PAGE_CONFIG.'\')" >'.lang('admin-config').'</div>';
@@ -287,7 +283,12 @@
 				// prepare body for each tabs
 				$tabsbody = array();
 
-				$sql_req = 'SELECT * FROM `'.$__LWF_DB_PREFIX.'-projects` ORDER BY name';
+				// $sql_req = 'SELECT * FROM `'.$__LWF_DB_PREFIX.'-projects` ORDER BY name';
+                
+                $sql_req = '(SELECT * FROM `'.$__LWF_DB_PREFIX.'-projects` WHERE name="Common")';
+                $sql_req .= 'UNION ALL';
+                $sql_req .= '(SELECT * FROM `'.$__LWF_DB_PREFIX.'-projects` WHERE name<>"Common" ORDER BY name)';
+                
 				$rlst_prjs = $db->query($sql_req);
 				if ( ! $rlst_prjs)
 					$tb = 'Unable to fetch projects'.$db->str_error();
@@ -336,36 +337,6 @@
 			}
 		}
 
-		// license part
-		if ( $s == $SUB_PAGE_LICENSE )
-		{
-
-			// title
-			echo '<div class="admin-title-index">'.lang('admin-license').'</div>';
-
-			// mcrypt library is installed ?
-			$testMcrypt = get_extension_funcs("mcrypt"); // Grab function list 
-			if (!$testMcrypt) {
-				$tb = '<div class="box-warn">mcrypt library not installed on your system</div>';
-			}else {
-				if ( ! $CORE->profile['administrator'] ) {
-					echo lang('access denied');
-					return;
-				}
-
-				$CORE->read_license();
-
-				if ( $CORE->license != null ) {
-					$tb = $CORE->display_license();
-				} else {
-					$tb = $CORE->license_error;
-				}
-			}
-			$tabsbody[] = $tb;
-			// construct tab body
-			echo construct_tabbody($tabsbody);
-		}
-
 		// users part
 		if ( $s == $SUB_PAGE_USERS )
 		{
@@ -397,7 +368,6 @@
                         $tb .= '<tr><td><a href="javascript:deluser('.$cur_usr['id'].')">'.lang('yes').'</a>';
                         $tb .= ' -- ';
                         $tb .= '<a href="./index.php?p='.$INDEX_PAGE.'&s='.$s.'">'.lang('no').'</a></td></tr></tbody></table>';
-                        // $tb .= '<a href="javascript:history.back()">'.lang('no').'</a></td></tr></tbody></table>';
 					}
 				}
 				$tabsbody[] = $tb;
@@ -460,16 +430,16 @@
 				$val_login = ""; $val_pwd = ""; $val_email = "";
 				$id = null;
 				$selected_admin = null;
-				$selected_leader = null;
+				$selected_monitor = null;
 				$selected_tester = null;
-				$selected_developer = null;
-				$selected_system = null;
+				// $selected_developer = null;
+				// $selected_system = null;
 				$selected_style = null;
 				$selected_lang = null;
 				$notifications = null;
-				$selected_cli = null;
-				$selected_gui = null;
-				$selected_web = null;
+				// $selected_cli = null;
+				// $selected_gui = null;
+				// $selected_web = null;
 				$default_project = null;
 				if ($c_called == "edit")
 				{
@@ -488,15 +458,10 @@
 							$button_name = "Update";
 							$id =  $cur_usr['id'];
 							$selected_admin = $cur_usr['administrator'];
-							$selected_leader = $cur_usr['leader'];
+							$selected_monitor = $cur_usr['leader'];
 							$selected_tester = $cur_usr['tester'];
-							$selected_developer = $cur_usr['developer'];
-							$selected_system = $cur_usr['system'];
 							$selected_lang = $cur_usr['lang'];
 							$selected_style = $cur_usr['style'];
-							$selected_cli = $cur_usr['cli'];
-							$selected_gui = $cur_usr['gui'];
-							$selected_web = $cur_usr['web'];
 							$default_project = $cur_usr['defaultproject'];
 							// PASS;FAIL;UNDEF;COMPLETE;ERROR;KILLED;CANCELLED
 							// false;false;false;false;false;false;false;
@@ -511,7 +476,8 @@
                     if ($c_called == "edit")
                         $req_login = "disabled";
                 }
-				$tb = '<table border="0" ><tr><td></td><td><div class="line" /></div> </td></tr><tr><td  class="col1">'.lang('admin-users-login').': </td><td><input '.$req_login.' id="req_login" type="text" value="'.$val_login.'"></td></tr>';
+				$tb = '<table border="0" ><tr><td></td><td><div class="line" /></div> </td></tr>';
+                $tb .= '<tr><td  class="col1">'.lang('admin-users-login').': </td><td><input '.$req_login.' id="req_login" type="text" value="'.$val_login.'"></td></tr>';
 				
 				// password
 				$req_pwd = "";
@@ -520,6 +486,17 @@
 				}
 				$tb .= '<tr><td  class="col1">'.lang('password').': </td><td><input '.$req_pwd.' id="req_pwd" type="password" value="'.$val_pwd.'"></td></tr>';
 				
+                $val_apikey = '';
+                
+                if ($c_called == "edit") {
+                    $val_apiid = $cur_usr['apikey_id'];
+                    $val_apisecret = $cur_usr['apikey_secret'];
+                    if ( $val_apiid != null and $val_apisecret != null) {
+                      $val_apikey = base64_encode( $val_apiid.":".$val_apisecret);
+                    }
+                }
+                $tb .= '<tr><td  class="col1">'.lang('api-key').': </td><td><label>'.$val_apikey.'</label></td></tr>';
+                
 				// levels
 				$checked = '';
 				$disabled = '';
@@ -531,35 +508,17 @@
 				}
                 
 				if ( $selected_admin ) { $checked='checked="true"'; } else {$checked = ''; };
-				$levels = '<input type="checkbox" id="req_level_admin" '.$checked.' '.$disabled.' >'.lang('administrator');
-				if ( $selected_leader ) { $checked='checked="true"'; } else {$checked = ''; };
-				$levels .= '<input type="checkbox" id="req_level_leader" '.$checked.' '.$disabled.' >'.lang('leader');
+				$levels = '<input type="radio" name="level" id="req_level_admin" '.$checked.' '.$disabled.' />'.lang('administrator');
+				if ( $selected_monitor ) { $checked='checked="true"'; } else {$checked = ''; };
+				$levels .= '<input type="radio" name="level" id="req_level_monitor" '.$checked.' '.$disabled.' />'.lang('monitor');
 				if ( $selected_tester ) { $checked='checked="true"'; } else {$checked = ''; };
                 // set default value to tester if nothing is checked
-                if ( !$selected_admin and !$selected_leader and !$selected_tester and !$selected_developer and !$selected_system) {
+                if ( !$selected_admin and !$selected_monitor and !$selected_tester) {
                     $checked='checked="true"';
                 }
-				$levels .= '<input type="checkbox" id="req_level_tester" '.$checked.' '.$disabled.' >'.lang('tester');
-				if ( $selected_developer ) { $checked='checked="true"'; } else {$checked = ''; };
-				$levels .= '<input type="checkbox" id="req_level_developer" '.$checked.' '.$disabled.' >'.lang('developer');
-				if ( $selected_system ) { $checked='checked="true"'; } else {$checked = ''; };
-				$levels .= '<input type="checkbox" id="req_level_system" '.$checked.' disabled >'.lang('system');
+				$levels .= '<input type="radio" name="level" id="req_level_tester" '.$checked.' '.$disabled.' />'.lang('tester');
 
 				$tb .= '<tr><td></td><td><div class="line" /></div> </td></tr><tr><td  class="col1">'.lang('admin-users-rights').': </td><td>'.$levels.'</td></tr>';
-
-				if ( $selected_cli ) { $checked='checked="true"'; } else {$checked = ''; };
-				$access = '<input type="checkbox" id="req_access_cli" '.$checked.' '.$disabled.' >'.lang('cli');
-				if ( $selected_gui ) { $checked='checked="true"'; } else {$checked = ''; };
-                // set default value to web/api if nothing is checked
-                if ( !$selected_cli and !$selected_gui and !$selected_web) { $checked='checked="true"'; }
-				$access .= '<input type="checkbox" id="req_access_gui" '.$checked.' '.$disabled.' >'.lang('gui');
-				if ( $selected_web ) { $checked='checked="true"'; } else {$checked = ''; };
-                // set default value to web/api if nothing is checked
-                if ( !$selected_cli and !$selected_gui and !$selected_web) { $checked='checked="true"'; }
-				$access .= '<input type="checkbox" id="req_access_web" '.$checked.' '.$disabled.' >'.lang('web').'/'.lang('api');
-			
-				$tb .= '<tr><td  class="col1">'.lang('admin-users-access').': </td><td>'.$access.'</td></tr>';
-
 
 				// email
 				$tb .= '<tr><td></td><td><div class="line" /></div> </td></tr><tr><td  class="col1">'.lang('admin-users-email').': </td><td><input id="req_email" type="text" size="30" value="'.$val_email.'"></td><td><small>(ex: user1@foo.com; user2@foo.com)</small></td></tr>';
@@ -660,7 +619,12 @@
 				$tb .= '<table id="projects" style="display:block"><tr><td></td><td><div class="line" /></div> </td></tr><tr><td  class="col1">'.lang('admin-projects').': </td><td>'.$projects .'</td></tr>';
 				//default project
 				$selected_prj = "";
-				$sql_req = 'SELECT * FROM `'.$__LWF_DB_PREFIX.'-projects` ORDER BY name';
+				// $sql_req = 'SELECT * FROM `'.$__LWF_DB_PREFIX.'-projects` ORDER BY name';
+                
+                $sql_req = '(SELECT * FROM `'.$__LWF_DB_PREFIX.'-projects` WHERE name="Common")';
+                $sql_req .= 'UNION ALL';
+                $sql_req .= '(SELECT * FROM `'.$__LWF_DB_PREFIX.'-projects` WHERE name<>"Common" ORDER BY name)';
+                
 				$rlst_prjs = $db->query($sql_req);
 				if ( ! $rlst_prjs)
 					$tb = 'Unable to fetch projects'.$db->str_error();
@@ -711,6 +675,10 @@
 
 					while ($cur_u = $db->fetch_assoc($rlst_prjs))
 					{
+                        if ( $cur_u['login'] == "system" ) {
+                            continue;
+                        }
+                        
 						$log = htmlentities($cur_u['login']);
 						$link_edit = ' [ <a href="./index.php?p='.$INDEX_PAGE.'&s='.$s.'&c=edit&id='.$cur_u['id'].'">'.lang('edit').'</a> ] ';
 						$link_delete = ' [ <a href="./index.php?p='.$INDEX_PAGE.'&s='.$s.'&c=del&id='.$cur_u['id'].'">'.lang('delete').'</a> ] ';
@@ -754,11 +722,11 @@
 						if ( $cur_u['tester'] )
 							$access_level .= lang('tester').", ";
 						if ( $cur_u['leader'] )
-							$access_level .= lang('leader').", ";
-						if ( $cur_u['developer'] )
-							$access_level .= lang('developer').", ";
-						if ( $cur_u['system'] )
-							$access_level .= lang('system').", ";
+							$access_level .= lang('monitor').", ";
+						// if ( $cur_u['developer'] )
+							// $access_level .= lang('developer').", ";
+						// if ( $cur_u['system'] )
+							// $access_level .= lang('system').", ";
 						# remove , at the end
 						if ( endswith($hay=$access_level, $needle=', ') ) {
 							$access_level = substr($access_level, 0, -2);

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -20,6 +20,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
+
+"""
+File probe
+"""
 
 import Core.GenericTool as GenericTool
 
@@ -51,16 +55,22 @@ Command messages:
 This probe must be deployed on the target machine.
 Targetted operating system: Linux, Windows"""
 
-def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport=True):
+def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                supportProxy, proxyIp, proxyPort, sslSupport=True):
     """
     Wrapper to initialize the object agent
     """
-    return File( controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
+    return File( controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                supportProxy, proxyIp, proxyPort, sslSupport )
     
 class File(GenericTool.Tool):
+    """
+    File agent class
+    """
     def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
                         supportProxy=0, proxyIp=None, proxyPort=None, sslSupport=True):
         """
+        Constructor
         """
         GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, toolDesc, 
                         defaultTool, supportProxy=supportProxy, proxyIp=proxyIp, proxyPort=proxyPort, 
@@ -95,6 +105,7 @@ class File(GenericTool.Tool):
         
     def getType(self):
         """
+        Return the agent type
         """
         return self.__type__
 

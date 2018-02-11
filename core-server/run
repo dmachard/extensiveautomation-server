@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -20,28 +20,53 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-#
-# #!/usr/bin/python -O : __debug__ = False
-# #!/usr/bin/python : __debug__ = True
-#
-
 from optparse import OptionParser
-import time
 import Core.AutomationServer as Core
 import Core.CliFunctions as Cli
 import sys
-	
+import platform
+
+# checking python version before to start the server
+if sys.version_info.major == 2:
+    if sys.version_info.minor <= 5:
+        print("Python %s not supported" % platform.python_version() )
+        sys.exit(2)
+elif sys.version_info.major == 3:
+    if sys.version_info.minor < 5:
+        print("Python %s not supported" % platform.python_version() )
+        sys.exit(2)
+else:
+    print("Python %s not supported" % platform.python_version() )
+    sys.exit(2)
+
+# prepare the command line with all options	
 parser = OptionParser()
 parser.set_usage("./run [start|stop|restart|reload|generate|deploy|run|version]")
 
-parser.add_option('--start', dest='start', default=False, action='store_true', help="Start the server.")
-parser.add_option('--stop', dest='stop', default=False, action='store_true', help="Stop the server.")
-parser.add_option('--status', dest='status', default=False, action='store_true', help='Show the current status of the server.')
-parser.add_option('--reload', dest='reload', default=False, action='store_true', help='Reload the configuration of the server.')
-parser.add_option('--generate', dest='generate', default=False, action='store_true', help='Generate all tar.gz packages (adapters, libraries and samples).')
-parser.add_option('--deploy', dest='deploy', default=False, action='store_true', help='Deploy all clients, agents and probes.')
-parser.add_option('--run', dest='run', default=False, action='store_true', help='Run one test or more (Common:/Samples/Tests_Unit/01_Initial_test.tux)' )
-parser.add_option('--version', dest='version', default=False, action='store_true', help='Show the version.')
+parser.add_option('--start', dest='start', default=False, 
+                    action='store_true', 
+                    help="Start the server.")
+parser.add_option('--stop', dest='stop', default=False, 
+                    action='store_true', 
+                    help="Stop the server.")
+parser.add_option('--status', dest='status', default=False, 
+                    action='store_true', 
+                    help='Show the current status of the server.')
+parser.add_option('--reload', dest='reload', default=False, 
+                    action='store_true', 
+                    help='Reload the configuration of the server.')
+parser.add_option('--generate', dest='generate', default=False, 
+                    action='store_true', 
+                    help='Generate all tar.gz packages (adapters, libraries and samples).')
+parser.add_option('--deploy', dest='deploy', default=False, 
+                    action='store_true', 
+                    help='Deploy all clients, agents and probes.')
+parser.add_option('--run', dest='run', default=False, 
+                    action='store_true', 
+                    help='Run one test or more (Common:/Samples/Tests_Unit/01_Initial_test.tux)' )
+parser.add_option('--version', dest='version', default=False, 
+                    action='store_true', 
+                    help='Show the version.')
 
 (options, args) = parser.parse_args()
 

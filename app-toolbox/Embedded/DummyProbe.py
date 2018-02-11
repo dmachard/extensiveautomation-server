@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -20,6 +20,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
+
+
+"""
+Dummy probe
+"""
 
 import Core.GenericTool as GenericTool
 import Libs.Settings as Settings
@@ -54,13 +59,18 @@ On stop command, various can also send to the server through http
 This probe must be deployed on the target machine.
 Targetted operating system: Windows, Linux"""
 
-def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport=True):
+def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                supportProxy, proxyIp, proxyPort, sslSupport=True):
     """
     Wrapper to initialize the object agent
     """
-    return Dummy( controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
+    return Dummy( controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                    supportProxy, proxyIp, proxyPort, sslSupport )
     
 class Dummy(GenericTool.Tool):
+    """
+    Dummy probe
+    """
     def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy=0, 
                         proxyIp=None, proxyPort=None, sslSupport=True):
         """
@@ -209,9 +219,6 @@ class Dummy(GenericTool.Tool):
             
         self.probestarted = False
         self.onToolLogWarningCalled(msg="Stop called")
-
-        # send response without data
-#        self.stopResponse(tid, ret, data, dataToSend=False)
 
         # send response and data too
         # the temp file created during the start is automatically sent to the server

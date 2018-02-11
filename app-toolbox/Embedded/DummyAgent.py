@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -20,6 +20,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
+
+
+"""
+Dummy agent
+"""
 
 import Core.GenericTool as GenericTool
 import Libs.Settings as Settings
@@ -63,14 +68,19 @@ The data argument can contains anything, but a dictionary is prefered.
 
 Targetted operating system: Windows, Linux"""
 
-def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport):
+def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                supportProxy, proxyIp, proxyPort, sslSupport):
     """
     Wrapper to initialize the object agent
     """
-    return Dummy( controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
+    return Dummy( controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                    supportProxy, proxyIp, proxyPort, sslSupport )
     
 
 class Dummy(GenericTool.Tool):
+    """
+    Dummy agent class
+    """
     def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy=0,
                         proxyIp=None, proxyPort=None, sslSupport=True):
         """
@@ -92,7 +102,8 @@ class Dummy(GenericTool.Tool):
         @type defaultTool: boolean
         """
         GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
-                                    supportProxy=supportProxy, proxyIp=proxyIp, proxyPort=proxyPort, sslSupport=sslSupport)
+                                    supportProxy=supportProxy, proxyIp=proxyIp, 
+                                    proxyPort=proxyPort, sslSupport=sslSupport)
         self.__type__ = __TYPE__
 
     def getType(self):

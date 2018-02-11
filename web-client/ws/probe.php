@@ -1,7 +1,7 @@
 <?php
 	/*
 	---------------------------------------------------------------
-	 Copyright (c) 2010-2017 Denis Machard. All rights reserved.
+	 Copyright (c) 2010-2018 Denis Machard. All rights reserved.
 
 	 This file is part of the extensive testing project; you can redistribute it and/or
 	 modify it under the terms of the GNU General Public License, Version 3.
@@ -21,7 +21,7 @@
 
 
 	function disconnectprobe( $name ) {
-		global $db, $CORE, $XMLRPC, $__LWF_DB_PREFIX;
+		global $db, $CORE, $RESTAPI, $__LWF_DB_PREFIX;
 		$rsp = array();
 		$rsp["code"] = 100;
 		$rsp["msg"] = lang('ws-trying');
@@ -29,20 +29,25 @@
 	
 		$redirect_page_url = "./index.php?p=".get_pindex('overview')."&s=".get_subpindex( 'overview', 'overview-probes' );
 
-		// disconnect agent through xmlrpc
-		$disconnect =  $XMLRPC->disconnectProbe($name);
-		if ( is_null($disconnect) ) {
-			$rsp["code"] = 500;
-			$rsp["msg"] = "Unable to disconnect probe";
+		// disconnect agent through rest api
+        list($code, $details) = $RESTAPI->disconnectAgent($name=$name);
+        
+        $rsp["code"] = 500;
+		if ($code == 401) {
+			$rsp["msg"] = $details;
+		} elseif ($code == 400) {
+			$rsp["msg"] = $details;
+		} elseif ($code == 500) {
+			$rsp["msg"] = $details;
+		} elseif ($code == 403) {
+			$rsp["msg"] = $details;
+		} elseif ($code == 404) {
+			$rsp["msg"] = $details;
 		} else {
-			if ( $disconnect ) {
-				$rsp["code"] = 200;
-				$rsp["msg"] = lang('ws-probe-disconnected');
-			} else {
-				$rsp["code"] = 500;
-				$rsp["msg"] = "Unable to disconnect probe";
-			}
+            $rsp["code"] = 200;
+            $rsp["msg"] = lang('ws-probe-disconnected');
 		}
+
 
 		$rsp["moveto"] = $redirect_page_url;
 		return $rsp;

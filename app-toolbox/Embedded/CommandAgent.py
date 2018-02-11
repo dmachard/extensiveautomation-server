@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -21,6 +21,9 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Command agent
+"""
 
 import Core.GenericTool as GenericTool
 import Libs.Settings as Settings
@@ -76,6 +79,7 @@ Targetted operating system: Windows and Linux"""
 
 class CommandThread(threading.Thread):
     """
+    Command thread object
     """
     def __init__(self, parent):
         """
@@ -90,16 +94,19 @@ class CommandThread(threading.Thread):
 
     def error(self, msg):
         """
+        Log error
         """
         self.parent.error( msg )
         
     def trace(self, msg):
         """
+        Log a trace
         """
         self.parent.trace( msg )
         
     def readData(self, maxTimeout=50.0, prompt=b'[FAKEPROMPT]', searchPrompt=True):
         """
+        Read data from the process
         """
         timeout = False
         startTime = time.time()
@@ -137,6 +144,7 @@ class CommandThread(threading.Thread):
     
     def sendData(self, data, maxTimeout=50.0):
         """
+        Send data to the process
         """
         cmd = '%s & echo [FAKEPROMPT]\n' % data
         if sys.version_info > (3,):
@@ -157,7 +165,8 @@ class CommandThread(threading.Thread):
         """
         __cmd__ = r'C:\Windows\System32\cmd.exe'
         try:
-            self.commandProcess = subprocess.Popen(__cmd__, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            self.commandProcess = subprocess.Popen(__cmd__, shell=True, stdin=subprocess.PIPE, 
+                                                    stdout=subprocess.PIPE,
                                                     stderr=subprocess.STDOUT, bufsize=0 )
             pid = self.commandProcess.pid
             self.parent.trace("command thread started Pid=%s" % pid)
@@ -201,20 +210,26 @@ class CommandThread(threading.Thread):
         except Exception as e:
             self.parent.error( "unable to stop interactive Command: %s" % str(e))  
 
-def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport):
+def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                supportProxy, proxyIp, proxyPort, sslSupport):
     """
     Wrapper to initialize the object agent
     """
-    return Command( controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
+    return Command( controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                    supportProxy, proxyIp, proxyPort, sslSupport )
     
 class Command(GenericTool.Tool):
     """
+    Command agent class
     """
-    def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy=0, proxyIp=None, proxyPort=None, sslSupport=True):
+    def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                    supportProxy=0, proxyIp=None, proxyPort=None, sslSupport=True):
         """
-        Command agent
+        Command agent constructor
         """
-        GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy=supportProxy, proxyIp=proxyIp, proxyPort=proxyPort, sslSupport=sslSupport)
+        GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, toolDesc, 
+                                    defaultTool, supportProxy=supportProxy, proxyIp=proxyIp, 
+                                    proxyPort=proxyPort, sslSupport=sslSupport)
         self.__type__ = __TYPE__
         self.__mutex__ = threading.RLock()
         if sys.platform not in [ "win32", "linux2" ] :
@@ -256,6 +271,7 @@ class Command(GenericTool.Tool):
         
     def getType(self):
         """
+        Return agent type
         """
         return self.__type__
 
@@ -341,7 +357,8 @@ class Command(GenericTool.Tool):
         if sys.platform == "win32" :
             self.trace("command to run: %s" % request['data']['cmd'])
             if 'timeout' in request['data']:
-                output = self.commandThread.sendData(data=request['data']['cmd'], maxTimeout=request['data']['timeout'])
+                output = self.commandThread.sendData(data=request['data']['cmd'], 
+                                                    maxTimeout=request['data']['timeout'])
             else:
                 output = self.commandThread.sendData(data=request['data']['cmd'])
             self.sendNotify(request, data={'result':output, 'get': request['data']['get'] })
@@ -363,7 +380,8 @@ class Command(GenericTool.Tool):
                 else:
                     __cmd = request['data']['cmd']
                     __cmd_args = shlex.split(__cmd)
-                    p = subprocess.Popen(__cmd_args, shell=False, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
+                    p = subprocess.Popen(__cmd_args, shell=False, stdin=subprocess.PIPE, 
+                                            stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
                     out, err = p.communicate()
                     self.trace( str(out) )
                     self.trace( str(err) )
@@ -392,7 +410,8 @@ class Command(GenericTool.Tool):
                 a = self.context()[request['uuid']][request['source-adapter']]
                 a.putItem( lambda: self.execAction(request) )
             else:
-                self.error("Adapter context does not exists TestUuid=%s AdapterId=%s" % (request['uuid'], request['source-adapter'] ) )
+                self.error("Adapter context does not exists TestUuid=%s AdapterId=%s" % (request['uuid'],
+                                                                                         request['source-adapter'] ) )
         else:
             self.error("Test context does not exits TestUuid=%s" % request['uuid'])
         self.__mutex__.release()

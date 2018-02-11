@@ -1,7 +1,7 @@
 <?php
 	/*
 	---------------------------------------------------------------
-	 Copyright (c) 2010-2017 Denis Machard. All rights reserved.
+	 Copyright (c) 2010-2018 Denis Machard. All rights reserved.
 
 	 This file is part of the extensive testing project; you can redistribute it and/or
 	 modify it under the terms of the GNU General Public License, Version 3.
@@ -76,14 +76,6 @@ function readbleTime($seconds) {
 	?>
 </div>
 
-<!--<div class="bxright">
-	<div class="help"><?php echo lang('help') ?><?php echo get_ajaxloader("loader-help", "0") ?></div>
-	<div>
-		<ul class="help_list">
-		</ul>
-	</div>
-</div>-->
-
 <div class="bxcenter">
 	<div id="box-warn"></div>
 
@@ -104,34 +96,24 @@ function readbleTime($seconds) {
 			$tabsbody = array();
 
 			$tb = '<h3>'.lang('system-general').':</h3><ul>';
-			$status =  $XMLRPC->getServerStatus();
-			if ( is_null($status) ) {
-				$tb .=  '<br /><img src="./style/'. $__LWF_APP_DFLT_STYLE.'/img/stop_round.png" > '.lang('system-server-stopped');
-			} else {
+			list($code, $details) = $RESTAPI->getServerStatus();
+
+			if ( $code == 200 ) {
 				$tb .=  '<li><img src="./style/'. $__LWF_APP_DFLT_STYLE.'/img/running_round.png" > '.lang('system-server-running').'</li>';
-			}
+
+                $tb .= '<h3>'.lang('system-datetime').':</h3><ul>';
+                $tb .= '<li>'.lang('system-date').': '.$details['status']['current-date'].'</li>';
+                $tb .= '<li>'.lang('system-startedsince').': '.$details['status']['start-at'].'</li>';
+                $tb .= '<li>'.lang('uptime').': '.readbleTime( $details['status']['uptime'] ).'</li>';
+
+                $tb .= "</ul>";
+                
+			} else {
+                $tb .=  '<br /><img src="./style/'. $__LWF_APP_DFLT_STYLE.'/img/stop_round.png" > '.lang('system-server-stopped');
+            }
+            
 			$tb .= '</ul>';
 
-			$tb .= '<h3>'.lang('system-datetime').':</h3><ul>';
-			$status =  $XMLRPC->getServerStatus();
-			if ($status == null) {
-				$tb .=  '<img src="./style/'. $__LWF_APP_DFLT_STYLE.'/img/stop_round.png" > '.lang('system-server-stopped');
-			} else {
-				foreach ($status as $info) {
-					foreach($info as $key => $value) {
-						if ( $key == 'server-date') { # used
-							$tb .= '<li>'.lang('system-date').': '.$value.'</li>';
-						}
-						if ( $key == 'start-at') { # used
-							$tb .= '<li>'.lang('system-startedsince').': '.$value.'</li>';
-						}
-					}
-				}
-			}
-			$uptime = shell_exec("cat /proc/uptime");
-			$tb .= '<li>'.lang('uptime').': '.readbleTime( $uptime ).'</li>';
-
-			$tb .= "</ul>";
 			//}
 
 			$tabsbody[] = $tb;	
@@ -155,49 +137,25 @@ function readbleTime($seconds) {
 			// prepare body for each tabs
 			$tabsbody = array();
 
-			$status =  $XMLRPC->getServerStatus();
-			if ( is_null($status) ) {
-				$tb =  '<img src="./style/'. $__LWF_APP_DFLT_STYLE.'/img/stop_round.png" > '.lang('system-server-stopped');
-			} else {
+			list($code, $details) = $RESTAPI->getServerVersions();
+            
+			if ( $code == 200 ) {
 				$tb = '<h3>'.lang('system-versions').':</h3><ul>';
-				foreach ($status as $info) {
-					foreach($info as $key => $value) {
-						if ( $key == 'version') { # used
-							$tb .= '<li>'.lang('system-version').': '.$value.'</li>';
-						}
-						if ( $key == 'database') { # used
-							$tb .= '<li>'.lang('system-database').': '.$value.'</li>';
-						}
-						if ( $key == 'server-web') { # used
-							$tb .= '<li>'.lang('system-webserver').': '.$value.'</li>';
-						}
-					}
-				}
+				$tb .= '<li>'.lang('system-version').': '.$details['core'].'</li>';
+				$tb .= '<li>'.lang('system-database').': '.$details['database'].'</li>';
+				$tb .= '<li>'.lang('system-webserver').': '.$details['web'].'</li>';
 				$tb .= "</ul>";
 
 				$tb .= '<h3>'.lang('system-packages').':</h3><ul>';
-				foreach ($status as $info) {
-					foreach($info as $k => $v) {
-						if ( $k == 'adapters') { # used
-							$tb .= '<li>'.lang('system-adapters').': '.$v.'</li>';
-						}
-						if ( $k == 'libraries') { # used
-							$tb .= '<li>'.lang('system-libraries').': '.$v.'</li>';
-						}
-						if ( $k == 'default-adapter') { # used
-							$tb .= '<li>'.lang('system-current-adapter').': '.$v.'</li>';
-						}
-						if ( $k == 'default-library') { # used
-							$tb .= '<li>'.lang('system-current-library').': '.$v.'</li>';
-						}
-					}
-				}
+				$tb .= '<li>'.lang('system-adapters').': '.$details['adapters'].'</li>';
+				$tb .= '<li>'.lang('system-libraries').': '.$details['libraries'].'</li>';
+				$tb .= '<li>'.lang('system-current-adapter').': '.$details['default-adapter'].'</li>';
+				$tb .= '<li>'.lang('system-current-library').': '.$details['default-library'].'</li>';
 				$tb .= "</ul>";
 
-				/*$tb .= '<h3>All:</h3><ul>';
-				$tb .= shell_exec("rpm -qa");
-				$tb .= "</ul>";*/
-			}
+			} else {
+                $tb =  '<img src="./style/'. $__LWF_APP_DFLT_STYLE.'/img/stop_round.png" > '.$details;
+            }
 
 			$tabsbody[] = $tb;	
 
@@ -218,43 +176,24 @@ function readbleTime($seconds) {
 									lang('system-usage-server'),
 								);
 			echo construct_tabmenu($tabsmenu);
-		
-			$usage =  $XMLRPC->getServerUsage();
-			if ( is_null($usage) ) {
-				$tb =  '<img src="./style/'. $__LWF_APP_DFLT_STYLE.'/img/stop_round.png" > '.lang('system-server-stopped');
-			} else {
 
+            list($code, $details) = $RESTAPI->getServerUsages();
+            
+			if ( $code == 200 ) {
 				$tb = '<h3>'.lang('system-disk-usage').':</h3><ul>';
-				foreach($usage as $key => $value) {
-					if ( $key == 'disk-usage') { # total/used/free
-						$disk_percent = round($value[1] / $value[0] * 100);
-						$disk_alert = '';
-						if ($disk_percent >= '90')
-							$disk_alert = ' <img src="./style/'. $__LWF_APP_DFLT_STYLE.'/img/warning.png" >';
-						$tb .= '<li>'.lang('system-disk-global').': '.formatBytes($value[0], 1).' / '.formatBytes($value[1], 1).' / '.formatBytes($value[2], 1).$disk_alert.'</li>';
-					}
-					if ( $key == 'disk-usage-logs') { # used
-						$tb .= '<li>'.lang('system-disk-logs').': '.formatBytes($value, 1).'</li>';
-					}
-					if ( $key == 'disk-usage-tmp') { # used
-						$tb .= '<li>'.lang('system-disk-tmp').': '.formatBytes($value, 1).'</li>';
-					}
-					if ( $key == 'disk-usage-testresults') { # used
-						$tb .= '<li>'.lang('system-disk-archives').': '.formatBytes($value, 1).'</li>';
-					}
-					if ( $key == 'disk-usage-tests') { # used
-						$tb .= '<li>'.lang('system-tests').': '.formatBytes($value, 1).'</li>';
-					}
-					if ( $key == 'disk-usage-backups') { # used
-						$tb .= '<li>'.lang('system-backups').': '.formatBytes($value, 1).'</li>';
-					}
-					if ( $key == 'disk-usage-adapters') { # used
-						$tb .= '<li>'.lang('system-adapters').': '.formatBytes($value, 1).'</li>';
-					}
-					if ( $key == 'disk-usage-libraries') { # used
-						$tb .= '<li>'.lang('system-libraries').': '.formatBytes($value, 1).'</li>';
-					}
-				}
+				$disk_percent = round($details['disk-usage'][1] / $details['disk-usage'][0] * 100);
+                $disk_alert = '';
+                if ($disk_percent >= '90')
+                    $disk_alert = ' <img src="./style/'. $__LWF_APP_DFLT_STYLE.'/img/warning.png" >';
+                $tb .= '<li>'.lang('system-disk-global').': '.formatBytes($details['disk-usage'][0], 1).' / '.formatBytes($details['disk-usage'][1], 1).' / '.formatBytes($details['disk-usage'][2], 1).$disk_alert.'</li>';
+				
+                $tb .= '<li>'.lang('system-disk-logs').': '.formatBytes($details['disk-usage-logs'], 1).'</li>';
+				$tb .= '<li>'.lang('system-disk-tmp').': '.formatBytes($details['disk-usage-tmp'], 1).'</li>';
+				$tb .= '<li>'.lang('system-disk-archives').': '.formatBytes($details['disk-usage-testresults'], 1).'</li>';
+				$tb .= '<li>'.lang('system-tests').': '.formatBytes($details['disk-usage-tests'], 1).'</li>';
+				$tb .= '<li>'.lang('system-backups').': '.formatBytes($details['disk-usage-backups'], 1).'</li>';
+				$tb .= '<li>'.lang('system-adapters').': '.formatBytes($details['disk-usage-adapters'], 1).'</li>';
+				$tb .= '<li>'.lang('system-libraries').': '.formatBytes($details['disk-usage-libraries'], 1).'</li>';
 				$tb  .= '</ul>';
 
 				// memory
@@ -312,7 +251,9 @@ function readbleTime($seconds) {
 				$tb .= '<li>'.lang('system-load-15').': '.$getLoad[2].'</li>';
 
 				$tb .= '</ul>';
-			}
+			} else {
+                $tb =  '<img src="./style/'. $__LWF_APP_DFLT_STYLE.'/img/stop_round.png" > '.$details;
+            }
 
 			$tabsbody[] = $tb;	
 

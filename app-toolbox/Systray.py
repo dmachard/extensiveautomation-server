@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -21,6 +21,22 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Main app
+"""
+                            
+import sip
+import sys
+
+# to support py2.7 and pyqt4 on linux
+if sys.version_info < (3,):
+    sip.setapi('QString', 2)
+    
+try:
+    sip.setdestroyonexit(False)
+except:
+    pass
+    
 try:
 	from PyQt4.QtCore import (pyqtSignal, QTimer, Qt, QRect, QSize, QT_VERSION_STR, PYQT_VERSION_STR, 
 							 QFile, QByteArray, QBuffer, QIODevice, QTranslator, QLibraryInfo,
@@ -43,13 +59,7 @@ except ImportError:
 							QAction, QMenu, QSystemTrayIcon, qApp, QListWidget)
 	from PyQt5.QtGui import (QTextCursor, QIcon, QFont, QIntValidator,
 							QPixmap, QGuiApplication, QStandardItem, QColor )
-                            
-import sip
-try:
-    sip.setdestroyonexit(False)
-except:
-    pass
-    
+
 from Libs import Logger, Settings, QtHelper
 from Resources import Resources
 from Translations import Translations
@@ -68,9 +78,9 @@ __CONTRIBUTORS__ = [ "" ]
 # project start in year
 __BEGIN__ = "2010"
 # year of the latest build
-__END__="2017"
+__END__="2018"
 # date and time of the buid
-__BUILDTIME__="16/10/2017 21:44:00"
+__BUILDTIME__="09/02/2018 18:13:18"
 # Redirect stdout and stderr to log file only on production
 REDIRECT_STD=True
 
@@ -90,7 +100,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 MA 02110-1301 USA"""
 
 import ReleaseNotes as RN
-import sys
 import time
 import os
 import inspect
@@ -183,6 +192,9 @@ TOOLS_DESCR = {
 }
 
 class PluginProcess(QProcess):
+    """
+    Plugin process
+    """
     DataReceived = pyqtSignal(bytes, object)
     def __init__(self, parent, cmd, toolPage, tmpArea):
         """
@@ -199,12 +211,13 @@ class PluginProcess(QProcess):
         
     def widgetPage(self):
         """
+        Return the tool page widget
         """
         return self.toolPage
         
     def onData(self):
         """
-        
+        On data received
         """
         # d -> qbytearray
         d = self.readAllStandardOutput()
@@ -212,21 +225,25 @@ class PluginProcess(QProcess):
         
     def startPlugin(self):
         """
+        Start the plugin
         """
         self.start(self.__cmd)
         
     def startKeepAlive(self):
         """
+        Start the keepalive
         """
         self.keepAliveTimer.start()
         
     def sendKeepAlive(self):
         """
+        Send keep alive
         """
         self.sendCommand(cmd='keepalive')
         
     def sendCommand(self, cmd, data='', more={}):
         """
+        Send command
         """
         inData = False
         msg = {'cmd': cmd }
@@ -256,11 +273,18 @@ class PluginProcess(QProcess):
         # send command
         datagram = json.dumps( msg ) 
         datagramEncoded = base64.b64encode( bytes(datagram, "utf8")  )
-        self.write( str(datagramEncoded, "utf8") + "\n\n" )
+        
+        self.write( datagramEncoded + b"\n\n" )
+        # self.write( str(datagramEncoded, "utf8") + "\n\n" )
 
 class QListItemEnhanced(QListWidgetItem):
-    def __init__(self, toolId, toolType, toolName, toolPlugin, toolDescr, toolIp, toolPort, proxyIp, proxyPort, proxyEnable=False):
+    """
+    Item widget class
+    """
+    def __init__(self, toolId, toolType, toolName, toolPlugin, toolDescr, toolIp, 
+                 toolPort, proxyIp, proxyPort, proxyEnable=False):
         """
+        Constructor
         """
         super(QListItemEnhanced, self).__init__()
 
@@ -280,17 +304,27 @@ class QListItemEnhanced(QListWidgetItem):
         
     def createWidget(self):
         """
+        Create the qt widget
         """
         if self.toolType == TOOL_AGENT or self.toolType == TOOL_EXT_AGENT :
             self.setIcon(QIcon(':/agent.png'))
         else:
             self.setIcon(QIcon(':/probe.png'))
         if self.proxyEnable:
-            self.setText( "[Addr:%s Proxy:Yes][%s] %s - %s" % (self.toolIp, TOOLS_DESCR[self.toolType], self.toolName, self.toolPlugin) )
+            self.setText( "[Addr:%s Proxy:Yes][%s] %s - %s" % ( self.toolIp, 
+                                                                TOOLS_DESCR[self.toolType], 
+                                                                self.toolName, 
+                                                                self.toolPlugin) )
         else:
-            self.setText( "[Addr:%s Proxy:No][%s] %s - %s" % (self.toolIp, TOOLS_DESCR[self.toolType], self.toolName, self.toolPlugin) )
+            self.setText( "[Addr:%s Proxy:No][%s] %s - %s" % ( self.toolIp, 
+                                                               TOOLS_DESCR[self.toolType], 
+                                                               self.toolName, 
+                                                               self.toolPlugin) )
 
-class ToolPage(QWidget): 
+class ToolPage(QWidget):
+    """
+    Tool page widget
+    """
     StopTool = pyqtSignal(object)  
     LogWarning = pyqtSignal(str)  
     LogError = pyqtSignal(str)  
@@ -301,7 +335,7 @@ class ToolPage(QWidget):
     StartExternalTool = pyqtSignal(object, int, str, str)  
     def __init__(self, parent, delayStartup=0):
         """
-        Option widget
+        Tool page widget constructor
         """
         super(ToolPage, self).__init__()
 
@@ -339,7 +373,7 @@ class ToolPage(QWidget):
 
     def createConnections(self):
         """
-        Create connections
+        Create qt connections
         """
         self.stopButton.clicked.connect(self.closeTool)
         self.clearLogsButton.clicked.connect(self.clearLogs)
@@ -358,7 +392,7 @@ class ToolPage(QWidget):
     
     def createWidget(self):
         """
-        Create widget
+        Create qt widget
         """
         self.clearLogsButton = QPushButton(self.tr("Clear Logs"), self)
         self.copyLogsButton = QPushButton(self.tr("Copy Logs"), self)
@@ -407,25 +441,20 @@ class ToolPage(QWidget):
         self.mobileWidget = Mobile.MobileWidget()
         self.mobileWidget.hide()
 
-        
-        # mainLayout = QHBoxLayout()
-        
         main2Layout = QVBoxLayout()
 
         main2Layout.addLayout(toolLayout)
         main2Layout.addWidget(self.logsEdit)
-        # main2Layout.addWidget(self.logsEdit)
         main2Layout.addLayout(buttonLayout)
 
         globalLayout.addLayout(main2Layout)
         globalLayout.addWidget(self.mobileWidget)
-        
-        # globalLayout.addLayout(mainLayout)
 
         self.setLayout(globalLayout)
         
     def onTakeScreenshot(self, request, action, actionId, adapterId, testcaseName, replayId):
         """
+        On take screenshot
         """
         self.TakeScreenshot.emit(self, request, action, actionId, adapterId, testcaseName, replayId)
 
@@ -440,39 +469,51 @@ class ToolPage(QWidget):
 
     def plugin(self):
         """
+        Return the plugin object
         """
         return self.toolObj
         
     def refreshScreen(self):
         """
+        Refresh the screen
+        Only for the ADB agent
         """
         self.toolObj.getScreen()
  
     def hideMobilePart(self):
         """
-        
+        Hide the modible part
+        Only for ADB agent
         """
         self.mobileWidget.hide()
         
     def tapOn(self, x, y):
         """
+        Tap on the position
+        Only for the ADB agent
         """
         if self.toolObj is not None:
             self.toolObj.tapOn(x=x,y=y)
         
     def showMobilePart(self):
         """
+        Show the mobile part
+        Only for the ADB agent
         """
         self.mobileWidget.show()
         self.mobileWidget.center()
 
     def onDeviceReady(self):
         """
+        Event raised when the device is ready
+        Only for the ADB agent
         """
         self.mobileWidget.onDeviceReady()
         
     def updateScreen(self, filename, xml=''):
         """
+        Update the screen
+        Only for the ADB agent
         """
         self.mobileWidget.updateScreen(filename=filename, xmlPath=xml)
         
@@ -481,14 +522,6 @@ class ToolPage(QWidget):
         Clear logs
         """
         self.logsEdit.clear()
-        
-    def copyLogs(self):
-        """
-        Copy logs
-        """
-        logs = self.logsEdit.toPlainText()
-        clipboard = QApplication.clipboard()
-        clipboard.setText( logs )
 
     def info (self, txt):
         """
@@ -550,7 +583,8 @@ class ToolPage(QWidget):
         self.__mutex__.acquire()
         self.info( txt )
 
-        self.logsEdit.insertHtml( "<span style='color:darkgreen'>%s - %s</span><br />" % ( self.formatTimestamp(time.time()), self.strip_html(txt)) )
+        self.logsEdit.insertHtml( "<span style='color:darkgreen'>%s - %s</span><br />" % ( self.formatTimestamp(time.time()), 
+                                                                                           self.strip_html(txt)) )
         self.autoScrollOnTextEdit()
         self.__mutex__.release()
 
@@ -560,7 +594,8 @@ class ToolPage(QWidget):
         """
         self.__mutex__.acquire()
         self.info( txt )
-        self.logsEdit.insertHtml( "<span style='color:darkorange'>%s - %s</span><br />" % (self.formatTimestamp(time.time()), self.strip_html(txt) ) )
+        self.logsEdit.insertHtml( "<span style='color:darkorange'>%s - %s</span><br />" % (self.formatTimestamp(time.time()), 
+                                                                                           self.strip_html(txt) ) )
         self.autoScrollOnTextEdit()
         self.__mutex__.release()
 
@@ -570,7 +605,8 @@ class ToolPage(QWidget):
         """
         self.__mutex__.acquire()
         self.error( txt )
-        self.logsEdit.insertHtml( "<span style='color:red'>%s - %s</span><br />" % (self.formatTimestamp(time.time()), self.strip_html(txt) ) )
+        self.logsEdit.insertHtml( "<span style='color:red'>%s - %s</span><br />" % (self.formatTimestamp(time.time()), 
+                                                                                    self.strip_html(txt) ) )
         self.autoScrollOnTextEdit()
         self.__mutex__.release()
 
@@ -605,6 +641,7 @@ class ToolPage(QWidget):
 
     def onCleanup(self):
         """
+        On cleanup event
         """
         try:
             if self.timerRestart is not None:
@@ -629,6 +666,7 @@ class ToolPage(QWidget):
         
     def onReconnectTool(self):
         """
+        Event raised on reconnect
         """
         self.mainApp.updateTabName(self, tabText="%s (unregistered)" % self.toolName)
         
@@ -651,7 +689,7 @@ class ToolPage(QWidget):
             
     def stopTool(self, autoRestart=False, exitAfter=False):
         """
-        Stop tool
+        Stop the tool
         """
         self.mainApp.updateTabName(self, tabText="%s (stopping)" % self.toolName)
         self.LogSuccess.emit(">> Stopping agent")
@@ -739,6 +777,7 @@ class ToolPage(QWidget):
      
     def startToolDelayed(self):
         """
+        Start the tool with delay
         """
         if self.delayStartup > 0:
             self.mainApp.updateTabName(self, tabText="%s (delaying)" % self.toolName)
@@ -790,10 +829,15 @@ class ToolPage(QWidget):
 
             try:
                 self.toolObj = plugins[(self.toolType, toolPlugin)].initialize( 
-                                    controllerIp=str(self.controllerIp), toolName=str(self.toolName), toolDesc=str(self.toolDescr), 
-                                    defaultTool=False, controllerPort=int(self.controllerPort), supportProxy=self.proxyEnable,
-                                    proxyIp=str(self.proxyIp), proxyPort=int(self.proxyPort), 
-                                    sslSupport=str2bool(Settings.instance().get( 'Server', 'ssl-support' ))
+                                                controllerIp=str(self.controllerIp), 
+                                                toolName=str(self.toolName), 
+                                                toolDesc=str(self.toolDescr), 
+                                                defaultTool=False, 
+                                                controllerPort=int(self.controllerPort), 
+                                                supportProxy=self.proxyEnable,
+                                                proxyIp=str(self.proxyIp), 
+                                                proxyPort=int(self.proxyPort), 
+                                                sslSupport=str2bool(Settings.instance().get( 'Server', 'ssl-support' ))
                                 )
                 self.toolObj.checkPrerequisites()
                 initPlugin = True
@@ -802,21 +846,35 @@ class ToolPage(QWidget):
                 
         elif toolPlugin in PLUGINS_AGENT_EXTERNAL:
             self.toolObj = GenericTool.Tool( 
-                                controllerIp=str(self.controllerIp), controllerPort=int(self.controllerPort), 
-                                toolName=str(self.toolName), toolDesc=str(self.toolDescr), defaultTool=False, 
-                                supportProxy=self.proxyEnable, proxyIp=str(self.proxyIp), proxyPort=int(self.proxyPort), 
-                                sslSupport=str2bool(Settings.instance().get( 'Server', 'ssl-support' )),
-                                toolType = "Agent", fromCmd=False, name=toolPlugin.title()
+                                            controllerIp=str(self.controllerIp), 
+                                            controllerPort=int(self.controllerPort), 
+                                            toolName=str(self.toolName), 
+                                            toolDesc=str(self.toolDescr), 
+                                            defaultTool=False, 
+                                            supportProxy=self.proxyEnable, 
+                                            proxyIp=str(self.proxyIp), 
+                                            proxyPort=int(self.proxyPort), 
+                                            sslSupport=str2bool(Settings.instance().get( 'Server', 'ssl-support' )),
+                                            toolType = "Agent", 
+                                            fromCmd=False, 
+                                            name=toolPlugin.title()
                             )
             initPlugin = True
             
         elif toolPlugin in PLUGINS_PROBE_EXTERNAL:
             self.toolObj = GenericTool.Tool( 
-                                controllerIp=str(self.controllerIp), controllerPort=int(self.controllerPort), 
-                                toolName=str(self.toolName), toolDesc=str(self.toolDescr), defaultTool=False, 
-                                supportProxy=self.proxyEnable, proxyIp=str(self.proxyIp), proxyPort=int(self.proxyPort), 
-                                sslSupport=str2bool(Settings.instance().get( 'Server', 'ssl-support' )),
-                                toolType = "Probe", fromCmd=False, name=toolPlugin.title()
+                                            controllerIp=str(self.controllerIp), 
+                                            controllerPort=int(self.controllerPort), 
+                                            toolName=str(self.toolName), 
+                                            toolDesc=str(self.toolDescr), 
+                                            defaultTool=False, 
+                                            supportProxy=self.proxyEnable, 
+                                            proxyIp=str(self.proxyIp), 
+                                            proxyPort=int(self.proxyPort), 
+                                            sslSupport=str2bool(Settings.instance().get( 'Server', 'ssl-support' )),
+                                            toolType = "Probe", 
+                                            fromCmd=False, 
+                                            name=toolPlugin.title()
                             )
             initPlugin = True
             
@@ -856,61 +914,72 @@ class ToolPage(QWidget):
 
     def onStartingProbe(self, callid, tid, data):
         """
+        On starting the probe event
         """
         if self.pluginProcess is None: 
             return
         
-        self.pluginProcess.sendCommand(cmd="start-probe", data=request, more={'callid': tid, 'data': data, 'tid': tid})
+        self.pluginProcess.sendCommand(cmd="start-probe", data='', 
+                                       more={'callid': tid, 'data': data, 'tid': tid})
         
     def onStoppingProbe(self,  tid, data):
         """
+        On stopping probe event
         """
         if self.pluginProcess is None: 
             return
         
-        self.pluginProcess.sendCommand(cmd="stop-probe", data=request, more={'data': data, 'tid': tid})
+        self.pluginProcess.sendCommand(cmd="stop-probe", data='', more={'data': data, 'tid': tid})
         
     def onAgentNotify(self, client, tid, request): 
         """
+        On agent notify event
         """
         if self.pluginProcess is None: 
             return
         
-        self.pluginProcess.sendCommand(cmd="notify", data=request, more={'tid': tid, 'client': client})
+        self.pluginProcess.sendCommand(cmd="notify", data=request, 
+                                       more={'tid': tid, 'client': client})
         
     def onAgentReset(self, client, tid, request): 
         """
+        On agent reset event
         """
         if self.pluginProcess is None: 
             return
         
-        self.pluginProcess.sendCommand(cmd="reset", data=request, more={'tid': tid, 'client': client})
+        self.pluginProcess.sendCommand(cmd="reset", data=request, 
+                                       more={'tid': tid, 'client': client})
         
     def onAgentInit(self, client, tid, request): 
         """
+        On agent init event
         """
         if self.pluginProcess is None: 
             return
         
-        self.pluginProcess.sendCommand(cmd="init", data=request, more={'tid': tid, 'client': client})
-        
+        self.pluginProcess.sendCommand(cmd="init", data=request, 
+                                       more={'tid': tid, 'client': client})
 
     def onAgentAlive(self, client, tid, request): 
         """
+        On agent alive event
         """
         if self.pluginProcess is None: 
             return
         
-        self.pluginProcess.sendCommand(cmd="alive", data=request, more={'tid': tid, 'client': client})
-        
+        self.pluginProcess.sendCommand(cmd="alive", data=request, 
+                                       more={'tid': tid, 'client': client})
         
     def onUserConfirm(self, msg):
         """
+        On user confirm event
         """
         self.AskUser.emit(msg)
         
     def onAskUser(self, msg):
         """
+        Function to ask validation to the user
         """
         messageBox = QMessageBox(self)
         reply = messageBox.question(self, self.tr("User action"), self.tr(msg), QMessageBox.Ok )
@@ -919,6 +988,8 @@ class ToolPage(QWidget):
 
     def onScreenCaptured(self, filename, xml=''):
         """
+        On screen captured
+        Only for the ADB agent
         """
         self.UpdateScreen.emit(filename, xml)
 
@@ -1106,13 +1177,18 @@ class ToolPage(QWidget):
             self.toolObj.initAfterRegistration()
         
 class ComboBoxEnhanced(QComboBox):
+    """
+    Combo box widget
+    """
     def __init__(self, parent):
         """
+        Constructor
         """
         super(ComboBoxEnhanced, self).__init__()
 
     def addSeparator(self, label):
         """
+        Add separator in the list
         """
         item = QStandardItem(label)
         item.setSelectable(False)
@@ -1126,6 +1202,7 @@ class ComboBoxEnhanced(QComboBox):
         
     def addAgent(self, name):
         """
+        Add agent to the list
         """
         item = QStandardItem( " %s" % name)
         item.setData(TOOL_AGENT)
@@ -1138,6 +1215,7 @@ class ComboBoxEnhanced(QComboBox):
         
     def addProbe(self, name):
         """
+        Add probe to the list
         """
         item = QStandardItem( " %s" % name)
         item.setData(TOOL_PROBE)
@@ -1150,6 +1228,7 @@ class ComboBoxEnhanced(QComboBox):
         
     def addExtAgent(self, name):
         """
+        Add external agent to the list
         """
         item = QStandardItem( " %s" % name)
         item.setData(TOOL_EXT_AGENT)
@@ -1162,6 +1241,7 @@ class ComboBoxEnhanced(QComboBox):
         
     def addExtProbe(self, name):
         """
+        Add external probe to the list
         """
         item = QStandardItem( " %s" % name)
         item.setData(TOOL_EXT_PROBE)
@@ -1173,21 +1253,101 @@ class ComboBoxEnhanced(QComboBox):
         self.model().appendRow(item)
         
 class PluginObj(object):
+    """
+    Plugin object
+    """
     def __init__(self, description=None, withIde=False):
         """
+        Constructor
         """
         self.__RESUME__ = "no description"
         if description is not None:
             self.__RESUME__ = description
         self.__WITH_IDE__ = withIde
+      
+class WelcomePage(QWidget):
+    """
+    Welcome page widget
+    """
+    ConnectTool = pyqtSignal(int)  
+    def __init__(self, parent):
+        """
+        Constructor
+        """
+        super(WelcomePage, self).__init__()
         
-class OptionPage(QWidget):
+        self.defaultProxyHttpAddr = Settings.get( 'Server', 'addr-proxy-http' )
+        self.defaultProxyHttpPort = Settings.get( 'Server', 'port-proxy-http' )
+
+        self.createWidget()
+        self.createConnections()
+
+    def createConnections(self):
+        """
+        Create qt connections
+        """
+        pass
+
+    def createWidget(self):
+        """
+        Create qt widget
+        """        
+        # controler ip
+        self.controlerIpEdit = QLineEdit( Settings.get('Server','ip') )
+        self.controlerPortEdit = QLineEdit( Settings.get('Server','port') )
+        validator2Proxy = QIntValidator (self)
+        self.controlerPortEdit.setValidator(validator2Proxy)
+        
+        self.proxyHttpAddrEdit = QLineEdit(self.defaultProxyHttpAddr)
+        self.proxyHttpAddrEdit.setSizePolicy( QSizePolicy.Expanding, QSizePolicy.Fixed )
+        self.proxyHttpAddrEdit.setDisabled(True)
+        self.proxyHttpPortEdit = QLineEdit(self.defaultProxyHttpPort)
+        self.proxyHttpPortEdit.setSizePolicy( QSizePolicy.Expanding, QSizePolicy.Fixed )
+        self.proxyHttpPortEdit.setDisabled(True)
+        validatorProxy = QIntValidator (self)
+        self.proxyHttpPortEdit.setValidator(validatorProxy)
+        self.proxyHttpPortEdit.setMinimumWidth(60)
+        
+        # proxy support
+        self.withProxyCheckBox = QCheckBox( "Use a HTTPS proxy server" )
+        if QtHelper.str2bool(Settings.get( 'Server','proxy-active' )):
+            self.withProxyCheckBox.setChecked(True)
+            self.proxyHttpAddrEdit.setDisabled(False)
+            self.proxyHttpPortEdit.setDisabled(False)
+
+        
+        tool2Layout = QGridLayout()
+        tool2Layout.addWidget( QLabel( "My %s" % Settings.get( 'Common','acronym-server' ) ), 0, 0  )
+        
+        tool2Layout.addWidget(QLabel("Address:"), 1, 1)
+        tool2Layout.addWidget(self.controlerIpEdit, 1, 2)
+        tool2Layout.addWidget(QLabel("Port:"), 2, 1)
+        tool2Layout.addWidget(self.controlerPortEdit, 2, 2)
+        tool2Layout.addWidget(self.withProxyCheckBox, 3, 1)
+        tool2Layout.addWidget(QLabel("Proxy Address:"), 4, 1)
+        tool2Layout.addWidget(self.proxyHttpAddrEdit, 4, 2)
+        tool2Layout.addWidget(QLabel("Proxy Port:"), 5, 1)
+        tool2Layout.addWidget(self.proxyHttpPortEdit, 5, 2)
+        tool2Layout.addWidget( QLabel(""), 6, 0)
+
+        # final layout
+        mainLayout = QVBoxLayout()
+        mainLayout.addLayout(tool2Layout)
+
+        self.setMinimumWidth(600)
+                
+        self.setLayout(mainLayout)
+        
+class DeployPage(QWidget):
+    """
+    Option page widget
+    """
     DeployTool = pyqtSignal(int)  
     def __init__(self, parent):
         """
-        Option widget
+        Constructor
         """
-        super(OptionPage, self).__init__()
+        super(DeployPage, self).__init__()
        
         self.nbPluginSaved = 0
         self.mainApp = parent
@@ -1202,7 +1362,7 @@ class OptionPage(QWidget):
         
     def createConnections(self):
         """
-        Create connections
+        Create qt connections
         """
         self.deployButton.clicked.connect(self.deployTool)
         self.deleteButton.clicked.connect(self.deleteTool)
@@ -1219,13 +1379,13 @@ class OptionPage(QWidget):
 
     def createWidget(self):
         """
-        Create widget
+        Create qt widget
         """
         # select plugin to start
         if sys.platform == "win32" :
             self.nameEdit = QLineEdit( "%s" % Settings.get( 'DefaultWin','agent-name' ) )
             self.descriptionEdit = QLineEdit( Settings.get( 'DefaultWin','agent-description' ) )
-        elif sys.platform == "linux2" :
+        elif sys.platform.startswith("linux") :
             self.nameEdit = QLineEdit( "%s" % Settings.get( 'DefaultLinux','agent-name' ) )
             self.descriptionEdit = QLineEdit( Settings.get( 'DefaultLinux','agent-description' ) )
         else:
@@ -1322,10 +1482,6 @@ class OptionPage(QWidget):
         tool2Layout.addWidget(self.proxyHttpAddrEdit, 4, 2)
         tool2Layout.addWidget(QLabel("Proxy Port:"), 5, 1)
         tool2Layout.addWidget(self.proxyHttpPortEdit, 5, 2)
-        # tool2Layout.addWidget(QLabel("Login:"), 6, 1)
-        # tool2Layout.addWidget(self.proxyLoginEdit, 6, 2)
-        # tool2Layout.addWidget(QLabel("Password:"), 7, 1)
-        # tool2Layout.addWidget(self.proxyPasswordEdit, 7, 2)
         tool2Layout.addWidget( QLabel(""), 6, 0)
 
         buttonLayout = QHBoxLayout()
@@ -1440,6 +1596,7 @@ class OptionPage(QWidget):
         
     def initListTools(self):
         """
+        Init the list of tools
         """
         for i in xrange(50):
             try:
@@ -1488,7 +1645,8 @@ class OptionPage(QWidget):
                 self.listTools.addItem( listItem )
                 if Settings.get('Common','connect-on-startup') =="True":
                     self.mainApp.automaticDeployTool(toolType, toolName, toolPlugin, toolDescr,
-                                                    toolIp=toolIp, toolPort=toolPort, proxyEnable=proxyEnable, 
+                                                    toolIp=toolIp, toolPort=toolPort, 
+                                                    proxyEnable=proxyEnable, 
                                                     proxyIp=proxyIp, proxyPort=proxyPort)
                     
         # set the focus on the option page
@@ -1506,6 +1664,10 @@ class OptionPage(QWidget):
         if pluginType is None: 
             self.ideButton.setEnabled(False)
             return 
+            
+        # to support py2.7 and pyqt4 on linux
+        if sys.version_info < (3,):
+            pluginType = str(pluginType)
             
         # check combobox
         pluginDetected=None
@@ -1537,6 +1699,10 @@ class OptionPage(QWidget):
             return
         else:
             self.deployButton.setEnabled(True)
+            
+        # to support py2.7 and pyqt4 on linux
+        if sys.version_info < (3,):
+            pluginType = str(pluginType)
             
         pluginDetected=None
         for pId, pluginObj in plugins.items():
@@ -1572,7 +1738,7 @@ class OptionPage(QWidget):
         
     def onAutoReconnectCfgChanged(self, state):
         """
-        c
+        On auto reconnect configuration changed
         """
         stateCfg = "False"
         if state == 2: stateCfg = "True"
@@ -1709,6 +1875,7 @@ class OptionPage(QWidget):
             
     def onToolSelected(self):
         """
+        On selected tool event
         """
         self.deleteButton.setEnabled(True)
         self.startButton.setEnabled(True)
@@ -1806,7 +1973,7 @@ class Window(QDialog):
     """
     def __init__(self):
         """
-        Main window
+        Constructor for the main window
         """
         super(Window, self).__init__()
 
@@ -1849,6 +2016,7 @@ class Window(QDialog):
 
     def loadingPlugins(self):
         """
+        Loading all plugins
         """
         files=os.listdir("%s//Plugins//" % (QtHelper.dirExec()))
         for x in files:
@@ -1884,6 +2052,7 @@ class Window(QDialog):
         
     def loadingPluginsActions(self):
         """
+        Loading all actions for plugins
         """
         for plugId, plugMore in PLUGINS_AGENT_EXTERNAL.items():
             
@@ -1904,17 +2073,20 @@ class Window(QDialog):
                 p.loadFromData(icon, format="png")
             
                 plugAction = QtHelper.createAction(parent=self, label="About\n%s Plugin" % pluginCfg["plugin"]["name"], icon=QIcon(p), 
-                                                callback=self.onAboutPlugin, cb_arg= { 'plugId': plugId, 'plugPath': plugPath,
-                                                                                'plugCfg': pluginCfg } )
+                                                    callback=self.onAboutPlugin, cb_arg= { 'plugId': plugId, 
+                                                                                           'plugPath': plugPath,
+                                                                                           'plugCfg': pluginCfg } )
                 self.dockToolbar.addAction(plugAction)
             else:
                 plugAction =  QtHelper.createAction( parent=self, label="About\n%s Plugin" % pluginCfg["plugin"]["name"],
-                                                callback=self.onAboutPlugin, cb_arg={ 'plugId': plugId, 'plugPath': plugPath,
-                                                                                'plugCfg': pluginCfg} )
+                                                    callback=self.onAboutPlugin, cb_arg={ 'plugId': plugId, 
+                                                                                          'plugPath': plugPath,
+                                                                                          'plugCfg': pluginCfg} )
                 self.dockToolbar.addAction(plugAction)
                 
     def onAboutPlugin(self, plugInfo):
         """
+        About plugin event
         """
         plugId = plugInfo['plugId']
         plugPath = plugInfo['plugPath']
@@ -1940,11 +2112,14 @@ class Window(QDialog):
 
     def onStartExternalTool(self, toolPage, pluginType, pluginId, pluginName):
         """
+        On start a external tool event
         """
         if pluginType == TOOL_EXT_AGENT:
             plugPath, plugExe, pluginCfg  = PLUGINS_AGENT_EXTERNAL[pluginId]
 
-            p = PluginProcess(self, cmd='"%s/%s"' % (plugPath, plugExe), toolPage=toolPage, tmpArea=toolPage.plugin().getTemp())
+            p = PluginProcess(self, cmd='"%s/%s"' % (plugPath, plugExe), 
+                              toolPage=toolPage, 
+                              tmpArea=toolPage.plugin().getTemp())
             toolPage.pluginProcess = p
             p.DataReceived.connect(self.onPluginData)
             p.startPlugin()
@@ -1954,7 +2129,9 @@ class Window(QDialog):
         elif pluginType == TOOL_EXT_PROBE:
             plugPath, plugExe, pluginCfg  = PLUGINS_PROBE_EXTERNAL[pluginId]
             
-            p = PluginProcess(self, cmd='"%s/%s"' % (plugPath, plugExe), toolPage=toolPage, tmpArea=toolPage.plugin().getTemp())
+            p = PluginProcess(self, cmd='"%s/%s"' % (plugPath, plugExe), 
+                              toolPage=toolPage, 
+                              tmpArea=toolPage.plugin().getTemp())
             toolPage.pluginProcess = p
             p.DataReceived.connect(self.onPluginData)
             p.startPlugin()
@@ -1964,6 +2141,7 @@ class Window(QDialog):
         
     def onPluginData(self, data, plugin):
         """
+        On data received from plugin
         """
         if plugin in self.pluginsBuffers:
             self.pluginsBuffers[plugin] += data
@@ -1986,6 +2164,7 @@ class Window(QDialog):
         
     def onPluginMessage(self, msg, plugProcess):
         """
+        On message received from plugin
         """
         if msg['cmd'] == 'register' and msg['id'].lower() not in self.pluginsStarted :
             if plugProcess.widgetPage().plugin() is None: return
@@ -2105,6 +2284,7 @@ class Window(QDialog):
         
     def setTrayIconToolTip(self, msg):
         """
+        Set the tray icon tooltip
         """
         self.trayIcon.setToolTip( "%s %s" % (Settings.get('Common', 'name'), msg) )
         
@@ -2220,8 +2400,6 @@ class Window(QDialog):
         self.dockToolbar.setObjectName("Toolbar")
         self.dockToolbar.addAction(self.minimizeAction)
         self.dockToolbar.addAction(self.quitAction)
-        # self.dockToolbar.addSeparator()
-        # self.dockToolbar.addAction(self.minimizeAction)
         self.dockToolbar.addSeparator()
         self.dockToolbar.addAction(self.showRnAction)
         self.dockToolbar.addSeparator()
@@ -2238,13 +2416,15 @@ class Window(QDialog):
         self.dockToolbar = QToolBar(self)
         self.dockToolbar.setStyleSheet("QToolBar { border: 0px }");
         self.dockToolbar.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-        # self.dockToolbar.setOrientation(Qt.Vertical)
-        
+
         self.mainTab = QTabWidget( )
         self.mainTab.setTabPosition(QTabWidget.North)
 
-        self.mainPage = OptionPage(parent=self)
-        self.mainTab.addTab( self.mainPage, "Options" )
+        # self.welcomePage = WelcomePage(parent=self)
+        # self.mainTab.addTab( self.welcomePage, "Welcome" )
+        
+        self.mainPage = DeployPage(parent=self)
+        self.mainTab.addTab( self.mainPage, "Deploy" )
         
         globalLayout = QHBoxLayout()
         
@@ -2253,8 +2433,7 @@ class Window(QDialog):
         mainLayout.addWidget(self.mainTab)
 
         globalLayout.addLayout(mainLayout)
-        # globalLayout.setContentsMargins(0, 0, 0, 0)
-        
+
         self.setLayout(globalLayout)
         
         self.setWindowTitle( "%s %s" % (Settings.get('Common', 'name'), Settings.getVersion()) )
@@ -2318,8 +2497,6 @@ class Window(QDialog):
         about.append( "" )
         about.append( "Contact: <a href='mailto:%s'>%s</a>" %( __EMAIL__,__EMAIL__) )
         about.append( "Website: <a href='%s'>%s</a>" % (url,url) )
-        #about.append( "" )
-        #about.append( "%s: <i>%s</i>" % (self.tr("Contributors"), ' '.join(__CONTRIBUTORS__)))
 
         about.append( "<hr />") 
         about.append( "<i>%s</i>" % __LICENCE__ ) 
@@ -2417,7 +2594,8 @@ class Window(QDialog):
         thumbnailRaw =  thumbnailIo.read()
         
         # finalize generation
-        tool.plugin().onFinalizeScreenshot(request, action, actionId, adapterId, testcaseName, replayId, screenRaw, thumbnailRaw)
+        tool.plugin().onFinalizeScreenshot(request, action, actionId, adapterId, testcaseName, 
+                                           replayId, screenRaw, thumbnailRaw)
 
     def onQuit(self):
         """
@@ -2435,6 +2613,7 @@ class Window(QDialog):
 
 if __name__ == '__main__':
     """
+    Main
     """
     app = QApplication(sys.argv)
     

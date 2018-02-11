@@ -1,19 +1,34 @@
+
+"""
+Parse module
+"""
+
 # to support new print style on python 2.x
 from __future__ import print_function 
 
 import struct
 import socket
+import sys
 
 class FileFormat(object):
+    """
+    File format object
+    """
     PCAP = 0xA1B2C3D4
     PCAP_NG = 0x0A0D0D0A
     UNKNOWN = -1
     
 class LinkLayerType(object):
+    """
+    Link layer type object
+    """
     ETHERNET = 1
     LINUX_SLL = 113
     
 class NetworkProtocol(object):
+    """
+    Network protocol object
+    """
     IP = 2048
     IPV6 = 34525
     P802_1Q = 33024
@@ -21,6 +36,9 @@ class NetworkProtocol(object):
     PPPOE_SESSION = 34916
     
 class TransportProtocol(object):
+    """
+    Transport protocol object
+    """
     TCP = 6
     UDP = 17
 
@@ -81,6 +99,7 @@ def decodeUdp(udp_packet):
     
 def decodeIpV4(network_protocol, ip_packet):
     """
+    Decode ipv4 packet
     """
     # ip header
     ip_base_header_len = 20
@@ -140,6 +159,7 @@ def decodeLinuxSSL(packet):
     
 def decodePacket(packet, getTcp=False, getUdp=False):
     """
+    Decode packet
     """
     link_type, micro_second, link_packet = packet
 

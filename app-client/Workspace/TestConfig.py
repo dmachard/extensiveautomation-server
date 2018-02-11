@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -90,7 +90,8 @@ class WTestConfig(Document.WDocument):
         @param remoteFile: is remote
         @type remoteFile: boolean
         """
-        Document.WDocument.__init__(self, parent, path, filename, extension, nonameId, remoteFile, repoDest, project, isLocked)
+        Document.WDocument.__init__(self, parent, path, filename, extension, 
+                                    nonameId, remoteFile, repoDest, project, isLocked)
         
         self.tc = TestParameters.ParametersQWidget(self, forTestConfig=True)
         
@@ -105,7 +106,8 @@ class WTestConfig(Document.WDocument):
             self.error("bad default inputs provided: %s - %s" % (e,defaultInputs))
         # end of new
         
-        self.dataModel = FileModelTestConfig.DataModel(timeout=defaultTimeout, parameters=_defaults_params)
+        self.dataModel = FileModelTestConfig.DataModel(timeout=defaultTimeout, 
+                                                       parameters=_defaults_params)
 
         self.createWidgets()
         self.createToolbar()

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -73,6 +73,7 @@ import Workspace.FileModels.TestConfig as FileModelTestConfig
 
 import Settings
 import UserClientInterface as UCI
+import RestClientInterface as RCI
 
 
 import base64
@@ -201,12 +202,14 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
     
     def hideWidgetsHeader(self):
         """
+        Hide the title of the widget
         """
         self.title.hide()
         self.labelHelp.hide()
         
     def showWidgetsHeader(self):
         """
+        Show widget header
         """
         self.title.show()
         self.labelHelp.show()
@@ -260,11 +263,13 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
 
     def onUpdateInputsNumber(self, nbParams):
         """
+        On update the number of inputs in the tabulation name
         """
         self.paramsTab.setTabText(0, "Inputs (%s)" % nbParams )
 
     def onUpdateOutputsNumber(self, nbParams):
         """
+        On update the number of outputs in the tabulation name
         """
         self.paramsTab.setTabText(1, "Outputs (%s)" % nbParams )
         
@@ -292,18 +297,21 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
         
     def enableMarkUnused(self):
         """
+        Active the button mark inputs as unused
         """
         self.markUnusedAction.setEnabled(True)
         self.markUnusedOutputsAction.setEnabled(True)
         
     def disableMarkUnused(self):
         """
+        Disable the mark button
         """
         self.markUnusedAction.setEnabled(False)
         self.markUnusedOutputsAction.setEnabled(False)
  
     def markUnusedInputs(self):
         """
+        Mark all inputs unused
         """
         if self.wdoc is None: return
         
@@ -321,6 +329,7 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
         
     def markUnusedOutputs(self):
         """
+        Mark all outputs unused
         """
         if self.wdoc is None: return
         
@@ -376,13 +385,13 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
             if answer == QMessageBox.Yes:
                 ret = self.saveToLocal(inputs=inputs)
             elif answer == QMessageBox.No:
-                if UCI.instance().isAuthenticated(): # no then perhaps in remo repo if connected?
+                if RCI.instance().isAuthenticated: # no then perhaps in remo repo if connected?
                      ret = self.saveToRemote(inputs=inputs)
                 else:
                     QMessageBox.warning(self, "Save" , "Connect to the test center first!")
         
         # not configured then in remo repo if connected ?
-        elif UCI.instance().isAuthenticated():
+        elif RCI.instance().isAuthenticated:
              ret = self.saveToRemote(inputs=inputs)
         else:
             QMessageBox.warning(self, "Save" , "Connect to the test center first!")
@@ -435,7 +444,16 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
                 doc.dataModel.properties['properties']['parameters']['parameter'] = self.parameters.table().model.getData()
             else:
                 doc.dataModel.properties['properties']['parameters']['parameter'] = self.parametersOutput.table().model.getData()
-            UCI.instance().putFileRepo( document=doc, project=prjId )
+            
+            # rest call
+            RCI.instance().uploadTestFile(filePath=doc.path, 
+                                          fileName=doc.filename, 
+                                          fileExtension=doc.extension, 
+                                          fileContent=doc.getraw_encoded(), 
+                                          projectId=int(prjId), 
+                                          updateMode=False, 
+                                          closeTabAfter=False)
+                       
             ret = True
         return ret
 
@@ -482,13 +500,13 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
             if answer == QMessageBox.Yes:
                 self.loadFromLocal(inputs=inputs) # load local test config file
             else:
-                if UCI.instance().isAuthenticated(): # no then perhaps in remo repo if connected?
+                if RCI.instance().isAuthenticated: # no then perhaps in remo repo if connected?
                     self.loadFromRemote(inputs=inputs) # load remote test config file
                 else:
                     QMessageBox.warning(self, "Save" , "Connect to the test center first!")
         
         # import from remote repo
-        elif UCI.instance().isAuthenticated(): # no then perhaps in remo repo if connected?
+        elif RCI.instance().isAuthenticated: # no then perhaps in remo repo if connected?
             self.loadFromRemote(inputs=inputs) # load remote test config file
         else:
             QMessageBox.warning(self, "Save" , "Connect to the test center first!")        
@@ -504,12 +522,21 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
         dialog = self.iRepo.remote().saveAs
         if dialog.exec_() == QDialog.Accepted:
             if inputs:
-                UCI.instance().getFileRepo( pathFile=dialog.getSelection(), forDest=UCI.FOR_DEST_ALL, 
-                                    actionId=UCI.ACTION_IMPORT_INPUTS, project=prjId)
+                RCI.instance().openFileTests(projectId=int(prjId), 
+                                             filePath=dialog.getSelection(), 
+                                             ignoreLock=False, 
+                                             readOnly=False, 
+                                             customParam=None, 
+                                             actionId=UCI.ACTION_IMPORT_INPUTS, 
+                                             destinationId=UCI.FOR_DEST_ALL)
             else:
-                UCI.instance().getFileRepo( pathFile=dialog.getSelection(), forDest=UCI.FOR_DEST_ALL, 
-                                    actionId=UCI.ACTION_IMPORT_OUTPUTS, project=prjId)
-
+                RCI.instance().openFileTests(projectId=int(prjId), 
+                                             filePath=dialog.getSelection(), 
+                                             ignoreLock=False, 
+                                             readOnly=False, 
+                                             customParam=None, 
+                                             actionId=UCI.ACTION_IMPORT_OUTPUTS, 
+                                             destinationId=UCI.FOR_DEST_ALL)
     def loadFromLocal(self, inputs=True):
         """
         Load test config from local repository
@@ -529,17 +556,24 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
         """
         if pathFilename is None:
             fileName = QFileDialog.getOpenFileName(self, self.tr("Import File"), "", "Tcx Config Files (*.%s)" % self.rRepo.EXTENSION_TCX )
-            if fileName.isEmpty():
+            # new in v18 to support qt5
+            if QtHelper.IS_QT5:
+                _fileName, _type = fileName
+            else:
+                _fileName = fileName
+            # end of new
+            
+            if _fileName.isEmpty():
                 return
 
-            if not ( str(fileName).endswith( self.rRepo.EXTENSION_TCX ) ):
+            if not ( str(_fileName).endswith( self.rRepo.EXTENSION_TCX ) ):
                 QMessageBox.critical(self, "Open Failed" , "File not supported")
                 return
         else:
-            fileName=pathFilename
+            _fileName=pathFilename
         
         config = FileModelTestConfig.DataModel()
-        res = config.load( absPath = fileName )
+        res = config.load( absPath = _fileName )
         if not res:
             QMessageBox.critical(self, "Open Failed" , "Corrupted file")
             return  

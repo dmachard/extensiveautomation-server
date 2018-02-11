@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -32,7 +32,8 @@ if sys.version_info > (3,):
     
 try:
     from PyQt4.QtGui import (QWidget, QToolBar, QVBoxLayout, QFont, QIcon, QPrinter, 
-                            QPrintDialog, QDialog, QTextDocument, QFileDialog, QDialogButtonBox, QTabWidget)
+                            QPrintDialog, QDialog, QTextDocument, QFileDialog, 
+                            QDialogButtonBox, QTabWidget)
     from PyQt4.QtCore import (Qt, QSize)
     from PyQt4.Qsci import (QsciScintilla, QsciLexerXML)
 except ImportError:
@@ -54,7 +55,8 @@ class RawView(QWidget, Logger.ClassLogger):
     """
     Raw view widget
     """
-    def __init__(self, parent, data, toCsv=False, toHtml=False, toXml=False, toPrinter=False, toTxt=False, toPdf=False):
+    def __init__(self, parent, data, toCsv=False, toHtml=False, toXml=False, 
+                 toPrinter=False, toTxt=False, toPdf=False):
         """
         Raw view widgets
 
@@ -163,13 +165,14 @@ class RawView(QWidget, Logger.ClassLogger):
         """
         Save to txt file
         """
-        fileName = QFileDialog.getSaveFileName(self, "Save TXT file", "", "TXT file (*.txt);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, "Save TXT file", "", 
+                                               "TXT file (*.txt);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
-            _filename, _type = filename
+            _filename, _type = fileName
         else:
-            _filename = filename
+            _filename = fileName
         # end of new
         
         if _filename:
@@ -184,13 +187,14 @@ class RawView(QWidget, Logger.ClassLogger):
         """
         Save to xml file
         """
-        fileName = QFileDialog.getSaveFileName(self, "Save XML file", "", "XML file (*.xml);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, "Save XML file", "", 
+                                               "XML file (*.xml);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
-            _filename, _type = filename
+            _filename, _type = fileName
         else:
-            _filename = filename
+            _filename = fileName
         # end of new
         
         if _filename:
@@ -205,13 +209,14 @@ class RawView(QWidget, Logger.ClassLogger):
         """
         Save to html file
         """
-        fileName = QFileDialog.getSaveFileName(self, "Save HTML file", "", "HTML file (*.html);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, "Save HTML file", "", 
+                                               "HTML file (*.html);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
-            _filename, _type = filename
+            _filename, _type = fileName
         else:
-            _filename = filename
+            _filename = fileName
         # end of new
         
         if _filename:
@@ -226,13 +231,14 @@ class RawView(QWidget, Logger.ClassLogger):
         """
         Save to pdf file
         """
-        filename = QFileDialog.getSaveFileName(self, 'Save to PDF', "", "PDF file (*.pdf);;All Files (*.*)")
+        fileName = QFileDialog.getSaveFileName(self, 'Save to PDF', "", 
+                                               "PDF file (*.pdf);;All Files (*.*)")
         
         # new in v17.1
         if QtHelper.IS_QT5:
-            _filename, _type = filename
+            _filename, _type = fileName
         else:
-            _filename = filename
+            _filename = fileName
         # end of new
         
         if _filename:
@@ -267,24 +273,6 @@ class WExportStatistics(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         self.createWidgets()
         self.createConnections()
 
-    def decodeDataXml(self, b64data):
-        """
-        Decode data xml
-        """
-        try:
-            data_decoded = base64.b64decode(b64data)
-        except Exception as e:
-            self.error( 'unable to decode from base64 structure design: %s' % str(e) )
-        else:
-            try:
-                self.__dataXml = zlib.decompress(data_decoded)
-                try:
-                    self.__dataXml = self.__dataXml.decode('utf8')
-                except UnicodeDecodeError as e:
-                    self.__dataXml = self.__dataXml
-            except Exception as e:
-                self.error( 'unable to decompress design: %s' % str(e) )
-
     def createWidgets(self):
         """
         QtWidgets creation
@@ -299,7 +287,8 @@ class WExportStatistics(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         }""")
         self.buttonBox.setStandardButtons(QDialogButtonBox.Ok)
 
-        self.xmlWidget = RawView(self, self.__dataXml, toCsv=False, toHtml=False, toXml=True, toPrinter=True, toTxt=False, toPdf=True)
+        self.xmlWidget = RawView(self, self.__dataXml, toCsv=False, toHtml=False, 
+                                 toXml=True, toPrinter=True, toTxt=False, toPdf=True)
         
         layout = QVBoxLayout()
         self.mainTab = QTabWidget()

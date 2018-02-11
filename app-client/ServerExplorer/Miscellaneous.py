@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -48,7 +48,8 @@ except ImportError:
     from PyQt5.QtCore import (Qt, QRect, QSize)
     
 import Settings
-import UserClientInterface as UCI
+# import UserClientInterface as UCI
+import RestClientInterface as RCI
 from Libs import QtHelper, Logger
 
 
@@ -215,36 +216,8 @@ class WServerInformation(QWidget, Logger.ClassLogger):
         layout2.addRow(QLabel("Backups"), self.nbSizeBakOnDiskLabel )
         self.diskUsageBox.setLayout(layout2)
 
-        self.tablesStatsBox = QGroupBox("Tables (Number of lines)")
-        self.nbLinesScriptsStatsLabel = QLabel("0")
-        self.nbLinesTestCasesStatsLabel = QLabel("0")
-        self.nbLinesTestSuitesStatsLabel = QLabel("0")
-        self.nbLinesTestUnitsStatsLabel = QLabel("0")
-        self.nbLinesTestAbstractsStatsLabel = QLabel("0")
-        self.nbLinesTestPlansStatsLabel = QLabel("0")
-        self.nbLinesTestGlobalsStatsLabel = QLabel("0")
-        self.nbLinesUsersLabel = QLabel("0")
-        self.nbTotLinesLabel = QLabel("0")
-        layoutNbLines = QFormLayout()
-        layoutNbLines.addRow(QLabel("Table users"), self.nbLinesUsersLabel )
-        layoutNbLines.addRow(QLabel("Table scripts"), self.nbLinesScriptsStatsLabel )
-        layoutNbLines.addRow(QLabel("Table testcases"), self.nbLinesTestCasesStatsLabel )
-        layoutNbLines.addRow(QLabel("Table testsuites"), self.nbLinesTestSuitesStatsLabel )
-        layoutNbLines.addRow(QLabel("Table testunits"), self.nbLinesTestUnitsStatsLabel )
-        layoutNbLines.addRow(QLabel("Table testabstracts"), self.nbLinesTestAbstractsStatsLabel )
-        layoutNbLines.addRow(QLabel("Table testplans"), self.nbLinesTestPlansStatsLabel )
-        layoutNbLines.addRow(QLabel("Table testglobals"), self.nbLinesTestGlobalsStatsLabel )
-        self.lineNbLines = QFrame()
-        self.lineNbLines.setGeometry(QRect(110, 221, 51, 20))
-        self.lineNbLines.setFrameShape(QFrame.HLine)
-        self.lineNbLines.setFrameShadow(QFrame.Sunken)
-        layoutNbLines.addRow(self.lineNbLines )
-        layoutNbLines.addRow(QLabel("Total"), self.nbTotLinesLabel )
-        self.tablesStatsBox.setLayout(layoutNbLines)
-
         layoutGrid = QGridLayout()
-        layoutGrid.addWidget(self.tablesStatsBox, 0, 0)
-        layoutGrid.addWidget(self.diskUsageBox, 0, 1)
+        layoutGrid.addWidget(self.diskUsageBox, 0, 0)
         layoutRight.addLayout( layoutGrid )
         layoutRight.addStretch(1)
         
@@ -273,12 +246,18 @@ class WServerInformation(QWidget, Logger.ClassLogger):
         self.genCacheHelpAction = QtHelper.createAction(self, "&Generate\nDocumentations", self.genCacheHelp, 
                                                 tip = 'Generate the cache for the documentation', 
                                                 icon = QIcon(":/generate-doc.png") )
-        self.genTarHelpAction = QtHelper.createAction(self, "&Packaging\nAll", self.genPackagesTar, 
-                                                tip = 'Generate adapters, libraries and samples packages', 
+        self.genTarAdaptersAction = QtHelper.createAction(self, "&Package\nAdapters", self.genPackageAdapters, 
+                                                tip = 'Generate adapters packages', 
+                                                icon = QIcon(":/generate-tar.png") )
+        self.genTarLibrariesAction = QtHelper.createAction(self, "&Package\nLibraries", self.genPackageLibraries, 
+                                                tip = 'Generate libraries packages', 
+                                                icon = QIcon(":/generate-tar.png") )
+        self.genTarSamplesAction = QtHelper.createAction(self, "&Package\nSamples", self.genPackageSamples, 
+                                                tip = 'Generate samples packages', 
                                                 icon = QIcon(":/generate-tar.png") )
                                                 
-        self.refreshAction = QtHelper.createAction(self, "&Statistics", self.refreshStats, 
-                                                tip = 'Refresh statistics',tooltip='Refresh statistics', 
+        self.refreshAction = QtHelper.createAction(self, "&Usages", self.refreshUsages, 
+                                                tip = 'Refresh Usages',tooltip='Refresh usages', 
                                                 icon = QIcon(":/refresh-statistics.png") )
         self.refreshCtxAction = QtHelper.createAction(self, "&Session", self.refreshCtx, 
                                                 tip = 'Refresh server context', tooltip='Refresh server context', 
@@ -287,7 +266,15 @@ class WServerInformation(QWidget, Logger.ClassLogger):
         self.resetAction = QtHelper.createAction(self, "&Reset\nStatistics", self.resetStats, 
                                                 tip = 'Reset all statistics', 
                                                 icon = QIcon(":/reset-counter.png") )
-        self.unlockAllAction = QtHelper.createAction(self, "&Unlock\nTests", self.unlockAll, 
+        self.unlockAllTestsAction = QtHelper.createAction(self, "&Unlock\nTests", self.unlockTests, 
+                                                tip = 'Unlock all files', 
+                                                icon = QIcon(":/unlock.png") )
+                                                
+        self.unlockAllAdaptersAction = QtHelper.createAction(self, "&Unlock\nAdapters", self.unlockAdapters, 
+                                                tip = 'Unlock all files', 
+                                                icon = QIcon(":/unlock.png") )
+                                                
+        self.unlockAllLibrariesAction = QtHelper.createAction(self, "&Unlock\nLibraries", self.unlockLibraries, 
                                                 tip = 'Unlock all files', 
                                                 icon = QIcon(":/unlock.png") )
                                                 
@@ -302,32 +289,54 @@ class WServerInformation(QWidget, Logger.ClassLogger):
         
         self.dockToolbarGen.setObjectName("Generate toolbar")
         self.dockToolbarGen.addAction(self.genCacheHelpAction)
-        self.dockToolbarGen.addAction(self.genTarHelpAction)
+        self.dockToolbarGen.addAction(self.genTarAdaptersAction)
+        self.dockToolbarGen.addAction(self.genTarLibrariesAction)
+        self.dockToolbarGen.addAction(self.genTarSamplesAction)
         self.dockToolbarGen.setIconSize(QSize(16, 16))
         
         self.dockToolbarReset.setObjectName("Reset toolbar")
         self.dockToolbarReset.addAction(self.resetAction)
-        self.dockToolbarReset.addAction(self.unlockAllAction)
+        self.dockToolbarReset.addAction(self.unlockAllTestsAction)
+        self.dockToolbarReset.addAction(self.unlockAllAdaptersAction)
+        self.dockToolbarReset.addAction(self.unlockAllLibrariesAction)
         self.dockToolbarReset.setIconSize(QSize(16, 16))
         
-    def unlockAll(self):
+    def unlockTests(self):
         """
         Unlock all files
         """
-        UCI.instance().cleanupLockFiles(tests=True, adapters=True, libraries=True)
+        RCI.instance().unlockTests()
         
-    def genPackagesTar(self):
+    def unlockAdapters(self):
+        """
+        Unlock all files
+        """
+        RCI.instance().unlockAdapters()
+        
+    def unlockLibraries(self):
+        """
+        Unlock all files
+        """
+        RCI.instance().unlockLibraries()
+        
+    def genPackageAdapters(self):
         """
         Generate all tar packages
         """
-        UCI.instance().generateAll()
-
-    def checkSyntaxAdapters(self):
+        RCI.instance().buildAdapters()
+        
+    def genPackageLibraries(self):
         """
-        Check syntax adapters
+        Generate all tar packages
         """
-        UCI.instance().checkSyntaxAdapters()
-
+        RCI.instance().buildLibraries()
+        
+    def genPackageSamples(self):
+        """
+        Generate all tar packages
+        """
+        RCI.instance().buildSamples()
+        
     def resetStats(self):
         """
         Reset statistic manually
@@ -335,20 +344,20 @@ class WServerInformation(QWidget, Logger.ClassLogger):
         reply = QMessageBox.question(self, "Reset statistics", "Are you sure ?",
                         QMessageBox.Yes | QMessageBox.No )
         if reply == QMessageBox.Yes:
-            UCI.instance().resetTestsStatistics()
-
+            RCI.instance().resetTestsMetrics()
+            
     def refreshCtx(self):
         """
         Call the server to refresh context of the server
         """
-        UCI.instance().refreshContextServer()
-
-    def refreshStats(self):
+        RCI.instance().sessionContext()
+        
+    def refreshUsages(self):
         """
         Call the server to refresh statistics of the server
         """
-        UCI.instance().refreshStatsServer()
-
+        RCI.instance().systemUsages()
+        
     def genCacheHelp(self):
         """
         Call the server to generate the cache documentation
@@ -356,33 +365,33 @@ class WServerInformation(QWidget, Logger.ClassLogger):
         reply = QMessageBox.question(self, "Generate cache", "Are you sure ?",
                         QMessageBox.Yes | QMessageBox.No )
         if reply == QMessageBox.Yes:
-            UCI.instance().genCacheHelp()
-
+            RCI.instance().buildDocumentations()
+            
     def active (self):
         """
         Enables QTreeWidget
         """
         self.diskUsageBox.setEnabled(True)
-        self.tablesStatsBox.setEnabled(True)
-
         self.informations.setEnabled(True)
-
         self.genCacheHelpAction.setEnabled(True)
         self.resetAction.setEnabled(True)
-        self.unlockAllAction.setEnabled(True)
+        self.unlockAllTestsAction.setEnabled(True)
+        self.unlockAllAdaptersAction.setEnabled(True)
+        self.unlockAllLibrariesAction.setEnabled(True)
 
     def deactivate (self):
         """
         Clears QTreeWidget and disables it
         """
         self.diskUsageBox.setEnabled(False)
-        self.tablesStatsBox.setEnabled(False)
 
         self.informations.clear()
         self.informations.setEnabled(False)
         self.genCacheHelpAction.setEnabled(False)
         self.resetAction.setEnabled(False)
-        self.unlockAllAction.setEnabled(False)
+        self.unlockAllTestsAction.setEnabled(False)
+        self.unlockAllAdaptersAction.setEnabled(False)
+        self.unlockAllLibrariesAction.setEnabled(False)
 
         self.nbSizeLogsOnDiskLabel.setText("0")
         self.nbSizeTmpOnDiskLabel.setText("0")
@@ -403,16 +412,7 @@ class WServerInformation(QWidget, Logger.ClassLogger):
         """
         Load statistics
         """
-        self.nbLinesUsersLabel.setText( str(data['nb-line-table-users']) )
-        self.nbLinesScriptsStatsLabel.setText( str(data['nb-line-table-scriptsstats']) )
-        self.nbLinesTestCasesStatsLabel.setText( str(data['nb-line-table-testcasesstats']) )
-        self.nbLinesTestGlobalsStatsLabel.setText( str(data['nb-line-table-testglobalsstats']) )
-        self.nbLinesTestPlansStatsLabel.setText( str(data['nb-line-table-testplansstats']) )
-        self.nbLinesTestSuitesStatsLabel.setText( str(data['nb-line-table-testsuitesstats']) )
-        self.nbLinesTestUnitsStatsLabel.setText( str(data['nb-line-table-testunitsstats']) )
-        self.nbLinesTestAbstractsStatsLabel.setText( str(data['nb-line-table-testabstractsstats']) )
-        self.nbTotLinesLabel.setText( str(data['nb-line-total']) )
-        
+
         self.nbSizeLogsOnDiskLabel.setText( str( QtHelper.bytes2human(data['disk-usage-logs']) ) )
         self.nbSizeTmpOnDiskLabel.setText( str( QtHelper.bytes2human(data['disk-usage-tmp']) ) )
 
@@ -434,7 +434,7 @@ class WServerInformation(QWidget, Logger.ClassLogger):
         for param in data:
             probeItem = ParamItem( param = param, parent= self.informations)
         
-        # resize collums
+        # resize columns
         for i in xrange(len(self.labels) - 1):
             self.informations.resizeColumnToContents(i)
 

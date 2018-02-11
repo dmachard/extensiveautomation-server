@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -20,6 +20,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
+
+"""
+Android assistant module
+"""
 
 import sys
 
@@ -88,17 +92,21 @@ LIST_TYPES = ["TEXT", "CACHE", "ALIAS"]
 
 class ValidatorUpper(QValidator):
     """
+    Vaidator upper
     """
     def validate(self, string, pos):
         """
+        validate
         """
         return QValidator.Acceptable, string.upper(), pos
         
 class ValidatorAll(QValidator):
     """
+    Validator all
     """
     def validate(self, string, pos):
         """
+        validate
         """
         return QValidator.Acceptable, string, pos
         
@@ -178,6 +186,7 @@ class OptionsDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         
 class WAndroid(QWidget, Logger.ClassLogger):
     """
+    Android widget
     """
     # action, description, misc, parameters
     AddStep = pyqtSignal(str, str, str, dict)
@@ -185,6 +194,7 @@ class WAndroid(QWidget, Logger.ClassLogger):
     CancelEdit = pyqtSignal()
     def __init__(self, parent):
         """
+        Constructor
         """
         QWidget.__init__(self)
 
@@ -195,6 +205,7 @@ class WAndroid(QWidget, Logger.ClassLogger):
     
     def createActions(self):
         """
+        Create qt actions
         """
         self.addAndroidAction = QPushButton(QIcon(":/add_black.png"), '&Add Action', self)
         self.addAndroidAction.setMinimumHeight(40)         
@@ -209,6 +220,7 @@ class WAndroid(QWidget, Logger.ClassLogger):
                                             
     def createWidgets(self):
         """
+        Create qt widgets
         """
         self.optionsDialog  = OptionsDialog(self)
         
@@ -289,17 +301,20 @@ class WAndroid(QWidget, Logger.ClassLogger):
         
     def createToolbar(self):
         """
+        Create qt toolbar
         """
         pass
         
     def openOptions(self):
         """
+        Open options
         """
         if self.optionsDialog.exec_() == QDialog.Accepted:
             pass
             
     def createWidgetLine2(self):
         """
+        Create line widget
         """
         self.valueAndroidLine2 = QLineEdit(self)
         self.valueAndroidLine2.setMinimumWidth(150)
@@ -318,6 +333,7 @@ class WAndroid(QWidget, Logger.ClassLogger):
         
     def createWidgetLine(self):
         """
+        Create line widget
         """
         self.lineAndroidGroup = QGroupBox(self.tr(""))
         lineAndroidlayout = QGridLayout()
@@ -330,6 +346,7 @@ class WAndroid(QWidget, Logger.ClassLogger):
         
     def createWidgetTextTo(self):
         """
+        Create text widget
         """
         self.valueTextCacheGlobalLine = QLineEdit(self)
         self.valueTextCacheGlobalLine.setMinimumWidth(150)
@@ -346,6 +363,7 @@ class WAndroid(QWidget, Logger.ClassLogger):
         
     def createWidgetElement(self):
         """
+        Create text widget
         """
         self.elemenAndroidGroup = QGroupBox(self.tr(""))
         
@@ -381,6 +399,7 @@ class WAndroid(QWidget, Logger.ClassLogger):
         
     def createWidgetEndXY(self):
         """
+        Create widget 
         """
         self.endXyAndroidGroup = QGroupBox(self.tr(""))
         endXyAndroidlayout = QGridLayout()
@@ -405,6 +424,7 @@ class WAndroid(QWidget, Logger.ClassLogger):
         
     def createWidgetXY(self):
         """
+        Create text widget
         """
         self.xyAndroidGroup = QGroupBox(self.tr(""))
         xyAndroidlayout = QGridLayout()
@@ -429,6 +449,7 @@ class WAndroid(QWidget, Logger.ClassLogger):
         
     def createWidgetStart(self):
         """
+        Create text widget
         """
         self.startAndroidGroup = QGroupBox(self.tr(""))
         startAndroidlayout = QGridLayout()
@@ -466,6 +487,7 @@ class WAndroid(QWidget, Logger.ClassLogger):
         
     def createWidgetShortcut(self):
         """
+        Create shortcut widget
         """
         self.shortcutAndroidGroup = QGroupBox(self.tr(""))
         shortcutAndroidlayout = QGridLayout()
@@ -485,6 +507,7 @@ class WAndroid(QWidget, Logger.ClassLogger):
 
     def createWidgetCode(self):
         """
+        Create code widget
         """
         self.codeAndroidGroup = QGroupBox(self.tr(""))
         self.codeAndroidLine = QLineEdit(self)
@@ -500,16 +523,19 @@ class WAndroid(QWidget, Logger.ClassLogger):
         
     def pluginDataAccessor(self):
         """
+        Return data for plugin
         """
         return { "data": "" } 
         
     def onPluginImport(self, dataJson):
         """
+        Received data from plugin
         """
         pass
 
     def createConnections(self):
         """
+        Create qt connections
         """
         self.actionsAndroidComboBox.currentIndexChanged.connect(self.onActionAndroidChanged)
         self.addAndroidAction.clicked.connect(self.addStep)
@@ -518,6 +544,7 @@ class WAndroid(QWidget, Logger.ClassLogger):
         
     def onElementTextTypeChanged(self):
         """
+        On element text changed
         """
         if self.elementTextCombo.currentText() in [ "TEXT", "CACHE" ]:
             self.elementTextAndroidLine.setValidator(self.validatorAll)
@@ -528,6 +555,7 @@ class WAndroid(QWidget, Logger.ClassLogger):
             
     def onValueAndroid2TypeChanged(self):
         """
+        On value changed
         """
         if self.valueAndroidCombo2.currentText() in [ "TEXT", "CACHE" ]:
             self.valueAndroidLine2.setValidator(self.validatorAll)
@@ -538,6 +566,7 @@ class WAndroid(QWidget, Logger.ClassLogger):
 
     def addStep(self):
         """
+        Add step
         """
         action = self.actionsAndroidComboBox.currentText()
         descr = self.descriptionAndroidLine.text()
@@ -670,6 +699,7 @@ class WAndroid(QWidget, Logger.ClassLogger):
         
     def cancelStep(self):
         """
+        Cancel step
         """
         self.addAndroidAction.setText( "&Add" )
         buttonFont = QFont()
@@ -682,6 +712,7 @@ class WAndroid(QWidget, Logger.ClassLogger):
     
     def finalizeUpdate(self):
         """
+        Finalize the update of a step
         """
         self.addAndroidAction.setText( "&Add Action" )
         
@@ -692,6 +723,7 @@ class WAndroid(QWidget, Logger.ClassLogger):
         
     def onActionAndroidChanged(self):
         """
+        On action changed
         """
         descr = 'No description available!'
         i = 0
@@ -848,26 +880,31 @@ class WAndroid(QWidget, Logger.ClassLogger):
             
     def setTimeout(self, timeout):
         """
+        Set the timeout
         """
         self.optionsDialog.timeoutAndroidLine.setText(timeout)
         
     def getTimeout(self):
         """
+        Return the timeout
         """
         return self.optionsDialog.timeoutAndroidLine.text()
         
     def getAgentName(self):
         """
+        Get the agent name
         """
         return self.optionsDialog.agentNameLineAndroid.text()
         
     def getAgentList(self):
         """
+        Return the agent list
         """
         return self.optionsDialog.agentsAndroidList
      
     def editStep(self, stepData):
         """
+        Edit a step
         """
         self.addAndroidAction.setText( "&Update" )
         buttonFont = QFont()

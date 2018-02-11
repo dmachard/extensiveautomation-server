@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -81,6 +81,7 @@ except ImportError:
     from . import DetailedView
     
 import UserClientInterface as UCI
+import RestClientInterface as RCI
 
 DURATION_PRECISION = 3
 
@@ -197,6 +198,7 @@ class WTestResult(QWidget, Logger.ClassLogger):
         self.bigTr = False
         self.bigCache = { 'index': 0, 'testId': '', 'testName': '', "nb-total": 0 }
         
+        self.taskUuid = None
         self.setDefaultFilter()
 
     def createWidgets(self):
@@ -297,11 +299,13 @@ class WTestResult(QWidget, Logger.ClassLogger):
 
     def activeScrollingDiagram(self):
         """
+        Active scrolling on diagram
         """
         pass
 
     def disableScrollingDiagram(self):
         """
+        Disable scrolling on diagram
         """
         pass
         
@@ -370,23 +374,20 @@ class WTestResult(QWidget, Logger.ClassLogger):
         """
         Export the verdict
         """
-        # call web services
-        UCI.instance().exportTestVerdict(testId = self.TID, projectId=self.PID)
-
+        RCI.instance().taskVerdict(taskId=self.TID)
+        
     def exportReport(self):
         """
         Export the report
         """
-        # call web services
-        UCI.instance().exportTestReport(testId = self.TID, projectId=self.PID)
-
+        RCI.instance().taskReview(taskId=self.TID)
+        
     def exportDesign(self):
         """
         Export the design
         """
-        # call web services
-        UCI.instance().exportTestDesign(testId = self.TID, projectId=self.PID)
-
+        RCI.instance().taskDesign(taskId=self.TID)
+        
     def addPostTest(self):
         """
         Add post test
@@ -399,9 +400,9 @@ class WTestResult(QWidget, Logger.ClassLogger):
                 postComment_encoded = str(postComment_encoded, 'utf8')
             else:
                 postComment_encoded = base64.b64encode( trComment.toUtf8() )
+                
             # call web services
-            UCI.instance().addCommentArchive( archiveFile = False, testId = self.TID , archivePost = postComment_encoded,
-                                                postTimestamp=time.time() )
+            RCI.instance().taskComment(taskId=self.TID, comment = postComment_encoded, timestamp=time.time())
 
     def gotoEvent(self, data):
         """
@@ -427,20 +428,21 @@ class WTestResult(QWidget, Logger.ClassLogger):
         Kill the test
         """
         if not ( Settings.instance().readValue( key = 'TestRun/ask-before-kill' ) == 'True' ):
-            UCI.instance().killTask(taskId=self.TID, taskIds=[self.TID] )
+            RCI.instance().killTask(taskId=self.TID)
         else:
             reply = QMessageBox.warning(self, "Kill test", "Are you sure you want to stop the execution of the test?",
                             QMessageBox.Yes | QMessageBox.No )
             if reply == QMessageBox.Yes:
-                UCI.instance().killTask(taskId=self.TID, taskIds=[self.TID] )
+                RCI.instance().killTask(taskId=self.TID)
 
     def replayTest (self):
         """
         Replay the test
         """
         self.reset()
-        UCI.instance().replayTest(  testId = self.TID )
         
+        RCI.instance().replayTask(taskId=self.TID)
+
     def closeTest (self):
         """
         Closes the test result tab widget
@@ -450,10 +452,8 @@ class WTestResult(QWidget, Logger.ClassLogger):
     def refreshTestName(self, testName):
         """
         """
-        # new in v16
         self.currentEdit.setText( "%s" % testName)
-        # end of new
-        
+  
     def loadTest (self, testId, testName):
         """
         Called when the user selects an test item
@@ -462,10 +462,6 @@ class WTestResult(QWidget, Logger.ClassLogger):
         @param testId:
         @type testId: 
         """
-        # new in v16
-        # self.currentEdit.setText( "%s" % testName)
-        # end of new
-        
         self.bigTr = False
         self.bigCache = { 'index': 0, 'testId': '', 'testName': '', "nb-total": 0 }
         self.logsItem.disableControls()
@@ -832,7 +828,9 @@ class WTestResult(QWidget, Logger.ClassLogger):
         @param data:
         @type data: dict
         """
-
+        if 'task-uuid' in data:
+            self.taskUuid = data['task-uuid']
+        
         # normalize test id to str
         if 'script_id' in data:
             data['script_id'] = "%s" % data['script_id']
@@ -935,7 +933,10 @@ class WTestResult(QWidget, Logger.ClassLogger):
             duration = None
             if 'duration' in data:
                 duration = "%.3f" % float(data['duration'])
-            self.logsItem.finishRootItem( rootItem = rootTreeItem, duration=duration, typeItem='testplan', event=data)          
+            self.logsItem.finishRootItem( rootItem = rootTreeItem, 
+                                          duration=duration, 
+                                          typeItem='testplan', 
+                                          event=data)          
         elif data['event'] == 'testplan':
             if not data['script_id'] in self.scriptEvents:
                 self.scriptEvents[ data['script_id'] ] = [ data ]
@@ -951,7 +952,9 @@ class WTestResult(QWidget, Logger.ClassLogger):
             if rootTreeItem.isSelected():
                 self.logsView.setExpectedEventId(data['script_id'])
                 row_pos = self.logsView.addEvent( event = data )
-                self.resumeView.addEvent( event = data, rowp = row_pos, ihmId=row_pos )
+                self.resumeView.addEvent( event = data, 
+                                          rowp = row_pos, 
+                                          ihmId=row_pos )
         
         ############# test abstract events
         elif data['event'] == 'testabstract-started':
@@ -975,7 +978,10 @@ class WTestResult(QWidget, Logger.ClassLogger):
             duration = None
             if 'duration' in data:
                 duration = "%.3f" % float(data['duration'])
-            self.logsItem.finishRootItem( rootItem = rootTreeItem, duration=duration, typeItem='testabstract' , event=data)     
+            self.logsItem.finishRootItem( rootItem = rootTreeItem, 
+                                          duration=duration, 
+                                          typeItem='testabstract' , 
+                                          event=data)     
         elif data['event'] == 'testabstract':
             if not data['script_id']  in self.scriptEvents:
                 self.scriptEvents[ data['script_id'] ] = [ data ]
@@ -1011,7 +1017,10 @@ class WTestResult(QWidget, Logger.ClassLogger):
             duration = None
             if 'duration' in data:
                 duration = "%.3f" % float(data['duration'])
-            self.logsItem.finishRootItem( rootItem = rootTreeItem, duration=duration, typeItem='testunit', event=data )     
+            self.logsItem.finishRootItem( rootItem = rootTreeItem, 
+                                          duration=duration, 
+                                          typeItem='testunit', 
+                                          event=data )     
         elif data['event'] == 'testunit':
             if not data['script_id']  in self.scriptEvents:
                 self.scriptEvents[ data['script_id'] ] = [ data ]
@@ -1051,7 +1060,9 @@ class WTestResult(QWidget, Logger.ClassLogger):
             duration = None
             if 'duration' in data:
                 duration = "%.3f" % float(data['duration'])
-            self.logsItem.finishRootItem( rootItem = rootTreeItem, duration=duration, event=data )      
+            self.logsItem.finishRootItem( rootItem = rootTreeItem, 
+                                          duration=duration, 
+                                          event=data )      
         elif data['event'] == 'testsuite':
             if not data['script_id']  in self.scriptEvents:
                 self.scriptEvents[ data['script_id'] ] = [ data ]
@@ -1083,7 +1094,9 @@ class WTestResult(QWidget, Logger.ClassLogger):
                 self.resumeView.reset()
                 self.logsView.reset()
 
-            testcaseTreeItem = self.logsItem.createTestcase( rootItem = rootTreeItem, event = data, fromLocal=fromLocal )
+            testcaseTreeItem = self.logsItem.createTestcase( rootItem = rootTreeItem, 
+                                                             event = data, 
+                                                             fromLocal=fromLocal )
             self.testcases[ data['tc_id'] ] = testcaseTreeItem
         elif data['event'] == 'testcase-stopped':
             if not data['tc_id'] in self.testcases:
@@ -1095,7 +1108,10 @@ class WTestResult(QWidget, Logger.ClassLogger):
             duration = None
             if 'duration' in data:
                 duration = "%.3f" % float(data['duration'])
-            self.logsItem.finishTestcase( testcaseItem = testcaseItem, result = data['result'], duration=duration, event=data )
+            self.logsItem.finishTestcase( testcaseItem = testcaseItem, 
+                                          result = data['result'], 
+                                          duration=duration, 
+                                          event=data )
         elif data['event'] == 'testcase':
             # Issue 41: incorrect event displayed in test result
             # ignore invalid events
@@ -1110,10 +1126,7 @@ class WTestResult(QWidget, Logger.ClassLogger):
                 return
             itemsSelected = self.logsItem.logs.selectedItems()
             testcaseItem = self.testcases[ data['tc_id'] ]
-            
-            # wtc = self.logsItem.logs.itemWidget(testcaseItem, 0)
-            # wtc.startMovie()
-            
+
             if len(itemsSelected) > 1:
                 testcaseItem.setSelected(False)
             if testcaseItem.isSelected():

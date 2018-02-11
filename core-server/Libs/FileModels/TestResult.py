@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -134,21 +134,29 @@ class DataModel(Logger.ClassLogger):
         @rtype:
         """
         try:
-            xmlDataList = [ '<?xml version="1.0" encoding="utf-8" ?>' ]
-            xmlDataList.append('<file>')
-            if sys.version_info > (3,): # python3 support
-                xmlDataList.append( str(self.codecD2X.parseDict( dico = self.properties )) )
-            else:
-                xmlDataList.append( self.codecD2X.parseDict( dico = self.properties ) )
+            if sys.version_info > (3,):
+                self.testresult = bytes(self.testresult, "utf8")
+                self.testheader = bytes(self.testheader, "utf8")
                 
+            xmlDataList = [ b'<?xml version="1.0" encoding="utf-8" ?>' ]
+            xmlDataList.append( b'<file>' )
+
+            xmlDataList.append( self.codecD2X.parseDict( dico = self.properties ) )
+
             tr = zlib.compress(self.testresult)
-            xmlDataList.append('<testresult><![CDATA[%s]]></testresult>' % base64.b64encode(tr) )
-            
+            tr64 = base64.b64encode(tr)
+            if sys.version_info > (3,):
+                tr64 = tr64.decode("utf8")
+            xmlDataList.append( b'<testresult><![CDATA[%s]]></testresult>' % tr64 )
+
             hdr = zlib.compress(self.testheader)
-            xmlDataList.append('<testheader><![CDATA[%s]]></testheader>' % base64.b64encode(hdr) )
+            hdr64 = base64.b64encode(hdr)
+            if sys.version_info > (3,):
+                hdr64 = hdr64.decode("utf8")
+            xmlDataList.append( b'<testheader><![CDATA[%s]]></testheader>' % hdr64 )
             
-            xmlDataList.append('</file>')
-            ret = '\n'.join(xmlDataList)
+            xmlDataList.append(b'</file>')
+            ret = b'\n'.join(xmlDataList)
             
             # remove all invalid xml data
             ret = removeInvalidXML(ret)

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -169,5 +169,5 @@ fi
 echo_success; echo
 
 echo "========================================================================="
-echo "- Rollback terminated!"
+echo "- Rollback completed successfully!"
 echo "========================================================================="

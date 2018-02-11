@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -47,14 +47,19 @@ except ImportError:
     
 from Libs import QtHelper, Logger
 
-# python 3 support
-# support old variant style
-# will be remove in the future
-def q(v=""): 
-    return QVariant(v)
-if sys.version_info > (3,): 
-    def q(v=""): 
+
+def q(v=""):
+    """
+    Return the value argument without do anything
+    Only to support python 2.x and python 3.x
+    
+    @param v: the value to convert
+    @type v: string
+    """
+    if sys.version_info > (3,): 
         return v
+    else:
+        return QVariant(v)
         
 import operator
 
@@ -687,8 +692,9 @@ class StepsTableView(QTableView):
                 sourceIndexes.append( self.proxyModel.mapToSource( proxyIndex ) )
         
         if sourceIndexes:
-            answer = QMessageBox.question(self,  self.tr("Remove"),  self.tr("Do you want to remove the selection?"), 
-                    QMessageBox.Yes | QMessageBox.No)
+            answer = QMessageBox.question(self,  self.tr("Remove"),  
+                                            self.tr("Do you want to remove the selection?"), 
+                                            QMessageBox.Yes | QMessageBox.No)
             if answer == QMessageBox.Yes:
                 self.removeValues(sourceIndexes)
 
@@ -699,7 +705,6 @@ class StepsTableView(QTableView):
         @param indexes: 
         @type indexes:
         """
-        #indexes = self.selectedIndexes()
         if not indexes:
             return
         
@@ -734,8 +739,9 @@ class StepsTableView(QTableView):
         """
         Clear all items
         """
-        reply = QMessageBox.question(self, self.tr("Clear all steps"), self.tr("Are you sure ?"),
-                        QMessageBox.Yes | QMessageBox.No )
+        reply = QMessageBox.question(self, self.tr("Clear all steps"), 
+                                        self.tr("Are you sure ?"),
+                                        QMessageBox.Yes | QMessageBox.No )
         if reply == QMessageBox.Yes:
             data = self.model.getData()
             try:

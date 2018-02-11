@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -47,10 +47,16 @@ import re
 
 r = re.compile( u"[^\x09\x0A\x0D\x20-\x7E\x85\xA0-\xFF\u0100-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD]")
 def removeInvalidXML(string):
-  def replacer(m):
-    return ""
-  return re.sub(r,replacer,string)
-  
+    """
+    Remove invalid XML
+    """
+    def replacer(m):
+        """
+        return empty string
+        """
+        return ""
+    return re.sub(r,replacer,string)
+
 DEFAULT_INPUTS = [ {'type': 'bool', 'name': 'DEBUG', 'description': '', 'value' : 'False', 'color': '' }, 
                     {'type': 'float', 'name': 'TIMEOUT', 'description': '', 'value' : '1.0', 'color': '' },
                     {'type': 'bool', 'name': 'VERBOSE', 'description': '', 'value' : 'True', 'color': '' }  ]

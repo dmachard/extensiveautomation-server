@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -54,6 +54,7 @@ except ImportError:
 from Libs import QtHelper, Logger
 import Settings
 import UserClientInterface as UCI
+import RestClientInterface as RCI
 
 import Workspace.TestPlan as TestPlan
 import Workspace.TestConfig as TestConfig
@@ -83,7 +84,8 @@ EXTENSION_TXT = TestTxt.TYPE
 EXTENSION_PY  = TestAdapter.TYPE
 EXTENSION_PNG  = TestPng.TYPE
 
-SUPPORTED_EXTENSIONS = [EXTENSION_TSX, EXTENSION_TPX, EXTENSION_TGX, EXTENSION_TCX, EXTENSION_TDX, EXTENSION_TUX, EXTENSION_PNG, EXTENSION_TAX]
+SUPPORTED_EXTENSIONS = [EXTENSION_TSX, EXTENSION_TPX, EXTENSION_TGX, EXTENSION_TCX, 
+                        EXTENSION_TDX, EXTENSION_TUX, EXTENSION_PNG, EXTENSION_TAX]
 
 MODE_SAVE = 0
 MODE_OPEN = 1
@@ -92,7 +94,8 @@ class SaveOpenToRepoDialog(QDialog, Logger.ClassLogger):
     """
     Save/open dialog for repositories
     """
-    def __init__(self, parent, filename='', type = MODE_SAVE, typeFile = [ EXTENSION_TSX ], multipleSelection=False):
+    def __init__(self, parent, filename='', type = MODE_SAVE, typeFile = [ EXTENSION_TSX ], 
+                 multipleSelection=False):
         """
         Save/open dialog
 
@@ -255,7 +258,8 @@ class SaveOpenToRepoDialog(QDialog, Logger.ClassLogger):
                 else:
                     subitem.setHidden(False)
 
-    def hideItems(self, hideTsx=False, hideTpx=False, hideTcx=False, hideTdx=False, hideTux=False, hidePng=False, hideTgx=False, hideTax=False):
+    def hideItems(self, hideTsx=False, hideTpx=False, hideTcx=False, hideTdx=False, 
+                    hideTux=False, hidePng=False, hideTgx=False, hideTax=False):
         """
         Hide items
         """
@@ -263,7 +267,8 @@ class SaveOpenToRepoDialog(QDialog, Logger.ClassLogger):
         self.iterateTree(item=root, hideTsx=hideTsx, hideTpx=hideTpx, hideTcx=hideTcx, hideTdx=hideTdx, 
                                 hideTux=hideTux, hidePng=hidePng, hideTgx=hideTgx, hideTax=hideTax)
 
-    def hideFiles(self, hideTsx=False, hideTpx=False, hideTcx=False, hideTdx=False, hideTux=False, hidePng=False, hideTgx=False, hideTax=False):
+    def hideFiles(self, hideTsx=False, hideTpx=False, hideTcx=False, hideTdx=False, 
+                    hideTux=False, hidePng=False, hideTgx=False, hideTax=False):
         """
         Hide files
         """
@@ -658,9 +663,11 @@ class Repository(QWidget, Logger.ClassLogger):
         """
         Initialize the repository
         """
-        if UCI.instance().isAuthenticated():
-            testcasesRoot = Item(repo = self, parent = self.wrepository, txt = "%s" % Settings.instance().readValue( key = 'Repositories/local-repo' ), 
-                                    type = QTreeWidgetItem.UserType+10, isRoot = True, itemTxt="Root" )
+        if RCI.instance().isAuthenticated():
+            testcasesRoot = Item(repo = self, parent = self.wrepository, 
+                                 txt = "%s" % Settings.instance().readValue( key = 'Repositories/local-repo' ), 
+                                 type = QTreeWidgetItem.UserType+10, 
+                                 isRoot = True, itemTxt="Root" )
             testcasesRoot.setSelected(True)
             self.createRepository("%s" % Settings.instance().readValue( key = 'Repositories/local-repo' ), parent = testcasesRoot )
 
@@ -696,9 +703,11 @@ class Repository(QWidget, Logger.ClassLogger):
                                                     tip = 'Refresh local repository content' )
         self.addDirAction = QtHelper.createAction(self, "&Add", self.createItem, icon = QIcon(":/folder_add.png"), 
                                                     tip = 'Create new folder' )
-        self.delFileAction = QtHelper.createAction(self, "&Delete File", self.deleteItem, icon = QIcon(":/delete_file.png"), shortcut=QKeySequence.Delete, 
+        self.delFileAction = QtHelper.createAction(self, "&Delete File", self.deleteItem, 
+                                                    icon = QIcon(":/delete_file.png"), shortcut=QKeySequence.Delete, 
                                                     tip = 'Delete file' )
-        self.delDirAction = QtHelper.createAction(self, "&Delete Folder", self.deleteItem, icon = QIcon(":/folder_delete.png"), shortcut=QKeySequence.Delete, 
+        self.delDirAction = QtHelper.createAction(self, "&Delete Folder", self.deleteItem, 
+                                                    icon = QIcon(":/folder_delete.png"), shortcut=QKeySequence.Delete, 
                                                     tip = 'Delete folder' )
         self.renameAction = QtHelper.createAction(self, "&Rename", self.renameItem, icon = QIcon(":/rename.png"), 
                                                     tip = 'Rename' )
@@ -862,7 +871,9 @@ class Repository(QWidget, Logger.ClassLogger):
                     if self.withFile:
                         if d.lower().endswith( tuple(SUPPORTED_EXTENSIONS) ):
                             # is file
-                            item = Item(repo = self, parent = parent, txt = d, type = QTreeWidgetItem.UserType+0 )
+                            item = Item(repo = self, parent = parent, 
+                                        txt = d, 
+                                        type = QTreeWidgetItem.UserType+0 )
         except Exception as e:
             self.error( e )
     

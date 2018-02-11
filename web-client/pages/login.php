@@ -1,7 +1,7 @@
 <?php 
     /*
 	---------------------------------------------------------------
-	 Copyright (c) 2010-2017 Denis Machard. All rights reserved.
+	 Copyright (c) 2010-2018 Denis Machard. All rights reserved.
 
 	 This file is part of the extensive testing project; you can redistribute it and/or
 	 modify it under the terms of the GNU General Public License, Version 3.

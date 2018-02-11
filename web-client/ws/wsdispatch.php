@@ -1,7 +1,7 @@
 <?php
 	/*
 	---------------------------------------------------------------
-	 Copyright (c) 2010-2017 Denis Machard. All rights reserved.
+	 Copyright (c) 2010-2018 Denis Machard. All rights reserved.
 
 	 This file is part of the extensive testing project; you can redistribute it and/or
 	 modify it under the terms of the GNU General Public License, Version 3.
@@ -203,12 +203,12 @@
 					response(400, "You must fill the field email." );
 				if ( empty_obj( $req->args->admin ) )
 					response(400, "You must fill the field administrator." );
-				if ( empty_obj( $req->args->leader )  )
-					response(400, "You must fill the field leader." );
+				if ( empty_obj( $req->args->monitor )  )
+					response(400, "You must fill the field monitor." );
 				if ( empty_obj( $req->args->tester )  )
 					response(400, "You must fill the field tester." );
-				if ( empty_obj( $req->args->developer ) )
-					response(400, "You must fill the field developer." );
+				// if ( empty_obj( $req->args->developer ) )
+					// response(400, "You must fill the field developer." );
 				if ( empty_obj( $req->args->lang ) )
 					response(400, "You must fill the field language." );
 				if ( empty_obj( $req->args->style ) )
@@ -219,17 +219,17 @@
 					response(400, "You must fill the field projects." );
 				if ( empty_obj( $req->args->defaultproject )or ! is_numeric( $req->args->defaultproject ) )
 					response(400, "You must fill the field default project." );
-				if ( empty_obj( $req->args->cli )  )
-					response(400, "You must fill the field cli." );
-				if ( empty_obj( $req->args->gui )  )
-					response(400, "You must fill the field gui." );
-				if ( empty_obj( $req->args->web )  )
-					response(400, "You must fill the field web." );
+				// if ( empty_obj( $req->args->cli )  )
+					// response(400, "You must fill the field cli." );
+				// if ( empty_obj( $req->args->gui )  )
+					// response(400, "You must fill the field gui." );
+				// if ( empty_obj( $req->args->web )  )
+					// response(400, "You must fill the field web." );
 				// request seems to be ok, call ws
 				$rsp = adduser( get_str_arg($req->args->login), get_str_arg($req->args->password), get_str_arg($req->args->email),
-								get_str_arg($req->args->admin), get_str_arg($req->args->leader), get_str_arg($req->args->tester), get_str_arg($req->args->developer),
-								get_str_arg($req->args->lang), get_str_arg($req->args->style), get_str_arg($req->args->notifications), get_str_arg($req->args->projects), get_str_arg($req->args->defaultproject),
-								get_str_arg($req->args->cli), get_str_arg($req->args->gui), get_str_arg($req->args->web) );
+								get_str_arg($req->args->admin), get_str_arg($req->args->monitor), get_str_arg($req->args->tester),
+								get_str_arg($req->args->lang), get_str_arg($req->args->style), get_str_arg($req->args->notifications), 
+                                get_str_arg($req->args->projects), get_str_arg($req->args->defaultproject) );
 			}
 
 			/*  
@@ -253,12 +253,12 @@
 					response(400, "You must fill the field email." );
 				if ( empty_obj( $req->args->admin ) )
 					response(400, "You must fill the field administrator." );
-				if ( empty_obj( $req->args->leader ) )
-					response(400, "You must fill the field leader." );
+				if ( empty_obj( $req->args->monitor ) )
+					response(400, "You must fill the field monitor." );
 				if ( empty_obj( $req->args->tester ) )
 					response(400, "You must fill the field tester." );
-				if ( empty_obj( $req->args->developer ) )
-					response(400, "You must fill the field developer." );
+				// if ( empty_obj( $req->args->developer ) )
+					// response(400, "You must fill the field developer." );
 				if ( empty_obj( $req->args->lang ) )
 					response(400, "You must fill the field language." );
 				if ( empty_obj( $req->args->style ) )
@@ -271,16 +271,15 @@
 					response(400, "You must fill the projects style." );
 				if ( empty_obj( $req->args->defaultproject ) or ! is_numeric( $req->args->defaultproject ) )
 					response(400, "You must fill the default project." );
-				if ( empty_obj( $req->args->cli )  )
-					response(400, "You must fill the field cli." );
-				if ( empty_obj( $req->args->gui )  )
-					response(400, "You must fill the field gui." );
-				if ( empty_obj( $req->args->web )  )
-					response(400, "You must fill the field web." );
+				// if ( empty_obj( $req->args->cli )  )
+					// response(400, "You must fill the field cli." );
+				// if ( empty_obj( $req->args->gui )  )
+					// response(400, "You must fill the field gui." );
+				// if ( empty_obj( $req->args->web )  )
+					// response(400, "You must fill the field web." );
 				// request seems to be ok, call ws
-				$rsp = updateuser( get_str_arg($req->args->login), get_str_arg($req->args->email), get_str_arg($req->args->admin), get_str_arg($req->args->leader), get_str_arg($req->args->tester),			get_str_arg($req->args->developer), get_str_arg($req->args->lang), get_str_arg($req->args->style),
-						get_str_arg($req->args->notifications),	get_str_arg($req->args->projects), get_str_arg($req->args->defaultproject) , $req->args->uid,
-						get_str_arg($req->args->cli), get_str_arg($req->args->gui), get_str_arg($req->args->web) );
+				$rsp = updateuser( get_str_arg($req->args->login), get_str_arg($req->args->email), get_str_arg($req->args->admin), get_str_arg($req->args->monitor), get_str_arg($req->args->tester), get_str_arg($req->args->lang), get_str_arg($req->args->style),
+						get_str_arg($req->args->notifications),	get_str_arg($req->args->projects), get_str_arg($req->args->defaultproject) , $req->args->uid);
 			}
 		}
 
@@ -499,12 +498,10 @@
 			{
 				if ( empty_obj( $req->args->projectid ) or ! is_numeric( $req->args->projectid ) )
 					response(400, "You must fill the field project id." );
-				if ( empty_obj( $req->args->trpath ) )
-					response(400, "You must fill the field test path." );
-				if ( empty_obj( $req->args->trname ) )
-					response(400, "You must fill the field test name." );
+				if ( empty_obj( $req->args->testid ) )
+					response(400, "You must fill the field test id." );
 				// request seems to be ok, call ws
-				$rsp = open_test_report( $req->args->projectid, $req->args->trpath, $req->args->trname );
+				$rsp = open_test_report( $req->args->projectid, $req->args->testid );
 			}
 		}
 	} 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -45,7 +45,7 @@ except ImportError:
 import time
 
 from Libs import QtHelper, Logger
-import UserClientInterface as UCI
+import RestClientInterface as RCI
 
 
 COL_RUNNING_AGENTID         = 0
@@ -192,33 +192,6 @@ class WAgents(QWidget, Logger.ClassLogger):
         |_______________|
         """
         layout = QHBoxLayout()
-        
-        self.statsBox = QGroupBox("Summary")
-        self.nbInstalledLabel = QLabel("0")
-        self.nbConfiguredLabel = QLabel("0")
-        self.nbRegisteredLabel = QLabel("0")
-        layout2 = QFormLayout()
-        layout2.addRow(QLabel("Installed"), self.nbInstalledLabel )
-        layout2.addRow(QLabel("Configured"), self.nbConfiguredLabel )
-        layout2.addRow(QLabel("Registered"), self.nbRegisteredLabel )
-        self.statsBox.setLayout(layout2)
-
-        # group licence
-        self.licenceBox = QGroupBox("Licences")
-        self.nbRegistrationLabel = QLabel("0")
-        self.nbDefaultLabel = QLabel("0")
-        layoutNbLicence = QFormLayout()
-        layoutNbLicence.addRow(QLabel("Max Registrations"), self.nbRegistrationLabel )
-        layoutNbLicence.addRow(QLabel("Max Defaults"), self.nbDefaultLabel )
-        self.licenceBox.setLayout(layoutNbLicence)
-
-
-        self.nbRunningBox = QGroupBox("Running")
-        self.nbAgtLabel = QLabel()
-        layoutRunning = QVBoxLayout()
-        layoutRunning.addWidget(self.nbAgtLabel)
-        self.nbRunningBox.setLayout(layoutRunning)
-
 
         self.deployBox = QGroupBox("Default agents")
         self.agentsAvailable = QTreeWidget(self)
@@ -234,7 +207,9 @@ class WAgents(QWidget, Logger.ClassLogger):
         self.availDockToolbar = QToolBar(self)
         self.availDockToolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
 
-        self.labels = [ self.tr("Name"), self.tr("Running on address"), self.tr("Started at"), self.tr("Type"), self.tr("Auto Startup"), self.tr("Description") ] 
+        self.labels = [ self.tr("Name"), self.tr("Running on address"), 
+                        self.tr("Started at"), self.tr("Type"), 
+                        self.tr("Auto Startup"), self.tr("Description") ] 
         self.agentsRegistered.setHeaderLabels(self.labels)
         self.agentsRegistered.setColumnWidth(0, 180)
         self.agentsRegistered.setColumnWidth(1, 120)
@@ -296,14 +271,8 @@ class WAgents(QWidget, Logger.ClassLogger):
         layoutDeploy.addLayout(paramLayout)
         layoutDeploy.addWidget(self.agentsDefault)
         self.deployBox.setLayout(layoutDeploy)
-        
-        layoutRightTop = QHBoxLayout()       
-        layoutRightTop.addWidget(self.statsBox)
-        layoutRightTop.addWidget(self.nbRunningBox)
-        layoutRightTop.addWidget(self.licenceBox)
 
         layoutRight = QVBoxLayout()
-        layoutRight.addLayout(layoutRightTop)
         layoutRight.addWidget(self.deployBox)   
 
         layout.addLayout(layoutLeft)
@@ -333,12 +302,22 @@ class WAgents(QWidget, Logger.ClassLogger):
          * refresh running agents
          * refresh default agents 
         """
-        self.stopAction = QtHelper.createAction(self, "&Stop", self.stopAgent, tip = 'Stop agent', icon = QIcon(":/act-stop.png"))
-        self.startAction = QtHelper.createAction(self, "&Add / Start", self.startAgent, tip = 'Add default agent', icon = QIcon(":/probe-add.png"))
-        self.delAgentAction = QtHelper.createAction(self, "&Delete", self.delAgent, tip = 'Delete default agent', icon = QIcon(":/probe-del.png"))
-        self.cancelAction = QtHelper.createAction(self, "&Clear", self.resetAgent, tip = 'Clear fields', icon = QIcon(":/clear.png") )
-        self.refreshRunningAction = QtHelper.createAction(self, "&Refresh", self.refreshRunningAgent, tip = 'Refresh running agents', icon = QIcon(":/act-refresh.png") )
-        self.refreshDefaultAction = QtHelper.createAction(self, "&Refresh", self.refreshDefaultAgent, tip = 'Refresh default agents', icon = QIcon(":/act-refresh.png") )
+        self.stopAction = QtHelper.createAction(self, "&Stop", self.stopAgent, 
+                                                tip = 'Stop agent', icon = QIcon(":/act-stop.png"))
+        self.startAction = QtHelper.createAction(self, "&Add / Start", self.startAgent, 
+                                                 tip = 'Add default agent', icon = QIcon(":/probe-add.png"))
+        self.delAgentAction = QtHelper.createAction(self, "&Delete", self.delAgent, 
+                                                    tip = 'Delete default agent', icon = QIcon(":/probe-del.png"))
+        self.cancelAction = QtHelper.createAction(self, "&Clear", self.resetAgent, 
+                                                  tip = 'Clear fields', icon = QIcon(":/clear.png") )
+        self.refreshRunningAction = QtHelper.createAction(self, "&Refresh", 
+                                                          self.refreshRunningAgent, 
+                                                          tip = 'Refresh running agents', 
+                                                          icon = QIcon(":/act-refresh.png") )
+        self.refreshDefaultAction = QtHelper.createAction(self, "&Refresh", 
+                                                          self.refreshDefaultAgent, 
+                                                          tip = 'Refresh default agents', 
+                                                          icon = QIcon(":/act-refresh.png") )
 
     def createToolbar(self):
         """
@@ -439,13 +418,13 @@ class WAgents(QWidget, Logger.ClassLogger):
         """
         Refresh the default list of Agents
         """
-        UCI.instance().refreshDefaultAgents()
-
+        RCI.instance().defaultAgents()
+        
     def refreshRunningAgent(self):
         """
         Refresh the running list of Agents
         """
-        UCI.instance().refreshRunningAgents()
+        RCI.instance().runningAgents()
 
     def delAgent(self):
         """
@@ -457,7 +436,9 @@ class WAgents(QWidget, Logger.ClassLogger):
             if reply == QMessageBox.Yes:
                 agentName = self.itemCurrentDefault.dataAgent['name']
                 self.delAgentAction.setEnabled(False)
-                UCI.instance().delAgent(agentName=agentName)
+                
+                # rest call
+                RCI.instance().removeAgent(agentName=agentName)
 
     def stopAgent(self):
         """
@@ -470,8 +451,10 @@ class WAgents(QWidget, Logger.ClassLogger):
                 agentName = self.itemCurrentRunning.dataAgent['id']
                 self.itemCurrentRunning = None
                 self.stopAction.setEnabled(False)
-                UCI.instance().stopAgent(agentName=agentName)
-
+                
+                # rest call
+                RCI.instance().disconnectAgent(agentName=agentName)
+                
     def startAgent(self):
         """
         Start a new Agent
@@ -486,6 +469,7 @@ class WAgents(QWidget, Logger.ClassLogger):
         if not self.checkAutoStartOption.isChecked() and not self.checkStartNowOption.isChecked():
             QMessageBox.information(self, "Add default agent" , "Select startup option.")
             return
+            
         # call web services
         agentType = str( self.agentTypeEdit.text() )
         agentName = str( self.agentNameEdit.text() )
@@ -493,10 +477,13 @@ class WAgents(QWidget, Logger.ClassLogger):
         agentAutoStart = self.checkAutoStartOption.isChecked()
 
         if not self.checkStartNowOption.isChecked():
-            UCI.instance().addAgent(agentType=agentType, agentName=agentName, agentDescription=agentDescription)
+            RCI.instance().addAgent(agentName=agentName, agentType=agentType, 
+                                    agentDescription=agentDescription)
         else:
-            UCI.instance().startAgent(agentType=agentType, agentName=agentName, agentDescription=agentDescription, agentAutoStart=agentAutoStart )
-
+            RCI.instance().connectAgent(agentName=agentName, agentType=agentType, 
+                                        agentDescription=agentDescription, 
+                                        agentBoot=agentAutoStart)
+                                        
     def resetAgent(self):
         """
         Clear Agent field
@@ -505,6 +492,7 @@ class WAgents(QWidget, Logger.ClassLogger):
         self.agentDescEdit.setText( '' )
         self.agentNameEdit.setText( '' )
         self.agentTypeEdit.setText( '' )
+        
         # clear selection
         itms = self.agentsAvailable.selectedItems()
         for i in itms:
@@ -520,9 +508,6 @@ class WAgents(QWidget, Logger.ClassLogger):
         self.agentsAvailable.setEnabled(True)
         self.deployBox.setEnabled(True)
         self.runningBox.setEnabled(True)
-        self.statsBox.setEnabled(True)
-        self.nbRunningBox.setEnabled(True)
-        self.licenceBox.setEnabled(True)
 
         self.refreshRunningAction.setEnabled(True)
 
@@ -530,8 +515,6 @@ class WAgents(QWidget, Logger.ClassLogger):
         """
         Clears QTreeWidget and disables it
         """
-        self.nbRegistrationLabel.setText( "0" )
-        self.nbDefaultLabel.setText( "0" )
         self.checkAutoStartOption.setCheckState(Qt.Unchecked) 
         self.checkStartNowOption.setCheckState(Qt.Unchecked) 
 
@@ -546,7 +529,6 @@ class WAgents(QWidget, Logger.ClassLogger):
         self.agentsAvailable.setEnabled(False)
         self.deployBox.setEnabled(False)
         self.runningBox.setEnabled(False)
-        self.licenceBox.setEnabled(False)
 
         # actions
         self.stopAction.setEnabled(False)
@@ -560,14 +542,8 @@ class WAgents(QWidget, Logger.ClassLogger):
         self.agentDescEdit.setText( '' )
         self.agentTypeEdit.setText( '' )
         self.agentNameEdit.setText( '' )
-        
-        self.statsBox.setEnabled(False)
-        self.nbInstalledLabel.setText( "0" )
-        self.nbConfiguredLabel.setText( "0" )
-        
-        self.nbRunningBox.setEnabled(False)
+
         self.resetNbAgents()
-        self.nbAgtLabel.setText('' )
 
     def getRunningAgents(self):
         """
@@ -601,16 +577,6 @@ class WAgents(QWidget, Logger.ClassLogger):
         else:
             return ''
 
-    def loadStats(self, data):
-        """
-        Loads statistics
-
-        @param data: 
-        @type data: dict
-        """
-        self.nbRegistrationLabel.setText( str(data['max-reg']) )
-        self.nbDefaultLabel.setText( str(data['max-def']) )
-
     def loadDefault (self, data):
         """
         Loads default Agents
@@ -622,8 +588,6 @@ class WAgents(QWidget, Logger.ClassLogger):
 
         for defAgent in data:
             defAgentItem = AgentDefaultItem( agent = defAgent, parent= self.agentsDefault)
-        totConfigured = len(data)
-        self.nbConfiguredLabel.setText( str(totConfigured) ) 
 
     def loadData (self, data, dataInstalled=None):
         """
@@ -644,50 +608,17 @@ class WAgents(QWidget, Logger.ClassLogger):
             agentItem = AgentItem( agent = agent, parent= self.agentsRegistered)
             self.agents[agent['id']] = agentItem
 
-        totRunning = len(data)
-        self.nbRegisteredLabel.setText( str(totRunning) ) 
-
         # load tests stats
         if dataInstalled is not None:
             if len(dataInstalled) == 0:
                 self.deployBox.setEnabled(False)
                 self.agentsAvailable.setEnabled(False)
-            else:
-                self.agtsInstalled = dataInstalled
-                running = {}
-                for p in dataInstalled:
-                    running[ str(p['type']).lower() ] = 0
-                    agentItem = AgentInstalledItem( agent = p, parent= self.agentsAvailable)
-                self.nbInstalledLabel.setText( str(len(dataInstalled)) ) 
-
-                for agent in data:
-                    if agent['type'].lower() in running:
-                        running[agent['type'].lower() ] += 1
-                runningList = []
-                for k,v in running.items():
-                    runningList.append( '%s: %s' % (k.title(), v) )
-                self.nbAgtLabel.setText( '\n'.join(runningList) )
-
 
     def resetNbAgents(self, data=None):
         """
         Reset the number of agents
         """
-        if data is None:
-            self.nbAgtLabel.setText( '' )
-        else:
-            if self.agtsInstalled is not None:
-                running = {}
-                for p in self.agtsInstalled:
-                    running[ str(p['type']).lower() ] = 0
-
-                for agent in data:
-                    if agent['type'].lower() in running:
-                        running[agent['type'].lower() ] += 1
-                runningList = []
-                for k,v in running.items():
-                    runningList.append( '%s: %s' % (k.title(), v) )
-                self.nbAgtLabel.setText( '\n'.join(runningList) )
+        pass
 
     def refreshData (self, data, action):
         """

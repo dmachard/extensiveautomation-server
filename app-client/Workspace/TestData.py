@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -80,7 +80,8 @@ class WTestData(Document.WDocument):
         @param nonameId: 
         @type nonameId: 
         """
-        Document.WDocument.__init__(self, parent, path, filename, extension, nonameId, remoteFile, repoDest, project, isLocked)
+        Document.WDocument.__init__(self, parent, path, filename, extension, 
+                                    nonameId, remoteFile, repoDest, project, isLocked)
         
         # prepare data model
         userName = Settings.instance().readValue( key = 'Server/last-username' )

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@
 """
 Test parameters inputs/outputs module
 """
+
 import sys
 import os
 
@@ -60,17 +61,22 @@ except ImportError:
                             
 from Libs import QtHelper, Logger
 
-# python 3 support
-# support old variant style
-# will be remove in the future
-def q(v=""): 
-    return QVariant(v)
-if sys.version_info > (3,): 
-    def q(v=None): 
+def q(v=""):
+    """
+    Return the value argument without do anything
+    Only to support python 2.x and python 3.x
+    
+    @param v: the value to convert
+    @type v: string
+    """
+    if sys.version_info > (3,): 
         return v
+    else:
+        return QVariant(v)
         
 import Settings
 import UserClientInterface as UCI
+import RestClientInterface as RCI
 import Workspace
 import Recorder
 
@@ -145,7 +151,7 @@ class ParametersTableModel(QAbstractTableModel, Logger.ClassLogger):
         @type data:
         """
         self.mydata = data
-        # self.reset()
+
         if sys.version_info > (3,):
             self.beginResetModel()
             self.endResetModel()
@@ -950,7 +956,8 @@ class ValueDelegate(QItemDelegate, Logger.ClassLogger):
                     dateVal = value['value'].split(' ')
                     dayDescr, monthDescr, yearDescr = dateVal[0].split('/')
                     hourDescr, minDescr, secDescr =  dateVal[1].split(':')
-                    datetimeDescr =  QDateTime( int(yearDescr), int(monthDescr), int(dayDescr), int(hourDescr), int(minDescr), int(secDescr) )
+                    datetimeDescr =  QDateTime( int(yearDescr), int(monthDescr), int(dayDescr), 
+                                                int(hourDescr), int(minDescr), int(secDescr) )
                 except Exception as e:
                     datetimeDescr = QDateTime.currentDateTime()
                 editor = QDateTimeEdit(datetimeDescr, parent)
@@ -1623,16 +1630,20 @@ class DescriptionDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         return self.descrEdit.toPlainText()
 
 ##################### List shared ######################
-class SharedListModel(QAbstractListModel): 
+class SharedListModel(QAbstractListModel):
+    """
+    Shared list model
+    """
     def __init__(self, parent=None): 
         """
-        TODO
+        Constructor
         """
         super(SharedListModel, self).__init__(parent)
-        self.listdata = []
+        self.listdata = [ ]
  
     def rowCount(self, parent=QModelIndex()): 
         """
+        Return the number of row
         """
         return len(self.listdata) 
         
@@ -1659,19 +1670,28 @@ class SharedListModel(QAbstractListModel):
             self.endResetModel()
         else:
             self.reset()
-            
+
     def data(self, index, role=Qt.DisplayRole): 
         """
+        Return data
         """
-        if not index.isValid():
-            return q()
-        
-        if role == Qt.DisplayRole:
-            return q(self.listdata[index.row()]['name'])
+        if index.isValid() and role == Qt.DisplayRole:
+            return QVariant(self.listdata[index.row()]["name"])
+        else:
+            return QVariant()
             
-        return q()
+        # if not index.isValid():
+            # return q()
+
+        # if role == Qt.DisplayRole: 
+            # return q(self.listdata[index.row()]['name'])
+            
+        # return q()
         
 class SharedListView(QListView, Logger.ClassLogger):
+    """
+    Shared list view
+    """
     def __init__(self, parent):
         """
         Contructs ParametersTableView table view
@@ -1685,22 +1705,27 @@ class SharedListView(QListView, Logger.ClassLogger):
 
         self.proxyModel = QSortFilterProxyModel(self)
         self.proxyModel.setDynamicSortFilter(True)
-        
+
         self.setModel(self.proxyModel)
         self.proxyModel.setSourceModel(self.model__)
         
     def clear(self):
         """
+        Clear the list
         """
         self.model__.setDataModel( [] )
     
     def addItems(self, items):
         """
+        Add items in the list
         """
         items.sort(key=operator.itemgetter('name'))
         self.model__.setDataModel( items )
         
 class ListItemEnhanced(QListWidgetItem):
+    """
+    List item enhanced
+    """
     def __init__(self, key, value):
         """
         Item for shared parameters
@@ -1710,6 +1735,9 @@ class ListItemEnhanced(QListWidgetItem):
         self.keyValue = value
         
 class ListItemEnhanced2(QListWidgetItem):
+    """
+    List item enhanced
+    """
     def __init__(self, key, projectId, projectName):
         """
         Item for list shared parameters
@@ -1926,14 +1954,16 @@ class ListSharedParameter(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         On main filter changed
         """
         # Qt.MatchExactly 	0 	Performs QVariant-based matching.
-        # Qt.MatchFixedString 	8 	Performs string-based matching. String-based comparisons are case-insensitive unless the MatchCaseSensitive flag is also specified.
+        # Qt.MatchFixedString 	8 	Performs string-based matching. String-based comparisons are case-insensitive 
+        # unless the MatchCaseSensitive flag is also specified.
         # Qt.MatchContains 	1 	The search term is contained in the item.
         # Qt.MatchStartsWith 	2 	The search term matches the start of the item.
         # Qt.MatchEndsWith 	3 	The search term matches the end of the item.
         # Qt.MatchCaseSensitive 	16 	The search is case sensitive.
         # Qt.MatchRegExp 	4 	Performs string-based matching using a regular expression as the search term.
         # Qt.MatchWildcard 	5 	Performs string-based matching using a string with wildcards as the search term.
-        # Qt.MatchWrap 	32 	Perform a search that wraps around, so that when the search reaches the last item in the model, it begins again at the first item and continues until all items have been examined.
+        # Qt.MatchWrap 	32 	Perform a search that wraps around, so that when the search reaches the last item in 
+        # the model, it begins again at the first item and continues until all items have been examined.
         # Qt.MatchRecursive 	64 	Searches the entire hierarchy.
         syntax = QRegExp.RegExp
         caseSensitivity = Qt.CaseInsensitive
@@ -1949,8 +1979,7 @@ class ListSharedParameter(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         proxyIndexes = self.mainList.selectedIndexes()
         if not proxyIndexes:
             return
-            
-        #item = self.mainList.selectedItems()
+
         sourceIndex = self.mainList.proxyModel.mapToSource( proxyIndexes[0] )
         selectedIndex = sourceIndex.row()
         row = self.mainList.model__.getData()[selectedIndex]
@@ -2036,6 +2065,7 @@ class SharedParameter(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         """
         super(SharedParameter, self).__init__(parent)
         self.testEnvironment = Settings.instance().serverContext['test-environment']
+
         self.createDialog()
         self.createConnections()
 
@@ -2070,7 +2100,7 @@ class SharedParameter(QtHelper.EnhancedQDialog, Logger.ClassLogger):
             i += 1
         common = projects.pop(i)      
         projects.insert(0, common)
-        
+
         self.projectCombo.addItems ( projects  )
         self.projectCombo.insertSeparator(1)
         
@@ -2086,6 +2116,7 @@ class SharedParameter(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         self.secondList = QListWidget(self)
         self.secondList.setSortingEnabled(True)
         self.valueLabel = QLabel()
+        self.valueLabel.setWordWrap(True)
 
         self.mainFilterText = QLineEdit(self)
         self.mainFilterText.setToolTip(self.tr("Name filter"))
@@ -2151,7 +2182,6 @@ class SharedParameter(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         """
         # clear the list
         self.secondList.clear()
-        #self.valueLabel.setText( "" )
 
         # read the current project
         parameters = None
@@ -2196,14 +2226,16 @@ class SharedParameter(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         On main filter changed
         """
         # Qt.MatchExactly 	0 	Performs QVariant-based matching.
-        # Qt.MatchFixedString 	8 	Performs string-based matching. String-based comparisons are case-insensitive unless the MatchCaseSensitive flag is also specified.
+        # Qt.MatchFixedString 	8 	Performs string-based matching. String-based comparisons are 
+        # case-insensitive unless the MatchCaseSensitive flag is also specified.
         # Qt.MatchContains 	1 	The search term is contained in the item.
         # Qt.MatchStartsWith 	2 	The search term matches the start of the item.
         # Qt.MatchEndsWith 	3 	The search term matches the end of the item.
         # Qt.MatchCaseSensitive 	16 	The search is case sensitive.
         # Qt.MatchRegExp 	4 	Performs string-based matching using a regular expression as the search term.
         # Qt.MatchWildcard 	5 	Performs string-based matching using a string with wildcards as the search term.
-        # Qt.MatchWrap 	32 	Perform a search that wraps around, so that when the search reaches the last item in the model, it begins again at the first item and continues until all items have been examined.
+        # Qt.MatchWrap 	32 	Perform a search that wraps around, so that when the search reaches the last item 
+        # in the model, it begins again at the first item and continues until all items have been examined.
         # Qt.MatchRecursive 	64 	Searches the entire hierarchy.
 
         syntax = QRegExp.RegExp
@@ -2225,10 +2257,10 @@ class SharedParameter(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         selectedIndex = sourceIndex.row()
         row = self.mainList.model__.getData()[selectedIndex]
         
-        if isinstance(row['value'], dict):
-            self.valueLabel.setText( "%s: ..." % row['name'] )
-        else:
-            self.valueLabel.setText( "%s: %s" % (row['name'], row['value']) )
+        # if isinstance(row['value'], dict):
+            # self.valueLabel.setText( "%s: ..." % row['name'] )
+        # else:
+        self.valueLabel.setText( "%s: %s" % (row['name'], row['value']) )
         
         self.secondList.clear()
         
@@ -2300,8 +2332,12 @@ class SharedParameter(QtHelper.EnhancedQDialog, Logger.ClassLogger):
             return ':::'
 
 class MyHighlighter( QSyntaxHighlighter ):
+    """
+    My highlighter syntax
+    """
     def __init__( self, parent ):
         """
+        Constructor
         """
         QSyntaxHighlighter.__init__( self, parent )
         self.parent = parent
@@ -2353,21 +2389,20 @@ class MyHighlighter( QSyntaxHighlighter ):
         pattern6 = QRegExp( Settings.instance().readValue( key='Editor/parameter-custom-keywords1' ) )
         pattern6.setMinimal( True )
         others1.setForeground( brush6 )
-        # others1.setFontWeight( QFont.Bold )
         ruleOthers1 = HighlightingRule( pattern6, others1 )
+        
         # others keywords
         brush7 = QBrush( Qt.darkGray, Qt.SolidPattern )
         pattern7 = QRegExp( Settings.instance().readValue( key='Editor/parameter-custom-keywords2' ) )
         pattern7.setMinimal( True )
         others2.setForeground( brush7 )
-        # others2.setFontWeight( QFont.Bold )
         ruleOthers2 = HighlightingRule( pattern7, others2 )
+        
         # others keywords
         brush8 = QBrush( Qt.darkCyan, Qt.SolidPattern )
         pattern8 = QRegExp( Settings.instance().readValue( key='Editor/parameter-custom-keywords3' ) )
         pattern8.setMinimal( True )
         others3.setForeground( brush8 )
-        # others3.setFontWeight( QFont.Bold )
         ruleOthers3 = HighlightingRule( pattern8, others3 )
         
         self.highlightingRules.append( ruleComment )
@@ -2380,6 +2415,7 @@ class MyHighlighter( QSyntaxHighlighter ):
                 
     def highlightBlock( self, text ):
         """
+        Highligh block
         """
         for rule in self.highlightingRules:
             expression = QRegExp( rule.pattern )
@@ -2391,8 +2427,12 @@ class MyHighlighter( QSyntaxHighlighter ):
         self.setCurrentBlockState( 0 )
 
 class HighlightingRule():
+    """
+    Highlighting rule
+    """
     def __init__( self, pattern, format ):
         """
+        Constructor
         """
         self.pattern = pattern
         self.format = format
@@ -2448,7 +2488,6 @@ class CustomValues(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         self.rawFind = QtHelper.RawFind(parent=self, editor=self.textEdit, buttonNext=True)
         
         self.textEdit.setLineWrapMode(QTextEdit.NoWrap)
-        # self.textEdit.setLineWrapMode(QPlainTextEdit.NoWrap)
         self.textEdit.setStyleSheet("""font: 9pt "Courier";""")
         self.textEdit.setPlainText(self.dataValues)
         highlighter = MyHighlighter( self.textEdit )
@@ -2530,6 +2569,7 @@ class CustomValues(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         
     def onCancel(self):
         """
+        On cancel
         """
         if self.isTextChanged:
             reply = QMessageBox.question(self, self.tr("Custom parameter"), self.tr("Are you sure to cancel?"),
@@ -2543,6 +2583,7 @@ class CustomValues(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         
     def onTextChanged(self):
         """
+        On text changed
         """
         if self.textEdit.toPlainText() != self.dataValues:
             self.isTextChanged = True
@@ -2552,6 +2593,7 @@ class CustomValues(QtHelper.EnhancedQDialog, Logger.ClassLogger):
             
     def onWrapModeChanged(self, mode):
         """
+        On wrap mode changed
         """
         if mode == Qt.Checked:
             self.textEdit.setLineWrapMode(QTextEdit.WidgetWidth)
@@ -3029,43 +3071,59 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
          * paste
          * clear
         """
-        self.addAction = QtHelper.createAction(self, self.tr("&Add\nParameter"), self.addParameter, icon = QIcon(":/test-parameter-add.png"),
+        self.addAction = QtHelper.createAction(self, self.tr("&Add\nParameter"), self.addParameter, 
+                                                    icon = QIcon(":/test-parameter-add.png"),
                                                     tip = self.tr('Add a new parameter') )
-        self.delAction = QtHelper.createAction(self, self.tr("&Delete"), self.removeItem, icon = QIcon(":/test-parameter-del.png"),
+        self.delAction = QtHelper.createAction(self, self.tr("&Delete"), self.removeItem, 
+                                                    icon = QIcon(":/test-parameter-del.png"),
                                                     tip = self.tr('Delete selected parameter(s)') )
-        self.copyAction = QtHelper.createAction(self, self.tr("Copy"), self.copyItem, icon = QIcon(":/test-parameter-copy.png"), 
+        self.copyAction = QtHelper.createAction(self, self.tr("Copy"), self.copyItem, 
+                                                    icon = QIcon(":/test-parameter-copy.png"), 
                                                     tip = self.tr('Copy selected parameter(s)'), shortcut='Ctrl+C' )
-        self.pasteAction = QtHelper.createAction(self, self.tr("Paste"), self.pasteItem, icon = QIcon(":/test-parameter-paste.png"),
+        self.pasteAction = QtHelper.createAction(self, self.tr("Paste"), self.pasteItem, 
+                                                    icon = QIcon(":/test-parameter-paste.png"),
                                                     tip = self.tr('Paste parameter(s)'), shortcut='Ctrl+V' )
         self.cutAction = QtHelper.createAction(self, self.tr("Cut"), self.cutItem, icon = None, 
                                                     tip = self.tr('Cut selected parameter(s)') )
 
-        self.undoAction = QtHelper.createAction(self, self.tr("Undo"), self.undoItem, icon = QIcon(":/test-parameter-undo.png"),
+        self.undoAction = QtHelper.createAction(self, self.tr("Undo"), self.undoItem, 
+                                                    icon = QIcon(":/test-parameter-undo.png"),
                                                     tip = self.tr('Undo') )
 
-        self.clearAction = QtHelper.createAction(self, self.tr("Clear"), self.clearItems, icon = QIcon(":/test-parameter-clear.png"), 
+        self.clearAction = QtHelper.createAction(self, self.tr("Clear"), self.clearItems, 
+                                                    icon = QIcon(":/test-parameter-clear.png"), 
                                                     tip = self.tr('Clear all parameters') )
-        self.openAction = QtHelper.createAction(self, self.tr("Open"), self.openItem, icon = QIcon(":/open-test.png"),
+        self.openAction = QtHelper.createAction(self, self.tr("Open"), self.openItem, 
+                                                    icon = QIcon(":/open-test.png"),
                                                     tip = self.tr('Open') )
 
-        self.addPurpleColorAction = QtHelper.createAction(self, self.tr("&Purple"), self.addPurpleColor, icon = None,
-                                                    tip = self.tr('Purple color') )
-        self.addYellowColorAction = QtHelper.createAction(self, self.tr("&Yellow"), self.addYellowColor, icon = None,
-                                                    tip = self.tr('Yellow color') )
-        self.addBlueColorAction = QtHelper.createAction(self, self.tr("&Blue"), self.addBlueColor, icon = None, 
-                                                    tip = self.tr('Blue color') )
-        self.addGreenColorAction = QtHelper.createAction(self, self.tr("&Green"), self.addGreenColor, icon = None, 
-                                                    tip = self.tr('Green color') )
-        self.addRedColorAction = QtHelper.createAction(self, self.tr("&Red"), self.addRedColor, icon = None, 
-                                                    tip = self.tr('Red color') )
-        self.addDefaultColorAction = QtHelper.createAction(self, self.tr("&Default"), self.addDefaultColor, icon = None,
-                                                    tip = self.tr('Default color') )
-        self.addWhiteColorAction = QtHelper.createAction(self, self.tr("&White"), self.addWhiteColor, icon = None, 
-                                                    tip = self.tr('White color') )
-        self.addOrangeColorAction = QtHelper.createAction(self, self.tr("&Orange"), self.addOrangeColor, icon = None,
-                                                    tip = self.tr('Orange color') )
-        self.addGrayColorAction = QtHelper.createAction(self, self.tr("&Gray"), self.addGrayColor, icon = None,
-                                                    tip = self.tr('Gray color') )
+        self.addPurpleColorAction = QtHelper.createAction(self, self.tr("&Purple"), 
+                                                            self.addPurpleColor, icon = None,
+                                                            tip = self.tr('Purple color') )
+        self.addYellowColorAction = QtHelper.createAction(self, self.tr("&Yellow"), 
+                                                            self.addYellowColor, icon = None,
+                                                            tip = self.tr('Yellow color') )
+        self.addBlueColorAction = QtHelper.createAction(self, self.tr("&Blue"), 
+                                                            self.addBlueColor, icon = None, 
+                                                            tip = self.tr('Blue color') )
+        self.addGreenColorAction = QtHelper.createAction(self, self.tr("&Green"), 
+                                                            self.addGreenColor, icon = None, 
+                                                            tip = self.tr('Green color') )
+        self.addRedColorAction = QtHelper.createAction(self, self.tr("&Red"), 
+                                                            self.addRedColor, icon = None, 
+                                                            tip = self.tr('Red color') )
+        self.addDefaultColorAction = QtHelper.createAction(self, self.tr("&Default"), 
+                                                            self.addDefaultColor, icon = None,
+                                                            tip = self.tr('Default color') )
+        self.addWhiteColorAction = QtHelper.createAction(self, self.tr("&White"), 
+                                                            self.addWhiteColor, icon = None, 
+                                                            tip = self.tr('White color') )
+        self.addOrangeColorAction = QtHelper.createAction(self, self.tr("&Orange"), 
+                                                            self.addOrangeColor, icon = None,
+                                                            tip = self.tr('Orange color') )
+        self.addGrayColorAction = QtHelper.createAction(self, self.tr("&Gray"), 
+                                                            self.addGrayColor, icon = None,
+                                                            tip = self.tr('Gray color') )
         self.menuColor = QMenu(self.tr("Add colors"))
         self.menuColor.addAction( self.addOrangeColorAction )
         self.menuColor.addAction( self.addPurpleColorAction )
@@ -3079,7 +3137,8 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
         self.menuColor.addAction( self.addDefaultColorAction )
 
         self.colorsAction = QtHelper.createAction(self, self.tr("&Colors"), None, 
-                                                    tip = self.tr('Add colors'), icon=QIcon(":/colors.png") )
+                                                    tip = self.tr('Add colors'), 
+                                                    icon=QIcon(":/colors.png") )
         self.colorsAction.setMenu(self.menuColor)
 
         # set default values
@@ -3279,7 +3338,9 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
                 fileName = row['value'].split('):/', 1)[1]
                 projectName = row['value'].split('remote-tests(', 1)[1].split('):/', 1)[0]
                 projectId = Workspace.WRepositories.instance().remote().getProjectId(projectName)
-                UCI.instance().openFileRepo(pathFile=fileName, repo=UCI.REPO_TESTS, project=projectId)
+
+                RCI.instance().openFileTests(projectId=int(projectId), filePath=fileName)
+                                                         
             elif row['value'].startswith('local-tests:/'):
                 fileAll = row['value'].split('local-tests:/')[1]
 
@@ -3287,7 +3348,9 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
                 filePath, leftdata = fileAll.rsplit('/', 1)
                 fileName = leftdata.rsplit('.', 1)[0]
 
-                Workspace.WDocumentViewer.instance().newTab(path = filePath, filename = fileName, extension = fileExtension, repoDest=UCI.REPO_TESTS_LOCAL)
+                Workspace.WDocumentViewer.instance().newTab(path = filePath, filename = fileName, 
+                                                            extension = fileExtension, 
+                                                            repoDest=UCI.REPO_TESTS_LOCAL)
 
             elif row['value'].startswith('undefined:/'):
                 fileAll = row['value'].split('undefined:/')[1]
@@ -3296,7 +3359,9 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
                 filePath, leftdata = fileAll.rsplit('/', 1)
                 fileName = leftdata.rsplit('.', 1)[0]
 
-                Workspace.WDocumentViewer.instance().newTab(path = filePath, filename = fileName, extension = fileExtension, repoDest=UCI.REPO_UNDEFINED)
+                Workspace.WDocumentViewer.instance().newTab(path = filePath, filename = fileName, 
+                                                            extension = fileExtension, 
+                                                            repoDest=UCI.REPO_UNDEFINED)
 
             else:
                 pass
@@ -3308,8 +3373,16 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
                 fName = ""
                         
             fileName = QFileDialog.getSaveFileName(self, self.tr("Save file"), fName, "*.*")
-            if len(fileName):
-                f = open(fileName, 'wb')
+                
+            # new in v17.1
+            if QtHelper.IS_QT5:
+                _fileName, _type = fileName
+            else:
+                _fileName = fileName
+            # end of new
+            
+            if len(_fileName):
+                f = open(_fileName, 'wb')
                 f.write( base64.b64decode(fData)  )
                 f.close()
         else:
@@ -3665,17 +3738,24 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
         Import external file from local disk
         """
         fileName = QFileDialog.getOpenFileName(self, self.tr("Import file"), "", "Files (*.*)" )
-        if not len(fileName):
+        # new in v18 to support qt5
+        if QtHelper.IS_QT5:
+            _fileName, _type = fileName
+        else:
+            _fileName = fileName
+        # end of new
+        
+        if not len(_fileName):
             return None
 
-        fileAny = QFile(fileName)
+        fileAny = QFile(_fileName)
         if not fileAny.open(QIODevice.ReadOnly):
             QMessageBox.warning(self, self.tr("Open local file failed"), self.tr("unable to read content") )
             return None
         else:
             fileData= fileAny.readAll()
 
-        baseName = os.path.basename(fileName)
+        baseName = os.path.basename(_fileName)
         lenFile = len(fileData)
         
         if sys.version_info > (3,): # python 3 support
@@ -3688,19 +3768,26 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
         Import external image from local disk
         """
         fileName = QFileDialog.getOpenFileName(self, self.tr("Import image"), "", "Images (*.%s)" % Workspace.Repositories.LocalRepository.EXTENSION_PNG )
-        if not len(fileName):
+        # new in v18 to support qt5
+        if QtHelper.IS_QT5:
+            _fileName, _type = fileName
+        else:
+            _fileName = fileName
+        # end of new
+        
+        if not len(_fileName):
             return None
         
-        if not ( str(fileName).endswith( Workspace.Repositories.LocalRepository.EXTENSION_PNG ) ):
+        if not ( str(_fileName).endswith( Workspace.Repositories.LocalRepository.EXTENSION_PNG ) ):
             QMessageBox.warning(self, self.tr("Open local image failed") , self.tr("Image file not supported") )
             return None
 
-        image = QImage(fileName)
+        image = QImage(_fileName)
         if image.isNull():
             QMessageBox.warning(self, self.tr("Open local image failed") , self.tr("Image file not supported, unable to read") )
             return None
 
-        fileImage = QFile(fileName)
+        fileImage = QFile(_fileName)
         if not fileImage.open(QIODevice.ReadOnly):
             QMessageBox.warning(self, self.tr("Open local image failed"), self.tr("Image file not supported, unable to read content") )
             return None
@@ -3725,13 +3812,13 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
             if answer == QMessageBox.Yes:
                 editor = self.loadImageFromLocal() # load local image file
             else:
-                if UCI.instance().isAuthenticated(): # no then perhaps in remo repo if connected?
+                if RCI.instance().isAuthenticated: # no then perhaps in remo repo if connected?
                     editor = self.loadImageFromRemote() # load remote test config file
                 else:
                     QMessageBox.warning(self, self.tr("Import") , self.tr("Connect to the test center first!") )
         
         # import from remote repo
-        elif UCI.instance().isAuthenticated(): # no then perhaps in remo repo if connected?
+        elif RCI.instance().isAuthenticated: # no then perhaps in remo repo if connected?
             editor = self.loadImageFromRemote() # load remote dataset file
 
         else:
@@ -3754,13 +3841,13 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
             if answer == QMessageBox.Yes:
                 editor = self.loadFromLocal() # load local dataset file
             else:
-                if UCI.instance().isAuthenticated(): # no then perhaps in remo repo if connected?
+                if RCI.instance().isAuthenticated: # no then perhaps in remo repo if connected?
                     editor = self.loadFromRemote() # load remote test config file
                 else:
                     QMessageBox.warning(self, self.tr("Import") , self.tr("Connect to the test center first!") )
         
         # import from remote repo
-        elif UCI.instance().isAuthenticated(): # no then perhaps in remo repo if connected?
+        elif RCI.instance().isAuthenticated: # no then perhaps in remo repo if connected?
             editor = self.loadFromRemote() # load remote dataset file
 
         else:
@@ -3783,22 +3870,31 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
         """
         Load from anywhere
         """
-        fileName = QFileDialog.getOpenFileName(self, self.tr("Import dataset"), "", "Tdx Data Files (*.%s)" % Workspace.Repositories.LocalRepository.EXTENSION_TDX )
-        if not len(fileName):
+        fileName = QFileDialog.getOpenFileName(self, self.tr("Import dataset"), "", 
+                                                "Tdx Data Files (*.%s)" % Workspace.Repositories.LocalRepository.EXTENSION_TDX )
+        # new in v18 to support qt5
+        if QtHelper.IS_QT5:
+            _fileName, _type = fileName
+        else:
+            _fileName = fileName
+        # end of new
+        
+        if not len(_fileName):
             return None
         
-        if not ( str(fileName).endswith( Workspace.Repositories.LocalRepository.EXTENSION_TDX ) ):
+        if not ( str(_fileName).endswith( Workspace.Repositories.LocalRepository.EXTENSION_TDX ) ):
             QMessageBox.critical(self, self.tr("Open Failed") , self.tr("File not supported") )
             return None
 
-        return "undefined:/%s" %  fileName
+        return "undefined:/%s" %  _fileName
 
     def loadFromRemote(self):
         """
         Load from remote repository
         """
         project = Workspace.Repositories.instance().remote().getCurrentProject()
-        Workspace.Repositories.instance().remote().saveAs.getFilename(type= Workspace.Repositories.RemoteRepository.EXTENSION_TDX, project=project)
+        Workspace.Repositories.instance().remote().saveAs.getFilename(type= Workspace.Repositories.RemoteRepository.EXTENSION_TDX, 
+                                                                    project=project)
         editor = Workspace.Repositories.instance().remote().saveAs
         if editor.exec_() == QDialog.Accepted:
             return editor.getSelection(withRepoName=True, withProject=True)
@@ -3822,21 +3918,28 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
         Load image from anywhere
         """
         fileName = QFileDialog.getOpenFileName(self, self.tr("Import image"), "", "Images (*.%s)" % Workspace.Repositories.LocalRepository.EXTENSION_PNG )
-        if not len(fileName):
+        # new in v18 to support qt5
+        if QtHelper.IS_QT5:
+            _fileName, _type = fileName
+        else:
+            _fileName = fileName
+        # end of new
+        if not len(_fileName):
             return None
         
-        if not ( str(fileName).endswith( Workspace.Repositories.LocalRepository.EXTENSION_PNG ) ):
+        if not ( str(_fileName).endswith( Workspace.Repositories.LocalRepository.EXTENSION_PNG ) ):
             QMessageBox.critical(self, self.tr("Open Failed") , self.tr("Image file not supported") )
             return None
 
-        return "undefined:/%s" %  fileName
+        return "undefined:/%s" %  _fileName
 
     def loadImageFromRemote(self):
         """
         Load image from remote repository
         """
         project = Workspace.Repositories.instance().remote().getCurrentProject()
-        Workspace.Repositories.instance().remote().saveAs.getFilename(type= Workspace.Repositories.RemoteRepository.EXTENSION_PNG, project=project)
+        Workspace.Repositories.instance().remote().saveAs.getFilename(type= Workspace.Repositories.RemoteRepository.EXTENSION_PNG, 
+                                                                        project=project)
         editor = Workspace.Repositories.instance().remote().saveAs
         if editor.exec_() == QDialog.Accepted:
             return editor.getSelection(withRepoName=True, withProject=True)
@@ -3899,7 +4002,8 @@ class ParametersQWidget(QWidget, Logger.ClassLogger):
         self.dockToolbarParams = QToolBar(self)
         self.dockToolbarParams.setStyleSheet("QToolBar { border: 0px; }") # remove 3D border
 
-        self.parametersTable = ParametersTableView(self, forParamsOutput=self.forParamsOutput, forTestConfig=self.forTestConfig)
+        self.parametersTable = ParametersTableView(self, forParamsOutput=self.forParamsOutput, 
+                                                    forTestConfig=self.forTestConfig)
         self.parametersTable.setColumnHidden(COL_DESCRIPTION, 
                                     QtHelper.str2bool(Settings.instance().readValue( key = 'TestProperties/parameters-hide-description' ))
                                 )
@@ -3936,6 +4040,7 @@ class ParametersQWidget(QWidget, Logger.ClassLogger):
 
     def usedAsAlias(self, paramName):
         """
+        Used as alias
         """
         isAlias = False
         for param in self.table().model.getData():
@@ -3947,6 +4052,7 @@ class ParametersQWidget(QWidget, Logger.ClassLogger):
         
     def markUnusedInputs(self, editorSrc, editorExec):
         """
+        Mark unused inputs
         """
         for param in self.table().model.getData():
             match = False
@@ -3981,6 +4087,7 @@ class ParametersQWidget(QWidget, Logger.ClassLogger):
 
     def markUnusedOutputs(self, editorSrc, editorExec):
         """
+        Mark unused outputs
         """
         for param in self.table().model.getData():
             match = False

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -44,16 +44,20 @@ except ImportError:
                             
 from Libs import QtHelper, Logger
 
-# python 3 support
-# support old variant style
-# will be remove in the future
-def q(v=""): 
-    return QVariant(v)
-if sys.version_info > (3,): 
-    def q(v=""): 
+
+def q(v=""):
+    """
+    Return the value argument without do anything
+    Only to support python 2.x and python 3.x
+    
+    @param v: the value to convert
+    @type v: string
+    """
+    if sys.version_info > (3,): 
         return v
-        
-        
+    else:
+        return QVariant(v)
+
 import Settings
 
 
@@ -497,11 +501,13 @@ class TextualView2(QWidget):
 
     def setExpectedEventId(self, testId):
         """
+        Set the expected event id
         """
         self.expectedEventId = testId
         
     def getExpectedEventId(self):
         """
+        Return the expected event id
         """
         return self.expectedEventId
         
@@ -549,7 +555,10 @@ class TextualView2(QWidget):
                 color = event['color']
             else:
                 color = "#000000"
-            self.parent.graphView.addStep(text=msg, color=color, width=w, height=h, data=event['short-msg'], timestamp=event['timestamp'])
+            self.parent.graphView.addStep(text=msg, color=color, 
+                                          width=w, height=h, 
+                                          data=event['short-msg'], 
+                                          timestamp=event['timestamp'])
 
         if event['level'] in 'step-started':
             h = 40; w = 400;
@@ -557,8 +566,11 @@ class TextualView2(QWidget):
             stepMsg = event['short-msg']
             if len(stepMsg) > 50:
                 stepMsg = "%s..." % stepMsg[:50]
-            blockItem = self.parent.graphView.addStep(text="%s: %s" % (stepName,stepMsg), color=event['color'], 
-                                                        width=w, height=h, data=event['data-msg'], timestamp=event['timestamp'])
+            blockItem = self.parent.graphView.addStep(text="%s: %s" % (stepName,stepMsg), 
+                                                      color=event['color'], 
+                                                      width=w, height=h, 
+                                                      data=event['data-msg'], 
+                                                      timestamp=event['timestamp'])
             self.steps[event['from-component']] = blockItem
 
         # update the graph

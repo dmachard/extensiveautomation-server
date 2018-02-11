@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -43,19 +43,24 @@ import time
 import datetime
 import heapq
 import threading 
+import sys
 
+# unicode = str with python3
+if sys.version_info > (3,):
+    unicode = str
+    
 INFO="INFO"
 ERROR="ERROR"
 
-SCHED_UNDEFINED     =   -2
-SCHED_NOW           =   -1      # one run 
-SCHED_AT            =   0       # run postponed
-SCHED_IN            =   1       # run postponed
-SCHED_EVERY_SEC     =   2
-SCHED_EVERY_MIN     =   3
-SCHED_HOURLY        =   4
-SCHED_DAILY         =   5
-SCHED_WEEKLY        =   6
+SCHED_UNDEFINED     =   -1
+SCHED_NOW           =   0      # one run 
+SCHED_AT            =   1       # run postponed
+SCHED_IN            =   2       # run postponed
+SCHED_EVERY_SEC     =   3
+SCHED_EVERY_MIN     =   4
+SCHED_HOURLY        =   5
+SCHED_DAILY         =   6
+SCHED_WEEKLY        =   7
 
 
 

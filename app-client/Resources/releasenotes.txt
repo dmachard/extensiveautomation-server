@@ -1,21 +1,24 @@
 
-17.1.0
-	Date: 22/10/2017
+18.0.0
+	Date: 11/02/2018
 	What's new
-		1. (minor) Assistant: web part changed to support the new function doSwitchToDefaultWindow
-		2. (minor) Test properties: update to support new keywords (ABORTONFAIL and ABORTONSUCCESS) on custom type
-		3. (medium) Test properties: new test parameter "json"
-		4. (minor) Scroll the contents one pixel at a time in the informations tree view
-		5. (medium) Assistant: internal webkit browser marked as deprecated and removed (not really usefull) 
-		6. (minor) Main tab orientation added in settings file (south by default)
-		7. (medium) Code cleanup to support the next graphical library QT5 and python36, not yet terminated
-		8. (minor) Restore the main application from test properties after snapshot
-		9. (medium) Improvment to support ubuntu, experimental support
-		10. (minor) Assistant updated to support change in test executor library
+		1. (minor) small change on the toolbar of the online assistant
+		2. (medium) new library pyinstaller used to build the client with qt5
+		3. (minor) static code analysis and cleanup, epydoc added
+		4. (minor) change default url of the website opensource project
+		5. (major) full support of qt5.9 and python3.6
+		6. (medium) new find & replace widget for python editor
+		7. (major) no more use xmlrpc api, replace by rest api
+		8. (minor) no more display database statistics in misc server explorer page
+		9. (medium) online helper: no more generate all packages button in toolbar
+		10. (medium) windows XP platform no more supported because of QT5.9 support
+		11. (medium) Default behaviour changed: no more show test properties tabulation on file opening
 	Issues Fixed
-		1. (medium) Bad test archive name when the username contains dot
-		2. (minor) Small changes on minimize application to avoid problems with the next major qt5 framework
-		3. (medium) Changes on toolbar to avoid graphical issue with Qt5
-		4. (minor) Test abstract: fix error on deletion when no element is selected
-		5. (minor) Fix bad call reference, occured only with local repository
-		6. (minor) Test plan/global: fix bad columns order in print view
+		1. (minor) unable to print test xml verdict to pdf, missing QTextDocument import
+		2. (minor) fix some undefined variable after static code analysis
+		3. (minor) tests results archives: add protection to avoid errors on add/delete comments
+		4. (medium) fix missing find/replace feature for test data file
+		5. (minor) initialize recorder rather to avoid issue on plugins loading
+		6. (minor) fix duplicate function name in document viewer
+		7. (minor) server explorer - plugin repositories: bad tree widget reset in deletion
+		8. (minor) fix bad english usage in automation assistant

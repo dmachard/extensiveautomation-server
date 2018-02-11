@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -47,10 +47,11 @@ Capture desktop
 """
 class DSnapshot(QDialog):
     """
-    Snapshot
+    Snapshot dialog
     """
     def __init__(self, parent=None):
         """
+        Constructor
         """
         QDialog.__init__(self, parent)
 
@@ -77,7 +78,8 @@ class DSnapshot(QDialog):
 
         # create rubberband
         self.rb = QRubberBand(QRubberBand.Rectangle)
-
+        self.rb.setWindowOpacity(0.4) # new in v18, to support pyqt5 properly
+        
         self.snapshotResult = None
         
         layout = QVBoxLayout()
@@ -96,6 +98,7 @@ class DSnapshot(QDialog):
   
     def mousePressEvent(self,ev):
         """
+        On mouse press event
         """
         if ev.button() != Qt.LeftButton:
             self.abort()
@@ -109,12 +112,14 @@ class DSnapshot(QDialog):
     
     def mouseMoveEvent(self,ev):
         """
+        On mouse move event
         """
         if self.state == 1:
             self.rb.setGeometry(QRect(self.origin,ev.globalPos()).normalized())
     
     def mouseReleaseEvent(self,ev):
         """
+        On mouse release event
         """
         if self.state == 1:
             self.state = 2
@@ -124,12 +129,14 @@ class DSnapshot(QDialog):
    
     def keyPressEvent(self, ev):
         """
+        On key press event
         """
         if ev.key() == Qt.Key_Escape: 
             self.abort()
     
     def doSnip(self):   
         """
+        Do snip
         """
         x = min(self.origin.x(),self.end.x())
         y = min(self.origin.y(),self.end.y())
@@ -173,9 +180,11 @@ Capture mouse position
 """
 class QLabelMouse (QLabel):
     """
+    Label widget for mouse coordinate
     """
     def __init__ (self, parent = None):
         """
+        Constructor
         """
         super(QLabelMouse, self).__init__(parent)
         
@@ -187,12 +196,14 @@ class QLabelMouse (QLabel):
 
     def mouseMoveEvent (self, event):
         """
+        On mouse move event
         """
         self.setTextLabelPosition(event.x(), event.y())
         QWidget.mouseMoveEvent(self, event)
 
     def mousePressEvent (self, event):
         """
+        On mouse press event
         """
         if event.button() == Qt.LeftButton:
             self.posX = self.x
@@ -205,21 +216,25 @@ class QLabelMouse (QLabel):
 
     def keyPressEvent(self, event):
         """
+        On key press event
         """
-        if ev.key() == Qt.Key_Escape: 
+        if event.key() == Qt.Key_Escape: 
             self.abort()
             
     def setTextLabelPosition (self, x, y):
         """
+        Set the position on the label
         """
         self.x, self.y = x, y
         self.setText('Please click on screen ( %d : %d )' % (self.x, self.y))
 
 class DCaptureMouse(QDialog):
     """
+    Dialog for capture the mouve position
     """
     def __init__ (self, parent = None):
         """
+        Constructor
         """
         super(DCaptureMouse, self).__init__(parent)
         self.setWindowOpacity(0.7)
@@ -235,12 +250,14 @@ class DCaptureMouse(QDialog):
         
     def keyPressEvent(self, ev):
         """
+        On key press event
         """
         if ev.key() == Qt.Key_Escape: 
             self.abort()
             
     def capture(self):
         """
+        Capture the possition and close the dialog
         """
         self.accept()
         

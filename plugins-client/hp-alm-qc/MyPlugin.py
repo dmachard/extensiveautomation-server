@@ -121,9 +121,6 @@ class MainPage(QWidget):
         self.__core = parent
 
         if DEBUGMODE: self.core().debug().addLogWarning("Debug mode activated")
-    
-        # COM object
-        # self.ComALM = ComAPI.ComHpAlmClient( parent=self, core=parent )
 
         # REST api
         self.RestHP = RestAPI.RestHpAlmClient(parent=self, core=parent)
@@ -142,13 +139,6 @@ class MainPage(QWidget):
         """
         self.designPage.ExportTests.connect(self.onExportTests)
         self.verdictPage.ExportResults.connect(self.onExportResults)
-
-        # self.ComALM.Error.connect(self.onComError)
-        # self.ComALM.ConnectionOk.connect(self.onTestedConnectionOk)
-        # self.ComALM.TestsExported.connect(self.onTestsExported)
-        # self.ComALM.ResultsExported.connect(self.onResultsExported)
-        # self.ComALM.LogTestsStatus.connect(self.onLogTestsStatus)
-        # self.ComALM.LogResultsStatus.connect(self.onLogResultsStatus)
 
         self.RestHP.Error.connect(self.onRestError)
         self.RestHP.ConnectionOk.connect(self.onTestedConnectionOk)
@@ -178,8 +168,7 @@ class MainPage(QWidget):
         """
         # update network api interface to reload credentials
         self.RestHP.loadConfig()
-        # self.ComALM.loadConfig()
-        
+
     def insertData(self, data):
         """
         """
@@ -216,9 +205,6 @@ class MainPage(QWidget):
         """
         """
         funcArgs = { 'testcases': testcases, 'config': config  }
-        
-        # target = self.ComALM.addResultsInTestLab
-        # if self.core().settings().cfg()["qc-server"]["use-rest"]:
         target = self.RestHP.addResultsInTestLab
             
         t = threading.Thread(target=target, kwargs=funcArgs )
@@ -228,9 +214,6 @@ class MainPage(QWidget):
         """
         """
         funcArgs = { 'testcases': testcases, 'config': config  }
-        
-        # target = self.ComALM.addTestsInTestPlan
-        # if self.core().settings().cfg()["qc-server"]["use-rest"]:
         target = self.RestHP.addTestsInTestPlan
             
         t = threading.Thread(target=target, kwargs=funcArgs )
@@ -272,11 +255,8 @@ class MainPage(QWidget):
     
     def testConnection(self, config):
         funcArgs = { 'config': config  }
-        
-        # target = self.ComALM.testConnection
-        # if self.core().settings().cfg()["qc-server"]["use-rest"]:
+
         target = self.RestHP.testConnection
-            
         t = threading.Thread(target=target, kwargs=funcArgs )
         t.start()
         
@@ -405,7 +385,6 @@ class SettingsPage(QWidget):
         mainLayout.addWidget(qcExportGroup, 2, 0)
         mainLayout.addWidget(qcExportResultGroup, 2, 1)
         mainLayout.addLayout(layoutCtrls, 3, 1)
-        # mainLayout.addStretch(1)
         self.setLayout(mainLayout)
         
     def loadCfg(self):
@@ -416,34 +395,36 @@ class SettingsPage(QWidget):
         self.config = json.loads(CONFIG_RAW)
 
         self.hpCredLogin.setText(self.config["credentials"]["login"])
-        
-        
         self.hpSvrURL.setText(self.config["qc-server"]["url"])
         self.hpSvrDomain.setText(self.config["qc-server"]["domain"])
         self.hpSvrProject.setText(self.config["qc-server"]["project"])
-        
-        # if self.config["qc-server"]["use-rest"]: 
-            # self.restAPI.setChecked(True) 
-            # self.comAPI.setChecked(False) 
-        # else:
-            # self.comAPI.setChecked(True) 
-            # self.restAPI.setChecked(False)
-        # com api removed and deprecated
+
         self.restAPI.setChecked(True) 
         
-        if self.config["export-tests"]["merge-all-tests"]: self.mergeCheckBox.setCheckState(Qt.Checked) 
-        if self.config["export-tests"]["merge-all-steps"]: self.mergeStepsCheckBox.setCheckState(Qt.Checked) 
-        if self.config["export-tests"]["original-test"]: self.showTcNameCheckBox.setCheckState(Qt.Checked) 
-        if self.config["export-tests"]["replace-testcase"]: self.replaceTcCheckBox.setCheckState(Qt.Checked) 
-        if self.config["export-tests"]["add-folders"]: self.addFoldersTpCheckBox.setCheckState(Qt.Checked) 
-        if self.config["export-tests"]["overwrite-tests"]: self.overwriteTcCheckBox.setCheckState(Qt.Checked) 
+        if self.config["export-tests"]["merge-all-tests"]: 
+            self.mergeCheckBox.setCheckState(Qt.Checked) 
+        if self.config["export-tests"]["merge-all-steps"]: 
+            self.mergeStepsCheckBox.setCheckState(Qt.Checked) 
+        if self.config["export-tests"]["original-test"]: 
+            self.showTcNameCheckBox.setCheckState(Qt.Checked) 
+        if self.config["export-tests"]["replace-testcase"]: 
+            self.replaceTcCheckBox.setCheckState(Qt.Checked) 
+        if self.config["export-tests"]["add-folders"]: 
+            self.addFoldersTpCheckBox.setCheckState(Qt.Checked) 
+        if self.config["export-tests"]["overwrite-tests"]: 
+            self.overwriteTcCheckBox.setCheckState(Qt.Checked) 
         self.cfgsTable.loadTable(data=self.config["custom-test-fields"])
         
-        if self.config["export-results"]["ignore-testcase"]: self.ignoreTcCheckBox.setCheckState(Qt.Checked) 
-        if self.config["export-results"]["ignore-uncomplete"]: self.ignoreUncompleteCheckBox.setCheckState(Qt.Checked) 
-        if self.config["export-results"]["add-folders"]: self.addFoldersTlCheckBox.setCheckState(Qt.Checked) 
-        if self.config["export-results"]["add-testset"]: self.addTestsetCheckBox.setCheckState(Qt.Checked) 
-        if self.config["export-results"]["add-testinstance"]: self.addTestinstanceCheckBox.setCheckState(Qt.Checked) 
+        if self.config["export-results"]["ignore-testcase"]: 
+            self.ignoreTcCheckBox.setCheckState(Qt.Checked) 
+        if self.config["export-results"]["ignore-uncomplete"]: 
+            self.ignoreUncompleteCheckBox.setCheckState(Qt.Checked) 
+        if self.config["export-results"]["add-folders"]: 
+            self.addFoldersTlCheckBox.setCheckState(Qt.Checked) 
+        if self.config["export-results"]["add-testset"]: 
+            self.addTestsetCheckBox.setCheckState(Qt.Checked) 
+        if self.config["export-results"]["add-testinstance"]: 
+            self.addTestinstanceCheckBox.setCheckState(Qt.Checked) 
         self.cfgsTestsetTable.loadTable(data=self.config["custom-testset-fields"])
         
         # decrypt password
@@ -542,21 +523,16 @@ class SettingsPage(QWidget):
     def encryptPwd(self, key, plaintext):
         """
         """
-        # cipher = XOR.new(key)
-        # return base64.b64encode(cipher.encrypt(plaintext))
         return base64.b64encode( bytes( plaintext, "utf8" ) )
 
     def decryptPwd(self, key, ciphertext):
         """
         """
-        # cipher = XOR.new(key)
-        # return str(cipher.decrypt(base64.b64decode(ciphertext)), "utf8")
         return str( base64.b64decode(ciphertext) , "utf8")
     
     def testConnection(self):
         """
         """
-        # self.saveCfg(successMsg=False)
         self.TestSettings.emit(self.config)
     
 if __name__ == '__main__':

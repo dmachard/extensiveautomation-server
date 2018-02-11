@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -78,7 +78,7 @@ except ImportError: # support python3
     from .PythonEditor import WCursorPosition
 
 import UserClientInterface as UCI
-
+import RestClientInterface as RCI
 
 from Libs import QtHelper, Logger
 try:
@@ -116,9 +116,11 @@ class WWorkspace(QWidget):
         # create each part
         WRepositories.initialize( parent = self )
         WDocumentViewer.initialize( parent = self, iRepo=WRepositories.instance(),
-                                        lRepo=WRepositories.LocalRepository, rRepo=WRepositories.RemoteRepository )
+                                    lRepo=WRepositories.LocalRepository, 
+                                    rRepo=WRepositories.RemoteRepository )
         WDocumentProperties.initialize( parent = self, iRepo=WRepositories.instance(),
-                                            lRepo=WRepositories.LocalRepository, rRepo=WRepositories.RemoteRepository )
+                                        lRepo=WRepositories.LocalRepository, 
+                                        rRepo=WRepositories.RemoteRepository )
         WHelper.initialize( parent = self )
         
         # splitter state
@@ -211,7 +213,7 @@ class WWorkspace(QWidget):
         WDocumentViewer.instance().PropertiesChanged.connect(self.propertiesChanged)
 
         if WRepositories.instance().localConfigured != "Undefined":
-            if UCI.instance().isAuthenticated():
+            if RCI.instance().isAuthenticated():
                 WDocumentViewer.instance().RefreshLocalRepository.connect(WRepositories.instance().localRepository.refreshAll)
                 WDocumentProperties.instance().RefreshLocalRepository.connect(WRepositories.instance().localRepository.refreshAll)
         WDocumentViewer.instance().RecentFile.connect(self.recentFileUpdated)
@@ -224,17 +226,20 @@ class WWorkspace(QWidget):
         
     def onShowPropertiesTab(self):
         """
+        On show properties tabulation
         """
         if QtHelper.str2bool( Settings.instance().readValue( key = 'View/tab-left' ) ): 
             self.leftTab.setCurrentIndex(TAB_PROPERTIES)  
         
     def onEnterAssistant(self):
         """
+        On mouse enter in the online helper
         """
         pass
 
     def onLeaveAssistant(self):
         """
+        On mouse leave in the online helper
         """
         pass
         
@@ -326,7 +331,7 @@ class WWorkspace(QWidget):
         if isinstance(wdocument, WDocumentViewer.WelcomePage) :
             self.hideStatusBar()
             
-        if not UCI.instance().isAuthenticated():
+        if not RCI.instance().isAuthenticated():
             WDocumentProperties.instance().setDisabled(True)
             return
 

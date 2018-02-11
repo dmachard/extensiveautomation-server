@@ -1,7 +1,7 @@
 <?php
 	/*
 	---------------------------------------------------------------
-	 Copyright (c) 2010-2017 Denis Machard. All rights reserved.
+	 Copyright (c) 2010-2018 Denis Machard. All rights reserved.
 
 	 This file is part of the extensive testing project; you can redistribute it and/or
 	 modify it under the terms of the GNU General Public License, Version 3.
@@ -29,55 +29,55 @@
 		$j = 0;
 		$ret .= '<ul>';
 		foreach ($items as $item) {
-			if ( $item->type == 'folder' ) {
+			if ( $item['type'] == 'folder' ) {
 					$ret .= '<li>';
-					$ret .= '<input type="checkbox" id="item-'.$index.'-'.$j.'" /><label for="item-'.$index.'-'.$j.'">'.$item->name.'</label>';
-					$ret .= parseFiles($item->content, $j, $parent."/".$item->name, $projectid);
+					$ret .= '<input type="checkbox" id="item-'.$index.'-'.$j.'" /><label for="item-'.$index.'-'.$j.'">'.$item['name'].'</label>';
+					$ret .= parseFiles($item['content'], $j, $parent."/".$item['name'], $projectid);
 					$ret .= '</li>';
 			}
 
-			if ( $item->type == 'file' ) {
+			if ( $item['type'] == 'file' ) {
 				$ret .= '<li>';
 				$extension = '';
-				if ( endswith($item->name, TAX) ) {
-					$ret .= '<span id="'.TAX.'">'.$item->name.'</span>'; 
+				if ( endswith($item['name'], TAX) ) {
+					$ret .= '<span id="'.TAX.'">'.$item['name'].'</span>'; 
 					$extension = TAX;
 				}
-				elseif ( endswith($item->name, TUX) ) {
-					$ret .= '<span id="'.TUX.'">'.$item->name.'</span>'; 
+				elseif ( endswith($item['name'], TUX) ) {
+					$ret .= '<span id="'.TUX.'">'.$item['name'].'</span>'; 
 					$extension = TUX;
 				}
-				elseif ( endswith($item->name, TSX) ) {
-					$ret .= '<span id="'.TSX.'">'.$item->name.'</span>'; 
+				elseif ( endswith($item['name'], TSX) ) {
+					$ret .= '<span id="'.TSX.'">'.$item['name'].'</span>'; 
 					$extension = TSX;
 				}
-				elseif ( endswith($item->name, TPX) ) {
-					$ret .= '<span id="'.TPX.'">'.$item->name.'</span>'; 
+				elseif ( endswith($item['name'], TPX) ) {
+					$ret .= '<span id="'.TPX.'">'.$item['name'].'</span>'; 
 					$extension = TPX;
 				}
-				elseif ( endswith($item->name, TGX) ) {
-					$ret .= '<span id="'.TGX.'">'.$item->name.'</span>'; 
+				elseif ( endswith($item['name'], TGX) ) {
+					$ret .= '<span id="'.TGX.'">'.$item['name'].'</span>'; 
 					$extension = TGX;
 				}
-				elseif ( endswith($item->name, TCX) ) {
-					$ret .= '<span id="'.TCX.'">'.$item->name.'</span>'; 
+				elseif ( endswith($item['name'], TCX) ) {
+					$ret .= '<span id="'.TCX.'">'.$item['name'].'</span>'; 
 					$extension = TCX;
 				}
-				elseif ( endswith($item->name, TDX) ) {
-					$ret .= '<span id="'.TDX.'">'.$item->name.'</span>'; 
+				elseif ( endswith($item['name'], TDX) ) {
+					$ret .= '<span id="'.TDX.'">'.$item['name'].'</span>'; 
 					$extension = TDX;
 				}
-				elseif ( endswith($item->name, PNG)) {
-					$ret .= '<span id="'.PNG.'">'.$item->name.'</span>'; 
+				elseif ( endswith($item['name'], PNG)) {
+					$ret .= '<span id="'.PNG.'">'.$item['name'].'</span>'; 
 					$extension = PNG;
 				} else {
 					$ret .= '<span>'.$item->name.'</span>'; 
 				}
-				$filename = substr($item->name, 0, strlen($item->name) - strlen(".".$extension) );
-				$full_path =  $parent."/".$item->name ;
+				$filename = substr($item['name'], 0, strlen($item['name']) - strlen(".".$extension) );
+				$full_path =  $parent."/".$item['name'] ;
 				$pathfile =  substr($full_path, 0, strlen($full_path) - strlen(".".$extension) );
 
-				if ( endswith($item->name, TAX) or endswith($item->name, TSX) or endswith($item->name, TGX) or endswith($item->name, TPX) or endswith($item->name, TUX) ) {
+				if ( endswith($item['name'], TAX) or endswith($item['name'], TSX) or endswith($item['name'], TGX) or endswith($item['name'], TPX) or endswith($item['name'], TUX) ) {
 					$ret .= '<a href="javascript:run_test('.$CORE->profile['id'].', '.$projectid.', \''.$extension.'\', \''.$filename.'\', \''.$pathfile.'\')">Run</a>';
 					$ret .= '</li>';
 				} else {
@@ -100,42 +100,38 @@
 		$j = 0;
 		$ret .= '<ul>';
 		foreach ($items as $item) {
-			if ( $item->type == 'folder' ) {
+			if ( $item['type'] == 'folder' ) {
 					$ret .= '<li>';
 					$ret .= '<input type="checkbox" id="item-'.$index.'-'.$j.'" />';
-                    if (strpos($item->name, '.') !== false) {
-                        $testdetails = explode(".", $item->name); //timeArch, milliArch, testName, testUser
+                    $test_id = '';
+                    if (strpos($item['name'], '.') !== false) {
+                        $testdetails = explode(".", $item['name']); //timeArch, milliArch, testName, testUser
+                        
+                        $test_id = $testdetails[1];
                         $test_name = base64_decode($testdetails[2]);
                         $test_user = $testdetails[3];
                         $test_time = explode("_",  $testdetails[0]); //2015-06-07_11:22:22
                         
                         $ret .= '<label for="item-'.$index.'-'.$j.'">'.$test_name.' - '.$test_user.' - '.$test_time[1].'</label>';
                     } else {
-                        $ret .= '<label for="item-'.$index.'-'.$j.'">'.$item->name.'</label>';
+                        $ret .= '<label for="item-'.$index.'-'.$j.'">'.$item['name'].'</label>';
                     }
 
-					$ret .= parseFilesResults($item->content, $j, $parent."/".$item->name, $projectid);
+					$ret .= parseFilesResults($item['content'], $j, $test_id, $projectid);
 					$ret .= '</li>';
 			}
 
-			if ( $item->type == 'file' ) {
+			if ( $item['type'] == 'file' ) {
 				$ret .= '<li>';
-				//$extension = '';
-				//if ( endswith($item->name, ZIP) ) {
-				//	$ret .= '<span id="'.ZIP.'">'.$item->name.'</span>'; 
-				//}
-                if ( endswith($item->name, TRX) ) {
+                if ( endswith($item['name'], TRX) ) {
                     // Noname1_0_UNDEFINED_0.trx  [testname] [replayid] [verdict] [nbcomments]
                     $test_result = 'pass';
-                    if (strpos($item->name, FAIL) !== false) { $test_result='fail'; }
-                    if (strpos($item->name, UNDEFINED) !== false) { $test_result='undef'; }
-                    
-					$ret .= '<span id="'.$test_result.'">'.$item->name.'</span>'; 
-                    $ret .= '<a href="javascript:open_report('.$projectid.', \''.$parent.'\', \''.$item->name.'\', \'container-test-report\')">test report</a> ';
+                    if (strpos($item['name'], FAIL) !== false) { $test_result='fail'; }
+                    if (strpos($item['name'], UNDEFINED) !== false) { $test_result='undef'; }
+
+					$ret .= '<span id="'.$test_result.'">'.$item['name'].'</span>'; 
+                    $ret .= '<a href="javascript:open_report('.$projectid.', \''.$parent.'\', \'container-test-report\')">test report</a> ';
 				} 
-                //else {
-				//	$ret .= '<span>'.$item->name.'</span>'; 
-				//}
                 
 				$ret .= '</li>';
 			}
@@ -149,7 +145,7 @@
 	Execute a remote test
 	*/
 	function run_test($loginid, $projectid, $extension, $filename, $path){
-		global $db, $CORE, $XMLRPC, $__LWF_CFG, $__LWF_DB_PREFIX;
+		global $db, $CORE, $RESTAPI, $__LWF_CFG, $__LWF_DB_PREFIX;
 		$rsp = array();
 		$rsp["code"] = 100;
 		$rsp["msg"] = lang('ws-trying');
@@ -175,23 +171,25 @@
 
 
 		// continue, then execute the test
-		$run =  $XMLRPC->runTest( intval($projectid), $extension, $filename, $path );
-		if ( is_null($run) ) {
-			$rsp["code"] = 500;
-			$rsp["msg"] = 'Error on the server!';
-        } elseif ( $run == '404' ) {
-			$rsp["code"] = 500;
-			$rsp["msg"] = 'Unable to prepare, test missing';
-		} else {
+        if ( $extension == TPX or $extension == TGX ) {
+            list($code, $details) = $RESTAPI->runTestTpg( intval($projectid), $extension, $filename, $path );
+        } else {
+            list($code, $details) = $RESTAPI->runTest( intval($projectid), $extension, $filename, $path );
+        }
+
+		if ( $code == 200 ) {
 			$rsp["code"] = 200;
 			$rsp["msg"] = "The test ".$filename." is running in background";
-		}
+		} else {
+			$rsp["code"] = 500;
+			$rsp["msg"] = 'Unable torun the test: '.$details;
+        }
 		return $rsp;	
 
 	}
 
 	function tests_getrepositorystats($loginid, $type, $projectid){
-		global $db, $CORE, $XMLRPC, $__LWF_CFG, $__LWF_DB_PREFIX;
+		global $db, $CORE, $RESTAPI, $__LWF_CFG, $__LWF_DB_PREFIX;
 		$rsp = array();
 		$rsp["code"] = 100;
 		$rsp["msg"] = lang('ws-trying');
@@ -290,8 +288,7 @@
                 ">'.lang('delete').'</a> ] ';
                 $link_duplicate =  ' [ <a href="javascript:duplicateelementenv('.$cur_u['id'].', '.$projectid.')">'.lang('duplicate').'</a> ] ';
                 
-				//$tb .= '<tr class="list"><td>'.$env_name.'</td><td>'.$values_str.'</td><td>'.$link_edit.'</td><td>'.$link_delete.'</td><td>'.$link_duplicate.'</td><td>'.$link_more.'</td></tr>' ;
-                $tb .= '<tr class="list"><td><div id="env-flag-'.$cur_u['id'].'">'.$env_name.'</div></td><td>'.$values_str.'</td><td>'.$link_edit.$link_delete.$link_duplicate.$link_more.'</td></tr>' ;
+				$tb .= '<tr class="list"><td><div id="env-flag-'.$cur_u['id'].'">'.$env_name.'</div></td><td>'.$values_str.'</td><td>'.$link_edit.$link_delete.$link_duplicate.$link_more.'</td></tr>' ;
 			}
 			$tb .= "</table>";
 		}
@@ -302,14 +299,15 @@
 	Return all tests result tree through the xmlrpc interface
 	*/
 	function get_listing_testsresult($projectid){
-		global $XMLRPC, $__LWF_APP_DFLT_STYLE;
+		global $RESTAPI, $__LWF_APP_DFLT_STYLE;
 
-		$listingFiles =  $XMLRPC->getFilesTestsResult($prjId=$projectid);
+		list($code, $details) = $RESTAPI->getFilesTestResults($prjId=intval($projectid));
+
 		$tb = '<span class="dotted">'.lang('results').'</span>';
 		$tb .= ' <img  id="loader-run" src="./style/'.$__LWF_APP_DFLT_STYLE.'/img/ajax-loader-horizontal.gif" class="icon-loader" alt="ajax-loader">';
 		$tb .= '<br /><br />';
 		$tb .= '<div class="css-treeview">';	
-		$tb .= parseFilesResults($listingFiles, 0, '', $projectid);
+		$tb .= parseFilesResults( $details , 0, '', $projectid);
 		$tb .= '</div>';
 		return $tb;
 	}
@@ -318,14 +316,15 @@
 	Return all tests tree through the xmlrpc interface
 	*/
 	function get_listing_tests($projectid){
-		global $XMLRPC, $__LWF_APP_DFLT_STYLE;
+		global $RESTAPI, $__LWF_APP_DFLT_STYLE;
 
-		$listingFiles =  $XMLRPC->getFilesTests($prjId=$projectid);
+		list($code, $details) = $RESTAPI->getFilesTests($prjId=intval($projectid));
+        
 		$tb = '<span class="dotted">'.lang('tests').'</span>';
 		$tb .= ' <img  id="loader-run" src="./style/'.$__LWF_APP_DFLT_STYLE.'/img/ajax-loader-horizontal.gif" class="icon-loader" alt="ajax-loader">';
 		$tb .= '<br /><br />';
 		$tb .= '<div class="css-treeview">';	
-		$tb .= parseFiles($listingFiles, 0, '', $projectid);
+		$tb .= parseFiles( $details, 0, '', $projectid);
 		$tb .= '</div>';
 		return $tb;
 	}
@@ -333,20 +332,21 @@
 	/*
 	Get test report throught xml interface
 	*/
-	function open_test_report( $projectid, $trpath, $trname ) {
-		global $db, $CORE, $__LWF_CFG, $__LWF_DB_PREFIX, $XMLRPC, $__LWF_APP_DFLT_STYLE;
+	function open_test_report( $projectid, $testid ) {
+		global $db, $CORE, $__LWF_CFG, $__LWF_DB_PREFIX, $RESTAPI, $__LWF_APP_DFLT_STYLE;
 		$rsp = array();
 		$rsp["code"] = 100;
 		$rsp["msg"] = lang('ws-trying');
 		$rsp["moveto"] = null;
 
-        $report =  $XMLRPC->getTestPreview($prjId=$projectid, $trPath=$trpath, $trName=$trname);
-		if ( is_null($report) ) {
-			$rsp["code"] = 500;
-			$rsp["msg"] = 'No report available';
-        } else {
+        list($code, $details) = $RESTAPI->getTestPreview($prjId=intval($projectid), $testId=$testid);
+
+		if ( $code == 200 ) {
             $rsp["code"] = 200;
-            $rsp["msg"] = "<br />".$report;
+            $rsp["msg"] = "<br />".$RESTAPI->decodeData($details['basic-review'], $json=False);
+        } else {
+            $rsp["code"] = 500;
+			$rsp["msg"] = 'No report available: '.$details;
         }
 		return $rsp;	
 	}
@@ -356,71 +356,59 @@
 	Return global statistics for tests through the xmlrpc interface
 	*/
 	function get_informations_tests($projectid){
-		global $XMLRPC, $__LWF_APP_DFLT_STYLE;
+		global $RESTAPI, $__LWF_APP_DFLT_STYLE;
 
-		$testInfo =  $XMLRPC->getTestsInformations($prjId=$projectid);
-		if ( is_null($testInfo) ) {
-				$tb =  '<img src="./style/'. $__LWF_APP_DFLT_STYLE.'/img/stop_round.png" > The server is stopped!';
-		} else {
-            // if ( !array_key_exists(TUX, $testInfo) ) 
-            // {
-            // }
-            
+		list($code, $details) = $RESTAPI->getStatisticsTests($prjId=intval($projectid));
+		if ( $code == 200 ) {
 			$tb = '<span class="dotted">'.lang('tests-files').'</span>';
-			$tb .= '<table><tr><td class="table tablekey">'.lang('testunit').'</td><td>'.$testInfo[TUX]['nb'].'</td></tr>';
-			$tb .= '<tr><td class="table tablekey">'.lang('testabstract').'</td><td>'.$testInfo[TAX]['nb'].'</td></tr>';
-			$tb .= '<tr><td class="table tablekey">'.lang('testsuite').'</td><td>'.$testInfo[TSX]['nb'].'</td></tr>';
-			$tb .= '<tr><td class="table tablekey">'.lang('testplan').'</td><td>'.$testInfo[TPX]['nb'].'</td></tr>';
-			$tb .= '<tr><td class="table tablekey">'.lang('testglobal').'</td><td>'.$testInfo[TGX]['nb'].'</td></tr>';
-			$tb .= '<tr><td class="table tablekey">'.lang('testconfig').'</td><td>'.$testInfo[TCX]['nb'].'</td></tr>';
-			$tb .= '<tr><td class="table tablekey">'.lang('testdata').'</td><td>'.$testInfo[TDX]['nb'].'</td></tr>';
-			$tb .= '<tr><td class="table tablekey">'.lang('image').'</td><td>'.$testInfo[PNG]['nb'].'</td></tr>';
+			$tb .= '<table><tr><td class="table tablekey">'.lang('testunit').'</td><td>'.$details[TUX]['nb'].'</td></tr>';
+			$tb .= '<tr><td class="table tablekey">'.lang('testabstract').'</td><td>'.$details[TAX]['nb'].'</td></tr>';
+			$tb .= '<tr><td class="table tablekey">'.lang('testsuite').'</td><td>'.$details[TSX]['nb'].'</td></tr>';
+			$tb .= '<tr><td class="table tablekey">'.lang('testplan').'</td><td>'.$details[TPX]['nb'].'</td></tr>';
+			$tb .= '<tr><td class="table tablekey">'.lang('testglobal').'</td><td>'.$details[TGX]['nb'].'</td></tr>';
+			$tb .= '<tr><td class="table tablekey">'.lang('testconfig').'</td><td>'.$details[TCX]['nb'].'</td></tr>';
+			$tb .= '<tr><td class="table tablekey">'.lang('testdata').'</td><td>'.$details[TDX]['nb'].'</td></tr>';
+			$tb .= '<tr><td class="table tablekey">'.lang('image').'</td><td>'.$details[PNG]['nb'].'</td></tr>';
             $tb .= '<tr><td class="table tablekey"></td><td></td></tr></table>';
-			//$tb .= '<tr><td class="table tablekey"></td><td>'.$testInfo->{'nb-tot'}.'</td></tr></table>';
 
 			$tb .= '<br /><span class="dotted">'.lang('testunit').' ('.lang('bytes').')'.'</span>';
-			$tb .= '<table><tr><td class="table tablekey">'.lang('minimum').'</td><td>'.$testInfo[TUX]['min'].'</td></tr>';
-			$tb .= '<tr><td class="table tablekey">'.lang('maximum').'</td><td>'.$testInfo[TUX]['max'].'</td></tr>';
+			$tb .= '<table><tr><td class="table tablekey">'.lang('minimum').'</td><td>'.$details[TUX]['min'].'</td></tr>';
+			$tb .= '<tr><td class="table tablekey">'.lang('maximum').'</td><td>'.$details[TUX]['max'].'</td></tr>';
 			$tb .= '<tr><td class="table tablekey"></td><td></td></tr></table>';
-			//$tb .= '<tr><td class="table tablekey">'.lang('average').'</td><td>'.$testInfo->{'size-avg-tu'}.'</td></tr></table>';
-            
+  
             $tb .= '<br /><span class="dotted">'.lang('testabstract').' ('.lang('bytes').')'.'</span>';
-			$tb .= '<table><tr><td class="table tablekey">'.lang('minimum').'</td><td>'.$testInfo[TAX]['min'].'</td></tr>';
-			$tb .= '<tr><td class="table tablekey">'.lang('maximum').'</td><td>'.$testInfo[TAX]['max'].'</td></tr>';
+			$tb .= '<table><tr><td class="table tablekey">'.lang('minimum').'</td><td>'.$details[TAX]['min'].'</td></tr>';
+			$tb .= '<tr><td class="table tablekey">'.lang('maximum').'</td><td>'.$details[TAX]['max'].'</td></tr>';
             $tb .= '<tr><td class="table tablekey"></td><td></td></tr></table>';
-			//$tb .= '<tr><td class="table tablekey">'.lang('average').'</td><td>'.$testInfo->{'size-avg-ta'}.'</td></tr></table>';
 
 			$tb .= '<br /><span class="dotted">'.lang('testsuite').' ('.lang('bytes').')'.'</span>';
-			$tb .= '<table><tr><td class="table tablekey">'.lang('minimum').'</td><td>'.$testInfo[TSX]['min'].'</td></tr>';
-			$tb .= '<tr><td class="table tablekey">'.lang('maximum').'</td><td>'.$testInfo[TSX]['max'].'</td></tr>';
+			$tb .= '<table><tr><td class="table tablekey">'.lang('minimum').'</td><td>'.$details[TSX]['min'].'</td></tr>';
+			$tb .= '<tr><td class="table tablekey">'.lang('maximum').'</td><td>'.$details[TSX]['max'].'</td></tr>';
             $tb .= '<tr><td class="table tablekey"></td><td></td></tr></table>';
-			//$tb .= '<tr><td class="table tablekey">'.lang('average').'</td><td>'.$testInfo->{'size-avg-ts'}.'</td></tr></table>';
 
 			$tb .= '<br /><span class="dotted">'.lang('testplan').' ('.lang('bytes').')'.'</span>';
-			$tb .= '<table><tr><td class="table tablekey">'.lang('minimum').'</td><td>'.$testInfo[TPX]['min'].'</td></tr>';
-			$tb .= '<tr><td class="table tablekey">'.lang('maximum').'</td><td>'.$testInfo[TPX]['max'].'</td></tr>';
+			$tb .= '<table><tr><td class="table tablekey">'.lang('minimum').'</td><td>'.$details[TPX]['min'].'</td></tr>';
+			$tb .= '<tr><td class="table tablekey">'.lang('maximum').'</td><td>'.$details[TPX]['max'].'</td></tr>';
             $tb .= '<tr><td class="table tablekey"></td><td></td></tr></table>';
-			//$tb .= '<tr><td class="table tablekey">'.lang('average').'</td><td>'.$testInfo->{'size-avg-tp'}.'</td></tr></table>';
 
 			$tb .= '<br /><span class="dotted">'.lang('testglobal').' ('.lang('bytes').')'.'</span>';
-			$tb .= '<table><tr><td class="table tablekey">'.lang('minimum').'</td><td>'.$testInfo[TGX]['min'].'</td></tr>';
-			$tb .= '<tr><td class="table tablekey">'.lang('maximum').'</td><td>'.$testInfo[TGX]['max'].'</td></tr>';
+			$tb .= '<table><tr><td class="table tablekey">'.lang('minimum').'</td><td>'.$details[TGX]['min'].'</td></tr>';
+			$tb .= '<tr><td class="table tablekey">'.lang('maximum').'</td><td>'.$details[TGX]['max'].'</td></tr>';
             $tb .= '<tr><td class="table tablekey"></td><td></td></tr></table>';
-			//$tb .= '<tr><td class="table tablekey">'.lang('average').'</td><td>'.$testInfo->{'size-avg-tg'}.'</td></tr></table>';
 
 			$tb .= '<br /><span class="dotted">'.lang('testconfig').' ('.lang('bytes').')'.'</span>';
-			$tb .= '<table><tr><td class="table tablekey">'.lang('minimum').'</td><td>'.$testInfo[TCX]['min'].'</td></tr>';
-			$tb .= '<tr><td class="table tablekey">'.lang('maximum').'</td><td>'.$testInfo[TCX]['max'].'</td></tr>';
+			$tb .= '<table><tr><td class="table tablekey">'.lang('minimum').'</td><td>'.$details[TCX]['min'].'</td></tr>';
+			$tb .= '<tr><td class="table tablekey">'.lang('maximum').'</td><td>'.$details[TCX]['max'].'</td></tr>';
             $tb .= '<tr><td class="table tablekey"></td><td></td></tr></table>';
-			//$tb .= '<tr><td class="table tablekey">'.lang('average').'</td><td>'.$testInfo->{'size-avg-tc'}.'</td></tr></table>';
 
 			$tb .= '<br /><span class="dotted">'.lang('testdata').' ('.lang('bytes').')'.'</span>';
-			$tb .= '<table><tr><td class="table tablekey">'.lang('minimum').'</td><td>'.$testInfo[TDX]['min'].'</td></tr>';
-			$tb .= '<tr><td class="table tablekey">'.lang('maximum').'</td><td>'.$testInfo[TDX]['max'].'</td></tr>';
+			$tb .= '<table><tr><td class="table tablekey">'.lang('minimum').'</td><td>'.$details[TDX]['min'].'</td></tr>';
+			$tb .= '<tr><td class="table tablekey">'.lang('maximum').'</td><td>'.$details[TDX]['max'].'</td></tr>';
             $tb .= '<tr><td class="table tablekey"></td><td></td></tr></table>';
-			//$tb .= '<tr><td class="table tablekey">'.lang('average').'</td><td>'.$testInfo->{'size-avg-td'}.'</td></tr></table>';
 
-		}
+		} else {
+            $tb =  '<img src="./style/'. $__LWF_APP_DFLT_STYLE.'/img/stop_round.png" > '.$details;
+        }
 		return $tb;
 	}
 
@@ -1026,7 +1014,7 @@
     Import all variables
     */
     function env_importall( $values ) {
-		global $db, $CORE, $XMLRPC, $__LWF_CFG, $__LWF_DB_PREFIX;
+		global $db, $CORE, $RESTAPI, $__LWF_CFG, $__LWF_DB_PREFIX;
 		$rsp = array();
 		$rsp["code"] = 100;
 		$rsp["msg"] = lang('ws-trying');
@@ -1057,7 +1045,7 @@
 	Export all variables
 	*/
 	function env_exportall( $projectid ) {
-		global $db, $CORE, $XMLRPC, $__LWF_CFG, $__LWF_DB_PREFIX;
+		global $db, $CORE, $RESTAPI, $__LWF_CFG, $__LWF_DB_PREFIX;
         
         $rows = array( array('name', 'value', 'project_id') ) ; 
         
@@ -1096,7 +1084,7 @@
 	Add element on the test environment
 	*/
 	function env_addelement( $name, $values, $pid ) {
-		global $db, $CORE, $XMLRPC, $__LWF_CFG, $__LWF_DB_PREFIX;
+		global $db, $CORE, $RESTAPI, $__LWF_CFG, $__LWF_DB_PREFIX;
 		$rsp = array();
 		$rsp["code"] = 100;
 		$rsp["msg"] = lang('ws-trying');
@@ -1127,10 +1115,6 @@
 			$rsp["code"] = 500;
 			return $rsp;
 		}
-		//else {
-		//	$json_values = array_change_key_case($json_values, CASE_UPPER);
-		//	$values = json_encode($json_values);
-		//}
 
 		// this name is free then create project
 		$active = 1;
@@ -1146,7 +1130,7 @@
 			$rsp["msg"] = $db->str_error("Unable to add environment")."(".$sql_req.")";
 			return $rsp;
 		}  else {
-			$XMLRPC->refreshTestEnvironment();
+			$RESTAPI->refreshTestEnvironment();
 
 			$rsp["msg"] = lang('ws-env-added');
 			$rsp["code"] = 200;
@@ -1159,7 +1143,7 @@
 	Duplicate element from the test environment
 	*/
 	function env_duplicateelement( $eid, $pid ) {
-		global $db, $CORE, $XMLRPC, $__LWF_CFG, $__LWF_DB_PREFIX;
+		global $db, $CORE, $RESTAPI, $__LWF_CFG, $__LWF_DB_PREFIX;
 		$rsp = array();
 		$rsp["code"] = 100;
 		$rsp["msg"] = lang('ws-trying');
@@ -1196,7 +1180,7 @@
 	Delete element from the test environment
 	*/
 	function env_delelement( $eid, $pid ) {
-		global $db, $CORE, $XMLRPC, $__LWF_CFG, $__LWF_DB_PREFIX;
+		global $db, $CORE, $RESTAPI, $__LWF_CFG, $__LWF_DB_PREFIX;
 		$rsp = array();
 		$rsp["code"] = 100;
 		$rsp["msg"] = lang('ws-trying');
@@ -1225,7 +1209,7 @@
 			$rsp["moveto"] = $redirect_page_url;
 			return $rsp;
 		} else {
-			$XMLRPC->refreshTestEnvironment();
+			$RESTAPI->refreshTestEnvironment();
 
 			$rsp["msg"] = lang('ws-env-deleted');
 			$rsp["code"] = 200;
@@ -1241,7 +1225,7 @@
 	Update element on the test environment
 	*/
 	function env_updateelement( $eid, $name, $values, $pid ) {
-		global $db, $CORE, $XMLRPC, $__LWF_CFG, $__LWF_DB_PREFIX;
+		global $db, $CORE, $RESTAPI, $__LWF_CFG, $__LWF_DB_PREFIX;
 		$rsp = array();
 		$rsp["code"] = 100;
 		$rsp["msg"] = lang('ws-trying');
@@ -1278,7 +1262,7 @@
 			$rsp["code"] = 500;
 			$rsp["msg"] = $db->str_error("Unable to update element")."(".$sql_req.")";
 		} else {
-			$XMLRPC->refreshTestEnvironment();
+			$RESTAPI->refreshTestEnvironment();
 
 			$rsp["code"] = 200;
 			$rsp["msg"] = lang('ws-env-updated');

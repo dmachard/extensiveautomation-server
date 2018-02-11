@@ -1,7 +1,7 @@
 <?php
 	/*
 	---------------------------------------------------------------
-	 Copyright (c) 2010-2017 Denis Machard. All rights reserved.
+	 Copyright (c) 2010-2018 Denis Machard. All rights reserved.
 
 	 This file is part of the extensive testing project; you can redistribute it and/or
 	 modify it under the terms of the GNU General Public License, Version 3.
@@ -332,14 +332,6 @@
 	?>
 </div>
 
-<!--<div class="bxright">
-	<div class="help"><?php echo lang('help') ?><?php echo get_ajaxloader("loader-help", "0") ?></div>
-	<div>
-		<ul class="help_list">
-		</ul>
-	</div>
-</div>-->
-
 
 <div class="bxcenter">
 	<div id="box-warn"></div>
@@ -431,7 +423,6 @@
                     $tb .= '<tr><td><a href="javascript:delelementenv('.$cur_usr['id'].','.$prj_called.')">'.lang('yes').'</a>';
                     $tb .= ' -- ';
                     $tb .= '<a href="./index.php?p='.$TESTS_PAGE.'&s='.$s.'&prj='.$prj_called.'">'.lang('no').'</a></td></tr></tbody></table>';
-                    //$tb .= '<a href="javascript:history.back()">'.lang('no').'</a></td></tr></tbody></table>';
 				}
 			}
 			$tabsbody[] = $tb;

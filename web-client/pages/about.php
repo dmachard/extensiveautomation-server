@@ -1,7 +1,7 @@
 <?php
 	/*
 	---------------------------------------------------------------
-	 Copyright (c) 2010-2017 Denis Machard. All rights reserved.
+	 Copyright (c) 2010-2018 Denis Machard. All rights reserved.
 
 	 This file is part of the extensive testing project; you can redistribute it and/or
 	 modify it under the terms of the GNU General Public License, Version 3.
@@ -48,19 +48,8 @@
 	?>
 </div>
 
-<!--<div class="bxright">
-	<div class="help"><?php echo lang('help') ?><?php echo get_ajaxloader("loader-help", "0") ?></div>
-	<div>
-		<ul class="help_list">
-			<li><?php echo '<a href="javascript:nav(\'./index.php?p='.$INDEX_PAGE.'&s='.$SUB_PAGE_DESCR.'&c=new\')">'.lang('about-what').'</a>'; ?></li>
-			<li><?php echo '<a href="javascript:nav(\'./index.php?p='.$INDEX_PAGE.'&s='.$SUB_PAGE_RN.'&c=new\')">'.lang('about-what-new').'</a>'; ?></li>
-		</ul>
-	</div>
-</div>-->
-
 <div class="bxcenter">
 	<div id="box-warn"></div>
-	<!--<div class="box-about">-->
 	<?php
 
 		// specific function to parse rn
@@ -97,7 +86,6 @@
 			$tabsbody = array();
 			$tb = "<h3>".$__LWF_APP_NAME." ".$__LWF_CFG['server-version']."</h3>".'<p>'.lang('about-product-description', $htmlentities=true).'<br /><br /><em>'.lang('about-developped-by').' '.$__LWF_APP_AUTHOR.'</em></p>';
 			$tb .= '<h4>'.lang('contributors').'</h4>';
-			$tb .= '<em>Jean-Vianney Oblin (xtcpyrc)</em>';
 			$tb .= '<br /><em>Emmanuel Monsoro (extensive testing logo, ssh console adapter)</em>';
 			$tb .= '<br /><em>Blaise Cador (security recommendations)</em>';
 			$tb .= '<br /><em>Jean-Luc Pascal (support excel writting mode)</em>';
@@ -114,38 +102,41 @@
 			echo '<div class="about-title-index">'.lang('about-release-notes').'</div>';
 			
 			// construct tab menu
-			$tabsmenu = array(	 lang('about-rn-server'), lang('about-rn-adapters'), lang('about-rn-libraries'), 
-                                    lang('about-rn-toolbox') );
+			$tabsmenu = array(	 lang('about-rn-server'), 
+                                 lang('about-rn-adapters'), 
+                                 lang('about-rn-libraries'), 
+                                 lang('about-rn-toolbox') );
 			echo construct_tabmenu($tabsmenu);
 
 			// body
 			$tabsbody = array();
 
-			$rns =  $XMLRPC->getReleaseNotes();
-			if ( is_null($rns) ) {
-				$tb =  '<br /><img src="./style/'. $__LWF_APP_DFLT_STYLE.'/img/stop_round.png" > The server is stopped!';
-			} else {
+            list($code, $details) = $RESTAPI->getReleaseNotes();
+            
+			if ( $code == 200 ) {
 				// rn server
-				$lines = $XMLRPC->decodeData($rns['rn'],  $json=False) ;
-				$tb = parseRn( explode("\n", $lines) );
+				//$lines = $RESTAPI->decodeData($details['core'],  $json=False) ;
+				$tb = parseRn( explode("\n", $details['core']) );
 				$tabsbody[] = $tb;
 
 				// rn adapters
-				$lines = $XMLRPC->decodeData($rns['rnAdp'],  $json=False) ;
-				$tb = parseRn( explode("\n", $lines) );
+				//$lines = $RESTAPI->decodeData($details['adapters'],  $json=False) ;
+				$tb = parseRn( explode("\n", $details['adapters']) );
 				$tabsbody[] = $tb;
 
 				// rn libraries
-				$lines = $XMLRPC->decodeData($rns['rnLib'],  $json=False) ;
-				$tb = parseRn( explode("\n", $lines) );
+				//$lines = $RESTAPI->decodeData($details['libraries'],  $json=False) ;
+				$tb = parseRn( explode("\n", $details['libraries']) );
 				$tabsbody[] = $tb;
 
 				// rn toolbox
-				$lines = $XMLRPC->decodeData($rns['rnToolbox'],  $json=False) ;
-				$tb = parseRn( explode("\n", $lines) );
+				//$lines = $RESTAPI->decodeData($details['toolbox'],  $json=False) ;
+				$tb = parseRn( explode("\n", $details['toolbox']) );
 				$tabsbody[] = $tb;
 
-			}
+			} else {
+                $tb =  '<br /><img src="./style/'. $__LWF_APP_DFLT_STYLE.'/img/stop_round.png" > '.$details;
+            }
 
 			echo construct_tabbody($tabsbody);
 		}

@@ -1,4 +1,19 @@
 
+--- Previous: 11.1.0 ---
+Date: 22/10/2017
+What's new
+	1. (minor) Gui selenium: new high level function doSwitchToDefaultWindow
+	2. (medium) Tcp server: update to support agent mode
+	3. (medium) Http server: update to support agent mode
+	4. (medium) Ssh terminal: opened event splitted in two, first screen event added
+	5. (minor) Ssh terminal: no more possible to send data if not connected
+	6. (minor) Ssh client: new handleConnectionFailed on bad authentication and negotiation
+	7. (medium) Ssh terminal: new event "open error" when the authentication failed
+	8. (minor) Tcp: wait complete ssl handshake on connection
+Issues fixed
+	1. (medium) Ssl: disable SNI feature
+	2. (minor) Ssh client: disconnected status not set properly on bad authentication and negotiation
+	
 --- Previous: 11.0.0 ---
 Date: 04/06/2017
 What's new

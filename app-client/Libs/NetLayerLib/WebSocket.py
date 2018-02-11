@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -30,13 +30,7 @@ import uuid
 import base64
 import struct
 import threading
-try:
-    import hashlib
-    sha1_constructor = hashlib.sha1
-except ImportError: # support python 2.4
-    import sha
-    sha1_constructor = sha.new
-
+import hashlib
 
 # unicode = str with python3
 if sys.version_info > (3,):
@@ -125,10 +119,16 @@ class WebSocketCodec(object):
         @param key: ws key
         @type key: string
         """
-        value = (key + GUID).encode('utf-8')
-        sha1 = sha1_constructor()
+        if sys.version_info > (3,):
+            value = key + bytes(GUID,'utf8')
+        else:
+            value = (key + GUID).encode('utf-8')
+
+        sha1 = hashlib.sha1()
         sha1.update(value)
-        return base64.encodestring(sha1.digest()).strip().lower()
+        encoded = base64.encodestring(sha1.digest())
+        encoded = encoded.strip().lower()
+        return encoded
     
     def getHeaderForwardedFor(self, request):
         """
@@ -164,14 +164,18 @@ class WebSocketCodec(object):
                 if k.lower().strip() == b'sec-websocket-key':
                     wsKey = True
                     key = v.strip()
-                    keyLength = len(base64.b64decode(key.encode()))
+                    keyLength = len(base64.b64decode(key))
                     if keyLength != 16:
                         self.parent.error( 'bad key length: %s' % keyLength )     
                         wsKey = False
                 if k.lower().strip() == b'sec-websocket-version':
-                    if v.lower().strip() == "%s" % WEBSOCKET_VERSION:
+                    version = "%s" % WEBSOCKET_VERSION
+                    if sys.version_info > (3,):
+                        version = bytes(version, "utf8")
+
+                    if v.lower().strip() == version:
                         wsVersion = True
-                    
+                        
         except Exception as e:
             self.parent.error( 'unable to check req headers: %s' % e )                      
         return ((hdrUpgrade and hdrConnection and wsKey and wsVersion), key)
@@ -200,7 +204,7 @@ class WebSocketCodec(object):
                     v = v.lower().strip()
                     # rfc6455 1.3. Opening Handshake
                     value = (key + GUID).encode('utf-8')
-                    sha1 = sha1_constructor()
+                    sha1 = hashlib.sha1()
                     sha1.update(value)
                     hashed = base64.encodestring(sha1.digest()).strip().lower()
                     if hashed == v:
@@ -352,7 +356,9 @@ class WebSocketCodec(object):
         """
         data = "%s" % self.getNewPingId()
         if sys.version_info[0] == 3: # python 3 support
-            return ( self.encodeWsData(data=bytes(data, 'UTF-8'), opcode=WEBSOCKET_OPCODE_PING), bytes(data, 'UTF-8') )
+            return ( self.encodeWsData(data=bytes(data, 'UTF-8'), 
+                     opcode=WEBSOCKET_OPCODE_PING), 
+                     bytes(data, 'UTF-8') )
         else:
             return ( self.encodeWsData(data=data, opcode=WEBSOCKET_OPCODE_PING), data )
     def encodePong(self, data=b'abcdef'):

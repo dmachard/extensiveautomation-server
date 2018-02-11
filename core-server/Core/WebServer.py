@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -42,7 +42,10 @@ def isUp():
         if Settings.getInt('Web','https'):
             scheme = 'https'
             portHttp = Settings.get('Web','https-port')
-        uri = '%s://%s:%s/%s/index.php' % ( scheme, Settings.get('Web','fqdn'), portHttp, Settings.get('Web', 'path') )
+        uri = '%s://%s:%s/%s/index.php' % ( scheme, 
+                                            Settings.get('Web','fqdn'), 
+                                            portHttp, 
+                                            Settings.get('Web', 'path') )
         
         timeout = False
         go = False

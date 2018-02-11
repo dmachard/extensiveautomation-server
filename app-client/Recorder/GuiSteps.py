@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -50,14 +50,18 @@ except ImportError:
                             
 from Libs import QtHelper, Logger
 
-# python 3 support
-# support old variant style
-# will be remove in the future
-def q(v=""): 
-    return QVariant(v)
-if sys.version_info > (3,): 
-    def q(v=""): 
+def q(v=""):
+    """
+    Return the value argument without do anything
+    Only to support python 2.x and python 3.x
+    
+    @param v: the value to convert
+    @type v: string
+    """
+    if sys.version_info > (3,): 
         return v
+    else:
+        return QVariant(v)
         
 import Settings
 
@@ -376,7 +380,7 @@ SYSTEM_CLOSE                = "CLOSE SESSION"
 SYSTEM_CLEAR_SCREEN         = "CLEAR SCREEN"
 SYSTEM_TEXT                 = "SEND TEXT"
 SYSTEM_SHORTCUT             = "SEND SHORTCUT"
-SYSTEM_CHECK_SCREEN           = "CHECKING IF SCREEN"
+SYSTEM_CHECK_SCREEN         = "CHECKING IF SCREEN"
 
 ACTION_SYSTEM_DESCR = [
         { SYSTEM_SESSION:             "Open a ssh session" },
@@ -435,7 +439,7 @@ class StepsTableModel(QAbstractTableModel, Logger.ClassLogger):
         @type data:
         """
         self.mydata = data
-        # self.reset()
+
         if sys.version_info > (3,):
             self.beginResetModel() 
             self.endResetModel() 
@@ -501,11 +505,6 @@ class StepsTableModel(QAbstractTableModel, Logger.ClassLogger):
             return index.row() + 1
         if 'active' not in self.mydata[ index.row() ]: # backward compatibility
             self.mydata[ index.row() ]['active'] = "True"
-            
-        # elif index.column() == COL_AND:
-            # if 'option-similar' not in self.mydata[ index.row() ]: # backward compatibility
-                # self.mydata[ index.row() ]['option-similar'] = "0.7"
-            # return self.mydata[ index.row() ]['option-similar']
 
         elif index.column() == COL_NAME:
             return self.mydata[ index.row() ]['action']
@@ -734,12 +733,9 @@ class StepsTableModel(QAbstractTableModel, Logger.ClassLogger):
             elif self.mydata[ index.row() ]['action'] in [ BROWSER_GET_URL, BROWSER_GET_SOURCE, BROWSER_GET_TEXT_ALERT, BROWSER_GET_TITLE ]:
                 if index.column() == COL_NAME:
                     actions = [ "%s AND SAVE IT IN CACHE" % value ]
-                    # if self.mydata[ index.row() ]['parameters']['to-cache']:
-                        # actions.append( "AND SAVE IT IN CACHE" )
                     return q( "\n".join(actions) )
                 elif index.column() == COL_VALUE: 
                     values = [ ]
-                    # values.append( '' )
                     values.append( '%s' % self.mydata[ index.row() ]['text-more'] )
                     return q( "\n".join(values) )
                     
@@ -1010,11 +1006,11 @@ class StepsTableModel(QAbstractTableModel, Logger.ClassLogger):
                 if index.column() == COL_NAME:
                     actions = [ ]
                     if self.mydata[ index.row() ]['parameters']['from-cache']:
-                        actions.append("ASK TO USER FROM CACHE" )
+                        actions.append("USER INPUT PROMPT FROM CACHE" )
                     elif self.mydata[ index.row() ]['parameters']['from-alias']:
-                        actions.append("ASK TO USER FROM ALIAS" )
+                        actions.append("USER INPUT PROMPT FROM ALIAS" )
                     else:
-                        actions.append("ASK TO USER" )
+                        actions.append("USER INPUT PROMPT" )
                         
                     actions.append("AND SAVE IT IN CACHE")
                     
@@ -1543,8 +1539,6 @@ class StepsTableModel(QAbstractTableModel, Logger.ClassLogger):
             pass
 
         self.owner.setData()
-        # self.owner.adjustColumns()   
-        # self.owner.adjustRows()    
 
     def setData(self, index, value, role=Qt.EditRole):
         """
@@ -1581,7 +1575,6 @@ class StepsTableModel(QAbstractTableModel, Logger.ClassLogger):
         if not index.isValid():
             return Qt.ItemIsEnabled
 
-        # if index.column() in [ COL_ID, COL_NAME, COL_VALUE, COL_OPT, COL_AND, COL_END ] :
         if index.column() in [ COL_ID, COL_NAME, COL_VALUE ] :
             return Qt.ItemFlags(QAbstractTableModel.flags(self, index))
         else:
@@ -1872,7 +1865,6 @@ class StepsTableView(QTableView, Logger.ClassLogger):
         
         for index in selectedRow:    
             data = self.model.getData()
-            #if data[index.row()]['action'] != USER_CODE:
             data[index.row()]['active'] = "False"
 
         self.model.beginResetModel() 
@@ -2117,7 +2109,7 @@ class StepsTableView(QTableView, Logger.ClassLogger):
         if i is not None:
             step = datas.pop( i )
             del step
-        # self.model.reset()
+
         self.model.beginResetModel() 
         self.model.endResetModel() 
         
@@ -2162,10 +2154,12 @@ class StepsTableView(QTableView, Logger.ClassLogger):
                         'bold': bold }
             data = self.model.getData()
             if len(data):
+                i = None
                 for i in xrange(len(data)):
                     if data[i]['id'] == stepId:
                         break
-                data[i] = tpl
+                if i is not None:
+                    data[i] = tpl
         else:
             index = self.currentIndex()
             if not index.isValid():
@@ -2188,6 +2182,7 @@ class StepsTableView(QTableView, Logger.ClassLogger):
 
     def setUnboldAll(self):
         """
+        Set unbold all actions
         """
         data = self.model.getData()
         for d in data:
@@ -2202,6 +2197,7 @@ class StepsTableView(QTableView, Logger.ClassLogger):
    
     def setBoldAnything(self):
         """
+        Set bold for anything actions
         """
         data = self.model.getData()
         for d in data:
@@ -2217,6 +2213,7 @@ class StepsTableView(QTableView, Logger.ClassLogger):
    
     def setBoldBrowser(self):
         """
+        Set bold function for browser actions
         """
         data = self.model.getData()
         for d in data:
@@ -2232,6 +2229,7 @@ class StepsTableView(QTableView, Logger.ClassLogger):
         
     def setBoldAndroid(self):
         """
+        Set bold android actions
         """
         data = self.model.getData()
         for d in data:
@@ -2262,21 +2260,13 @@ class StepsTableView(QTableView, Logger.ClassLogger):
         self.setColumnWidth(COL_ICON, 30)
         self.setColumnWidth(COL_DESCRIPTION, 500)
 
-        # self.adjustColumns()
-        # self.adjustRows()
-        
     def adjustColumns(self):
         """
         Resize two first columns to contents
         """
-        # COL_NAME
-        # for col in [  COL_VALUE, COL_AND, COL_OPT, COL_END ]:
         for col in [  COL_VALUE ]:
             self.resizeColumnToContents(col)
-        # COL_NAME
-        # for col in [ COL_NAME ]:
-            # self.resizeColumnToContents(col)
-            
+
     def adjustRows (self):
         """
         Resize row to contents

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -60,6 +60,7 @@ def caller():
     
 def log_exception(*args):
     """
+    Log exception
     """
     timestamp = time.time()
     c,e,traceback = args
@@ -208,9 +209,7 @@ def initialize (logPathFile=None, level="INFO", size="5", nbFiles="10", noSettin
                                                     maxBytes=maxBytes,
                                                     backupCount=nbFilesMax
                                                 )
-    
-    #format='%(asctime)-6s: %(name)s - %(levelname)s - %(module)s - %(funcName)s - %(lineno)d - %(message)s',
-    # %(funcName)s ==> not supported with python 2.4
+
     formatter = logging.Formatter( "%(asctime)s - %(levelname)s - %(message)s")
     handler.setFormatter(formatter)
 

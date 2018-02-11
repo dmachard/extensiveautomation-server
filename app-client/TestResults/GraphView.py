@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -135,7 +135,9 @@ class BlockItem(QGraphicsRectItem):
     """ 
     Represents a block in the diagram
     """
-    def __init__(self, parent, name='Untitled', width=180, height=40, blockColor="#A5A2A5", data=None, bold=False, italic=False, status=True):
+    def __init__(self, parent, name='Untitled', width=180, 
+                       height=40, blockColor="#A5A2A5", 
+                       data=None, bold=False, italic=False, status=True):
         """
         Constructor
         """
@@ -149,7 +151,8 @@ class BlockItem(QGraphicsRectItem):
         color.setNamedColor( blockColor )
         self.setPen(QPen(color, 2)) 
 
-        if sys.version_info > (3,) and isinstance(name, bytes): name = str(name, "utf8", errors="ignore")
+        if sys.version_info > (3,) and isinstance(name, bytes): 
+            name = str(name, "utf8", errors="ignore")
             
         self.label = QGraphicsTextItem(name, self)
 
@@ -197,8 +200,10 @@ class BlockItem(QGraphicsRectItem):
         if self.internalData is not None:
             data = self.internalData
             if isinstance(self.internalData, list):
-                # [('Step 1', {'expected': 'result expected', 'action': 'step description', 'actual': 'success', 'result': 'PASS',
-                # 'summary': 'step sample'}), ('%payload-v1%', {'raw': '', 'len': 0, 'time': 1421484488.314928})]
+                # [('Step 1', {'expected': 'result expected', 'action': 'step description', 
+                # 'actual': 'success', 'result': 'PASS',
+                # 'summary': 'step sample'}), ('%payload-v1%', {'raw': '', 
+                # 'len': 0, 'time': 1421484488.314928})]
                 data_tmp = self.internalData[0]
                 data = "%s\n" % data_tmp[0]
 
@@ -287,7 +292,8 @@ class FlowChartView(QWidget):
         self.timestamps = []
         self.logEdit.setText("")
         
-    def addStep(self, text, color="#A5A2A5", width=400, height=40, data=None, textBold=False, textItalic=False, timestamp="00:00:00"):
+    def addStep(self, text, color="#A5A2A5", width=400, height=40, data=None, 
+                      textBold=False, textItalic=False, timestamp="00:00:00"):
         """
         Add step
         """
@@ -297,7 +303,9 @@ class FlowChartView(QWidget):
         else:
             latestBlock = None
         
-        newBlock = BlockItem(self, text, blockColor=color, width=width, height=height, data=data, bold=textBold, italic=textItalic)
+        newBlock = BlockItem(self, text, blockColor=color, width=width, 
+                             height=height, data=data, bold=textBold, 
+                             italic=textItalic)
         if width == 100:
             newBlock.setPos( 400/2 - 100/2, len(self.steps) * 80 )
         elif width == 300:

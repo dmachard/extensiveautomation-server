@@ -1,7 +1,7 @@
 <?php
 	/*
 	---------------------------------------------------------------
-	 Copyright (c) 2010-2017 Denis Machard. All rights reserved.
+	 Copyright (c) 2010-2018 Denis Machard. All rights reserved.
 
 	 This file is part of the extensive testing project; you can redistribute it and/or
 	 modify it under the terms of the GNU General Public License, Version 3.
@@ -41,16 +41,12 @@
 		$__LWF_CFG = array();
 		loadcfg();
 	}
-
-    #if (!array_key_exists("server-level-admin",$__LWF_CFG)) {
-    #    exit('The dynamic configuration is missing');
-    #}
     
 	// define users constant
 	define('ADMINISTRATOR',		$__LWF_CFG['server-level-admin']	);
 	define('TESTER',			$__LWF_CFG['server-level-tester']	);
-	define('LEADER',			$__LWF_CFG['server-level-leader']	); 
-	define('DEVELOPER',			$__LWF_CFG['server-level-developer']	);
+	// define('LEADER',			$__LWF_CFG['server-level-leader']	); 
+	// define('DEVELOPER',			$__LWF_CFG['server-level-developer']	);
 	define('SYSTEM',			$__LWF_CFG['server-level-system']	);
 
 	define('COMPLETE',		"COMPLETE");
@@ -111,36 +107,11 @@
 	define('TESTUNIT',  'tu');
 	define('TESTCASE',  'tc');
 
-	// just to support php 5.1, not nice at all
-	if (!function_exists('json_decode')) {
-		function json_decode($content, $assoc=false) {
-						require_once ROOT.'include/JSON.php';
-						if ($assoc) {
-								$json = new Services_JSON(SERVICES_JSON_LOOSE_TYPE);
-						}
-						else {
-								$json = new Services_JSON;
-						}
-						return $json->decode($content);
-		}
-     }
-
-     if (!function_exists('json_encode')) {
-          function json_encode($content) {
-              require_once ROOT.'include/JSON.php';
-              $json = new Services_JSON;
-              return $json->encode($content);
-          }
-     }
-
-	// load xmlrpc lib
-	include( ROOT."include/xmlrpclib/xmlrpc.inc");
-
 	// load app functions
 	require ROOT.'include/core.php';
 
-	// load app functions
-	require ROOT.'include/corexmlrpc.php';
+    // load app functions
+	require ROOT.'include/corerest.php';
     
 	$AUTH_RET = -1;
 	// authenticate the client
@@ -182,11 +153,19 @@
 	);
 
 	$__DEF_SUB_PAGES = array( 
-				array( lang('overview-index'), lang('overview-download'), lang('overview-docs'), lang('overview-agents'), lang('overview-probes')  ),
-				array( lang('tests-repository'), lang('tests-result'), lang('test-environment'), lang('tests-my-statistic'), lang('tests-statistics'), lang('tests-history') ),
-				array( lang('admin-profile'), lang('admin-users'), lang('admin-projects'), lang('admin-license'), lang('admin-config') ),
-				array( lang('system-status'), lang('system-description'), lang('system-usage') ),
-				array( lang('about-description'), lang('about-release-notes'), lang('about-licenses')  )
+				array( lang('overview-index'), lang('overview-download'), 
+                       lang('overview-docs'), lang('overview-agents'), 
+                       lang('overview-probes')  ),
+				array( lang('tests-repository'), lang('tests-result'), 
+                       lang('test-environment'), lang('tests-my-statistic'), 
+                       lang('tests-statistics'), lang('tests-history') ),
+				array( lang('admin-profile'), lang('admin-users'), 
+                       lang('admin-projects'), lang('admin-license'), 
+                       lang('admin-config') ),
+				array( lang('system-status'), lang('system-description'), 
+                       lang('system-usage') ),
+				array( lang('about-description'), lang('about-release-notes'), 
+                       lang('about-licenses')  )
 	);
 	
 ?>

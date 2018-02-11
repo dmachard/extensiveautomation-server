@@ -227,23 +227,36 @@
 			// body
 			$tabsbody = array();
             
-            $tb .= '<br /><b>'.lang('online').'</b><br />';
+            $tb = '<br /><b>'.lang('online').'</b><br />';
             $tb .= '<ul>';
             $tb .= '<li class="docslist"><a href="http://documentations.extensivetesting.org/docs" target="_blank">ExtensiveTesting.ORG</a></li>';
             $tb .= '</ul>';
             
-            $tb .= '<br /><b>'.lang('api').'</b><br />';
+            $tb .= '<br /><b>'.lang('common-api').'</b><br />';
             $tb .= '<ul>';
-            $tb .= '<li class="docslist"><a href="./api-rest/index.html" target="_blank">'.lang('overview-ws-rest').'</a></li>';
+            $tb .= '<li class="docslist"><a href="./common-api-rest/index.html" target="_blank">'.lang('overview-ws-rest').'</a></li>';
             $tb .= '<ul>';
-            $tb .= '<li class="docslist"><a href="./api-rest/extensivetesting.json" target="_blank">swagger.json</a></li>';
-            $tb .= '<li class="docslist"><a href="./api-rest/extensivetesting.yaml" target="_blank">swagger.yaml</a></li>';
+            $tb .= '<li class="docslist"><a href="./common-api-rest/extensivetesting.json" target="_blank">swagger.json</a></li>';
+            $tb .= '<li class="docslist"><a href="./common-api-rest/extensivetesting.yaml" target="_blank">swagger.yaml</a></li>';
             $tb .= '</ul>';
             $tb .= '</ul>';
             
+            $tb .= '<br /><b>'.lang('tester-api').'</b><br />';
             $tb .= '<ul>';
-            $tb .= '<li class="docslist"><a href="./api-rest/previous/index.html" target="_blank">'.lang('overview-ws-rest-old').'</a></li>';
-            $tb .= '<li class="docslist"><a href="./api/index.html" target="_blank">'.lang('overview-ws').'</a></li>';
+            $tb .= '<li class="docslist"><a href="./tester-api-rest/index.html" target="_blank">'.lang('overview-ws-rest').'</a></li>';
+            $tb .= '<ul>';
+            $tb .= '<li class="docslist"><a href="./tester-api-rest/extensivetesting.json" target="_blank">swagger.json</a></li>';
+            $tb .= '<li class="docslist"><a href="./tester-api-rest/extensivetesting.yaml" target="_blank">swagger.yaml</a></li>';
+            $tb .= '</ul>';
+            $tb .= '</ul>';
+
+            $tb .= '<br /><b>'.lang('admin-api').'</b><br />';
+            $tb .= '<ul>';
+            $tb .= '<li class="docslist"><a href="./admin-api-rest/index.html" target="_blank">'.lang('overview-ws-rest').'</a></li>';
+            $tb .= '<ul>';
+            $tb .= '<li class="docslist"><a href="./admin-api-rest/extensivetesting.json" target="_blank">swagger.json</a></li>';
+            $tb .= '<li class="docslist"><a href="./admin-api-rest/extensivetesting.yaml" target="_blank">swagger.yaml</a></li>';
+            $tb .= '</ul>';
             $tb .= '</ul>';
             
 			array_push($tabsbody, $tb);
@@ -263,23 +276,23 @@
 
 			// prepare body for each tabs
 			$tabsbody = array();
-			
-			$agentsRunning =  $XMLRPC->getRunningAgents();
-			
+
+			list($code, $details) = $RESTAPI->getRunningAgents();
+
 			$tb = '';
 
-			if ( is_null($agentsRunning) ) {
-				$tb .=  '<img src="./style/'. $__LWF_APP_DFLT_STYLE.'/img/stop_round.png" > Server is stopped';
-			} else {
+			if ( $code == 200 ) {
 				$tb .= '<table id="agentlist"><tr><td><b>'.lang('name').'</b></td><td><b>'.lang('address').'</b></td><td><b>'.lang('type').'</b></td><td><b>'.lang('description').'</b></td><td></td></tr>';
 					
-				foreach ($agentsRunning as $agent) {
-					$tb .= '<tr id="box-admin-row" class="list"><td>'.$agent->id.'</td>';
-					$tb .= '<td>'.$agent->publicip.'</td><td>'.$agent->type.'</td><td>'.$agent->description.'</td>';
-					$tb .= '<td><a href="javascript:disconnectagent(\''.$agent->id.'\')">'.lang('overview-agents-disconnect').'</a></td></tr>' ;
+				foreach ($details['agents'] as $agent) {
+					$tb .= '<tr id="box-admin-row" class="list"><td>'.$agent['id'].'</td>';
+					$tb .= '<td>'.$agent['publicip'].'</td><td>'.$agent['type'].'</td><td>'.$agent['description'].'</td>';
+					$tb .= '<td><a href="javascript:disconnectagent(\''.$agent['id'].'\')">'.lang('overview-agents-disconnect').'</a></td></tr>' ;
 				}
 				$tb .= '</table>';
-			}
+			} else {
+                $tb .=  '<img src="./style/'. $__LWF_APP_DFLT_STYLE.'/img/stop_round.png" > '.$details;
+            }
 			
 
 			$tabsbody[] = $tb;	
@@ -300,22 +313,23 @@
 			// prepare body for each tabs
 			$tabsbody = array();
 			
-			$probesRunning =  $XMLRPC->getRunningProbes();
-			
+			list($code, $details) = $RESTAPI->getRunningProbes();
+            
+            
 			$tb = '';
 
-			if ( is_null($probesRunning) ) {
-				$tb =  '<img src="./style/'. $__LWF_APP_DFLT_STYLE.'/img/stop_round.png" > Server is stopped';
-			} else {
+			if ( $code == 200 ) {
 				$tb = '<table id="probelist"><tr><td><b>'.lang('name').'</b></td><td><b>'.lang('address').'</b></td><td><b>'.lang('type').'</b></td><td><b>'.lang('description').'</b></td><td></td></tr>';
 					
-				foreach ($probesRunning as $probe) {
-					$tb .= '<tr id="box-admin-row" class="list"><td>'.$probe->id.'</td>';
-					$tb .= '<td>'.$probe->publicip.'</td><td>'.$probe->type.'</td><td>'.$probe->description.'</td>';
-					$tb .= '<td><a href="javascript:disconnectprobe(\''.$probe->id.'\')">'.lang('overview-probes-disconnect').'</a></td></tr>' ;
+				foreach ($details['probes'] as $probe) {
+					$tb .= '<tr id="box-admin-row" class="list"><td>'.$probe['id'].'</td>';
+					$tb .= '<td>'.$probe['publicip'].'</td><td>'.$probe['type'].'</td><td>'.$probe['description'].'</td>';
+					$tb .= '<td><a href="javascript:disconnectprobe(\''.$probe['id'].'\')">'.lang('overview-probes-disconnect').'</a></td></tr>' ;
 				}
 				$tb .= '</table>';
-			}
+			} else {
+                $tb =  '<img src="./style/'. $__LWF_APP_DFLT_STYLE.'/img/stop_round.png" > '.$details;
+            }
 			
 			$tabsbody[] = $tb;	
 			// construct tab body

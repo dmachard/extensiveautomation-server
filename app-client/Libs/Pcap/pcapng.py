@@ -1,16 +1,20 @@
-# read and parse pcapng file
-# see
-# http://www.winpcap.org/ntar/draft/PCAP-DumpFileFormat.html
-# http://wiki.wireshark.org/Development/PcapNg
+"""
+Read and parse pcapng file
+see
+http://www.winpcap.org/ntar/draft/PCAP-DumpFileFormat.html
+http://wiki.wireshark.org/Development/PcapNg
+"""
+
 from __future__ import unicode_literals, print_function, division
 import struct
 import sys
-# from pcapparser import six
-# from pcapparser.constant import *
 
 __author__ = 'dongliu'
 
 class BlockType(object):
+    """
+    Block type definition
+    """
     SECTION_HEADER = 0x0A0D0D0A
     INTERFACE_DESCRIPTION = 0x00000001
     PACKET = 0x00000002
@@ -22,7 +26,12 @@ class BlockType(object):
     ARINC_429 = 0x00000008
 
 class SectionInfo(object):
+    """
+    Section info definition
+    """
     def __init__(self):
+        """
+        """
         self.byteorder = b'@'
         self.length = -1
         self.major = -1
@@ -34,14 +43,22 @@ class SectionInfo(object):
 
 
 class PcapngFile(object):
+    """
+    Pcapng file handler
+    """
     def __init__(self, infile, head):
+        """
+        Constructor
+        """
         self.infile = infile
         self.section_info = SectionInfo()
         # the first 4 byte head has been read by pcap file format checker
         self.head = head
 
     def parse_section_header_block(self, block_header):
-        """get section info from section header block"""
+        """
+        get section info from section header block
+        """
 
         # read byte order info first.
         byteorder_magic = self.infile.read(4)
@@ -75,6 +92,9 @@ class PcapngFile(object):
         self.section_info.length = section_len
 
     def parse_interface_description_block(self, block_len):
+        """
+        Parse interface description block
+        """
         # read link type and capture size
         buf = self.infile.read(4)
         link_type, = struct.unpack(self.section_info.byteorder + b'H2x', buf)
@@ -121,21 +141,20 @@ class PcapngFile(object):
             offset += 4 + padding_len
 
     def parse_enhanced_packet(self, block_len):
+        """
+        parse enhanced packet
+        """
         buf = self.infile.read(4)
-        # interface_id, = struct.unpack(self.section_info.byteorder + b'I', buf)
 
         # skip timestamp
         buf = self.infile.read(8)
         h, l, = struct.unpack(self.section_info.byteorder + b'II', buf)
         timestamp = (h << 32) + l
-        if sys.version_info < (3,):
-            micro_second = long(timestamp * self.section_info.tsresol + self.section_info.tsoffset)
-        else:
-            micro_second = timestamp * self.section_info.tsresol + self.section_info.tsoffset
+        micro_second = timestamp * self.section_info.tsresol + self.section_info.tsoffset
+        
         # capture len
         buf = self.infile.read(8)
         capture_len, packet_len = struct.unpack(self.section_info.byteorder + b'II', buf)
-        # padded_capture_len = ((capture_len - 1) // 4 + 1) * 4
 
         # the captured data
         data = self.infile.read(capture_len)
@@ -145,7 +164,9 @@ class PcapngFile(object):
         return micro_second, data
 
     def parse_block(self):
-        """read and parse a block"""
+        """
+        read and parse a block
+        """
         if self.head is not None:
             block_header = self.head + self.infile.read(8 - len(self.head))
             self.head = None
@@ -169,7 +190,6 @@ class PcapngFile(object):
             data = self.infile.read(block_len - 12)
         else:
             self.infile.read(block_len - 12)
-            #print("unknown block type:%s, size:%d" % (hex(block_type), block_len), file=sys.stderr)
 
         # read author block_len
         block_len_t = self.infile.read(4)
@@ -180,6 +200,9 @@ class PcapngFile(object):
         return micro_second, data
 
     def read_packet(self):
+        """
+        Read packet
+        """
         while True:
             data = self.parse_block()
             if data is None:

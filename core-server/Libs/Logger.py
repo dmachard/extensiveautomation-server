@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -32,10 +32,14 @@ import logging.handlers
 import inspect
 import sys
 
+# unicode = str with python3
+if sys.version_info > (3,):
+    unicode = str
+    
 try:
     import Settings
-except Exception as e:
-    pass
+except ImportError: # python3 support
+    from . import Settings
 
 def callee():
     """
@@ -61,7 +65,10 @@ class ClassLogger(object):
         @param txt: message
         @type txt: string
         """
-        instance().info(  unicode(txt).encode('utf-8')  )
+        if sys.version_info > (3,):
+            instance().info(  txt )
+        else:
+            instance().info(  unicode(txt).encode('utf-8')  )
 
     def trace (self, txt):
         """
@@ -71,7 +78,10 @@ class ClassLogger(object):
         @type txt: string
         """
         if __debug__:
-            instance().debug(  unicode(txt).encode('utf-8')  )
+            if sys.version_info > (3,):
+                instance().debug( txt )
+            else:
+                instance().debug(  unicode(txt).encode('utf-8')  )
 
     def error (self, err):
         """
@@ -80,7 +90,10 @@ class ClassLogger(object):
         @param err:
         @type err:
         """
-        instance().error( "%s > %s: %s" % ( self.__class__.__name__, caller(), unicode(err).encode('utf-8') ) )
+        if sys.version_info > (3,):
+            instance().error( "%s > %s: %s" % ( self.__class__.__name__, caller(), err ) )
+        else:
+            instance().error( "%s > %s: %s" % ( self.__class__.__name__, caller(), unicode(err).encode('utf-8') ) )
         
     def fatal (self, err):
         """
@@ -89,7 +102,10 @@ class ClassLogger(object):
         @param err:
         @type err:
         """
-        instance().error( "%s" % unicode(err).encode('utf-8') )
+        if sys.version_info > (3,):
+            instance().error( "%s" % err )
+        else:
+            instance().error( "%s" % unicode(err).encode('utf-8') )
         
 LG = None # Singleton
 def instance ():
@@ -183,7 +199,6 @@ def initialize (logPathFile=None, level="INFO", size="5", nbFiles="10", noSettin
                                                 )
     
     #format='%(asctime)-6s: %(name)s - %(levelname)s - %(module)s - %(funcName)s - %(lineno)d - %(message)s',
-    # %(funcName)s ==> not supported with python 2.4
     formatter = logging.Formatter( "%(asctime)s - %(levelname)s - %(message)s")
     handler.setFormatter(formatter)
 

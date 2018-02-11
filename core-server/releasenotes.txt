@@ -1,31 +1,41 @@
 
-17.1.0
-	Date: 22/10/2017
+18.0.0
+	Date: 11/02/2018
 	What's new
-		1. (medium) New script to generate api key for user
-		2. (medium) Rest API: return None instead of undefined when the test result is not yet available
-		3. (major) Build: new nodejs v6.11 embedded by default
-		4. (medium) New email interop library
-		5. (medium) Build: new sut adapters 11.1.0
-		6. (major) Build: executable client, toolboxes and plugins are no more embedded by default, can be always added manually
-		7. (medium) Build: new client 12.1.0
-		8. (medium) Task Manager: new function to send test report in attachment
-		9. (minor) Web server: display download links only if additionals packages exists in server
-		10. (minor) Web server: alphabetical ordered for all users and projects list
-		11. (minor) Build: some improvements in default snippets (run_cmd,...)
-		12. (major) Test Library: new feature to save cache data in memory instead of a file
-		13. (minor) Test Library: new function to get previous step from a testcase
-		14. (medium) Cli: new state to indicate when the server is booting or not
-		15. (minor) Rest API: /results/status updated to return the progress of the execution in percent
-		16. (minor) Test Library: add wait message in the basic report
-		17. (major) Rest API: no more return test report in base64
-		18. (medium) Test Library: new json test properties 
-		19. (major) New function to terminate or interrupt a test or a testcase
+		1. (minor) test library: change open source project url in test report header
+		2. (major) toolboxes windows and linux no more embedded in the package
+		3. (medium) no more default agent and probe running on server side
+		4. (medium) no more toolbox deployed on boot server
+		5. (medium) build: update of the python selenium library with version 3.9.0
+		6. (minor) remove deprecated python modules: commands, compiler
+		7. (major) rest api: /rest/results/* updated to support replay id, new type of reports and more
+		8. (major) test library: task uuid added in test logger xml events
+		9. (major) rest api: /rest/tasks/* updated with news functions
+		10. (major) rest api: /rest/tests/* updated with news functions
+		11. (major) XmlRPC API no more available, client update not possible from 17.1 to the new version
+		12. (major) no more dependencies with python-twisted libraries
+		13. (minor) licence feature removed from the product, code simplification
+		14. (major) Web server: no more support php 5.1
+		15. (major) Web server: xmlrpc api no more used
+		16. (minor) Test Interop: new function to search a project by name
+		17. (major) Test Interop: update runTest, [add|Update]Variable function to the support the new rest api
+		18. (minor) xtcpyrc-3.0.tar.gz removed from the project, no more development on it
+		19. (minor) code cleanup to support python 3.5 and more in future
+		20. (major) rest api: no more return base64 and compressed data en response
+		21. (medium) test interop: new functions in quality center plugin
+		22. (major) cleanup on default users, new monitor user with read only access
+		23. (major) New major client 18.0.0 embedded
+		24. (medium) Web server: change on add user page, no more options for access rights
+		25. (medium) New set of sut adapters 12.0.0
+		26. (minor) New tests samples
+		27. (minor) test library: support float with comma in test properties
+		28. (minor) New set of sut librairies 8.1.0
+		29. (major) Scheduler - modification of id for all run type 
 	Issues Fixed
-		1. (minor) Test Model: fix bad generic adapters/libraries version in loading modules event
-		2. (minor) Repo Archives: no more log an error when the test result is not found in repository
-		3. (minor) Task Manager: fix issue to enable to receive basic report by email
-		4. (medium) Test Library/TestModel: bad test executed on fail condition, only for testplan/testglobal
-		5. (minor) Test Library: wrong reference name for TestOperatorsLib in line 4456 - Issue #3
-		6. (minor) Test Library: Condition and Label methods of TestCase class missing in help - Issue #4
-		7. (minor) Test Library: fix error in test logger xml, bad variable name
+		1. (minor) test library: undefined variable in virtualRun function - #issue 1
+		2. (minor) unable to reset libraries and adapters repositories
+		3. (minor) unable to import test abstract, extension not authorized
+		4. (minor) test library: fix bad test basic report with test abstract in testplan
+		5. (minor) test library: fix encoding in info messages in test report
+		6. (medium) web server: unable to link project to user - #issue 4
+		7. (major) fix pysnmp error import 'module' object has no attribute 'noValue'

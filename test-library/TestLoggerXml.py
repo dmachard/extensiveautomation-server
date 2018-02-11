@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -69,7 +69,7 @@ class TestLoggerXml:
     """
     Test logger xml
     """
-    def __init__ (self, path, name, user_,testname_, id_, replay_id_, task_id_, userid_, channelid_):
+    def __init__ (self, task_uuid, path, name, user_,testname_, id_, replay_id_, task_id_, userid_, channelid_):
         """
         Constructor for the test logger xml
 
@@ -171,7 +171,8 @@ class TestLoggerXml:
         
         # Universally Unique IDentifiers
         self.testUuid = "%s" % uuid.uuid4()
-    
+        self.taskUuid = task_uuid
+        
     def getPath(self):
         """
         Return path
@@ -258,7 +259,9 @@ class TestLoggerXml:
         """
         return { 'from': self.__user, 'task-id': self.taskId, 'test-id': self.__id, 
                 'script_name': self.testname, 'script_id': self.scriptId, 'uuid': self.testUuid,
-                'channel-id': self.__channelid, 'test-replay-id': self.__replayid }
+                'channel-id': self.__channelid, 
+                'test-replay-id': self.__replayid,
+                'task-uuid': self.taskUuid }
 
     def to_notif_json(self, value={}, testInfo={}):
         """
@@ -296,8 +299,7 @@ class TestLoggerXml:
 
             # open the file and append notification
             f = open('%s/%s' % (self.__path, self.__filename), 'a', 0)
-            #f.write(str(value) + '\n')
-            
+
             # pickle the notif and encode in base64
             pickled = cPickle.dumps(value, protocol=PICKLE_VERSION)
             encoded = base64.b64encode(pickled) 
@@ -2004,7 +2006,7 @@ def instance():
     if TestLogger:
         return TestLogger
 
-def initialize( path, name, user_ , testname_, id_, replay_id_, task_id_, userid_, channelid_=False):
+def initialize( task_uuid, path, name, user_ , testname_, id_, replay_id_, task_id_, userid_, channelid_=False):
     """
     Initialize
 
@@ -2031,9 +2033,9 @@ def initialize( path, name, user_ , testname_, id_, replay_id_, task_id_, userid
     """
     TestSettings.initialize()
     global TestLogger
-    TestLogger = TestLoggerXml(path = path, name = name, user_ = user_, 
-                    testname_ = testname_, id_ = id_, replay_id_ = replay_id_ ,
-                        task_id_ = task_id_, userid_ = userid_, channelid_=channelid_)
+    TestLogger = TestLoggerXml( task_uuid=task_uuid, path = path, name = name, user_ = user_, 
+                                testname_ = testname_, id_ = id_, replay_id_ = replay_id_ ,
+                                task_id_ = task_id_, userid_ = userid_, channelid_=channelid_)
 
 def finalize():
     """

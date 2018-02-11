@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -25,22 +25,27 @@ import time
 import threading
 import base64
 import zlib
+import json
+
 try:
-    import simplejson as json # python 2.4 support
-except ImportError:
-    import json
-
-import EventServerInterface as ESI
-import DbManager
-import TaskManager
-
+    import EventServerInterface as ESI
+    import DbManager
+    import TaskManager
+    import Common
+except ImportError: # python3 support
+    from . import EventServerInterface as ESI
+    from . import DbManager
+    from . import TaskManager
+    from . import Common
+    
 from Libs import Settings, Logger
 
-PASS = "PASS"
-FAIL = "FAIL"
-UNDEFINED= "UNDEFINED"
-
 class StatsManager(Logger.ClassLogger):
+    """
+    """
+    PASS = "PASS"
+    FAIL = "FAIL"
+    UNDEFINED= "UNDEFINED"
     def __init__ (self):
         """
         Statistics Manager for tests
@@ -55,27 +60,6 @@ class StatsManager(Logger.ClassLogger):
         self.dbt_scripts = '%s-scripts-stats' % Settings.get( 'MySql', 'table-prefix')
         self.dbt_writing = '%s-writing-stats' % Settings.get( 'MySql', 'table-prefix')
         self.notifyUsers =  Settings.getInt( 'Notifications', 'statistics')
-
-    def encodeData(self, data):
-        """
-        Encode data
-        """
-        ret = ''
-        try:
-            tasks_json = json.dumps(data)
-        except Exception as e:
-            self.error( "Unable to encode in json: %s" % str(e) )
-        else:
-            try: 
-                tasks_zipped = zlib.compress(tasks_json)
-            except Exception as e:
-                self.error( "Unable to compress: %s" % str(e) )
-            else:
-                try: 
-                    ret = base64.b64encode(tasks_zipped)
-                except Exception as e:
-                    self.error( "Unable to encode in base 64: %s" % str(e) )
-        return ret
 
     def getStats (self):
         """
@@ -425,7 +409,7 @@ class StatsManager(Logger.ClassLogger):
                 raise Exception("sql problem to reset %s" % self.dbt_writing)
             ret = True
         except Exception as e:
-            raise Exception( "[resetStats]%s" % str(e) )
+            self.error( "[resetStats]%s" % str(e) )
         return ret
 
     def addResultScript (self, scriptResult, scriptUser, scriptDuration, scriptProject ):
@@ -486,10 +470,6 @@ class StatsManager(Logger.ClassLogger):
                 raise Exception("unable to add result testcase in db")
         except Exception as e:
             self.error( e )
-        # else:
-            # if self.notifyUsers:
-                # data = ( 'stats', ( None, self.getStats() ) )   
-                # ESI.instance().notifyByUserTypes( body=data, admin=True, leader=True, tester=False, developer=False)
         self.__mutex__.release()
 
     def addResultTestUnit(self, tuResult, fromUser, tuDuration, nbTc, prjId):
@@ -522,10 +502,6 @@ class StatsManager(Logger.ClassLogger):
                 raise Exception("unable to add result testunit in db")
         except Exception as e:
             self.error( e )
-        # else:
-            # if self.notifyUsers:
-                # data = ( 'stats', ( None, self.getStats() ) )   
-                # ESI.instance().notifyByUserTypes( body=data, admin=True, leader=True, tester=False, developer=False)
         self.__mutex__.release()
         
     def addResultTestAbstract(self, taResult, fromUser, taDuration, nbTc, prjId):
@@ -558,10 +534,6 @@ class StatsManager(Logger.ClassLogger):
                 raise Exception("unable to add result testabstract in db")
         except Exception as e:
             self.error( e )
-        # else:
-            # if self.notifyUsers:
-                # data = ( 'stats', ( None, self.getStats() ) )   
-                # ESI.instance().notifyByUserTypes( body=data, admin=True, leader=True, tester=False, developer=False)
         self.__mutex__.release()
         
     def addResultTestSuite(self, tsResult, fromUser, tsDuration, nbTc, prjId):
@@ -594,10 +566,6 @@ class StatsManager(Logger.ClassLogger):
                 raise Exception("unable to add result testsuite in db")
         except Exception as e:
             self.error( e )
-        # else:
-            # if self.notifyUsers:
-                # data = ( 'stats', ( None, self.getStats() ) )   
-                # ESI.instance().notifyByUserTypes( body=data, admin=True, leader=True, tester=False, developer=False)
         self.__mutex__.release()
 
     def addResultTestPlan(self, tpResult, fromUser, tpDuration, nbTs, nbTu, nbTc, prjId):
@@ -633,10 +601,6 @@ class StatsManager(Logger.ClassLogger):
                 raise Exception("unable to add result testplan in db")
         except Exception as e:
             self.error( e )
-        # else:
-            # if self.notifyUsers:
-                # data = ( 'stats', ( None, self.getStats() ) )   
-                # ESI.instance().notifyByUserTypes( body=data, admin=True, leader=True, tester=False, developer=False)
         self.__mutex__.release()
 
     def addResultTestGlobal(self, tgResult, fromUser, tgDuration, nbTs, nbTu, nbTc, prjId):
@@ -678,10 +642,6 @@ class StatsManager(Logger.ClassLogger):
                 raise Exception("unable to add result testglobals in db")
         except Exception as e:
             self.error( e )
-        # else:
-            # if self.notifyUsers:
-                # data = ( 'stats', ( None, self.getStats() ) )   
-                # ESI.instance().notifyByUserTypes( body=data, admin=True, leader=True, tester=False, developer=False)
         self.__mutex__.release()
 
     def addWritingDuration(self, fromUser, prjId, writingDuration, isTs=False, isTp=False, isTu=False, isTg=False, isTa=False):
@@ -710,7 +670,7 @@ class StatsManager(Logger.ClassLogger):
         @type isTg: boolean
         """
         rlt = True
-        if not Settings.getInt( 'MySql', 'insert-test-statistics'): return rlt
+        # if not Settings.getInt( 'MySql', 'insert-test-statistics'): return rlt
         self.trace( 'add writing duration %s sec.' % writingDuration )
         self.__mutex__.acquire()
         try:
@@ -724,10 +684,6 @@ class StatsManager(Logger.ClassLogger):
         except Exception as e:
             self.error( e )
             rlt = False
-        # else:
-            # if self.notifyUsers:
-                # data = ( 'stats', ( None, self.getStats() ) )   
-                # ESI.instance().notifyByUserTypes( body=data, admin=True, leader=True, tester=False, developer=False)
         self.__mutex__.release()
         return rlt
 

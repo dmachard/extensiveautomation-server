@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -20,6 +20,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
+
+"""
+File agent
+"""
 
 import Core.GenericTool as GenericTool
 import Libs.Settings as Settings
@@ -70,6 +74,9 @@ Events messages:
 Targetted operating system: Windows and Linux"""
 
 def get_size_path(path):
+    """
+    Return the size of the given path
+    """
     total_size = 0
     for dirpath, dirnames, filenames in os.walk(path):
         for f in filenames:
@@ -79,16 +86,21 @@ def get_size_path(path):
 
     return total_size   # in megabytes
     
-def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport):
+def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                supportProxy, proxyIp, proxyPort, sslSupport):
     """
     Wrapper to initialize the object agent
     """
-    return File( controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
+    return File( controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                supportProxy, proxyIp, proxyPort, sslSupport )
     
 class FollowThread(threading.Thread):
+    """
+    Follow thread
+    """
     def __init__(self, parent, request):
         """
-        Individual sikuli thread
+        Constructor
         """
         threading.Thread.__init__(self)
         self.stopEvent = threading.Event()
@@ -115,6 +127,7 @@ class FollowThread(threading.Thread):
 
     def startFollow(self, path, extensions):
         """
+        Start to follow the path
         """
         self.following = True	
         self.trace("To inspect Path=%s" % path)
@@ -123,6 +136,7 @@ class FollowThread(threading.Thread):
 		
     def callback(self, filename, lines):
         """
+        Callback function
         """
         for line in lines:
             if self.filter is not None:
@@ -159,6 +173,7 @@ class FollowThread(threading.Thread):
         
     def log(self, content):
         """
+        Log
         """
         self.sendFollow(content)
         
@@ -193,6 +208,9 @@ class FollowThread(threading.Thread):
         self.stopEvent.set()
 
 class File(GenericTool.Tool):
+    """
+    File agent class
+    """
     def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
                             supportProxy=0, proxyIp=None, proxyPort=None, sslSupport=True):
         """
@@ -214,10 +232,10 @@ class File(GenericTool.Tool):
         @type defaultTool: boolean
         """
         GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
-                                    supportProxy=supportProxy, proxyIp=proxyIp, proxyPort=proxyPort, sslSupport=sslSupport)
+                                    supportProxy=supportProxy, proxyIp=proxyIp, proxyPort=proxyPort, 
+                                    sslSupport=sslSupport)
         self.__type__ = __TYPE__
 
-        # self.testsContext = {}
         self.followThreads = {}
        
     def getType(self):
@@ -271,21 +289,24 @@ class File(GenericTool.Tool):
 
     def onResetTestContext(self, testUuid, scriptId, adapterId):
         """
+        On reset test context event
         """
         self.onToolLogWarningCalled( "<< Resetting ScriptId=%s AdapterId=%s" % (scriptId, adapterId) )
         self.trace("Resetting follow threads ScriptId=%s - AdapterId=%s" % (scriptId, adapterId) )
         
         threadDetected = False
+        testId = None
         for testId, followThread in self.followThreads.items():
             if testId.startswith( "%s_%s" % (scriptId, adapterId) ):
                 threadDetected = True
                 break
 
         if threadDetected:
-            fThread = self.followThreads.pop(testId)
-            fThread.stop()
-            fThread.join()
-            del fThread
+            if testId is not None:
+                fThread = self.followThreads.pop(testId)
+                fThread.stop()
+                fThread.join()
+                del fThread
             
         
         self.trace("reset test terminated")
@@ -519,7 +540,8 @@ class File(GenericTool.Tool):
                 self.sendNotify(request, data={ 'cmd': request['data']['cmd'],
                                                 'result': fileExists,
                                                 'request-id': request['data']['request-id'],
-                                                'path':request['data']['path'], 'modification-date': str(fileDate) } )
+                                                'path':request['data']['path'], 
+                                                'modification-date': str(fileDate) } )
                                                 
             elif request['data']['cmd'] == 'List Files':
                 self.trace("get list of files in : %s" % request['data']['path'] )
@@ -657,14 +679,18 @@ class File(GenericTool.Tool):
             elif request['data']['cmd'] == 'Start Follow File':
                 
                 
-                follow_id = "%s_%s_%s" % (request['script_id'], request['source-adapter'], request['data']['request-id'] )
-                self.trace( "Starting follow ScriptId=%s AdapterId=%s" % (request['script_id'], request['source-adapter']) )
+                follow_id = "%s_%s_%s" % (request['script_id'], 
+                                          request['source-adapter'], 
+                                          request['data']['request-id'] )
+                self.trace( "Starting follow ScriptId=%s AdapterId=%s" % (request['script_id'], 
+                                                                          request['source-adapter']) )
                 
                 if follow_id not in self.followThreads:
 
                     req_saved = copy.deepcopy(request)
                     newthread = FollowThread(parent=self, request=request  )
-                    newthread.startFollow(path=req_saved['data']['path'], extensions=req_saved['data']['extensions'])
+                    newthread.startFollow(path=req_saved['data']['path'], 
+                                          extensions=req_saved['data']['extensions'])
                     newthread.start()
                     
                     self.followThreads[ follow_id ] = newthread
@@ -688,8 +714,11 @@ class File(GenericTool.Tool):
                                                 
             elif request['data']['cmd'] == 'Stop Follow File':
 
-                follow_id = "%s_%s_%s" % (request['script_id'], request['source-adapter'], request['data']['follow-id'] )
-                self.trace("stopping follow ScriptId=%s AdapterId=%s" % (request['script_id'], request['source-adapter']) )
+                follow_id = "%s_%s_%s" % (request['script_id'], 
+                                          request['source-adapter'], 
+                                          request['data']['follow-id'] )
+                self.trace("stopping follow ScriptId=%s AdapterId=%s" % (request['script_id'], 
+                                                                         request['source-adapter']) )
                 if follow_id in self.followThreads:
                     self.followThreads[ follow_id ].stop()
                     self.followThreads[ follow_id ].join()
@@ -702,7 +731,8 @@ class File(GenericTool.Tool):
                 self.trace("follow id=%s - notify sent" % follow_id)
 
             elif request['data']['cmd'] == 'Compare Files':
-                self.trace("compare file %s with %s" % (request['data']['path'], request['data']['path-dst']) )
+                self.trace("compare file %s with %s" % (request['data']['path'], 
+                                                        request['data']['path-dst']) )
                 filesExists = True
                 htmlResult = ''
                 try:
@@ -753,7 +783,8 @@ class File(GenericTool.Tool):
                 a = self.context()[request['uuid']][request['source-adapter']]
                 a.putItem( lambda: self.execAction(request) )
             else:
-                self.error("Adapter context does not exists TestUuid=%s AdapterId=%s" % (request['uuid'], request['source-adapter'] ) )
+                self.error("Adapter context does not exists TestUuid=%s AdapterId=%s" % (request['uuid'], 
+                                                                                         request['source-adapter'] ) )
         else:
             self.error("Test context does not exits TestUuid=%s" % request['uuid'])
         self.__mutex__.release()
