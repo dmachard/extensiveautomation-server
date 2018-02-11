@@ -2,7 +2,7 @@
 # -*- coding=utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -279,24 +279,18 @@ class Selenium(TestAdapter.Adapter):
 
 						self.capabilities = response['value']
 						self.debug("capabilities: %s" % self.capabilities)
-						if 'platform' not in self.capabilities:
-							self.error("Platform missing on response, please to configure browser properly!")
-						else:	
-							version = ""
-							if "version" in self.capabilities:
-								version = self.capabilities['version']
 
-							self.isStarted = True
-							
-							layerValue.addKey(name='navig-id', data="%s" % self.navigId )
-							
-							capsTpl= TestTemplates.TemplateLayer(name='')
-							capsTpl.addMore(self.capabilities)
-							layerValue.addKey(name='capabilities', data=capsTpl )
-							
-							tpl = self.encapsule(layer_gui=templates.gui(action=commandName, actionId=commandId, result=responseResult, value=layerValue,
-																																						state=responseState) )
-							self.logRecvEvent( shortEvt = "%s [result=%s]" % (commandName, responseResult), tplEvt = tpl )
+						self.isStarted = True
+						
+						layerValue.addKey(name='navig-id', data="%s" % self.navigId )
+						
+						capsTpl= TestTemplates.TemplateLayer(name='')
+						capsTpl.addMore(self.capabilities)
+						layerValue.addKey(name='capabilities', data=capsTpl )
+						
+						tpl = self.encapsule(layer_gui=templates.gui(action=commandName, actionId=commandId, result=responseResult, value=layerValue,
+																																					state=responseState) )
+						self.logRecvEvent( shortEvt = "%s [result=%s]" % (commandName, responseResult), tplEvt = tpl )
 						
 				elif commandName == Command.SCREENSHOT:
 					screenshot = base64.b64decode(response['value'].encode('ascii'))
@@ -327,6 +321,9 @@ class Selenium(TestAdapter.Adapter):
 					if 'ELEMENT' in response['value']:
 						layerValue.addKey(name='element-id', data=response['value'] ['ELEMENT'] )
 					
+					if 'element-6066-11e4-a52e-4f735466cecf' in response['value']:
+						layerValue.addKey(name='element-id', data=response['value'] ['element-6066-11e4-a52e-4f735466cecf'] )
+						
 					if 'screen' in response['value']:
 						screenshot = base64.b64decode(response['value'] ['screen'].encode('ascii'))
 						layerValue.addKey(name='screenshot', data=screenshot)
@@ -1200,6 +1197,9 @@ class Selenium(TestAdapter.Adapter):
 		elementVall = rsp.get('GUI',  'value')
 		elementId = elementVall.get('element-id')
 		
+		if elementId is None:
+			self.error("element id is missing in response")
+			
 		# checking if visible
 		more = {}
 		if self.cfg['wait-until']:

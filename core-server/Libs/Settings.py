@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -21,11 +21,13 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-import ConfigParser
+try:
+    import ConfigParser
+except ImportError: # python3 support
+    import configparser as ConfigParser
+    
 import sys
 import os
-
-import Logger
 
 arg = sys.argv[0]
 pathname = os.path.dirname(arg)
@@ -51,7 +53,7 @@ def getVersion (path="./"):
         ver = f.read()
         f.close()
     except Exception as e:
-        Logger.error( "[getVersion] Unable to read version: " + str(e) )
+        print( "[getVersion] Unable to read version: " + str(e) )
     return ver.strip()
 
 def cfgFileIsPresent(path="./", cfgname='settings.ini'):

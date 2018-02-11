@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -56,7 +56,8 @@ class WTestPng(Document.WDocument):
     """
     Test png widget
     """
-    def __init__(self, parent = None, path = None, filename = None, extension = None, nonameId = None, remoteFile=True, repoDest=None, project=0):
+    def __init__(self, parent = None, path = None, filename = None, extension = None, 
+                    nonameId = None, remoteFile=True, repoDest=None, project=0):
         """
         Constructs WScript widget
 
@@ -87,9 +88,12 @@ class WTestPng(Document.WDocument):
         """
         Create qt actions
         """
-        self.zoomInAct = QtHelper.createAction(self, "&Zoom &In (25%.", self.zoomIn, icon=QIcon(":/zoom-in.png") ) 
-        self.zoomOutAct = QtHelper.createAction(self, "Zoom &Out (25%.", self.zoomOut, icon=QIcon(":/zoom-out.png") ) 
-        self.normalSizeAct = QtHelper.createAction(self, "&Normal Size", self.normalSize, icon=QIcon(":/zoom-normal.png") ) 
+        self.zoomInAct = QtHelper.createAction(self, "&Zoom &In (25%.", self.zoomIn, 
+                                                icon=QIcon(":/zoom-in.png") ) 
+        self.zoomOutAct = QtHelper.createAction(self, "Zoom &Out (25%.", self.zoomOut, 
+                                                icon=QIcon(":/zoom-out.png") ) 
+        self.normalSizeAct = QtHelper.createAction(self, "&Normal Size", self.normalSize, 
+                                                   icon=QIcon(":/zoom-normal.png") ) 
 
     def createToolbar(self):
         """

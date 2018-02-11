@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -22,12 +22,15 @@
 # -------------------------------------------------------------------
 
 from Libs import  Settings, Logger
-from Libs import xtcpyrc
 
 import sys
 import os
 import signal
 import subprocess
+
+import requests
+import json
+import hashlib
 
 class CliFunctions(Logger.ClassLogger):
     """
@@ -397,14 +400,68 @@ class CliFunctions(Logger.ClassLogger):
         """
         Run test
         """
-        if len(testsList) > 1:
-            mycli = xtcpyrc.SrvConnector(   server=Settings.get('Bind','ip-wsu'),
-                                            login=Settings.get('Default','user-sys'),
-                                            password=Settings.get('Default','user-sys-password'),
-                                            port=int(Settings.get('Bind','port-wsu')),
-                                            https=False, path="/")
-            ret = mycli.scheduleTest( testsList=testsList[1:] )
-            print(ret)
+        payload = { "login": Settings.get('Default','user-sys'), 
+                    "password":  hashlib.sha1( Settings.get('Default','user-sys-password') ).hexdigest() }
+        headers = {'content-type': 'application/json'}
+        url = "http://%s:%s" % ( Settings.get('Bind','ip-rsi'), Settings.get('Bind','port-rsi')) 
+        r = requests.post( "%s/session/login" % url, data=json.dumps(payload), proxies={},
+                            headers=headers, verify=False)
+        if r.status_code != 200:
+            print("Error login")
+        else:
+            login = json.loads(r.text)
+            sessionId = login['session_id']
+                
+            for t in testsList:
+                if ":" not in t:
+                    continue # ignore the test
+                    
+                _prj, _tst = t.split(":", 1)
+
+                payload = { "project-name": _prj }
+                headers = {'content-type': 'application/json', 'cookie': 'session_id=%s' % sessionId}
+                url = "http://%s:%s" % ( Settings.get('Bind','ip-rsi'), Settings.get('Bind','port-rsi')) 
+                r = requests.post( "%s/administration/projects/search/by/name" % url, 
+                                   data=json.dumps(payload),
+                                   headers=headers, verify=False)
+                if r.status_code != 200:
+                    print("Error search project: %s" % r.text)
+                else:
+                    project = json.loads(r.text)
+                    _projectid = project['project']['id']
+                    
+                    _testpath, _test = os.path.split(_tst)
+                    _testname, _testextension = os.path.splitext(_test)
+                    _testextension = _testextension[1:]
+                    
+                    payload = {"test-execution": "", "test-definition": "",
+                               "test-properties": "",
+                                "test-path": _testpath, 
+                                "test-name": _testname,
+                                "test-extension": _testextension,
+                                "project-id": _projectid,
+                                'schedule-id': -1,
+                                'schedule-at': [0,0,0,0,0,0]}
+                    headers = {'content-type': 'application/json', 'cookie': 'session_id=%s' % sessionId}
+                    url = "http://%s:%s" % ( Settings.get('Bind','ip-rsi'), Settings.get('Bind','port-rsi')) 
+                    
+                    if t.endswith("tpx") or t.endswith("tgx"):
+                        uri = "%s/tests/schedule/tpg" % url
+                    else:
+                        uri = "%s/tests/schedule" % url
+                    r = requests.post( uri, data=json.dumps(payload), proxies={},
+                                       headers=headers, verify=False)
+                    if r.status_code != 200:
+                        print("Error to run")
+                    else:
+                        print("Test running...")
+
+            # logout from rest api
+            headers = {'cookie': 'session_id=%s' % sessionId}
+            url = "http://%s:%s" % ( Settings.get('Bind','ip-rsi'), Settings.get('Bind','port-rsi')) 
+            r = requests.get( "%s/session/logout" % url, headers=headers, verify=False)
+            if r.status_code != 200:
+                print("Error logout")
             
     def reload(self):
         """

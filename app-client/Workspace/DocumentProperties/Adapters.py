@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -46,14 +46,18 @@ except ImportError:
     
 from Libs import QtHelper, Logger
 
-# python 3 support
-# support old variant style
-# will be remove in the future
-def q(v=""): 
-    return QVariant(v)
-if sys.version_info > (3,): 
-    def q(v=""): 
+def q(v=""):
+    """
+    Return the value argument without do anything
+    Only to support python 2.x and python 3.x
+    
+    @param v: the value to convert
+    @type v: string
+    """
+    if sys.version_info > (3,): 
         return v
+    else:
+        return QVariant(v)
 
 import operator
 
@@ -118,7 +122,7 @@ class DescriptionTableModel(QAbstractTableModel):
         @type data:
         """
         self.mydata = data
-        # self.reset()
+
         if sys.version_info > (3,):
             self.beginResetModel()
             self.endResetModel()
@@ -172,25 +176,7 @@ class DescriptionTableModel(QAbstractTableModel):
 
                 if actionType == ACTION_ADAPTER:
                     funcName = self.mydata[ index.row() ]['data']['function']
-
-                    # funcRet = ""
-                    # if len(self.mydata[ index.row() ]['data']['obj']) >= 1:
-                        # funcArgType = "%s" % self.mydata[ index.row() ]['data']['obj'][0]['selected-type']
-                        # funcArg = "%s" % self.mydata[ index.row() ]['data']['obj'][0]['value']
-                    # else:
-                        # funcArg = ""
-                        # funcArgType = ""
-
-                    # if 'return-value' in self.mydata[ index.row() ]['data']:
-                        # if self.mydata[ index.row() ]['data']['return-value'] == 'True':
-                            # funcRet = "ACTION%s = " % (index.row() + 1)
-
-                    # if len(funcArg):
-                        # return  "%s%s >> %s[%s]: %s" % (funcRet, ACTION_TESTCASE, funcName, funcArgType, funcArg)
-                        # return  "%s [%s: %s]" % (funcName, funcArgType, funcArg)
-                    # else:
                     return  "%s" % (funcName)
-                        #return  "%s%s >> %s" % (funcRet, ACTION_TESTCASE, funcName)
 
                 else:
                     return "unknonw action type: %s" % actionType
@@ -234,7 +220,6 @@ class DescriptionTableModel(QAbstractTableModel):
                 if 'return-value' in self.mydata[ index.row() ]['data']:
                     if self.mydata[ index.row() ]['data']['return-value'] == 'True':
                         pass
-                        #return QIcon(":/repository.png")
 
         if role == Qt.BackgroundColorRole:
             if self.mydata[ index.row() ]['action'] == ACTION_ADAPTER:
@@ -262,20 +247,6 @@ class DescriptionTableModel(QAbstractTableModel):
             return DESCRIPTION_HEADERS[section]
 
         return None
-        # if role != Qt.DisplayRole:
-            # if role == Qt.FontRole:
-                # return q()
-                #return ''
-            # else:
-                # return q()
-                #return ''
-        # i_column = int(section)
-        # if orientation == Qt.Horizontal:
-            # return q( DESCRIPTION_HEADERS[i_column] )
-            #return DESCRIPTION_HEADERS[i_column]
-        # else:
-            # return q()
-            #return ''
 
     def setValue(self, index, value):
         """
@@ -360,7 +331,6 @@ class AdapterDelegate(QItemDelegate, Logger.ClassLogger):
         """
         proxyIndex = index
         if proxyIndex.isValid():
-            #return index.model().getValue(index)
             sourceIndex = self.owner.proxyModel.mapToSource( proxyIndex )
             return proxyIndex.model().sourceModel().getValue(sourceIndex)
 
@@ -379,7 +349,6 @@ class AdapterDelegate(QItemDelegate, Logger.ClassLogger):
         """
         proxyIndex = index
         if proxyIndex.isValid():
-            #index.model().setValue(index, value)
             sourceIndex = self.owner.proxyModel.mapToSource( proxyIndex )
             proxyIndex.model().sourceModel().setValue(sourceIndex, value)
 
@@ -573,7 +542,6 @@ class AdaptersTableView(QTableView):
         @param indexes: 
         @type indexes:
         """
-        #indexes = self.selectedIndexes()
         if not indexes:
             return
         
@@ -588,8 +556,7 @@ class AdaptersTableView(QTableView):
                 
         for cleanIndex in list(cleanIndexes.keys()): # for python3 support
             datas.pop(cleanIndex)
-    
-        # self.model.reset()
+
         self.model.beginResetModel()
         self.model.endResetModel()
         self.setData( signal = True )
@@ -631,18 +598,20 @@ class AdaptersTableView(QTableView):
                 for cls in adp['classes']:
 
                     # extract __init__ function only
+                    fct = None
                     for fct in cls['functions']:
                         if fct['name'] == '__init__':
                             break
-                            
-                    argsFct = self.parseDocString(docstring=fct['desc'])
-                    argsFct['function'] = "%s::%s" % (adp['name'],cls['name'])
-                    argsFct['main-name'] = "%s" % adp['name']
-                    argsFct['sub-name'] = "%s" % cls['name']
-                    if 'default-args' in fct:
-                        self.addDefaultValues(defaultValues=fct['default-args'], currentFunction=argsFct)
+                    
+                    if fct is not None:
+                        argsFct = self.parseDocString(docstring=fct['desc'])
+                        argsFct['function'] = "%s::%s" % (adp['name'],cls['name'])
+                        argsFct['main-name'] = "%s" % adp['name']
+                        argsFct['sub-name'] = "%s" % cls['name']
+                        if 'default-args' in fct:
+                            self.addDefaultValues(defaultValues=fct['default-args'], currentFunction=argsFct)
                         
-                    adpMenu.addAction(QtHelper.createAction(self, cls['name'], self.addAdapter, cb_arg=argsFct ))    
+                        adpMenu.addAction(QtHelper.createAction(self, cls['name'], self.addAdapter, cb_arg=argsFct ))    
             
         if not indexes:
             self.delAction.setEnabled(False)
@@ -774,8 +743,6 @@ class AdaptersTableView(QTableView):
         Set adapters
         """
         self.model.setDataModel( adapters )
-        #data = self.model.getData()
-        #data.sort(key=operator.itemgetter('id') )
         self.setData( signal = False )
     
     def clearItems(self):

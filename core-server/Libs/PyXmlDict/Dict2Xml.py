@@ -21,6 +21,13 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+import sys
+
+try:
+    xrange
+except NameError: # support python3
+    xrange = range
+    
 try:
     import xml.etree.ElementTree as ET
 except Exception as e:

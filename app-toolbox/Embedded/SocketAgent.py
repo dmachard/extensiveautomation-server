@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -21,6 +21,9 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Socket agent
+"""
 
 import Core.GenericTool as GenericTool
 import Libs.Settings as Settings
@@ -48,9 +51,21 @@ if sys.version_info > (3,):
     unicode = str
 else:
     # these exceptions does not exist in python2.X
-    class ConnectionAbortedError(Exception): pass
-    class ConnectionRefusedError(Exception): pass
-    class ConnectionResetError(Exception): pass
+    class ConnectionAbortedError(Exception): 
+        """
+        Connection aborted exception
+        """
+        pass
+    class ConnectionRefusedError(Exception): 
+        """
+        Connection refused exception
+        """
+        pass
+    class ConnectionResetError(Exception): 
+        """
+        Connection reset exception
+        """
+        pass
     
 # SSL support 
 try:
@@ -172,9 +187,15 @@ TLSv11 = "TLSv11"
 TLSv12 = "TLSv12"
 
 class HandshakeFailed(Exception):
+    """
+    Handshake failed exception
+    """
     pass
     
 class SockRawThread(threading.Thread):
+    """
+    Raw socket thread
+    """
     def __init__(self, parent, request):
         """
         Individual raw socket
@@ -191,6 +212,7 @@ class SockRawThread(threading.Thread):
 
     def onReset(self):
         """
+        On reset thread
         """
         self.stop()
         
@@ -287,6 +309,7 @@ class SockRawThread(threading.Thread):
 
     def onStartSniffingFailed(self, e):
         """
+        On start sniffing failed
         """
         self.sendNotify(data={'socket-raw-event': 'sniffing-failed', 'more': str(e) } )
         self.stop()
@@ -299,6 +322,7 @@ class SockRawThread(threading.Thread):
 
     def cleanSocket(self):
         """
+        Clean socket
         """
         if self.socket is not None: 
             self.socket.close()
@@ -343,6 +367,9 @@ class SockRawThread(threading.Thread):
         self.stop()
 
 class SockUdpThread(threading.Thread):
+    """
+    UDP socket thread
+    """
     def __init__(self, parent, request):
         """
         Individual udp socket
@@ -359,6 +386,7 @@ class SockUdpThread(threading.Thread):
 
     def onReset(self):
         """
+        On reset
         """
         self.stop()
         
@@ -377,7 +405,8 @@ class SockUdpThread(threading.Thread):
         
     def __checkConfig(self):
         """
-        private function
+        Private function
+        Check the configuration of the socket
         """
         # log all configuration parameters
         self.trace( "cfg: %s" % self.cfg )
@@ -434,6 +463,7 @@ class SockUdpThread(threading.Thread):
 
     def createUdpSocket(self):
         """
+        Create the socket
         """
         # Start the tcp connection
         self.trace( 'starting to listen' )
@@ -488,6 +518,7 @@ class SockUdpThread(threading.Thread):
 
     def cleanSocket(self):
         """
+        Clean the socket
         """
         if self.socket is not None: 
             self.socket.close()
@@ -535,6 +566,9 @@ class SockUdpThread(threading.Thread):
         self.stop()
 
 class SockTcpThread(threading.Thread):
+    """
+    TCP socket thread
+    """
     def __init__(self, parent, request):
         """
         Individual socket
@@ -554,6 +588,7 @@ class SockTcpThread(threading.Thread):
    
     def onReset(self):
         """
+        On reset
         """
         self.stop()
         
@@ -645,8 +680,6 @@ class SockTcpThread(threading.Thread):
             elif self.cfg['ssl-version'] == TLSv12:
                 ver = ssl.PROTOCOL_TLSv1_2      
             else:
-                # self.sendError( { 'ssl-event':'version-unknown', 'more': '%s' % str(self.cfg['ssl-version'])} )
-                # self.stop()
                 raise Exception('ssl init - version unknown: %s' % str(self.cfg['ssl-version']) )   
             
             # set cehck certificate option
@@ -657,8 +690,6 @@ class SockTcpThread(threading.Thread):
             elif self.cfg['check-cert'] == CHECK_CERT_REQUIRED:
                 check = ssl.CERT_REQUIRED               
             else:
-                # self.sendError( { 'ssl-event':'check-certificate-unknown', 'more': '%s' % str(self.cfg['check-cert'])} )
-                # self.stop()
                 raise Exception('check certificate unknown: %s' % str(self.cfg['check-cert']) )
 
             self.sslVersion = self.cfg['ssl-version']
@@ -670,8 +701,6 @@ class SockTcpThread(threading.Thread):
                                         ssl_version=ver, ca_certs=self.cfg['ca-certs'] )
         except Exception as e:
             raise Exception('SSL init failed: %s' % str(e)) 
-            # self.sendError( { 'ssl-event':'init-failed', 'more': '%s' % str(e) } )
-            # self.stop()
         return sock
     
     def getPEMcert(self, DERcert):
@@ -750,7 +779,8 @@ class SockTcpThread(threading.Thread):
                 # active tcp keep alive
                 self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
                 if sys.platform == "win32":
-                    self.socket.ioctl(socket.SIO_KEEPALIVE_VALS, (1, self.cfg['tcp-keepalive-interval']*1000, self.cfg['tcp-keepalive-interval']*1000))
+                    self.socket.ioctl(socket.SIO_KEEPALIVE_VALS, (1, self.cfg['tcp-keepalive-interval']*1000, 
+                                                                    self.cfg['tcp-keepalive-interval']*1000))
                 elif sys.platform == "darwin":
                     # interval in seconds between keepalive probes
                     self.socket.setsockopt(socket.SOL_TCP, socket.TCP_KEEPINTVL, self.cfg['tcp-keepalive-interval']) 
@@ -918,7 +948,8 @@ class SockTcpThread(threading.Thread):
                                 except Queue.Empty:
                                     pass
                                 except Exception as e:
-                                    self.sendError(data= { 'tcp-event': "sending-error", "more": "unable to send message: %s" % str(e) } )
+                                    self.sendError(data= { 'tcp-event': "sending-error", 
+                                                            "more": "unable to send message: %s" % str(e) } )
                             else:
                                 break
             except EOFError as e:
@@ -932,6 +963,7 @@ class SockTcpThread(threading.Thread):
 
     def cleanSocket(self):
         """
+        Clean the socket
         """
         self.trace( 'cleaning socket connected=%s...' % self.tcpConnected )    
         if self.socket is not None: 
@@ -948,8 +980,12 @@ class SockTcpThread(threading.Thread):
         self.stopEvent.set()
 
 class SockUdpServerThread(threading.Thread):
+    """
+    UDP Socket server thread
+    """
     def __init__(self, parent, request):
         """
+        Constructor
         """
         threading.Thread.__init__(self)
         self.stopEvent = threading.Event()
@@ -972,8 +1008,11 @@ class SockUdpServerThread(threading.Thread):
             self.sendError(data="server sock-type configuration key is missing")
             
     def createUdpServerSocket(self):
+        """
+        Create the UDP server socket
+        """
         pass
-
+        
     def __setSource(self):
         """
         Set the source ip and port
@@ -982,10 +1021,14 @@ class SockUdpServerThread(threading.Thread):
         self.sendNotify(data={'tcp-event': 'initialized', 'src-ip': srcIp, 'src-port': srcPort} )
 
     def onNotify(self, client, tid, request):
+        """
+        On notify
+        """
         pass
    
     def onReset(self):
         """
+        On reset
         """
         self.stop()
         
@@ -1047,8 +1090,12 @@ class SockUdpServerThread(threading.Thread):
 
 # NEW in v12.1.0
 class ClientThread(threading.Thread):
+    """
+    Client thread
+    """
     def __init__(self, sock, ip, port, parent, id):
         """
+        Constructor
         """
         threading.Thread.__init__(self)
         self.stopEvent = threading.Event()
@@ -1060,24 +1107,34 @@ class ClientThread(threading.Thread):
         self.queueTcp = Queue.Queue(0)
         self.__mutex__ = threading.RLock()
         self.lastActivity = time.time()
+        
     def getId(self):
         """
+        Return the id
         """
         return self.ID
+        
     def getAddress(self):
         """
+        Return the client adress
         """
         return self.clientAddress
+        
     def getSocket(self):
         """
+        Return the socket
         """
         return self.socket
+        
     def parent(self):
         """
+        Return the parent object
         """
         return self.__parent
+        
     def run(self):
         """
+        On run thread
         """
         while not self.stopEvent.isSet():
             try:
@@ -1136,10 +1193,13 @@ class ClientThread(threading.Thread):
         
     def stop(self):
         """
+        Stop the thread
         """
         self.stopEvent.set()
+        
     def onDisconnection(self, e):
         """
+        On disconnection event
         """
         self.parent().trace(e)
         self.stop()
@@ -1147,6 +1207,7 @@ class ClientThread(threading.Thread):
         
     def onIncomingData(self, data=None, noMoreData=False):
         """
+        On incoming data event
         """ 
         (ip, port) = self.clientAddress
         try:
@@ -1167,8 +1228,12 @@ class ClientThread(threading.Thread):
             self.parent().error( str(e) )
 
 class SockTcpServerThread(threading.Thread):
+    """
+    TCP Socket server thread
+    """
     def __init__(self, parent, request):
         """
+        Constructor
         """
         threading.Thread.__init__(self)
         self.stopEvent = threading.Event()
@@ -1191,12 +1256,14 @@ class SockTcpServerThread(threading.Thread):
         """
         # log all configuration parameters
         self.trace(  "cfg: %s"  %  self.cfg )
+        
         # checking all parameters 
         if not ('sock-type' in self.cfg ):
             self.sendError(data="server sock-type configuration key is missing")
 
     def createTcpServerSocket(self):
         """
+        Create the TCP server socket
         """
         try:
             # set the socket version
@@ -1249,6 +1316,7 @@ class SockTcpServerThread(threading.Thread):
 
     def onNotify(self, client, tid, request):
         """
+        On notify event
         """
         ip = request['data']['to-ip']
         port = request['data']['to-port']
@@ -1274,6 +1342,7 @@ class SockTcpServerThread(threading.Thread):
         
     def onReset(self):
         """
+        On reset event
         """
         self.stop()
         
@@ -1345,6 +1414,7 @@ class SockTcpServerThread(threading.Thread):
         
     def getId(self):
         """
+        Return the ID
         """
         self.idMutex.acquire()
         self.clientId += 1
@@ -1354,6 +1424,7 @@ class SockTcpServerThread(threading.Thread):
         
     def getClientByAddress(self, clientAddress):
         """
+        Return the client thread by address
         """
         if clientAddress in self.clientsThreads:
             return self.clientsThreads[clientAddress]
@@ -1362,6 +1433,7 @@ class SockTcpServerThread(threading.Thread):
 
     def getClientById(self, id):
         """
+        Return the client thread by ID
         """
         ret = None
         for clientAddress, client in self.clientsThreads.items():
@@ -1372,6 +1444,7 @@ class SockTcpServerThread(threading.Thread):
         
     def cleanSockets(self):
         """
+        Clean all sockets
         """
         if self.socket is not None: 
             self.socket.close()
@@ -1380,6 +1453,7 @@ class SockTcpServerThread(threading.Thread):
 
     def onClientConnected(self, clientAddress, clientSocket):
         """
+        On client connected event
         """
         # extract the ip and port of the client
         # and generate a id for this new client
@@ -1396,6 +1470,7 @@ class SockTcpServerThread(threading.Thread):
         
     def onClientSocketError(self, clientAddress, error):
         """
+        On client socket error event
         """
         (ip, port) = clientAddress
         
@@ -1404,6 +1479,7 @@ class SockTcpServerThread(threading.Thread):
         
     def onClientDisconnected(self, clientAddress):
         """
+        On client disconnected event
         """
         (ip, port) = clientAddress
         
@@ -1412,6 +1488,7 @@ class SockTcpServerThread(threading.Thread):
         
     def onClientNoMoreData(self, clientAddress):
         """
+        On client no more data event
         """
         (ip, port) = clientAddress
         
@@ -1420,6 +1497,7 @@ class SockTcpServerThread(threading.Thread):
         
     def onClientIncomingData(self, clientAddress, pdu):
         """
+        On incoming data from client event
         """
         (ip, port) = clientAddress
         
@@ -1427,18 +1505,26 @@ class SockTcpServerThread(threading.Thread):
         self.sendNotify(data={'tcp-event': 'client-data', 'ip': ip, 'port': port, 'payload': pdu } )
 # END OF NEW
 
-def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport):
+def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                supportProxy, proxyIp, proxyPort, sslSupport):
     """
     Wrapper to initialize the object agent
     """
-    return Socket( controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
+    return Socket( controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                    supportProxy, proxyIp, proxyPort, sslSupport )
 
 class Socket(GenericTool.Tool):
-    def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy=0, proxyIp=None, proxyPort=None, sslSupport=True):
+    """
+    Socket agent class
+    """
+    def __init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
+                        supportProxy=0, proxyIp=None, proxyPort=None, sslSupport=True):
         """
+        Constructor
         """
-        GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy=supportProxy,
-                                        proxyIp=proxyIp, proxyPort=proxyPort, sslSupport=sslSupport)
+        GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, 
+                                  toolDesc, defaultTool, supportProxy=supportProxy,
+                                  proxyIp=proxyIp, proxyPort=proxyPort, sslSupport=sslSupport)
         self.__type__ = __TYPE__
 
     def onResetAgentCalled(self):
@@ -1497,6 +1583,7 @@ class Socket(GenericTool.Tool):
         
     def getType(self):
         """
+        Return agent type
         """
         return self.__type__
 
@@ -1531,6 +1618,7 @@ class Socket(GenericTool.Tool):
 
     def onAgentReset(self, client, tid, request):
         """
+        On agent reset event
         """
         pass
 
@@ -1546,7 +1634,9 @@ class Socket(GenericTool.Tool):
             # NEW IN V12.1.0
             if cmd == 'starting':
                 if request['data']['sock-type'] == 'tcp':
-                    self.onToolLogWarningCalled( "<< Starting TCP Server socket=%s TestId=%s AdapterId=%s" % (cmd,request['script_id'], request['source-adapter']) )
+                    self.onToolLogWarningCalled( "<< Starting TCP Server socket=%s TestId=%s AdapterId=%s" % (cmd,
+                                                                                                              request['script_id'], 
+                                                                                                              request['source-adapter']) )
                     if sys.platform == "win32" or sys.platform == "linux2":
                         self.info( 'New TCP server socket on platform: %s' % sys.platform )
                         self.trace( 'Starting tcp server thread...' )
@@ -1558,12 +1648,16 @@ class Socket(GenericTool.Tool):
                         # starting the thread
                         newthread.start()
 
-                        self.onToolLogWarningCalled( "<< Started TCP Server socket=%s TestId=%s AdapterId=%s" % (cmd,request['script_id'], request['source-adapter']) )
+                        self.onToolLogWarningCalled( "<< Started TCP Server socket=%s TestId=%s AdapterId=%s" % (cmd,
+                                                                                                                 request['script_id'],
+                                                                                                                 request['source-adapter']) )
                     else:
                         self.error( 'Init tcp server - platform not yet supported: %s' % sys.platform )
                         self.onToolLogErrorCalled( 'Initialize tcp server socket failed - platform not yet supported: %s' % sys.platform )
                 elif request['data']['sock-type'] == 'udp':
-                    self.onToolLogWarningCalled( "<< Starting UDP Server socket=%s TestId=%s AdapterId=%s" % (cmd,request['script_id'], request['source-adapter']) )
+                    self.onToolLogWarningCalled( "<< Starting UDP Server socket=%s TestId=%s AdapterId=%s" % (cmd,
+                                                                                                              request['script_id'],
+                                                                                                              request['source-adapter']) )
                     if sys.platform == "win32" or sys.platform == "linux2":
                         self.info( 'New UDP server socket on platform: %s' % sys.platform )
                         self.trace( 'Starting udp server thread...' )
@@ -1574,7 +1668,9 @@ class Socket(GenericTool.Tool):
                         
                         newthread.start()
 
-                        self.onToolLogWarningCalled( "<< Started UDP Server socket=%s TestId=%s AdapterId=%s" % (cmd,request['script_id'], request['source-adapter']) )
+                        self.onToolLogWarningCalled( "<< Started UDP Server socket=%s TestId=%s AdapterId=%s" % (cmd,
+                                                                                                                 request['script_id'], 
+                                                                                                                 request['source-adapter']) )
                     else:
                         self.error( 'Init udp server - platform not yet supported: %s' % sys.platform )
                         self.onToolLogErrorCalled( 'Initialize udp server socket failed - platform not yet supported: %s' % sys.platform )
@@ -1583,18 +1679,24 @@ class Socket(GenericTool.Tool):
                     self.onToolLogErrorCalled( 'Initialize server socket failed - generic error: %s' % sys.platform )
 
             elif cmd == 'stopping':
-                self.onToolLogWarningCalled( "<< Closing server socket=%s TestId=%s AdapterId=%s" % (cmd,request['script_id'], request['source-adapter']) )
+                self.onToolLogWarningCalled( "<< Closing server socket=%s TestId=%s AdapterId=%s" % (cmd, 
+                                                                                                     request['script_id'],
+                                                                                                     request['source-adapter']) )
                 if currentTest.ctx() is not None:
                     currentTest.ctx().stop()
                     currentTest.ctx().join()
-                self.onToolLogWarningCalled( "<< Closed server socket=%s TestId=%s AdapterId=%s" % (cmd,request['script_id'], request['source-adapter']) )
+                self.onToolLogWarningCalled( "<< Closed server socket=%s TestId=%s AdapterId=%s" % (cmd,
+                                                                                                    request['script_id'],
+                                                                                                    request['source-adapter']) )
             # END OF NEW
             
             elif cmd == 'connect':
 
                 if request['data']['sock-type'] == 'tcp':
 
-                    self.onToolLogWarningCalled( "<< Starting TCP socket=%s TestId=%s AdapterId=%s" % (cmd,request['script_id'], request['source-adapter']) )
+                    self.onToolLogWarningCalled( "<< Starting TCP socket=%s TestId=%s AdapterId=%s" % (cmd,
+                                                                                                       request['script_id'],
+                                                                                                       request['source-adapter']) )
 
                     if sys.platform == "win32" or sys.platform == "linux2":
                         self.info( 'New TCP socket on platform: %s' % sys.platform )
@@ -1607,18 +1709,23 @@ class Socket(GenericTool.Tool):
                         # starting the thread
                         newthread.start()
 
-                        self.onToolLogWarningCalled( "<< Started TCP socket=%s TestId=%s AdapterId=%s" % (cmd,request['script_id'], request['source-adapter']) )
+                        self.onToolLogWarningCalled( "<< Started TCP socket=%s TestId=%s AdapterId=%s" % (cmd,
+                                                                                                          request['script_id'],
+                                                                                                          request['source-adapter']) )
                     else:
                         self.error( 'Platform not yet supported: %s' % sys.platform )
                         self.onToolLogErrorCalled( 'Initialize tcp socket failed - platform not yet supported: %s' % sys.platform )
 
                 elif request['data']['sock-type'] == 'raw':
-                    self.onToolLogWarningCalled( "<< Starting Raw socket=%s TestId=%s AdapterId=%s" % (cmd,request['script_id'], request['source-adapter']) )
+                    self.onToolLogWarningCalled( "<< Starting Raw socket=%s TestId=%s AdapterId=%s" % (cmd,
+                                                                                                       request['script_id'],
+                                                                                                       request['source-adapter']) )
                     
                     if sys.platform == "win32":
                         self.error( 'Platform not yet supported: %s' % sys.platform )
                         self.onToolLogErrorCalled( 'Starting raw socket failed - platform not yet supported: %s' % sys.platform )
-                        self.sendNotify(request=request, data={'socket-raw-event': 'sniffing-failed', 'more': 'platform not yet supported: %s' % sys.platform } )
+                        self.sendNotify(request=request, data={'socket-raw-event': 'sniffing-failed', 
+                                                                'more': 'platform not yet supported: %s' % sys.platform } )
                     elif sys.platform == "linux2":
                         self.info( 'New RAW socket on platform: %s' % sys.platform )
                         self.trace( 'Starting raw thread...' )
@@ -1629,17 +1736,20 @@ class Socket(GenericTool.Tool):
 
                         newthread.start()
                         
-                        self.onToolLogWarningCalled( "<< Started Raw socket=%s TestId=%s AdapterId=%s" % (cmd,request['script_id'], request['source-adapter']) )
+                        self.onToolLogWarningCalled( "<< Started Raw socket=%s TestId=%s AdapterId=%s" % (cmd,
+                                                                                                          request['script_id'],
+                                                                                                          request['source-adapter']) )
                     else:
                         self.error( 'Platform not yet supported: %s' % sys.platform )
                         self.onToolLogErrorCalled( 'Initialize raw socket failed - platform not yet supported: %s' % sys.platform )
 
                 elif request['data']['sock-type'] == 'udp':
-                    self.onToolLogWarningCalled( "<< Starting UDP socket=%s TestId=%s AdapterId=%s" % (cmd,request['script_id'], request['source-adapter']) )
+                    self.onToolLogWarningCalled( "<< Starting UDP socket=%s TestId=%s AdapterId=%s" % (cmd,
+                                                                                                       request['script_id'],
+                                                                                                       request['source-adapter']) )
                     
                     if sys.platform == "win32" or sys.platform == "linux2":
                         self.info( 'New UDP socket on platform: %s' % sys.platform )
-                        # self.onToolLogWarningCalled( "<< New %s socket Id=%s" % (request['data']['sock-type'], "%s_%s" % (request['script_id'], request['source-adapter'] )) )
                         self.trace( 'Starting udp thread...' )
                         
                         newthread = SockUdpThread(parent=self, request=request)
@@ -1648,7 +1758,9 @@ class Socket(GenericTool.Tool):
                         
                         newthread.start()
 
-                        self.onToolLogWarningCalled( "<< Started UDP socket=%s TestId=%s AdapterId=%s" % (cmd,request['script_id'], request['source-adapter']) )
+                        self.onToolLogWarningCalled( "<< Started UDP socket=%s TestId=%s AdapterId=%s" % (cmd,
+                                                                                                          request['script_id'],
+                                                                                                          request['source-adapter']) )
                     else:
                         self.error( 'Platform not yet supported: %s' % sys.platform )
                         self.onToolLogErrorCalled( 'Initialize socket failed - platform not yet supported: %s' % sys.platform )
@@ -1658,12 +1770,15 @@ class Socket(GenericTool.Tool):
                     self.onToolLogErrorCalled( 'Initialize socket failed - generic error: %s' % sys.platform )
 
             elif cmd == 'disconnect':
-                self.onToolLogWarningCalled( "<< Closing socket=%s TestId=%s AdapterId=%s" % (cmd,request['script_id'], request['source-adapter']) )
-                # currentTest.ctx().closeSocket()
+                self.onToolLogWarningCalled( "<< Closing socket=%s TestId=%s AdapterId=%s" % (cmd,
+                                                                                              request['script_id'],
+                                                                                              request['source-adapter']) )
                 if currentTest.ctx() is not None:
                     currentTest.ctx().stop()
                     currentTest.ctx().join()
-                self.onToolLogWarningCalled( "<< Closed socket=%s TestId=%s AdapterId=%s" % (cmd,request['script_id'], request['source-adapter']) )
+                self.onToolLogWarningCalled( "<< Closed socket=%s TestId=%s AdapterId=%s" % (cmd,
+                                                                                             request['script_id'], 
+                                                                                             request['source-adapter']) )
             
             else:
                 if currentTest.ctx() is not None:
@@ -1675,6 +1790,7 @@ class Socket(GenericTool.Tool):
 
     def onResetTestContext(self, testUuid, scriptId, adapterId):
         """
+        On reset the test context event
         """
         self.onToolLogWarningCalled( "<< Resetting Context TestID=%s AdapterId=%s" % (scriptId, adapterId) )
         self.trace("Resetting TestUuid=%s ScriptId=%s AdapterId=%s" % (testUuid, scriptId, adapterId) )
@@ -1683,7 +1799,6 @@ class Socket(GenericTool.Tool):
         if currentTest.ctx() is not None:
             try:
                 self.trace('closing socket and stopping thread')
-                # currentTest.ctx().closeSocket()
                 currentTest.ctx().stop()
                 currentTest.ctx().join()
                 self.trace('sock thread stopped')
@@ -1703,7 +1818,8 @@ class Socket(GenericTool.Tool):
                 ctx_test = self.context()[request['uuid']][request['source-adapter']]
                 ctx_test.putItem( lambda: self.execAction(client, tid, request) )
             else:
-                self.error("Adapter context does not exists TestUuid=%s AdapterId=%s" % (request['uuid'], request['source-adapter'] ) )
+                self.error("Adapter context does not exists TestUuid=%s AdapterId=%s" % (request['uuid'], 
+                                                                                         request['source-adapter'] ) )
         else:
             self.error("Test context does not exits TestUuid=%s" % request['uuid'])
         self.__mutex__.release()

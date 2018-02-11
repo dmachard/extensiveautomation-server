@@ -1,6 +1,6 @@
 /*
 ---------------------------------------------------------------
- Copyright (c) 2010-2017 Denis Machard. All rights reserved.
+ Copyright (c) 2010-2018 Denis Machard. All rights reserved.
 
  This file is part of the extensive testing project; you can redistribute it and/or
  modify it under the terms of the GNU General Public License, Version 3.
@@ -179,16 +179,15 @@ function importglobalvariables()
 /**
  * Open test report
  */
-function open_report(projectid, testpath, testname, ct)
+function open_report(projectid, testid, ct)
 {
 	var loader = getel('loader-run');
 	var ct_dst = getel(ct);
 	var cmd = "open.test.report"
 	var args = new Array(
 							arg( 'projectid', projectid),
-							arg( 'trpath', testpath),
-							arg( 'trname', testname)
-		);
+							arg( 'testid', testid )
+                        );
 	// call webservice
 	showloader(loader);
 	callws(	data = request(cmd = cmd, args = args.join("")) ,

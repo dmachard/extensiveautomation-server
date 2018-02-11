@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -23,30 +23,36 @@
 
 import base64
 import zlib
-try:
-    # python 2.4 support
-    import simplejson as json
-except ImportError:
-    import json
-
-import ProbeServerInterface as PSI
-import EventServerInterface as ESI
-import Context
-import Common
-import ProbesManager
-import AgentsManager
-
-from Libs import Settings, Logger
-
-import ConfigParser
 import os
-import signal
-import shlex
 import subprocess
 import sys
 import time
 import shutil
-import tarfile
+
+# unicode = str with python3
+if sys.version_info > (3,):
+    unicode = str
+    
+import json
+
+try:
+    import ProbeServerInterface as PSI
+    import AgentServerInterface as ASI
+    import EventServerInterface as ESI
+    import Context
+    import Common
+    import ProbesManager
+    import AgentsManager
+except ImportError: # python3 support
+    from . import ProbeServerInterface as PSI
+    from . import AgentServerInterface as ASI
+    from . import EventServerInterface as ESI
+    from . import Context
+    from . import Common
+    from . import ProbesManager
+    from . import AgentsManager
+    
+from Libs import Settings, Logger
 
 
 class ToolboxManager(Logger.ClassLogger):    
@@ -62,7 +68,6 @@ class ToolboxManager(Logger.ClassLogger):
         if Settings.getInt( 'WebServices', 'local-tools-enabled' ):
             if pkg is not None:
                 self.info( 'Deploying local tools %s...' % pkg)
-                # self.installPkg(pkgName=pkg)
                 self.installPkgV2(pkgName=pkg)
 
         self.TOOLS_INSTALLED = False
@@ -75,27 +80,6 @@ class ToolboxManager(Logger.ClassLogger):
             self.trace( "More details: %s" % unicode(e).encode('utf-8') )
         self.configsFile = None
         self.__pids__ = {}
-
-    def encodeData(self, data):
-        """
-        Encode data
-        """
-        ret = ''
-        try:
-            tasks_json = json.dumps(data)
-        except Exception as e:
-            self.error( "Unable to encode in json: %s" % str(e) )
-        else:
-            try: 
-                tasks_zipped = zlib.compress(tasks_json)
-            except Exception as e:
-                self.error( "Unable to compress: %s" % str(e) )
-            else:
-                try: 
-                    ret = base64.b64encode(tasks_zipped)
-                except Exception as e:
-                    self.error( "Unable to encode in base 64: %s" % str(e) )
-        return ret
 
     def preInstall(self):
         """
@@ -134,29 +118,6 @@ class ToolboxManager(Logger.ClassLogger):
         # return the package name
         return latestPkgName
 
-    # def installPkg(self, pkgName):
-        # """
-        # Install the package 
-
-        # @type  pkgName:
-        # @param pkgName:
-        # """
-        # t = time.time()
-        # try:
-            # tar file 
-            # tar = tarfile.open('%s/%s' % (self.pkgsToolsPath, pkgName))
-
-            # Issue 117 begin, to support python 2.4
-            # if not hasattr(tarfile.TarFile, 'extractall'):
-                # tarfile.TarFile.extractall = Common._extractall
-            # Issue 117 end
-
-            # tar.extractall(Settings.getDirExec())
-            # tar.close()
-        # except Exception as e:
-            # self.error("toolbox installation failed: %s" % str(e) )
-        # self.trace("untar file in %s sec." % (time.time()-t) )
-
     def installPkgV2(self, pkgName):
         """
         Install the package 
@@ -168,12 +129,25 @@ class ToolboxManager(Logger.ClassLogger):
         t = time.time()
         try:
             DEVNULL = open(os.devnull, 'w')
-            __cmd__ = "%s xf %s/%s -C %s" % (Settings.get( 'Bin', 'tar' ), self.pkgsToolsPath, pkgName, Settings.getDirExec())
+            __cmd__ = "%s xf %s/%s -C %s" % (Settings.get( 'Bin', 'tar' ), 
+                                             self.pkgsToolsPath, 
+                                             pkgName, 
+                                             Settings.getDirExec())
             ret = subprocess.call(__cmd__, shell=True, stdout=DEVNULL, stderr=DEVNULL)  
             if ret: raise Exception("unable to untar toolbox pkg")
         except Exception as e:
             self.error("toolbox installation failed: %s" % str(e) )
         self.trace("uncompress toolbox in %s sec." % (time.time()-t) )
+        
+    def disconnectRunningTools(self):
+        """
+        """
+        for k1, c1 in ASI.instance().agentsRegistered.items():
+            ASI.instance().stopClient(client=c1['address'] )
+            
+        for k2, c2 in PSI.instance().probesRegistered.items():
+            PSI.instance().stopClient(client=c2['address'] )
+        return True
         
     def stopDefault(self):
         """
@@ -246,8 +220,8 @@ class ToolboxManager(Logger.ClassLogger):
         if not self.TOOLS_INSTALLED:
             return ''
         else:
-            return Context.instance().getRn( pathRn="%s/%s/" % ( Settings.getDirExec(), Settings.get( 'Paths', 'tools' )  ),
-                                             b64=b64 )
+            return Context.instance().getRn( pathRn="%s/%s/" % ( Settings.getDirExec(),
+                                                                Settings.get( 'Paths', 'tools' ) ) )
 
     def trace(self, txt):
         """

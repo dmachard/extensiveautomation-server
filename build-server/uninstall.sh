@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -126,6 +126,9 @@ else
 		fi
 	fi
 fi
+
+/usr/sbin/"$PRODUCT_SVC_CTRL" stop 1>> $LOG_FILE 2>&1
+
 echo_success; echo
 
 echo -n "* Stopping $HTTPD_SERVICE_NAME"
@@ -306,5 +309,5 @@ if [ "$CONFIG_APACHE" = "Yes" ]; then
 fi
 
 echo "========================================================================="
-echo "- Uninstallation terminated!"
+echo "- Uninstallation completed successfully!"
 echo "========================================================================="

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -79,7 +79,8 @@ class WTestTxt(Document.WDocument):
         @param nonameId: 
         @type nonameId: 
         """
-        Document.WDocument.__init__(self, parent, path, filename, extension, nonameId, remoteFile, repoDest, project, isLocked)
+        Document.WDocument.__init__(self, parent, path, filename, extension, 
+                                    nonameId, remoteFile, repoDest, project, isLocked)
 
         self.srcEditor = None
         self.createWidgets()
@@ -97,7 +98,9 @@ class WTestTxt(Document.WDocument):
         |       PyEditor        |
         |_______________________|
         """
-        self.srcWidget = EditorWidget( editorId=self.TEST_TXT_EDITOR, title="Txt Definition:", parent=self, activePyLexer=False )
+        self.srcWidget = EditorWidget( editorId=self.TEST_TXT_EDITOR, 
+                                       title="Txt Definition:", parent=self, 
+                                       activePyLexer=False )
         self.srcEditor = self.srcWidget.editor
 
         layout = QVBoxLayout()
@@ -257,7 +260,11 @@ class WTestTxt(Document.WDocument):
         """
         encoded = ""
         try:
-            encoded = base64.b64encode( unicode(self.srcEditor.text()).encode('utf-8') )
+            raw = unicode(self.srcEditor.text()).encode('utf-8')
+            encoded = base64.b64encode( raw  )
+            
+            if sys.version_info > (3,):
+                encoded = encoded.decode("utf-8") 
         except Exception as e:
             self.error( "unable to encode: %s" % e )
         return encoded

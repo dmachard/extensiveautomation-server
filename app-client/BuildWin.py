@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2015 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -20,6 +20,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
+
+"""
+Build the windows portable version with py2exe
+"""
 
 from distutils.core import setup
 import py2exe
@@ -40,6 +44,8 @@ settings = Settings.instance()
 today = datetime.datetime.today()
 buildYear = today.strftime("%Y")
 
+print("Output: %s" % settings.dirExec)
+
 class Target(object):
     """
     Target is the baseclass for all executables that are created.
@@ -47,16 +53,19 @@ class Target(object):
     """
     def __init__(self, **kw):
         """
+        Constructor
         """
         self.__dict__.update(kw)
 
     def copy(self):
         """
+        Copy the target
         """
         return Target(**self.__dict__)
 
     def __setitem__(self, name, value):
         """
+        Set item on the dict
         """
         self.__dict__[name] = value
 
@@ -126,7 +135,7 @@ for f in Csvs_Files:
 for f in Tpls_Files:
     Mydata_files.append(  ( 'Files', [ '%s/%s' % (Tpls_Path, f) ] ) ) 
     
-    
+print("All files successfully prepared")
 Main = Target(
     # We can extend or override the VersionInfo of the base class:
     version = __VERSION__,
@@ -149,7 +158,7 @@ Main = Target(
                     ]
     )
 
-
+print("Target initialized")
 py2exe_options = dict(
     packages = [],
     optimize=0,
@@ -157,7 +166,7 @@ py2exe_options = dict(
     bundle_files=1,
     dist_dir='__build__',
     )
-
+print("py2exe options prepared")
 
 # Some options can be overridden by command line options...
 setup(name="name",
@@ -173,6 +182,7 @@ setup(name="name",
       zipfile=None,
       options={"py2exe": py2exe_options},
       )
+print("py2exe executed with success")
 
 # adding folders
 os.mkdir( "%s/__build__/ResultLogs" % settings.dirExec )
@@ -180,6 +190,8 @@ os.mkdir( "%s/__build__/Plugins" % settings.dirExec )
 os.mkdir( "%s/__build__/Update" % settings.dirExec )
 os.mkdir( "%s/__build__/Logs" % settings.dirExec )
 os.mkdir( "%s/__build__/Tmp" % settings.dirExec )
+os.mkdir( "%s/__build__/PyQt5" % settings.dirExec )
+print("additionnal folders addeds")
 
 # rename the __build__ folder if in portable mode
 portable = settings.readValue( key = 'Common/portable' )

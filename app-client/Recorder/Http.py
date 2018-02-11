@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -52,12 +52,13 @@ except ImportError:
 from Libs import QtHelper, Logger
 
 import UserClientInterface as UCI
+import RestClientInterface as RCI
+
 import Workspace as WWorkspace
 import Settings
 import DefaultTemplates
 
 if sys.version_info > (3,):
-    # from Libs import Pcap
     import Libs.Pcap.parse as PcapParse
     import Libs.Pcap.pcap as PcapReader
     import Libs.Pcap.pcapng as PcapngReader
@@ -267,7 +268,7 @@ class DHttpReplay(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         self.testType = None
 
         if not self.offlineMode:
-            if not UCI.instance().isAuthenticated():
+            if not RCI.instance().isAuthenticated():
                 self.addLogWarning(txt="<< Connect to the test center in first!" )
                 QMessageBox.warning(self, "Import" , "Connect to the test center in first!")
                 return
@@ -281,25 +282,31 @@ class DHttpReplay(QtHelper.EnhancedQDialog, Logger.ClassLogger):
             fileName = QFileDialog.getOpenFileName(self,  self.tr("Open File"), "", "Network dump (*.cap;*.pcap;*.pcapng)")
         else:
             fileName = QFileDialog.getOpenFileName(self,  self.tr("Open File"), "", "Network dump (*.cap)")
-        if not fileName:
-        #if fileName.isEmpty():
+        # new in v18 to support qt5
+        if QtHelper.IS_QT5:
+            _fileName, _type = fileName
+        else:
+            _fileName = fileName
+        # end of new
+        
+        if not _fileName:
             return
         
         if sys.version_info < (3,):
-            extension = str(fileName).rsplit(".", 1)[1]
+            extension = str(_fileName).rsplit(".", 1)[1]
             if not ( extension == "cap" ):
-                self.addLogError(txt="<< File not supported %s" % fileName)
+                self.addLogError(txt="<< File not supported %s" % _fileName)
                 QMessageBox.critical(self, "Open" , "File not supported")
                 return
 
-        fileName = str(fileName)
-        capName = fileName.rsplit("/", 1)[1]
+        _fileName = str(_fileName)
+        capName = _fileName.rsplit("/", 1)[1]
 
-        self.addLogSuccess(txt=">> Reading the file %s" % fileName)
+        self.addLogSuccess(txt=">> Reading the file %s" % _fileName)
         if sys.version_info > (3,):
-            self.readFileV2(fileName=fileName)
+            self.readFileV2(fileName=_fileName)
         else:
-            self.readFile(fileName=fileName)
+            self.readFile(fileName=_fileName)
     
     def exportToTS(self):
         """
@@ -337,7 +344,7 @@ class DHttpReplay(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         """
         Export to test
         """
-        if not UCI.instance().isAuthenticated():
+        if not RCI.instance().isAuthenticated():
             self.addLogWarning(txt="<< Connect to the test center in first!" )
             QMessageBox.warning(self, "Import" , "Connect to the test center in first!")
             return
@@ -404,13 +411,11 @@ class DHttpReplay(QtHelper.EnhancedQDialog, Logger.ClassLogger):
                 lines_req = self.requests[i]['tcp-data'].splitlines()
                 
             if sys.version_info > (3,): # python3 support
-                #tests.append( 'rawHttp = ["%s"]' % str(lines_req[0].replace(b'"', b'\\"'), 'utf8') )
                 tests.append( 'rawHttp = [%s]' % lines_req[0].replace(b'"', b'\\"') )
             else:
                 tests.append( 'rawHttp = ["%s"]' % lines_req[0].replace(b'"', b'\\"') )
             for lreq in lines_req[1:]:
                 if sys.version_info > (3,): # python3 support
-                    #tests.append( 'rawHttp.append("%s")' % str(lreq.replace(b'"', b'\\"'), 'utf8') ) 
                     tests.append( 'rawHttp.append(%s)' % lreq.replace(b'"', b'\\"') ) 
                 else:
                     tests.append( 'rawHttp.append("%s")' % lreq.replace(b'"', b'\\"') ) 
@@ -427,13 +432,11 @@ class DHttpReplay(QtHelper.EnhancedQDialog, Logger.ClassLogger):
                 else:
                     lines_res = self.responses[i]['tcp-data'].splitlines()
                 if sys.version_info > (3,): # python3 support
-                    #tests.append( 'rawHttpRsp = ["%s"]' % str(lines_res[0].replace(b'"', b'\\"'), 'utf8', errors='replace') )
                     tests.append( 'rawHttpRsp = [%s]' % lines_res[0].replace( b"'", b"\\'") )
                 else:
                     tests.append( 'rawHttpRsp = ["%s"]' % lines_res[0].replace(b'"', b'\\"') )
                 for lres in lines_res[1:]:
                     if sys.version_info > (3,): # python3 support
-                        #tests.append( 'rawHttpRsp.append("%s")' % str(lres.replace(b'"', b'\\"'), 'utf8', errors='replace') ) 
                         tests.append( 'rawHttpRsp.append(%s)' % lres.replace( b"'", b"\\'") )
                     else:
                         tests.append( 'rawHttpRsp.append("%s")' % lres.replace(b'"', b'\\"') ) 
@@ -571,11 +574,12 @@ class DHttpReplay(QtHelper.EnhancedQDialog, Logger.ClassLogger):
             self.readFilePacket(pcapFile=pcapFile)
         else:
             self.addLogError(txt="<< Error to open the network trace")
-            self.error( 'unable to open the network trace: %s' % str(e) )
+            self.error( 'unable to open the network trace: file format = %s' % fileFormat )
             QMessageBox.critical(self, "Import" , "File not supported")
             
     def __readRequest(self, buffer, data, request, output ):
         """
+        Read request
         """
         buffer += data
         if b'\r\n\r\n' in data:
@@ -736,7 +740,8 @@ class DHttpReplay(QtHelper.EnhancedQDialog, Logger.ClassLogger):
                                 except dpkt.UnpackError as e:
                                     pass
                                 else:   
-                                    self.requests.append( {'ip-src': ip.src, 'ip-dst': ip.dst, 'port-src': tcp.sport, 'port-dst': tcp.dport, 
+                                    self.requests.append( {'ip-src': ip.src, 'ip-dst': ip.dst, 
+                                                            'port-src': tcp.sport, 'port-dst': tcp.dport, 
                                                             'tcp-data': buf_req, 'tcp-object': http_req } )
                                     self.addLogWarning(txt="<< %s http request(s) extracted" % len(self.requests) )
                                     buf_req = ''
@@ -768,8 +773,9 @@ class DHttpReplay(QtHelper.EnhancedQDialog, Logger.ClassLogger):
                                     except dpkt.UnpackError as e:
                                         pass
                                     else:
-                                        self.responses.append( {'ip-src': ip.src, 'ip-dst': ip.dst, 'port-src': tcp.sport, 'port-dst': tcp.dport,
-                                                            'tcp-data': new_res, 'tcp-object': http_res  } )
+                                        self.responses.append( {'ip-src': ip.src, 'ip-dst': ip.dst, 
+                                                                'port-src': tcp.sport, 'port-dst': tcp.dport,
+                                                                'tcp-data': new_res, 'tcp-object': http_res  } )
                                         self.addLogWarning(txt="<< %s http response(s) extracted" % len(self.responses) )
             if self.requests:
                 self.addLogSuccess( "<< File decoded with success!" )

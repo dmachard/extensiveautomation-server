@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -45,7 +45,8 @@ except ImportError:
 import time
 
 from Libs import QtHelper, Logger
-import UserClientInterface as UCI
+# import UserClientInterface as UCI
+import RestClientInterface as RCI
 
 COL_RUNNING_PROBEID         = 0
 COL_RUNNING_ADDRESS         = 1
@@ -171,7 +172,7 @@ class WProbes(QWidget, Logger.ClassLogger):
         self.probes = {}
 
         self.nbPrbs = 0
-        self.prbsInstalled = None
+        # self.prbsInstalled = None
 
         self.createWidgets()
         self.createConnections()
@@ -192,33 +193,6 @@ class WProbes(QWidget, Logger.ClassLogger):
         |_______________|
         """
         layout = QHBoxLayout()
-        
-        self.statsBox = QGroupBox("Summary")
-        self.nbInstalledLabel = QLabel("0")
-        self.nbConfiguredLabel = QLabel("0")
-        self.nbRegisteredLabel = QLabel("0")
-        layout2 = QFormLayout()
-        layout2.addRow(QLabel("Installed"), self.nbInstalledLabel )
-        layout2.addRow(QLabel("Configured"), self.nbConfiguredLabel )
-        layout2.addRow(QLabel("Registered"), self.nbRegisteredLabel )
-        self.statsBox.setLayout(layout2)
-
-        # group licence
-        self.licenceBox = QGroupBox("Licences")
-        self.nbRegistrationLabel = QLabel("0")
-        self.nbDefaultLabel = QLabel("0")
-        layoutNbLicence = QFormLayout()
-        layoutNbLicence.addRow(QLabel("Max Registrations"), self.nbRegistrationLabel )
-        layoutNbLicence.addRow(QLabel("Max Defaults"), self.nbDefaultLabel )
-        self.licenceBox.setLayout(layoutNbLicence)
-
-
-        self.nbRunningBox = QGroupBox("Running")
-        self.nbPrbLabel = QLabel()
-        layoutRunning = QVBoxLayout()
-        layoutRunning.addWidget(self.nbPrbLabel)
-        self.nbRunningBox.setLayout(layoutRunning)
-
 
         self.deployBox = QGroupBox("Default probes")
         self.probesAvailable = QTreeWidget(self)
@@ -234,7 +208,8 @@ class WProbes(QWidget, Logger.ClassLogger):
         self.availDockToolbar = QToolBar(self)
         self.availDockToolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
 
-        self.labels = [ self.tr("Name"), self.tr("Running on address"), self.tr("Started at"), self.tr("Type"), self.tr("Auto Startup"), self.tr("Description") ]        
+        self.labels = [ self.tr("Name"), self.tr("Running on address"), self.tr("Started at"), 
+                        self.tr("Type"), self.tr("Auto Startup"), self.tr("Description") ]        
         self.probesRegistered.setHeaderLabels(self.labels)
         self.probesRegistered.setColumnWidth(0, 180)
         self.probesRegistered.setColumnWidth(1, 120)
@@ -297,14 +272,8 @@ class WProbes(QWidget, Logger.ClassLogger):
         layoutDeploy.addLayout(paramLayout)
         layoutDeploy.addWidget(self.probesDefault)
         self.deployBox.setLayout(layoutDeploy)
-        
-        layoutRightTop = QHBoxLayout()
-        layoutRightTop.addWidget(self.statsBox)
-        layoutRightTop.addWidget(self.nbRunningBox)
-        layoutRightTop.addWidget(self.licenceBox)
 
         layoutRight = QVBoxLayout()
-        layoutRight.addLayout(layoutRightTop)
         layoutRight.addWidget(self.deployBox)   
 
         layout.addLayout(layoutLeft)
@@ -342,9 +311,11 @@ class WProbes(QWidget, Logger.ClassLogger):
                                         icon = QIcon(":/probe-del.png"))
         self.cancelAction = QtHelper.createAction(self, "&Clear", self.resetProbe, tip = 'Clear fields', 
                                         icon = QIcon(":/clear.png") )
-        self.refreshRunningAction = QtHelper.createAction(self, "&Refresh", self.refreshRunningProbe, tip = 'Refresh running probes', 
+        self.refreshRunningAction = QtHelper.createAction(self, "&Refresh", 
+                                        self.refreshRunningProbe, tip = 'Refresh running probes', 
                                         icon = QIcon(":/act-refresh.png") )
-        self.refreshDefaultAction = QtHelper.createAction(self, "&Refresh", self.refreshDefaultProbe, tip = 'Refresh default probes', 
+        self.refreshDefaultAction = QtHelper.createAction(self, "&Refresh", 
+                                        self.refreshDefaultProbe, tip = 'Refresh default probes', 
                                         icon = QIcon(":/act-refresh.png") )
 
     def createToolbar(self):
@@ -446,14 +417,14 @@ class WProbes(QWidget, Logger.ClassLogger):
         """
         Refresh the default list of probes
         """
-        UCI.instance().refreshDefaultProbes()
-
+        RCI.instance().defaultProbes()
+        
     def refreshRunningProbe(self):
         """
         Refresh the running list of probes
         """
-        UCI.instance().refreshRunningProbes()
-
+        RCI.instance().runningProbes()
+        
     def delProbe(self):
         """
         Delete probe
@@ -464,8 +435,10 @@ class WProbes(QWidget, Logger.ClassLogger):
             if reply == QMessageBox.Yes:
                 probeName = self.itemCurrentDefault.dataProbe['name']
                 self.delProbeAction.setEnabled(False)
-                UCI.instance().delProbe(probeName=probeName)
-
+                
+                # rest call
+                RCI.instance().removeProbe(probeName=probeName)
+                
     def stopProbe(self):
         """
         Stop the selected probe
@@ -477,8 +450,10 @@ class WProbes(QWidget, Logger.ClassLogger):
                 probeName = self.itemCurrentRunning.dataProbe['id']
                 self.itemCurrentRunning = None
                 self.stopAction.setEnabled(False)
-                UCI.instance().stopProbe(probeName=probeName)
-
+                
+                # rest call
+                RCI.instance().disconnectProbe(probeName=probeName)
+                
     def startProbe(self):
         """
         Start a new probe
@@ -493,6 +468,7 @@ class WProbes(QWidget, Logger.ClassLogger):
         if not self.checkAutoStartOption.isChecked() and not self.checkStartNowOption.isChecked():
             QMessageBox.information(self, "Add Default Probe" , "Select startup option.")
             return
+            
         # call web services
         probeType = str( self.probeTypeEdit.text() )
         probeName = str( self.probeNameEdit.text() )
@@ -500,10 +476,13 @@ class WProbes(QWidget, Logger.ClassLogger):
         probeAutoStart = self.checkAutoStartOption.isChecked()
 
         if not self.checkStartNowOption.isChecked():
-            UCI.instance().addProbe(probeType=probeType, probeName=probeName, probeDescription=probeDescription)
+            RCI.instance().addProbe(probeName=probeName, probeType=probeType, 
+                                    probeDescription=probeDescription)
         else:
-            UCI.instance().startProbe(probeType=probeType, probeName=probeName, probeDescription=probeDescription, probeAutoStart=probeAutoStart )
-
+            RCI.instance().connectProbe(probeName=probeName, probeType=probeType, 
+                                        probeDescription=probeDescription, 
+                                        probeBoot=probeAutoStart)
+                                        
     def resetProbe(self):
         """
         Clear probe field
@@ -512,6 +491,7 @@ class WProbes(QWidget, Logger.ClassLogger):
         self.probeDescEdit.setText( '' )
         self.probeNameEdit.setText( '' )
         self.probeTypeEdit.setText( '' )
+        
         # clear selection
         itms = self.probesAvailable.selectedItems()
         for i in itms:
@@ -527,9 +507,6 @@ class WProbes(QWidget, Logger.ClassLogger):
         self.probesAvailable.setEnabled(True)
         self.deployBox.setEnabled(True)
         self.runningBox.setEnabled(True)
-        self.statsBox.setEnabled(True)
-        self.nbRunningBox.setEnabled(True)
-        self.licenceBox.setEnabled(True)
 
         self.refreshRunningAction.setEnabled(True)
 
@@ -537,8 +514,6 @@ class WProbes(QWidget, Logger.ClassLogger):
         """
         Clears QTreeWidget and disables it
         """
-        self.nbRegistrationLabel.setText( "0" )
-        self.nbDefaultLabel.setText( "0" )
         self.checkAutoStartOption.setCheckState(Qt.Unchecked) 
         self.checkStartNowOption.setCheckState(Qt.Unchecked) 
 
@@ -553,7 +528,6 @@ class WProbes(QWidget, Logger.ClassLogger):
         self.probesAvailable.setEnabled(False)
         self.deployBox.setEnabled(False)
         self.runningBox.setEnabled(False)
-        self.licenceBox.setEnabled(False)
 
         # actions
         self.stopAction.setEnabled(False)
@@ -561,19 +535,12 @@ class WProbes(QWidget, Logger.ClassLogger):
         
         self.itemCurrentRunning = None
         self.itemCurrentInstalled = None
-        self.prbsInstalled = None
 
         self.probeDescEdit.setText( '' )
         self.probeTypeEdit.setText( '' )
         self.probeNameEdit.setText( '' )
-        
-        self.statsBox.setEnabled(False)
-        self.nbInstalledLabel.setText( "0" )
-        self.nbConfiguredLabel.setText( "0" )
-        
-        self.nbRunningBox.setEnabled(False)
+
         self.resetNbProbes()
-        self.nbPrbLabel.setText('' )
 
         self.refreshRunningAction.setEnabled(False)
 
@@ -598,16 +565,6 @@ class WProbes(QWidget, Logger.ClassLogger):
         else:
             return ''
 
-    def loadStats(self, data):
-        """
-        Loads statistics
-
-        @param data: 
-        @type data: dict
-        """
-        self.nbRegistrationLabel.setText( str(data['max-reg']) )
-        self.nbDefaultLabel.setText( str(data['max-def']) )
-
     def loadDefault (self, data):
         """
         Loads default probes
@@ -619,8 +576,6 @@ class WProbes(QWidget, Logger.ClassLogger):
 
         for defProbe in data:
             defProbeItem = ProbeDefaultItem( probe = defProbe, parent= self.probesDefault)
-        totConfigured = len(data)
-        self.nbConfiguredLabel.setText( str(totConfigured) ) 
 
     def loadData (self, data, dataInstalled=None):
         """
@@ -641,50 +596,17 @@ class WProbes(QWidget, Logger.ClassLogger):
             probeItem = ProbeItem( probe = probe, parent= self.probesRegistered)
             self.probes[probe['id']] = probeItem
 
-        totRunning = len(data)
-        self.nbRegisteredLabel.setText( str(totRunning) ) 
-
         # load tests stats
         if dataInstalled is not None:
             if len(dataInstalled) == 0:
                 self.deployBox.setEnabled(False)
                 self.probesAvailable.setEnabled(False)
-            else:
-                self.prbsInstalled = dataInstalled
-                running = {}
-                for p in dataInstalled:
-                    running[ str(p['type']).lower() ] = 0
-                    probeItem = ProbeInstalledItem( probe = p, parent= self.probesAvailable)
-                self.nbInstalledLabel.setText( str(len(dataInstalled)) ) 
-               
-                for probe in data:
-                    if probe['type'].lower() in running:
-                        running[probe['type'].lower() ] += 1
-                runningList = []
-                for k,v in running.items():
-                    runningList.append( '%s: %s' % (k.title(), v) )
-                self.nbPrbLabel.setText( '\n'.join(runningList) )
-
 
     def resetNbProbes(self, data=None):
         """
         Reset the number of probes
         """
-        if data is None:
-            self.nbPrbLabel.setText( '' )
-        else:
-            if self.prbsInstalled is not None:
-                running = {}
-                for p in self.prbsInstalled:
-                    running[ str(p['type']).lower() ] = 0
-
-                for probe in data:
-                    if probe['type'].lower() in running:
-                        running[probe['type'].lower() ] += 1
-                runningList = []
-                for k,v in running.items():
-                    runningList.append( '%s: %s' % (k.title(), v) )
-                self.nbPrbLabel.setText( '\n'.join(runningList) )
+        pass
 
     def refreshData (self, data, action):
         """

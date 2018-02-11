@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -21,7 +21,11 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-import MySQLdb
+try:
+    import MySQLdb
+except ImportError: # python3 support
+    import pymysql as MySQLdb
+    
 import time
 import inspect
 
@@ -85,8 +89,10 @@ class DbManager(Logger.ClassLogger):
                 rows = cursor.lastrowid
             else:
                 if columnName:
-                    fields = map(lambda x:x[0], cursor.description)
-                    rows = [dict(zip(fields,row))   for row in cursor.fetchall()]
+                    rows = []
+                    for row in cursor.fetchall():
+                        fields = map(lambda x:x[0], cursor.description)
+                        rows.append( dict(zip(fields,row))  )
                 else:
                     rows = cursor.fetchall()
             cursor.close ()
@@ -94,7 +100,7 @@ class DbManager(Logger.ClassLogger):
             conn.commit ()
             conn.close ()
             ret = True
-        except MySQLdb.Error, e:
+        except MySQLdb.Error as e:
             self.error( "unable to execute sql query: %s" % e ) 
         return ret, rows
     
@@ -177,9 +183,6 @@ def initialize ():
     """
     global DBM
     DBM = DbManager()
-    #DBM.connectTo()
-    #DBM.detectVersion()
-
 
 def finalize ():
     """
@@ -187,5 +190,4 @@ def finalize ():
     """
     global DBM
     if DBM:
-        #DBM.disconnectFrom()
         DBM = None

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -32,7 +32,8 @@ if sys.version_info > (3,):
 
 try:
     from PyQt4.QtGui import (QTreeWidgetItem, QFont, QColor, QIcon, QWidget, QTabWidget, 
-                            QVBoxLayout, QLabel, QPalette, QBrush, QTreeWidget, QFrame, QAbstractItemView)
+                            QVBoxLayout, QLabel, QPalette, QBrush, QTreeWidget, 
+                            QFrame, QAbstractItemView)
     from PyQt4.QtCore import (Qt)
 except ImportError:
     from PyQt5.QtGui import (QFont, QColor, QIcon, QPalette, QBrush)
@@ -43,9 +44,6 @@ except ImportError:
 from Libs import QtHelper, Logger
 import Settings
 import zlib
-
-# FONT_NAME="courier"
-# FONT_SIZE=8
 
 class KeyItem(QTreeWidgetItem):
     """
@@ -65,9 +63,8 @@ class KeyItem(QTreeWidgetItem):
         @type type: 
         """
         QTreeWidgetItem.__init__(self, parent)
-        #
+        
         self.siz = len(key)
-        #self.setText( 0, key )
         self.setText( 0, unicode(key, "utf8") ) # wrap to str to support python3
         self.setKeyFont( type = type )
 
@@ -80,17 +77,16 @@ class KeyItem(QTreeWidgetItem):
         """
         font = QFont()
         if type == 2:
-            # font = QFont(FONT_NAME, FONT_SIZE)
             font.setItalic(True)
             self.setFont( 0, font)
+            
         elif type == 0 and self.siz > 0:
             self.setForeground(0, QColor(Qt.darkBlue) )
             self.setIcon(0, QIcon(":/dot.png") )
-            # font = QFont(FONT_NAME, FONT_SIZE)
+
             font.setBold(True)
             self.setFont( 0, font)        
         else:
-            # font = QFont(FONT_NAME, FONT_SIZE)
             self.setFont( 0, font) 
 
 class WServerReleaseNote(QWidget, Logger.ClassLogger):
@@ -210,35 +206,38 @@ class WServerReleaseNote(QWidget, Logger.ClassLogger):
         @type dataProbes:
         """
         # load server rn
-        self.constructItem(parent=self.rn, data= zlib.decompress(data) )
+        self.constructItem(parent=self.rn, data= data )
 
         # load adapters rn
-        if dataAdp == False : # dataAdp is false then adapters are not installed on the server
-            emptyItem = KeyItem( key = "", parent = self.rnAdp, type = 0)
-            notInstalledItem = KeyItem( key = "   Package adapters not installed on server", parent = self.rnAdp, type = 1)
+        if not len(dataAdp): # dataAdp is false then adapters are not installed on the server
+            emptyItem = KeyItem( key = b"", parent = self.rnAdp, type = 0)
+            notInstalledItem = KeyItem( key = b"   Package adapters not installed on server", 
+                                        parent = self.rnAdp, type = 1)
         else:
             try:
-                self.constructItem(parent=self.rnAdp, data=zlib.decompress(dataAdp) )
+                self.constructItem(parent=self.rnAdp, data=dataAdp )
             except Exception as e:
                 self.error( e )
 
         # load libraries rn
-        if dataLibAdp == False : # dataLibAdp is false then libraries are not installed on the server
-            emptyItem = KeyItem( key = "", parent = self.rnLibAdp, type = 0)
-            notInstalledItem = KeyItem( key = "   Package libraries not installed on server", parent = self.rnLibAdp, type = 1)
+        if not len(dataLibAdp): # dataLibAdp is false then libraries are not installed on the server
+            emptyItem = KeyItem( key = b"", parent = self.rnLibAdp, type = 0)
+            notInstalledItem = KeyItem( key = b"   Package libraries not installed on server", 
+                                        parent = self.rnLibAdp, type = 1)
         else:
             try:
-                self.constructItem(parent=self.rnLibAdp, data=zlib.decompress(dataLibAdp) )
+                self.constructItem(parent=self.rnLibAdp, data=dataLibAdp )
             except Exception as e:
                 self.error( e )
                 
         # load toolbox rn
-        if dataToolbox == False : # dataToolbox is false then libraries are not installed on the server
-            emptyItem = KeyItem( key = "", parent = self.rnToolbox, type = 0)
-            notInstalledItem = KeyItem( key = "   Package toolbox not installed on server", parent = self.rnToolbox, type = 1)
+        if not len(dataToolbox): # dataToolbox is false then toolbox are not installed on the server
+            emptyItem = KeyItem( key = b"", parent = self.rnToolbox, type = 0)
+            notInstalledItem = KeyItem( key = b"   Package toolbox not installed on server", 
+                                        parent = self.rnToolbox, type = 1)
         else:
             try:
-                self.constructItem(parent=self.rnToolbox, data=zlib.decompress(dataToolbox) )
+                self.constructItem(parent=self.rnToolbox, data=dataToolbox )
             except Exception as e:
                 self.error( e )
 
@@ -255,6 +254,8 @@ class WServerReleaseNote(QWidget, Logger.ClassLogger):
         rootItem = None
         subItem = None
         for line in data.splitlines():
+            if sys.version_info > (3,):
+                line = bytes(line, 'utf8')
             if not line.startswith(b'\t'): # wrap to bytes for python 3 support
                 rootItem = KeyItem( key = line, parent = parent, type = 0)
                 rootItem.setExpanded(True)

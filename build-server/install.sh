@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -51,7 +51,7 @@ PRODUCT_VERSION="$(cat "$APP_SRC_PATH"/VERSION)"
 PRODUCT_SVC_NAME="$(echo $APP_NAME | sed 's/.*/\L&/')"
 PRODUCT_SVC_CTRL="xtctl"
 
-read -p "Are you sure to install the product? (yes or no) " yn 
+read -p "Are you sure you want to install the product? (yes or no) " yn 
 case $yn in 
 	[Yy]* ) ;; 
 	[Nn]* ) echo "Ok, goodbye."; exit 1;; 

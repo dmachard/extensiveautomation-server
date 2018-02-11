@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -180,9 +180,10 @@ class RunsDialog(QtHelper.EnhancedQDialog):
         Initialize tests
         """
         self.repoTests.clear()
-        #self.testRoot = Repositories.RemoteRepository.Item(repo = Repositories.instance().remote(), parent = self.repoTests, txt = "Root", 
-        self.testRoot = self.rRepo.Item(repo = self.iRepo.remote(), parent = self.repoTests, txt = "Root", 
-                                                            type = QTreeWidgetItem.UserType+10, isRoot = True )
+        self.testRoot = self.rRepo.Item(repo = self.iRepo.remote(), 
+                                        parent = self.repoTests, txt = "Root", 
+                                        type = QTreeWidgetItem.UserType+10, 
+                                        isRoot = True )
         self.testRoot.setSelected(True)
         self.createRepository(listing=listing, parent=self.testRoot,fileincluded=True)
         self.repoTests.sortItems(0, Qt.AscendingOrder)
@@ -206,18 +207,17 @@ class RunsDialog(QtHelper.EnhancedQDialog):
         try:
             for dct in  listing:
                 if dct["type"] == "folder":
-                    #item = Repositories.RemoteRepository.Item(repo = Repositories.instance().remote(), parent = parent, txt = dct["name"], propertiesFile=dct )
-                    item = self.rRepo.Item(repo = self.iRepo.remote(), parent = parent, txt = dct["name"], propertiesFile=dct )
+                    item = self.rRepo.Item(repo = self.iRepo.remote(), parent = parent, 
+                                           txt = dct["name"], propertiesFile=dct )
                     self.createRepository(  dct["content"] , item, fileincluded )
                 else:
                     if fileincluded:
                         if dct["type"] == "file":
-                            #pname = Repositories.instance().remote().getProjectName(dct["project"])
                             pname = self.iRepo.remote().getProjectName(dct["project"])
                             # {'modification': 1342259500, 'type': 'file', 'name': '__init__.py', 'size': '562 }
-                            #item = Repositories.RemoteRepository.Item(repo = Repositories.instance().remote(), parent = parent, txt = dct["name"] ,
                             item = self.rRepo.Item(repo = self.iRepo.remote(), parent = parent, txt = dct["name"] ,
-                                                        propertiesFile=dct, type = QTreeWidgetItem.UserType+0, projectId=dct["project"], projectName=pname )
+                                                   propertiesFile=dct, type = QTreeWidgetItem.UserType+0, 
+                                                   projectId=dct["project"], projectName=pname )
 
         except Exception as e:
             self.error( "unable to create tree for runs: %s" % e )
@@ -280,7 +280,6 @@ class RunsDialog(QtHelper.EnhancedQDialog):
             self.upButton.setEnabled(False)
             self.downButton.setEnabled(False)
 
-        #if not len(self.testsList.count()):
         if not self.testsList.count():
             self.okButton.setEnabled(False)
 
@@ -319,7 +318,8 @@ class RunsDialog(QtHelper.EnhancedQDialog):
 
         self.okButton.setEnabled(False)
 
-    def iterateTree(self, item, hideTsx, hideTpx, hideTcx, hideTdx, hideTxt, hidePy, hideTux, hidePng, hideTgx, hideTax):
+    def iterateTree(self, item, hideTsx, hideTpx, hideTcx, hideTdx, hideTxt, 
+                          hidePy, hideTux, hidePng, hideTgx, hideTax):
         """
         Iterate tree
         """
@@ -328,34 +328,28 @@ class RunsDialog(QtHelper.EnhancedQDialog):
             subitem = item.child(i)
             subchild_count = subitem.childCount()
             if subchild_count > 0:
-                self.iterateTree(item=subitem, hideTsx=hideTsx, hideTpx=hideTpx, hideTcx=hideTcx, hideTdx=hideTdx, hideTxt=hideTxt,
-                                    hidePy=hidePy, hideTux=hideTux, hidePng=hidePng, hideTgx=hideTgx, hideTax=hideTax)
+                self.iterateTree(item=subitem, hideTsx=hideTsx, 
+                                 hideTpx=hideTpx, hideTcx=hideTcx, 
+                                 hideTdx=hideTdx, hideTxt=hideTxt,
+                                 hidePy=hidePy, hideTux=hideTux, 
+                                 hidePng=hidePng, hideTgx=hideTgx, hideTax=hideTax)
             else:
-                #if hideTux and subitem.getExtension() == Repositories.RemoteRepository.EXTENSION_TUX:
                 if hideTux and subitem.getExtension() == self.rRepo.EXTENSION_TUX:
                     subitem.setHidden (True)
-                #elif hideTpx and subitem.getExtension() == Repositories.RemoteRepository.EXTENSION_TPX:
                 elif hideTpx and subitem.getExtension() == self.rRepo.EXTENSION_TPX:
                     subitem.setHidden (True)
-                #elif hideTgx and subitem.getExtension() == Repositories.RemoteRepository.EXTENSION_TGX:
                 elif hideTgx and subitem.getExtension() == self.rRepo.EXTENSION_TGX:
                     subitem.setHidden (True)
-                #elif hideTcx and subitem.getExtension() == Repositories.RemoteRepository.EXTENSION_TCX:
                 elif hideTcx and subitem.getExtension() == self.rRepo.EXTENSION_TCX:
                     subitem.setHidden (True)
-                #elif hideTsx and  subitem.getExtension() == Repositories.RemoteRepository.EXTENSION_TSX:
                 elif hideTsx and  subitem.getExtension() == self.rRepo.EXTENSION_TSX:
                     subitem.setHidden (True)
-                #elif hideTdx and  subitem.getExtension() == Repositories.RemoteRepository.EXTENSION_TDX:
                 elif hideTdx and  subitem.getExtension() == self.rRepo.EXTENSION_TDX:
                     subitem.setHidden (True)
-                #elif hideTxt and  subitem.getExtension() == Repositories.RemoteRepository.EXTENSION_TXT:
                 elif hideTxt and  subitem.getExtension() == self.rRepo.EXTENSION_TXT:
                     subitem.setHidden (True)
-                #elif hidePy and  subitem.getExtension() == Repositories.RemoteRepository.EXTENSION_PY:
                 elif hidePy and  subitem.getExtension() == self.rRepo.EXTENSION_PY:
                     subitem.setHidden (True)
-                #elif hidePng and  subitem.getExtension() == Repositories.RemoteRepository.EXTENSION_PNG:
                 elif hidePng and  subitem.getExtension() == self.rRepo.EXTENSION_PNG:
                     subitem.setHidden (True)
                 elif hideTax and  subitem.getExtension() == self.rRepo.EXTENSION_TAx:
@@ -369,8 +363,9 @@ class RunsDialog(QtHelper.EnhancedQDialog):
         Hide items
         """
         root = self.repoTests.invisibleRootItem()
-        self.iterateTree(item=root, hideTsx=hideTsx, hideTpx=hideTpx, hideTcx=hideTcx, hideTdx=hideTdx, hideTxt=hideTxt, hidePy=hidePy,
-                            hideTux=hideTux, hidePng=hidePng, hideTgx=hideTgx, hideTax=hideTax)
+        self.iterateTree(item=root, hideTsx=hideTsx, hideTpx=hideTpx, hideTcx=hideTcx, 
+                         hideTdx=hideTdx, hideTxt=hideTxt, hidePy=hidePy,
+                         hideTux=hideTux, hidePng=hidePng, hideTgx=hideTgx, hideTax=hideTax)
 
     def onTestDoucleClicked(self, testItem):
         """
@@ -386,19 +381,14 @@ class RunsDialog(QtHelper.EnhancedQDialog):
         testName = "%s:%s" % (str(currentProject),testItem.getPath(withFileName = True))
         testItem = QListWidgetItem(testName )
 
-        #if testName.endswith(Repositories.RemoteRepository.EXTENSION_TUX):
         if testName.endswith(self.rRepo.EXTENSION_TUX):
             testItem.setIcon(QIcon(":/tux.png"))
-        #if testName.endswith(Repositories.RemoteRepository.EXTENSION_TSX):
         if testName.endswith(self.rRepo.EXTENSION_TSX):
             testItem.setIcon(QIcon(":/tsx.png"))
-        #if testName.endswith(Repositories.RemoteRepository.EXTENSION_TPX):
         if testName.endswith(self.rRepo.EXTENSION_TPX):
             testItem.setIcon(QIcon(":/tpx.png"))
-        #if testName.endswith(Repositories.RemoteRepository.EXTENSION_TGX):
         if testName.endswith(self.rRepo.EXTENSION_TGX):
             testItem.setIcon(QIcon(":/tgx.png"))
-        #if testName.endswith(Repositories.RemoteRepository.EXTENSION_TAX):
         if testName.endswith(self.rRepo.EXTENSION_TAX):
             testItem.setIcon(QIcon(":/tax.png"))
             

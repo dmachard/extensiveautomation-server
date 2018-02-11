@@ -2,7 +2,7 @@
 # -*- coding=utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -98,6 +98,7 @@ ADB_KEY_VOLUMEMUTE = "volume_mute"
 ADB_KEY_CAMERA = "camera"
 ADB_KEY_POWER = "power"
 
+ADB_KEYCODE_NUM_LOCK = 143
 ADB_KEYCODE_APP_SWITCH = 187
 ADB_KEYCODE_BACK = 4
 ADB_KEYCODE_BACKSLASH  = 73

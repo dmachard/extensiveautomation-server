@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -55,6 +55,7 @@ except ImportError: # support python3
     from . import Udp
     
 import UserClientInterface as UCI
+import RestClientInterface as RCI
 
 import Workspace as WWorkspace
 import Workspace.TestUnit as TestUnit
@@ -120,7 +121,7 @@ class WRecorder(object):
         Start udp capture
         """
         if not self.offlineMode:
-            if not UCI.instance().isAuthenticated():
+            if not RCI.instance().isAuthenticated():
                 QMessageBox.warning(Gui.instance(), "Assistant Automation" , "Connect to the test center in first!")
                 return
 
@@ -139,8 +140,9 @@ class WRecorder(object):
         Start tcp capture
         """
         if not self.offlineMode:
-            if not UCI.instance().isAuthenticated():
-                QMessageBox.warning(Gui.instance(), "Assistant Automation" , "Connect to the test center in first!")
+            if not RCI.instance().isAuthenticated():
+                QMessageBox.warning(Gui.instance(), "Assistant Automation" , 
+                                    "Connect to the test center in first!")
                 return
 
         plugin = Tcp.DTcpReplay( offlineMode=self.offlineMode )
@@ -158,8 +160,9 @@ class WRecorder(object):
         Start http capture
         """
         if not self.offlineMode:
-            if not UCI.instance().isAuthenticated():
-                QMessageBox.warning(Gui.instance(), "Assistant Automation" , "Connect to the test center in first!")
+            if not RCI.instance().isAuthenticated():
+                QMessageBox.warning(Gui.instance(), "Assistant Automation" , 
+                                    "Connect to the test center in first!")
                 return
 
         plugin = Http.DHttpReplay( offlineMode=self.offlineMode )
@@ -203,14 +206,16 @@ class WRecorder(object):
         Restart the gui recorder from test
         """
         if not self.offlineMode:
-            if not UCI.instance().isAuthenticated():
-                QMessageBox.warning(Gui.instance(), "Assistant Automation" , "Connect to the test center in first!")
+            if not RCI.instance().isAuthenticated():
+                QMessageBox.warning(Gui.instance(), "Assistant Automation" , 
+                                    "Connect to the test center in first!")
                 return
             
         # extract the current test
         currentDocument = WWorkspace.DocumentViewer.instance().getCurrentDocument()
         if isinstance(currentDocument, WWorkspace.WDocumentViewer.WelcomePage):
-            QMessageBox.warning(Gui.instance(), "Assistant Automation" , "No valid test detected!")
+            QMessageBox.warning(Gui.instance(), "Assistant Automation" , 
+                                "No valid test detected!")
             return
         else:
             if currentDocument is not None:
@@ -219,20 +224,22 @@ class WRecorder(object):
                     testInputs = currentDocument.dataModel.properties['properties']['inputs-parameters']
                     testAgents = currentDocument.dataModel.properties['properties']['agents']
 
-                    # self.parent.minimizeWindow()
-
                     Gui.instance().clearSteps()
                     Gui.instance().loadAgents()
                     Gui.instance().show()
-                    Gui.instance().loadCurrentTest(currentDoc=currentDocument, testContent=testContent,
-                                                    testInputs=testInputs, testAgents=testAgents, 
+                    Gui.instance().loadCurrentTest( currentDoc=currentDocument, 
+                                                    testContent=testContent,
+                                                    testInputs=testInputs, 
+                                                    testAgents=testAgents, 
                                                     isTu=isTu, isTs=isTs)
       
                 else:
-                    QMessageBox.warning(Gui.instance(), "Assistant Automation" , "No valid test detected!" )
+                    QMessageBox.warning(Gui.instance(), "Assistant Automation" , 
+                                        "No valid test detected!" )
                 return
             else:
-                QMessageBox.warning(Gui.instance(), "Assistant Automation" , "No valid test detected!" )
+                QMessageBox.warning(Gui.instance(), "Assistant Automation" , 
+                                    "No valid test detected!" )
                 return
             
     def startGui(self, mode=MODE_APP):
@@ -240,11 +247,10 @@ class WRecorder(object):
         Start gui recorder
         """
         if not self.offlineMode:
-            if not UCI.instance().isAuthenticated():
-                QMessageBox.warning(Gui.instance(), "Assistant Automation" , "Connect to the test center in first!")
+            if not RCI.instance().isAuthenticated():
+                QMessageBox.warning(Gui.instance(), "Assistant Automation" , 
+                                    "Connect to the test center in first!")
                 return
-        
-        # self.parent.minimizeWindow()
 
         Gui.instance().clearSteps()
         Gui.instance().loadAgents()
@@ -271,26 +277,31 @@ class WRecorder(object):
     
     def startMobile(self):
         """
+        Start the assistant on the mobile part
         """
         self.startGui(mode=MODE_MOB)
     
     def startWeb(self):
         """
+        Start the assistant on the web part
         """
         self.startGui(mode=MODE_WEB)
     
     def startBasic(self):
         """
+        Start the assistant on the framework part
         """
         self.startGui(mode=MODE_BAS)
     
     def startSys(self):
         """
+        Start the assistant on the system part
         """
         self.startGui(mode=MODE_SYS)
     
     def startDatabase(self):
         """
+        Start the assistant on the database part
         """
         self.startGui(mode=MODE_DBB)
         
@@ -327,11 +338,13 @@ class WRecorder(object):
 
     def captureDesktop(self):
         """
+        Capture the desktop
         """
         Gui.instance().onGlobalShortcutPressed()
 
     def restoreAssistant(self):
         """
+        Restore the assistant
         """
         Gui.instance().restoreAssistant()
         

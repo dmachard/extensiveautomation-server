@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # ------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -24,5 +24,8 @@
 from windows import *
 from linux import *
 from file import *
+from nmap import *
+from ncat import *
+from openssl import *
 
 __DESCRIPTION__ = "This adapter enables to execute system commands on windows or linux."

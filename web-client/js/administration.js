@@ -1,6 +1,6 @@
 /*
 ---------------------------------------------------------------
- Copyright (c) 2010-2017 Denis Machard. All rights reserved.
+ Copyright (c) 2010-2018 Denis Machard. All rights reserved.
 
  This file is part of the extensive testing project; you can redistribute it and/or
  modify it under the terms of the GNU General Public License, Version 3.
@@ -210,17 +210,17 @@ function adduser(id)
 	var args = new Array(	
 							arg( 'email', getval('req_email') ),
 							arg( 'admin', getcheck('req_level_admin') ),
-							arg( 'leader', getcheck('req_level_leader') ),
+							arg( 'monitor', getcheck('req_level_monitor') ),
 							arg( 'tester', getcheck('req_level_tester') ),
-							arg( 'developer', getcheck('req_level_developer') ),
+							// arg( 'developer', getcheck('req_level_developer') ),
 							arg( 'lang', getval('req_lang') ),
 							arg( 'style', getval('req_style') ),
 							arg( 'notifications', getcheck('pass') + ';' + getcheck('fail')  + ';' + getcheck('undef') + ';'
 									+ getcheck('complete') + ';' + getcheck('error')  + ';' + getcheck('killed')  + ';' + getcheck('cancelled') + ';'  ),
-							arg( 'defaultproject', getval('req_default_project') ),
-							arg( 'cli', getcheck('req_access_cli') ),
-							arg( 'gui', getcheck('req_access_gui') ),
-							arg( 'web', getcheck('req_access_web') )
+							arg( 'defaultproject', getval('req_default_project') )
+							// arg( 'cli', getcheck('req_access_cli') ),
+							// arg( 'gui', getcheck('req_access_gui') ),
+							// arg( 'web', getcheck('req_access_web') )
 						);
 	
 	// append selected projects 

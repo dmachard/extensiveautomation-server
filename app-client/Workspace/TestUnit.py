@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -88,7 +88,8 @@ class WTestUnit(Document.WDocument):
         @param nonameId: 
         @type nonameId: 
         """
-        Document.WDocument.__init__(self, parent, path, filename, extension, nonameId, remoteFile, repoDest, project, isLocked)
+        Document.WDocument.__init__(self, parent, path, filename, extension, 
+                                    nonameId, remoteFile, repoDest, project, isLocked)
         
         self.srcEditor = None
         
@@ -99,13 +100,15 @@ class WTestUnit(Document.WDocument):
 
         if not 'default-library' in Settings.instance().serverContext:
             if not Settings.instance().offlineMode:
-                QMessageBox.critical(self, "Open" , "Server context incomplete (default library is missing), please to reconnect!")
+                QMessageBox.critical(self, "Open" , 
+                                    "Server context incomplete (default library is missing), please to reconnect!")
             defLibrary = 'v000'
         else:
             defLibrary = Settings.instance().serverContext['default-library']
         if not 'default-adapter' in Settings.instance().serverContext:
             if not Settings.instance().offlineMode:
-                QMessageBox.critical(self, "Open" , "Server context incomplete (default adapter is missing), please to reconnect!")
+                QMessageBox.critical(self, "Open" , 
+                                    "Server context incomplete (default adapter is missing), please to reconnect!")
             defAdapter = 'v000'
         else:
             defAdapter = Settings.instance().serverContext['default-adapter']

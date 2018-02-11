@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -64,6 +64,9 @@ MAX_ARGUMENT_TO_DISPLAY2    = 30
 MAX_COL                     = 12
 
 class QLabelEnhanced(QLabel):
+    """
+    Label enhanced widget
+    """
     EnterLabel = pyqtSignal(str)  
     LeaveLabel = pyqtSignal()  
     def __init__(self, text, parent, data):
@@ -88,6 +91,9 @@ class QLabelEnhanced(QLabel):
         event.accept()
         
 class BasicWidget(QFrame, Logger.ClassLogger):
+    """
+    Basic widget
+    """
     def __init__(self, actionData, owner, variables, testParams, parent, adapterMode=False, stepMode=False):
         """
         Constructs WDocumentViewer widget 

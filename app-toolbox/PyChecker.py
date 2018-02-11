@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -59,6 +59,7 @@ class WritableObject(object):
     """
     def __init__(self):
         """
+        Constructor
         """
         self.content = []
     
@@ -91,13 +92,12 @@ class WritableObject(object):
 # E0611 = no-name-in-module
 
 # Enable following because code can contains error:
-#W0631: Using possibly undefined loop variable 
+# W0631: Using possibly undefined loop variable 
+# W0633: Attempting to unpack a non-sequence%s
 
 ARGS = [ "--disable=all",  "--enable=E", "--enable=F", "--disable=E1101" , "--disable=E0611", "--disable=E1103",
-            "--enable=W0631", "--enable=C0111", "--enable=C0112"
+            "--enable=W0631", "--enable=C0111", "--enable=C0112", "--disable=W0633"
           ] 
-
-# "--enable=C0111", "--enable=C0112"
 
 # report generation or not ?
 if GenerateRepport:
@@ -107,8 +107,10 @@ else:
     pathName = "code_analysis"
     prefixName = "Code"
 
-# exceptions
+# exceptions, because there are generated automatically
 EXCEPTIONS = [
+    ( "Resources.py", "" ),
+    ( "Translations.py", "" ),
 ]
 
 print("Checking code according to PEP8 - Style Guide for Python Code")

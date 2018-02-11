@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -21,7 +21,16 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Build binary for linux
+"""
+
 import sys
+
+try:
+    xrange
+except NameError: # support python3
+    xrange = range
 
 import cx_Freeze
 from cx_Freeze import setup, Executable
@@ -89,16 +98,6 @@ Java_Files = [ f for f in os.listdir(Java_Path) if os.path.isfile(os.path.join(J
 Sikuli_Path = "%s/Bin/Sikuli/" % Settings.getDirExec()
 Sikuli_Files = [ f for f in os.listdir(Sikuli_Path) if os.path.isfile(os.path.join(Sikuli_Path,f)) ]
 
-# adding soapui files
-# SoapUI_Path = "%s/Bin/SoapUI/" % Settings.getDirExec()
-# SoapUI_Files = [ f for f in os.listdir(SoapUI_Path) if os.path.isfile(os.path.join(SoapUI_Path,f)) ]
-
-# SoapUI_Bin_Path = "%s/Bin/SoapUI/bin/" % Settings.getDirExec()
-# SoapUI_Bin_Files = [ f for f in os.listdir(SoapUI_Bin_Path) if os.path.isfile(os.path.join(SoapUI_Bin_Path,f)) ]
-
-# SoapUI_Lib_Path = "%s/Bin/SoapUI/lib/" % Settings.getDirExec()
-# SoapUI_Lib_Files = [ f for f in os.listdir(SoapUI_Lib_Path) if os.path.isfile(os.path.join(SoapUI_Lib_Path,f)) ]
-
 # adding selenium
 Selenium_Path = "%s/Bin/Selenium/" % Settings.getDirExec()
 Selenium_Files = [ f for f in os.listdir(Selenium_Path) if os.path.isfile(os.path.join(Selenium_Path,f)) ]
@@ -152,16 +151,6 @@ for f in Java_Files:
 # sikuli
 for f in Sikuli_Files:
     includeFiles.append( ('%s/%s' % (Sikuli_Path, f), 'Bin/Sikuli/%s' % f ), ) 
-
-# soap ui
-# for f in SoapUI_Files:
-    # includeFiles.append( ('%s/%s' % (SoapUI_Path, f), 'Bin/SoapUI/%s' % f ), ) 
-
-# for f in SoapUI_Bin_Files:
-    # includeFiles.append( ('%s/%s' % (SoapUI_Bin_Path, f), 'Bin/SoapUI/bin/%s' % f ), ) 
-
-# for f in SoapUI_Lib_Files:
-    # includeFiles.append( ('%s/%s' % (SoapUI_Lib_Path, f), 'Bin/SoapUI/lib/%s' % f ), ) 
 
 print(includeFiles)
 

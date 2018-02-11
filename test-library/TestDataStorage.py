@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -67,15 +67,6 @@ class TestDataStorage:
 
         storagePath = '%s/%s' % (self.__path, self.__filename)
         try:
-            #validData = False
-            #if isinstance(data, str):
-            #    validData = True
-            #if isinstance(data, list):
-            #    validData = True
-            #if isinstance(data, dict):
-            #    validData = True
-            #if isinstance(data, tuple):
-            #    validData = True
             if validData:
                 fd = open(storagePath, 'wb')
                 fd.write( pickle.dumps(data) )

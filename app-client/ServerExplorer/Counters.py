@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -44,7 +44,8 @@ from Libs import QtHelper, Logger
 import Settings
 import zlib
 
-import UserClientInterface as UCI
+# import UserClientInterface as UCI
+import RestClientInterface as RCI
 
 FONT_NAME="SansSerif"
 FONT_SIZE=30
@@ -475,10 +476,10 @@ class WCounters(QWidget, Logger.ClassLogger):
         Reset statistic manually
         """
         reply = QMessageBox.question(self, "Reset statistics", "Are you sure ?",
-                        QMessageBox.Yes | QMessageBox.No )
+                                     QMessageBox.Yes | QMessageBox.No )
         if reply == QMessageBox.Yes:
-            UCI.instance().resetTestsStatistics()
-
+            RCI.instance().resetTestsMetrics()
+            
     def active (self):
         """
         Enables

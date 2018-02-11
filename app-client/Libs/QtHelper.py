@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -22,21 +22,22 @@
 # -------------------------------------------------------------------
 
 """
-Helper for QT
+Helper for qt
 """
+
 import sys
 
 IS_QT5 = False
 try:
 	from PyQt4.QtGui import (QColor, QToolButton, QApplication, QTextEdit, QCompleter, QWidget, QPlainTextEdit,
-							QLineEdit, QPushButton, QHBoxLayout, QLabel, QDialog, QIcon, 
+							QLineEdit, QPushButton, QHBoxLayout, QLabel, QDialog, QIcon, QCursor,
 							QDesktopWidget, QVBoxLayout, QSizePolicy, QMovie, QProgressBar, 
 							QPixmap, QAction, QPainter, QRadialGradient, QTransform, QFrame)
 	from PyQt4.QtCore import (Qt, pyqtSignal, QVariant, QSize, QPointF, QRect)
 	from PyQt4.Qsci import (QsciScintilla, QsciLexerPython, QsciLexerXML, QsciLexerBash)
 	if sys.version_info < (3,): from PyQt4.QtCore import (QString)
 except ImportError:
-	from PyQt5.QtGui import (QColor, QIcon, QMovie, QPixmap, QPainter, QRadialGradient, QTransform)
+	from PyQt5.QtGui import (QColor, QIcon, QMovie, QPixmap, QPainter, QRadialGradient, QTransform, QCursor)
 	from PyQt5.QtWidgets import (QToolButton, QApplication, QTextEdit, QCompleter, QWidget, QLineEdit, QPlainTextEdit,
 							QPushButton, QHBoxLayout, QLabel, QDialog, QDesktopWidget, 
 							QVBoxLayout, QSizePolicy, QProgressBar, QAction, QFrame)
@@ -213,6 +214,7 @@ class RawPythonEditor(QsciScintilla):
         self.setIndentationsUseTabs(True)
     def toPlainText(self):
         """
+        Return text as plain text
         """
         return self.text()
 
@@ -225,7 +227,6 @@ class RawXmlEditor(QsciScintilla):
         Text raw editor 
         """
         QsciScintilla.__init__(self, parent)
-        #self.styleEdit = { False: "background-color:rgb(255, 175, 90);", True: "" }
         self.createWidget()
 
     def createWidget(self):
@@ -356,7 +357,6 @@ class RawFind(QWidget):
             self.buttonNext = QPushButton("Next")
 
         hlayout = QHBoxLayout()
-        # hlayout.addWidget( QLabel( ' Find what:') )
         hlayout.addWidget(self.edit)
         if self.buttonNext:
             hlayout.addWidget(self.buttonNext)
@@ -416,12 +416,15 @@ class RawFind(QWidget):
         
 class LineTextWidget(QFrame):
     """
+    Line text widget
     """
     class NumberBar(QWidget):
         """
+        Number bar widget
         """
         def __init__(self, *args):
             """
+            Constructor
             """
             QWidget.__init__(self, *args)
             self.edit = None
@@ -431,6 +434,7 @@ class LineTextWidget(QFrame):
  
         def setTextEdit(self, edit):
             """
+            Set the text of the edit
             """
             self.edit = edit
  
@@ -447,6 +451,7 @@ class LineTextWidget(QFrame):
 
         def paintEvent(self, event):
             """
+            Paint the widget event
             """
             contents_y = self.edit.verticalScrollBar().value()
             page_bottom = contents_y + self.edit.viewport().height()
@@ -459,7 +464,6 @@ class LineTextWidget(QFrame):
             # Iterate over all text blocks in the document.
             block = self.edit.document().begin()
             while block.isValid():
-                # print( "%s - %s" % (block.firstLineNumber(), block.length() ) )
                 line_count += 1
  
                 # The top left position of the block in the document
@@ -481,10 +485,9 @@ class LineTextWidget(QFrame):
                 # Draw the line number right justified at the y position of the
                 # line. 3 is a magic padding number. drawText(x, y, text).
                 x = self.width() - font_metrics.width(str(line_count)) - 3
-                # print(position.y())
                 y = round(position.y()) - contents_y + font_metrics.ascent()
                 t = str(line_count)
-                # print( "x=%s, y=%s - %s" % (x,y,t) )
+
                 painter.drawText(x,y,t)
  
                 # Remove the bold style if it was set previously.
@@ -502,22 +505,20 @@ class LineTextWidget(QFrame):
  
     def __init__(self, *args):
         """
+        Constructor
         """
         QFrame.__init__(self, *args)
  
         self.setFrameStyle(QFrame.StyledPanel | QFrame.Sunken)
 
         self.edit = RawEditor(parent=self)
-        # self.edit = QPlainTextEdit(self)
         self.edit.setFrameStyle(QFrame.NoFrame)
-        # self.edit.setAcceptRichText(False)
- 
+
         self.number_bar = self.NumberBar()
         self.number_bar.setTextEdit(self.edit)
  
         hbox = QHBoxLayout(self)
         hbox.setSpacing(0)
-        # hbox.setMargin(0)
         hbox.setContentsMargins (0, 0, 0, 0)
         hbox.addWidget(self.number_bar)
         hbox.addWidget(self.edit)
@@ -527,6 +528,7 @@ class LineTextWidget(QFrame):
  
     def eventFilter(self, object, event):
         """
+        On event filter
         """
         # Update the line numbers for all events on the text edit and the viewport.
         # This is easier than connecting all necessary singals.
@@ -535,7 +537,10 @@ class LineTextWidget(QFrame):
             return False
         return QFrame.eventFilter(object, event)
  
-    def getTextEdit(self):
+    def getTextEdit(self): 
+        """
+        return the text of the edit
+        """
         return self.edit
         
 class EnhancedQDialog(QDialog):
@@ -728,7 +733,6 @@ class MessageBoxDialog(QDialog):
         Emit download signal
         """
         self.Download.emit(self.url)
-        #self.emit( SIGNAL("Download"), self.url )
         self.accept()
     
     def onReject(self):
@@ -736,7 +740,6 @@ class MessageBoxDialog(QDialog):
         Called on cancel
         """
         self.DownloadCanceled.emit()
-        #self.emit( SIGNAL("DownloadCanceled"), self.url )
         self.reject()
         
     def updateDataReadProgress(self, bytesRead, totalBytes):
@@ -781,9 +784,6 @@ class MessageBoxDialog(QDialog):
         buttonLayout.addWidget(self.okButton)
         buttonLayout.addWidget(self.downloadButton)
         buttonLayout.addWidget(self.cancelButton)
-        # self.connect(self.okButton, SIGNAL("clicked()"), self.accept)
-        # self.connect(self.downloadButton, SIGNAL("clicked()"), self.download)
-        # self.connect(self.cancelButton, SIGNAL("clicked()"), self.onReject)
         self.okButton.clicked.connect(self.accept)
         self.downloadButton.clicked.connect(self.download)
         self.cancelButton.clicked.connect(self.onReject)
@@ -807,7 +807,6 @@ def isExe ():
     @return:
     @rtype: boolean
     """
-    #return hasattr(sys, "frozen") # py2exe
     return imp.is_frozen("__main__") # cx_freeze
 
 def str2bool(v):

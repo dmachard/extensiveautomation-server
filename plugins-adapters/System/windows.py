@@ -2,7 +2,7 @@
 # -*- coding=utf-8 -*-
 
 # ------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -186,6 +186,10 @@ class Windows(TestAdapterLib.Adapter):
 				#			Invalid GET Expression.
 							
 				# raw format
+				# decode the dos response command with cp850 encoding
+				# and convert to utf8
+				raw = raw.decode("cp850").encode("utf8")
+
 				if data['get'] == EXEC_CMD:
 					if self.logEventReceived:		
 						tplWin = TestTemplatesLib.TemplateLayer(name='WINDOWS')

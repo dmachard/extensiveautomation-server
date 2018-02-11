@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -21,16 +21,20 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Qt helper
+"""
+
 try:
 	from PyQt4.QtCore import (pyqtSignal, Qt, QVariant, QSize, QPointF, QRect)
 	from PyQt4.QtGui import (QColor, QDialog, QDesktopWidget, QHBoxLayout, 
-							QPushButton, QProgressBar, QToolButton,
+							QPushButton, QProgressBar, QToolButton, QLabel,
 							QAction, QWidget, QPainter, QPixmap, QIcon,
 							QVBoxLayout)
 except ImportError:
 	from PyQt5.QtCore import (pyqtSignal, Qt, QVariant, QSize, QPointF, QRect)
 	from PyQt5.QtWidgets import (QDesktopWidget, QDialog, QPushButton, QProgressBar, 
-								QToolButton, QAction, QWidget)
+								QToolButton, QAction, QWidget, QLabel)
 	from PyQt5.QtGui import (QColor, QIcon, QPixmap, QPainter)
 	
 import os
@@ -47,7 +51,11 @@ CHART_COLOR_GREEN   = QColor(0, 128, 0, 200)
 CHART_COLOR_GREY    = QColor(176, 176, 176, 200)
 CHART_COLOR_ORANGE  = QColor(237, 189, 45, 200)
 
+# unicode = str with python3
+if sys.version_info > (3,):
+    unicode = str
 
+    
 def bytes_to_unicode(ob):
     """
     Byte to unicode with exception...
@@ -117,6 +125,8 @@ def formatTimestamp ( timestamp, milliseconds=False):
 
 def bytes2human(n):
     """
+    Bytes 2 human convertion
+    
     @param n: 
     @type n: 
 
@@ -136,8 +146,13 @@ def bytes2human(n):
 
 
 class QDialogEnhanced(QDialog):
+    """
+    Qt dialog enhanced
+    """
     def __init__(self, dialogName, parent = None):
         """
+        Constructor
+        
         @param dialogName: 
         @type dialogName:
 
@@ -146,8 +161,10 @@ class QDialogEnhanced(QDialog):
         """
         QDialog.__init__(self, parent)
         self.setWindowIcon( QIcon(":/main.png") ) 
+        
     def center(self):
         """
+        Center the dialog
         """
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
@@ -156,8 +173,13 @@ class QDialogEnhanced(QDialog):
 
 
 class ProgressDialog(QDialog):
+    """
+    Progress dialog
+    """
     def __init__(self, dialogName, parent = None):
         """
+        Constructor
+        
         @param dialogName: 
         @type dialogName:
 
@@ -168,8 +190,10 @@ class ProgressDialog(QDialog):
         self.setWindowIcon( QIcon(":/main.png") ) 
         self.name = dialogName
         self.createDialog()
+        
     def createDialog(self):
         """
+        Create qt dialog
         """
         self.setWindowTitle( "%s" % self.name )
         layout = QVBoxLayout()
@@ -198,10 +222,15 @@ class ProgressDialog(QDialog):
     
 
 class MessageBoxDialog(QDialog):
+    """
+    Message box dialog
+    """
     Download = pyqtSignal(str)
     DownloadCanceled = pyqtSignal()
     def __init__(self, dialogName, parent = None):
         """
+        Constructor
+        
         @param dialogName: 
         @type dialogName:
 
@@ -216,6 +245,8 @@ class MessageBoxDialog(QDialog):
     
     def closeEvent(self, event):
         """
+        Close event
+        
         @param event: 
         @type event:
         """
@@ -223,6 +254,8 @@ class MessageBoxDialog(QDialog):
 
     def setDownload(self, title, txt, url):
         """
+        Set dialog for download purpose
+        
         @param title: 
         @type title:
 
@@ -244,6 +277,8 @@ class MessageBoxDialog(QDialog):
     
     def setTxt (self, title, txt, error=False):
         """
+        Set dialog with text
+        
         @param title: 
         @type title:
 
@@ -264,6 +299,8 @@ class MessageBoxDialog(QDialog):
 
     def setLoading (self, msg='Loading data...' ):
         """
+        Set dialog for loading
+        
         @param msg: 
         @type msg:
         """
@@ -281,28 +318,34 @@ class MessageBoxDialog(QDialog):
 
     def setConnection (self ):
         """
+        Set connection message
         """
         self.loadingLabel.setText( "Connection..." )
 
     def setInitialization (self ):
         """
+        Set init message
         """
         self.loadingLabel.setText( "Initialization..." )
         self.show()
 
     def download (self):
         """
+        Emit download signla
         """
         self.Download.emit(self.url)
 
     def onReject(self):
         """
+        On cancel
         """
         self.DownloadCanceled.emit()
         self.reject()
         
     def updateDataReadProgress(self, bytesRead, totalBytes):
         """
+        Update progress bar
+        
         @param bytesRead: 
         @type bytesRead:
 
@@ -314,6 +357,7 @@ class MessageBoxDialog(QDialog):
 
     def createDialog(self):
         """
+        Create qt dialog
         """
         self.setWindowTitle( "%s" % self.name )
         layout = QVBoxLayout()
@@ -340,9 +384,6 @@ class MessageBoxDialog(QDialog):
         buttonLayout.addWidget(self.okButton)
         buttonLayout.addWidget(self.downloadButton)
         buttonLayout.addWidget(self.cancelButton)
-        # self.connect(self.okButton, SIGNAL("clicked()"), self.accept)
-        # self.connect(self.downloadButton, SIGNAL("clicked()"), self.download)
-        # self.connect(self.cancelButton, SIGNAL("clicked()"), self.onReject)
         self.okButton.clicked.connect(self.accept)
         self.downloadButton.clicked.connect(self.download)
         self.cancelButton.clicked.connect(self.onReject)
@@ -506,8 +547,13 @@ def createAction( parent, label, callback=None, icon = None, tip = None, shortcu
     return action
 
 class TestWidget(QWidget):
+    """
+    Test widget
+    """
     def __init__(self, parent, txt = "Just For Test", minHeight=None):
         """
+        Constructor
+        
         @param parent: 
         @type parent:
 
@@ -525,6 +571,7 @@ class TestWidget(QWidget):
 
     def createWidgets (self):
         """
+        Create qt widget
         """
         layout = QHBoxLayout()
         self.label = QLabel(self.txt, self)
@@ -535,18 +582,22 @@ class TestWidget(QWidget):
     
     def active(self):
         """
+        Active the widget
         """
         self.setEnabled(True)
         self.label.setEnabled(True)
     
     def deactive(self):
         """
+        Deactive the widget
         """
         self.setEnabled(False)
         self.label.setEnabled(False)
 
 def random_colour(min=20, max=200):
     """
+    Return random colour 
+    
     @param txt: 
     @type txt:
 

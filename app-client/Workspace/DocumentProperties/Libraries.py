@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@
 """
 Test abstract steps table
 """
+
 import sys
 
 # unicode = str with python3
@@ -45,15 +46,20 @@ except ImportError:
     
 from Libs import QtHelper, Logger
 
-# python 3 support
-# support old variant style
-# will be remove in the future
-def q(v=""): 
-    return QVariant(v)
-if sys.version_info > (3,): 
-    def q(v=""): 
+
+def q(v=""):
+    """
+    Return the value argument without do anything
+    Only to support python 2.x and python 3.x
+    
+    @param v: the value to convert
+    @type v: string
+    """
+    if sys.version_info > (3,): 
         return v
-        
+    else:
+        return QVariant(v)
+
 import operator
 
 import Workspace.Helper as Helper
@@ -610,18 +616,19 @@ class LibrariesTableView(QTableView):
                 for cls in sutlib['classes']:
 
                     # extract __init__ function only
+                    fct = None
                     for fct in cls['functions']:
                         if fct['name'] == '__init__':
                             break
+                    if fct is not None:    
+                        argsFct = self.parseDocString(docstring=fct['desc'])
+                        argsFct['function'] = "%s::%s" % (sutlib['name'],cls['name'])
+                        argsFct['main-name'] = "%s" % sutlib['name']
+                        argsFct['sub-name'] = "%s" % cls['name']
+                        if 'default-args' in fct:
+                            self.addDefaultValues(defaultValues=fct['default-args'], currentFunction=argsFct)
                             
-                    argsFct = self.parseDocString(docstring=fct['desc'])
-                    argsFct['function'] = "%s::%s" % (sutlib['name'],cls['name'])
-                    argsFct['main-name'] = "%s" % sutlib['name']
-                    argsFct['sub-name'] = "%s" % cls['name']
-                    if 'default-args' in fct:
-                        self.addDefaultValues(defaultValues=fct['default-args'], currentFunction=argsFct)
-                        
-                    libMenu.addAction(QtHelper.createAction(self, cls['name'], self.addLibrary, cb_arg=argsFct ))    
+                        libMenu.addAction(QtHelper.createAction(self, cls['name'], self.addLibrary, cb_arg=argsFct ))    
             
         if not indexes:
             self.delAction.setEnabled(False)

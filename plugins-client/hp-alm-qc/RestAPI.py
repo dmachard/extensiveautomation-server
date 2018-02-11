@@ -36,14 +36,11 @@ except ImportError:
 from Core import Settings
 
 import requests
-# from requests.packages.urllib3.exceptions import InsecureRequestWarning
-# requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 import urllib3
 from urllib3.exceptions import InsecureRequestWarning
 urllib3.disable_warnings(InsecureRequestWarning)
 
-from urllib.parse import urlparse
 import xml.etree.ElementTree as ET
 import os
 import html
@@ -553,7 +550,8 @@ class RestHpAlmClient(QObject):
 
         return ret
         
-    def RestCreateRun(self, logger, testinsId, testsetId, testId, testStatus, runName, ownerName, subtypeId="hp.qc.run.MANUAL"):
+    def RestCreateRun(self, logger, testinsId, testsetId, testId, testStatus, 
+                       runName, ownerName, subtypeId="hp.qc.run.MANUAL"):
         """
         """
         logger("Creating run" )
@@ -636,7 +634,11 @@ class RestHpAlmClient(QObject):
         data.append( "</Fields>" ) 
         data.append( "</Entity>" )
 
-        r = requests.put("%s/rest/domains/%s/projects/%s/runs/%s/run-steps/%s" % (self.WsUrl, self.WsDomain, self.WsProject, runId, stepId), 
+        r = requests.put("%s/rest/domains/%s/projects/%s/runs/%s/run-steps/%s" % (self.WsUrl, 
+                                                                                  self.WsDomain, 
+                                                                                  self.WsProject, 
+                                                                                  runId, 
+                                                                                  stepId), 
                         cookies={ 'LWSSO_COOKIE_KEY': self.WsLwssoCookie, 'QCSession': self.WsQcSession } ,
                         headers = {'Content-Type': 'application/xml;charset=utf-8'},
                         data="\n".join(data).encode("utf8"),
@@ -652,7 +654,8 @@ class RestHpAlmClient(QObject):
         self.WsQcSession = None
         self.WsXsrfToken = None
         
-        almAuth = "<alm-authentication><user>%s</user><password>%s</password></alm-authentication>""" % (self.WsUsername, escape(self.WsPassword))
+        almAuth = "<alm-authentication><user>%s</user><password>%s</password></alm-authentication>""" % (self.WsUsername, 
+                                                                                                         escape(self.WsPassword))
         logger("Connection to the REST API..." )
         r = requests.post("%s/authentication-point/alm-authenticate" % self.WsUrl,
                             headers = {'Content-Type': 'application/xml;charset=utf-8'},
@@ -729,11 +732,15 @@ class RestHpAlmClient(QObject):
                 ret = None
                 parentId = rootFolder["id"]
                 for d in folders:
-                    ret = self.RestFindTestFolder(logger=self.logTestsStatus, folderName=d, parentId=parentId)
+                    ret = self.RestFindTestFolder(logger=self.logTestsStatus, 
+                                                  folderName=d, 
+                                                  parentId=parentId)
                     if ret is None and not config["Add_Folders"]:
                         raise Exception( 'Folder (%s) is missing in test plan' % d )
                     elif ret is None and config["Add_Folders"]:
-                        parentId = self.RestAddTestFolder(logger=self.logTestsStatus, folderName=d, parentId=parentId)
+                        parentId = self.RestAddTestFolder(logger=self.logTestsStatus,
+                                                          folderName=d, 
+                                                          parentId=parentId)
                     else:
                         parentId = ret["id"]
 
@@ -741,8 +748,10 @@ class RestHpAlmClient(QObject):
                 if parentId is None:
                     raise Exception('Folder parent id is missing ?')
 
-                funcParams = { 'logger': self.logTestsStatus, 'testName': tc['testcase'], 'parentId': parentId, 
-                                'testDescription': tc['purpose'] }
+                funcParams = { 'logger': self.logTestsStatus, 
+                               'testName': tc['testcase'], 
+                               'parentId': parentId, 
+                               'testDescription': tc['purpose'] }
                 funcParams.update(config)
                 testId = self.RestCreateTest(**funcParams)
 
@@ -771,11 +780,13 @@ class RestHpAlmClient(QObject):
             # connect
             self.RestAuthenticate(logger=self.logResultsStatus)
 
-            rootFolder = self.RestFindTestsetFolder(logger=self.logResultsStatus, folderName="Root", parentId="-1")
+            rootFolder = self.RestFindTestsetFolder(logger=self.logResultsStatus, 
+                                                    folderName="Root", parentId="-1")
             if rootFolder is None: 
                 raise Exception( "Unable to detect the root folder in test lab" )
 
-            rootTpFolder = self.RestFindTestFolder(logger=self.logResultsStatus, folderName="Subject", parentId="0")
+            rootTpFolder = self.RestFindTestFolder(logger=self.logResultsStatus, 
+                                                   folderName="Subject", parentId="0")
             if rootTpFolder is None: 
                 raise Exception( "Unable to detect the root folder in test plan" )
                 
@@ -790,19 +801,26 @@ class RestHpAlmClient(QObject):
             ret = None
             parentId = rootFolder["id"]
             for d in folders:
-                ret = self.RestFindTestsetFolder(logger=self.logResultsStatus, folderName=d, parentId=parentId)
+                ret = self.RestFindTestsetFolder(logger=self.logResultsStatus, 
+                                                 folderName=d, parentId=parentId)
                 if ret is None and not config["Add_Folders"]:
                     raise Exception( 'Folder (%s) is missing in test lab' % d )
                 elif ret is None and config["Add_Folders"]:
-                    parentId = self.RestAddTestsetFolder(logger=self.logResultsStatus, folderName=d, parentId=parentId)
+                    parentId = self.RestAddTestsetFolder(logger=self.logResultsStatus, 
+                                                         folderName=d, 
+                                                         parentId=parentId)
                 else:
                     parentId = ret["id"]
                 
             if config["Add_TestSet"]:
-                testsetId = self.RestCreateTestset(logger=self.logResultsStatus, testsetName=config["TestSet_Name"], parentId=parentId,
-                                                    subtypeId=config["TestSet_TypeId"])
+                testsetId = self.RestCreateTestset(logger=self.logResultsStatus, 
+                                                   testsetName=config["TestSet_Name"], 
+                                                   parentId=parentId,
+                                                   subtypeId=config["TestSet_TypeId"])
             else:
-                oTestset = self.RestFindTestset(logger=self.logResultsStatus, testsetName=config["TestSet_Name"], parentId=parentId)
+                oTestset = self.RestFindTestset(logger=self.logResultsStatus, 
+                                                testsetName=config["TestSet_Name"], 
+                                                parentId=parentId)
                 testsetId = oTestset["id"]
 
             for tc in testcases:
@@ -818,7 +836,9 @@ class RestHpAlmClient(QObject):
                 ret = None
                 parentIdTp = rootTpFolder["id"]
                 for d in folders:
-                    ret = self.RestFindTestFolder(logger=self.logResultsStatus, folderName=d, parentId=parentIdTp)
+                    ret = self.RestFindTestFolder(logger=self.logResultsStatus, 
+                                                  folderName=d, 
+                                                  parentId=parentIdTp)
                     if ret is None :
                         raise Exception( 'Folder (%s) is missing in test plan' % d )
                     else:
@@ -827,18 +847,25 @@ class RestHpAlmClient(QObject):
                     raise Exception('Folder parent id is missing ?')
 
                 # finally search the test in testplan ?
-                oTest = self.RestFindTest(logger=self.logResultsStatus, testName=tc['testname'], parentId=parentIdTp)
+                oTest = self.RestFindTest(logger=self.logResultsStatus, 
+                                          testName=tc['testname'], 
+                                          parentId=parentIdTp)
                 
                 if config["Add_TestInstance"]:
                     # add the test instance in testset
-                    testinsId = self.RestCreateTestInstance(logger=self.logResultsStatus, testId=oTest["id"], testsetId=testsetId,
+                    testinsId = self.RestCreateTestInstance(logger=self.logResultsStatus, 
+                                                            testId=oTest["id"], 
+                                                            testsetId=testsetId,
                                                             subtypeId=config["TestInstance_TypeId"])
                 else:
-                    oTestins = self.RestFindTestInstance(logger=self.logResultsStatus, testinsName=tc["name"], parentId=oTest["id"])
+                    oTestins = self.RestFindTestInstance(logger=self.logResultsStatus, 
+                                                         testinsName=tc["name"], 
+                                                         parentId=oTest["id"])
                     testinsId = oTestins["id"]
 
                 # create a run with the state not completed
-                runName = "%s_%s" % (Settings.instance().readValue( key = 'Common/name' ), time.strftime('%d-%m-%y %H:%M',time.localtime()) )
+                runName = "%s_%s" % (Settings.instance().readValue( key = 'Common/name' ), 
+                                    time.strftime('%d-%m-%y %H:%M',time.localtime()) )
                 ownerName = self.core().settings().cfg()["credentials"]["login"]
                 runId = self.RestCreateRun(logger=self.logResultsStatus, testinsId=testinsId, runName=runName, 
                                             ownerName=ownerName, testsetId=testsetId, testId=oTest["id"], 
@@ -855,16 +882,19 @@ class RestHpAlmClient(QObject):
                         except Exception as e:
                             raise Exception("step %s is missing" % i )
                         else:
-                            self.RestUpdateRunStep(logger=self.logResultsStatus, stepId=stpId, runId=runId, 
-                                                    stepStatus=stp["result"], stepActual=stp["actual"] )
+                            self.RestUpdateRunStep(logger=self.logResultsStatus, 
+                                                   stepId=stpId, runId=runId, 
+                                                   stepStatus=stp["result"], stepActual=stp["actual"] )
                             i += 1
                 else:
                     for stpId in steps:
-                        self.RestUpdateRunStep(logger=self.logResultsStatus, stepId=stpId, runId=runId, 
-                                                stepStatus=tc["result"], stepActual="")
+                        self.RestUpdateRunStep(logger=self.logResultsStatus, 
+                                               stepId=stpId, runId=runId, 
+                                               stepStatus=tc["result"], stepActual="")
 
                 # complete the run
-                self.RestUpdateRun(logger=self.logResultsStatus, runId=runId, runStatus=tc["result"])
+                self.RestUpdateRun(logger=self.logResultsStatus, 
+                                   runId=runId, runStatus=tc["result"])
 
             # disconnect
             self.RestLogout(logger=self.logResultsStatus)

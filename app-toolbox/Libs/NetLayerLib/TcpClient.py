@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -48,9 +48,21 @@ if sys.version_info > (3,):
     unicode = str
 else:
     # these exceptions does not exist in python2.X
-    class ConnectionAbortedError(Exception): pass
-    class ConnectionRefusedError(Exception): pass
-    class ConnectionResetError(Exception): pass
+    class ConnectionAbortedError(Exception): 
+        """
+        Connection aborted exception
+        """
+        pass
+    class ConnectionRefusedError(Exception): 
+        """
+        Connection refused exception
+        """
+        pass
+    class ConnectionResetError(Exception): 
+        """
+        Connection reset exception
+        """
+        pass
     
 try:
     import WebSocket
@@ -430,7 +442,6 @@ class TcpClientThread(threading.Thread):
                                 if self.keepAliveInterval:
                                     if time.time() - self.lastKeepAliveTimestamp > self.keepAliveInterval:
                                         self.lastKeepAliveTimestamp = time.time()
-                                        # self.lastActivityTimestamp = time.time()
                                         wsping, pingId = self.wsCodec.encodePing()
                                         self.trace("sending ws ping message id=%s" % pingId)                                        
                                         self.queue.put(wsping)
@@ -448,7 +459,6 @@ class TcpClientThread(threading.Thread):
                                 if self.keepAliveInterval:                                    
                                     if time.time() - self.lastKeepAliveTimestamp > self.keepAliveInterval:
                                         self.lastKeepAliveTimestamp = time.time()
-                                        # self.lastActivityTimestamp = time.time()
                                         self.trace("sending keep-alive")
                                         self.sendPacket( self.keepAlivePdu )
 
@@ -987,33 +997,3 @@ class TcpClientThread(threading.Thread):
         @type txt: string
         """
         print(txt)
-
-
-#if __name__ == '__main__':
-#    def onDisconnection(byServer=False): print('disconnected: %s' % byServer)
-#    # 172.16.51.9
-#    # 174.129.224.73
-#    ws = TcpClientThread( serverAddress = ('172.16.51.2', 80), localAddress = ('', 0), inactivityTimeout = 120,
-#                            keepAliveInterval = 20, timeout = 1, proxyAddress=None, proxyUserId='client',
-#                            selectTimeout=0.01, terminator='\x00', wsSupport=True, sslSupport=False)
-#    ws.start()
-#    #ws.onDisconnection = onDisconnection
-#    print("starting connection")
-#    ws.startConnection()
-#    
-#    print("waiting...")
-#    time.sleep( 1 )
-#    ws.handshakeWebSocket(resource="/?encoding=text", hostport="echo.websocket.org")
-#    time.sleep( 1 )
-#    print('sending data')
-#    a = 0
-#    for i in xrange(500):
-#        ws.sendPacket(packet='a'*6000)
-#        a += len('a'*6000)
-#    print(a)
-#    time.sleep( 60 )
-#    print("stopping connection")
-#    ws.closeConnection()
-#    ws.stop()
-#    ws.join()
-#    

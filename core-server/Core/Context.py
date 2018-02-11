@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -25,55 +25,61 @@ import time
 import sys
 import threading
 import os
-import commands
 import zlib
 import base64
 import copy
 import subprocess
 from datetime import timedelta
-try:
-    import hashlib
-    sha1_constructor = hashlib.sha1
-except ImportError, e: # support python 2.4
-    import sha
-    sha1_constructor = sha.new
-try:
-    # python 2.4 support
-    import simplejson as json
-except ImportError:
-    import json
+
+import hashlib
+import json
 
 import platform
 import base64 
 import uuid
 
-import EventServerInterface as ESI
-import DbManager
-import UsersManager
-import StatsManager
-import RepoLibraries
-import RepoAdapters
-import ProjectsManager
-
+try:
+    import EventServerInterface as ESI
+    import DbManager
+    import UsersManager
+    import StatsManager
+    import RepoLibraries
+    import RepoAdapters
+    import ProjectsManager
+    import Common
+except ImportError: # python3 support
+    from . import EventServerInterface as ESI
+    from . import DbManager
+    from . import UsersManager
+    from . import StatsManager
+    from . import RepoLibraries
+    from . import RepoAdapters
+    from . import ProjectsManager
+    from . import Common
+    
 from Libs import Settings, Logger
 
+# unicode = str with python3
+if sys.version_info > (3,):
+    unicode = str
 
-CODE_ERROR                = 500
-CODE_DISABLED             = 405
-CODE_NOT_FOUND            = 404
-CODE_LOCKED               = 421
-CODE_ALLREADY_EXISTS      = 420 # error in the name, should be remove in the future
-CODE_ALREADY_EXISTS       = 420
-CODE_ALLREADY_CONNECTED   = 416 # error in the name, should be remove in the future
-CODE_ALREADY_CONNECTED    = 416
-CODE_FORBIDDEN            = 403
-CODE_FAILED               = 400
-CODE_OK                   = 200
-
-LANG_EN                   = 0
-LANG_FR                   = 1
+def getstatusoutput(cmd):
+    """
+    Return (exitcode, output) of executing cmd in a shell.
+    """
+    try:
+        data = subprocess.check_output(cmd, shell=True, stderr=subprocess.STDOUT)
+        exitcode = 0
+    except subprocess.CalledProcessError as ex:
+        data = ex.output
+        exitcode = ex.returncode
+    if data[-1:] == '\n':
+        data = data[:-1]
+    return exitcode, data
 
 class UserContext(Logger.ClassLogger):
+    """
+    """
     def __init__(self, login):
         """
         Class to construct a user context
@@ -81,7 +87,7 @@ class UserContext(Logger.ClassLogger):
         self.trace('Preparing user context Login=%s' % login)
         self.login = login
         self.default_prj = ProjectsManager.instance().getDefaultProjectForUser(user=login)
-        self.projects = ProjectsManager.instance().getProjects(user=login, b64=False)
+        self.projects = ProjectsManager.instance().getProjects(user=login)
         self.trace('User context constructed Login=%s' % login)
         
     def __str__(self):
@@ -104,31 +110,7 @@ class UserContext(Logger.ClassLogger):
         """
         Return all projects 
         """
-        if b64:
-            return self.encodeData(data=self.projects)
-        else:
-            return self.projects
-            
-    def encodeData(self, data):
-        """
-        Encode data
-        """
-        ret = ''
-        try:
-            tasks_json = json.dumps(data)
-        except Exception as e:
-            self.error( "Unable to encode in json: %s" % str(e) )
-        else:
-            try: 
-                tasks_zipped = zlib.compress(tasks_json)
-            except Exception as e:
-                self.error( "Unable to compress: %s" % str(e) )
-            else:
-                try: 
-                    ret = base64.b64encode(tasks_zipped)
-                except Exception as e:
-                    self.error( "Unable to encode in base 64: %s" % str(e) )
-        return ret
+        return self.projects
 
 class SessionExpireHandler(threading.Thread, Logger.ClassLogger):
     """
@@ -186,6 +168,20 @@ class SessionExpireHandler(threading.Thread, Logger.ClassLogger):
 class Context(Logger.ClassLogger):  
     """
     """
+    CODE_ERROR                = 500
+    CODE_DISABLED             = 405
+    CODE_NOT_FOUND            = 404
+    CODE_LOCKED               = 421
+    CODE_ALLREADY_EXISTS      = 420 # error in the name, should be remove in the future
+    CODE_ALREADY_EXISTS       = 420
+    CODE_ALLREADY_CONNECTED   = 416 # error in the name, should be remove in the future
+    CODE_ALREADY_CONNECTED    = 416
+    CODE_FORBIDDEN            = 403
+    CODE_FAILED               = 400
+    CODE_OK                   = 200
+
+    LANG_EN                   = 0
+    LANG_FR                   = 1
     def __init__(self):
         """
         Construct context server
@@ -201,7 +197,6 @@ class Context(Logger.ClassLogger):
         self.mysqlVersion = None
         self.apacheVersion = None
         self.phpVersion = None
-        self.licence = None
         self.networkInterfaces = None
         self.networkRoutes = None
         
@@ -232,7 +227,14 @@ class Context(Logger.ClassLogger):
         Set apache version
         """
         try:
-            phpVersion = commands.getoutput( 'php -v' )
+            phpVersion = subprocess.check_output( 'php -v', stderr=subprocess.STDOUT, shell=True )
+            phpVersion = phpVersion.strip()
+            
+            if sys.version_info > (3,):
+                phpVersion = phpVersion.decode('utf8')
+                
+            self.trace("php version: %s" % phpVersion)
+            
             lines = phpVersion.splitlines()
             self.phpVersion = (lines[0].split(' ')[1]).strip()
         except Exception as e:
@@ -244,7 +246,13 @@ class Context(Logger.ClassLogger):
         Set apache version
         """
         try:
-            versionHttpd = commands.getoutput( 'httpd -v' )
+            versionHttpd = subprocess.check_output( 'httpd -v', stderr=subprocess.STDOUT, shell=True )
+            versionHttpd = versionHttpd.strip()
+            if sys.version_info > (3,):
+                versionHttpd = versionHttpd.decode('utf8')
+                
+            self.trace("httpd version: %s" % versionHttpd)
+            
             lines = versionHttpd.splitlines()
             self.apacheVersion = (lines[0].split(': ')[1]).strip()
         except Exception as e:
@@ -258,18 +266,22 @@ class Context(Logger.ClassLogger):
         ret=  {}
         try:
             ret['disk-usage'] = self.diskUsage(p= Settings.getDirExec() )
-            ret['disk-usage-logs'] = self.getSize(folder= "%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'logs')) )
-            ret['disk-usage-tmp'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'tmp')) )
-            ret['disk-usage-testresults'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'testsresults')) )
-            ret['disk-usage-adapters'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'adapters')) )
-            ret['disk-usage-libraries'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'libraries')) )
-            ret['disk-usage-backups'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'backups')) )
-            ret['disk-usage-tests'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'tests')) )
+            ret['disk-usage-logs'] = self.getSize(folder= "%s/%s" % (   Settings.getDirExec(), 
+                                                                        Settings.get( 'Paths', 'logs')) )
+            ret['disk-usage-tmp'] = self.getSize(folder="%s/%s" % ( Settings.getDirExec(), 
+                                                                    Settings.get( 'Paths', 'tmp')) )
+            ret['disk-usage-testresults'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), 
+                                                                            Settings.get( 'Paths', 'testsresults')) )
+            ret['disk-usage-adapters'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), 
+                                                                        Settings.get( 'Paths', 'adapters')) )
+            ret['disk-usage-libraries'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), 
+                                                                         Settings.get( 'Paths', 'libraries')) )
+            ret['disk-usage-backups'] = self.getSize(folder="%s/%s" % ( Settings.getDirExec(), 
+                                                                        Settings.get( 'Paths', 'backups')) )
+            ret['disk-usage-tests'] = self.getSize(folder="%s/%s" % ( Settings.getDirExec(), 
+                                                                      Settings.get( 'Paths', 'tests')) )
         except Exception as e:
             self.error( "unable to get server usage: %s"  % e )
-        else:
-            if b64:
-                ret = self.encodeData(data=ret)
         return ret
 
     def diskUsage(self, p):
@@ -287,74 +299,6 @@ class Context(Logger.ClassLogger):
         total = st.f_blocks * st.f_frsize
         used = (st.f_blocks - st.f_bfree) * st.f_frsize
         return (total, used, free)
-
-    def readLicence(self):
-        """
-        Read licence
-        """
-        self.trace('Detecting the licence')
-        if not os.path.isfile('%s/Scripts/product.lic' % Settings.getDirExec() ):
-            raise Exception('the licence is missing')
-        
-        if not os.path.isfile('%s/Scripts/product.key' % Settings.getDirExec() ):
-            raise Exception('the licence key is missing')
-        
-        if not os.path.exists( Settings.get('Bin', 'openssl') ):
-            raise Exception('openssl is needed')
-
-        try:
-            fd_key = open( '%s/Scripts/product.key' % (Settings.getDirExec()) , 'r')
-            keyiv_raw = fd_key.read()
-            fd_key.close()
-        except Exception as e:
-            raise Exception('unable to read the licence key: %s'  % str(e) )
-    
-        try:
-            # salt=A74785B240B0CA91
-            # key=4835CA963AB4C373B8334738162DBC815F812FB33E06FF594D23A62FE4C44A66
-            # iv =C4B0F6D76926ECA8EDA66230AAFB153A
-            key = keyiv_raw.splitlines()[1].split('=')[1]
-            iv = keyiv_raw.splitlines()[2].split('=')[1]
-        except Exception as e:
-            raise Exception('unable to extract key and iv: %s' % str(e) )
-
-        
-        openssl_cmd = "%s aes-256-cbc -K %s -iv %s -d -in %s/Scripts/product.lic" % ( Settings.get('Bin', 'openssl'), key, iv, 
-                                Settings.getDirExec() ) 
-        code_ret, lic_str = commands.getstatusoutput(openssl_cmd)
-        if code_ret:
-            raise Exception('unable to decode licence' )
-
-        try:
-            licence = eval(lic_str)
-        except Exception as e:
-            raise Exception('unable to eval licence: %s' % str(e) )
-
-        if not 'users' in licence or not 'probes' in licence or not 'agents' in licence or not 'projects' in licence:
-            raise Exception('invalid licence, users or probes, projects or agents part are missing' )
-
-        if not 'administrator' in licence['users'] or not 'developer' in licence['users'] \
-            or not 'tester' in licence['users'] or not 'tester' in licence['users']:
-            raise Exception('invalid licence, part users incorrect.' )
-
-        if not 'default' in licence['probes'] or not 'instance' in licence['probes']:
-            raise Exception('invalid licence, part probes incorrect.' )
-
-        if not 'default' in licence['agents'] or not 'instance' in licence['agents']:
-            raise Exception('invalid licence, part agents incorrect.' )
-
-        if not 'instance' in licence['projects']:
-            raise Exception('invalid licence, part projects incorrect.' )
-
-        # the licence is correct, save it
-        self.licence = licence
-        self.trace('The licence is correct')
-
-    def getLicence(self):
-        """
-        Return the licence
-        """
-        return self.licence
 
     def getUniqueId(self):
         """
@@ -375,7 +319,8 @@ class Context(Logger.ClassLogger):
         try:
             DEVNULL = open(os.devnull, 'w')
             sys.stdout.write( "Generate all adapters packages...\n")
-            __cmd__ = "%s/Scripts/generate-adapters.sh %s/Scripts/" % (Settings.getDirExec(), Settings.getDirExec())
+            __cmd__ = "%s/Scripts/generate-adapters.sh %s/Scripts/" % (Settings.getDirExec(), 
+                                                                        Settings.getDirExec())
             subprocess.call(__cmd__, shell=True, stdout=DEVNULL, stderr=DEVNULL)  
             ret = True
         except Exception as e:
@@ -391,7 +336,8 @@ class Context(Logger.ClassLogger):
         try:
             DEVNULL = open(os.devnull, 'w')
             sys.stdout.write( "Generate all libraries packages...\n")
-            __cmd__ = "%s/Scripts/generate-libraries.sh %s/Scripts/" % (Settings.getDirExec(), Settings.getDirExec())
+            __cmd__ = "%s/Scripts/generate-libraries.sh %s/Scripts/" % (Settings.getDirExec(), 
+                                                                        Settings.getDirExec())
             subprocess.call(__cmd__, shell=True, stdout=DEVNULL, stderr=DEVNULL)  
             ret = True
         except Exception as e:
@@ -407,7 +353,8 @@ class Context(Logger.ClassLogger):
         try:
             DEVNULL = open(os.devnull, 'w')
             sys.stdout.write( "Generate samples packages...\n") 
-            __cmd__ = "%s/Scripts/generate-samples.sh %s/Scripts/" % (Settings.getDirExec(), Settings.getDirExec())
+            __cmd__ = "%s/Scripts/generate-samples.sh %s/Scripts/" % (Settings.getDirExec(), 
+                                                                      Settings.getDirExec())
             subprocess.call(__cmd__, shell=True, stdout=DEVNULL, stderr=DEVNULL)
             ret = True
         except Exception as e:
@@ -436,20 +383,25 @@ class Context(Logger.ClassLogger):
         Synchronize the dynamic config (dbb) with the file settings (tas.ini)
         """
         self.trace('Synchronize dynamic config')
+        
         # cleanup the database config
         ret, rows = DbManager.instance().querySQL( query = """DELETE FROM `%s`""" % self.table_name)
         if not ret:
             raise Exception( 'unable to cleanup in db config' )
 
         ret, rows = DbManager.instance().querySQL( 
-                        query = """INSERT INTO `%s` (opt, value) VALUES ('%s', '%s')""" % (  self.table_name, "paths-main" , Settings.getDirExec() ) 
+                        query = """INSERT INTO `%s` (opt, value) VALUES ('%s', '%s')""" % ( self.table_name, 
+                                                                                            "paths-main" , 
+                                                                                            Settings.getDirExec() ) 
                     )
         if not ret:
             raise Exception( "unable to insert main-path in db config" )
 
         
         ret, rows = DbManager.instance().querySQL( 
-                        query = """INSERT INTO `%s` (opt, value) VALUES ('%s', '%s')""" % (  self.table_name, "server-version" , Settings.getVersion() ) 
+                        query = """INSERT INTO `%s` (opt, value) VALUES ('%s', '%s')""" % ( self.table_name, 
+                                                                                            "server-version" , 
+                                                                                            Settings.getVersion() ) 
                     )
         if not ret:
             raise Exception( "unable to insert version in db config" )
@@ -496,27 +448,6 @@ class Context(Logger.ClassLogger):
         """
         return len(self.usersConnected)
 
-    def encodeData(self, data):
-        """
-        Encode data
-        """
-        ret = ''
-        try:
-            tasks_json = json.dumps(data)
-        except Exception as e:
-            self.error( "Unable to encode in json: %s" % str(e) )
-        else:
-            try: 
-                tasks_zipped = zlib.compress(tasks_json)
-            except Exception as e:
-                self.error( "Unable to compress: %s" % str(e) )
-            else:
-                try: 
-                    ret = base64.b64encode(tasks_zipped)
-                except Exception as e:
-                    self.error( "Unable to encode in base 64: %s" % str(e) )
-        return ret
-
     def getStats(self, b64=False):
         """
         Constructs some statistics on tas server
@@ -530,13 +461,20 @@ class Context(Logger.ClassLogger):
         nbLinesTableUsers = 0
         try:
             ret['disk-usage'] = self.diskUsage(p= Settings.getDirExec() )
-            ret['disk-usage-logs'] = self.getSize(folder= "%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'logs')) )
-            ret['disk-usage-tmp'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'tmp')) )
-            ret['disk-usage-testresults'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'testsresults')) )
-            ret['disk-usage-adapters'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'adapters')) )
-            ret['disk-usage-libraries'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'libraries')) )
-            ret['disk-usage-backups'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'backups')) )
-            ret['disk-usage-tests'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), Settings.get( 'Paths', 'tests')) )
+            ret['disk-usage-logs'] = self.getSize(folder= "%s/%s" % (Settings.getDirExec(), 
+                                                                     Settings.get( 'Paths', 'logs')) )
+            ret['disk-usage-tmp'] = self.getSize(folder="%s/%s" % ( Settings.getDirExec(), 
+                                                                    Settings.get( 'Paths', 'tmp')) )
+            ret['disk-usage-testresults'] = self.getSize(folder="%s/%s" % ( Settings.getDirExec(), 
+                                                                            Settings.get( 'Paths', 'testsresults')) )
+            ret['disk-usage-adapters'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), 
+                                                                        Settings.get( 'Paths', 'adapters')) )
+            ret['disk-usage-libraries'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), 
+                                                                         Settings.get( 'Paths', 'libraries')) )
+            ret['disk-usage-backups'] = self.getSize(folder="%s/%s" % ( Settings.getDirExec(), 
+                                                                        Settings.get( 'Paths', 'backups')) )
+            ret['disk-usage-tests'] = self.getSize(folder="%s/%s" % (Settings.getDirExec(), 
+                                                                     Settings.get( 'Paths', 'tests')) )
 
 
             nbLinesTableUsers = UsersManager.instance().getNbOfUsers()
@@ -554,7 +492,6 @@ class Context(Logger.ClassLogger):
                                                     int(nbTests[0]['nbtc'])
                                                 )
                       )
-            # number of tests: [{'nbta': 0L, 'nbtc': 0L, 'nbsc': 0L, 'nbtg': 0L, 'nbtp': 0L, 'nbts': 0L, 'nbtu': 0L}]
 
             ret['nb-line-table-scriptsstats'] = int(nbTests[0]['nbsc'])
             ret['nb-line-table-testplansstats'] = int(nbTests[0]['nbtp'])
@@ -569,9 +506,7 @@ class Context(Logger.ClassLogger):
                                     + int(nbTests[0]['nbtg']) + int(nbTests[0]['nbta'])
         except Exception as e:
             self.error( "unable get statistics server: %s"  % e )
-        else:
-            if b64:
-                ret = self.encodeData(data=ret)
+
         return ret
 
     def getSize(self, folder):
@@ -639,7 +574,10 @@ class Context(Logger.ClassLogger):
         """
         uuid_val = (uuid.uuid4().hex + uuid.uuid4().hex).encode('utf-8')
         session_id = base64.b64encode( uuid_val )[:45] 
-        return session_id 
+        if sys.version_info > (3,):
+            return session_id.decode('utf8')
+        else:
+            return session_id
          
     def apiAuthorizationV2(self, authorization):
         """
@@ -670,32 +608,29 @@ class Context(Logger.ClassLogger):
         """
         Check authorization for rest api
         """
-        self.trace('[Login=%s] rest authorization called' % (login) )
+        self.trace('Rest authorization called for Login=%s' % (login) )
         expires = ''
         
         # check if this login exists on the database
         usersDb = UsersManager.instance().getUsersByLogin()
         if not login in usersDb:
-            self.trace( "%s account not found" % login )
-            return (CODE_NOT_FOUND, expires)
+            self.trace( "Login=%s account not found" % login )
+            return (self.CODE_NOT_FOUND, expires)
         
         user_profile = usersDb[login]
         
         # account disable ?
         if not user_profile['active']: 
             self.trace( "%s account not active" % login )
-            return (CODE_DISABLED, expires)
-            
-        if not user_profile['web']: 
-            self.trace( "api access not authorized for %s account" % login )
-            return (CODE_FORBIDDEN, expires)
-            
+            return (self.CODE_DISABLED, expires)
+
         # check password, create a sha1 hash with salt: sha1( salt + sha1(password) )
-        sha1 = sha1_constructor()
-        sha1.update( "%s%s" % ( Settings.get( 'Misc', 'salt'), password )  )
+        sha1 = hashlib.sha1()
+        _pwd = "%s%s" % ( Settings.get( 'Misc', 'salt'), password )
+        sha1.update( _pwd.encode('utf8')  )
         if user_profile['password'] != sha1.hexdigest():
             self.trace( "incorrect password for %s account" % login )
-            return (CODE_FAILED, expires)
+            return (self.CODE_FAILED, expires)
             
         session_id = self.generateSessionid()
         user_profile['last_activity'] = time.time()
@@ -706,6 +641,7 @@ class Context(Logger.ClassLogger):
                 
         self.userSessions.update( {session_id: user_profile } )
         
+        self.trace('Rest authorized for Login=%s SessionId=%s Expires=%s' % (login, session_id, expires))
         return (session_id, expires)    
     
     def updateSession(self, sessionId):
@@ -719,167 +655,6 @@ class Context(Logger.ClassLogger):
             expires = time.strftime("%a, %d-%b-%Y %T GMT", end) 
             return  expires
         return ''
-        
-    def checkAuthorization (self, login, password, rightsExpected = [], fromGui=False ):
-        """
-        Check authorization on ws call, check authorization from the context
-
-        @param login: 
-        @type login: string
-
-        @param password:
-        @type password: string
-
-        @param rightsExpected:
-        @type rightsExpected: list
-
-        @return:
-        @rtype: tuple
-        """
-        try:
-            self.trace( 'Checking access for Login=%s, Password=%s, FromGui=%s' % (login, password, fromGui) )
-            ret = CODE_ERROR
-            level = []
-
-            if not fromGui:
-                self.trace('Check API authorization for Login=%s' % login)
-                # check if this login exists on the database
-                usersDb = UsersManager.instance().getUsersByLogin()
-                if not login in usersDb:
-                    ret = CODE_NOT_FOUND
-                else:
-                    # login exist in db and not already connected so continue
-                    user_profile = usersDb[login]
-                    rightsLst = self.getLevels(userProfile=user_profile)
-                    self.trace("Get level for the Login=%s Access=%s ExpectedAccess=%s" % (login, ','.join(rightsLst), ','.join(rightsExpected)) )
-
-                    if not user_profile['active']: 
-                        self.trace('API failed because Login=%s is not activated' % login)
-                        ret = CODE_NOT_FOUND
-                    else:
-                        if not ( user_profile['web'] or user_profile['cli'] ): 
-                            self.trace("user profile: %s" % user_profile)
-                            self.trace( "API not authorized for Login=%s account" % login )
-                            return ( CODE_FORBIDDEN, level )
-                            
-                        # check the password, create a sha1 hash with salt: sha1( salt + sha1(password) )
-                        sha1 = sha1_constructor()
-                        sha1.update( "%s%s" % ( Settings.get('Misc', 'salt'), password ) )
-                        if user_profile['password'] != sha1.hexdigest():
-                            self.trace( "API failed, bad password for Login=%s account Pass=%s PassComputed=%s" % 
-                                            (login, user_profile['password'], sha1.hexdigest()) )
-                            ret = CODE_FORBIDDEN
-                        else:
-                            # check rights
-                            rightFounded = False
-                            for rght in rightsLst:
-                                if rght in rightsExpected:
-                                    rightFounded = True
-                                    break
-                            if not rightFounded:
-                                ret = CODE_FAILED
-                                self.trace( 'API forbidden, rights failed for Login=%s' %  login )
-                            else:
-                                ret = CODE_OK
-                                level = rightsLst
-                                self.trace( 'API granted for Login=%s' % login )
-            else:
-                # check if the login is already connected
-                if not login in self.usersConnected:
-                    self.trace('Authentication failed, user Login=%s not connected' % login)
-                    ret = CODE_NOT_FOUND
-                else:
-                    user_connected = self.usersConnected[login]
-                    user_profile = user_connected['profile']
-                    rightsLst = self.getLevels(userProfile=user_profile)
-                    self.trace("Get level for the Login=%s Access=%s ExpectedAccess=%s" % (login, ','.join(rightsLst), ','.join(rightsExpected) ) )
-                    
-                    # check the password, create a sha1 hash with salt: sha1( salt + sha1(password) )
-                    sha1 = sha1_constructor()
-                    sha1.update( "%s%s" % ( Settings.get('Misc', 'salt'), password ) )
-                    if user_profile['password'] != sha1.hexdigest():
-                        self.trace( 'Authentication failed, bad password for Login=%s' % login )
-                        ret = CODE_FORBIDDEN
-                    else:
-                        # check rights
-                        rightFounded = False
-                        for rght in rightsLst:
-                            if rght in rightsExpected:
-                                rightFounded = True
-                                break
-                        if not rightFounded:
-                            ret = CODE_FAILED
-                            self.trace( 'Access refused, rights failed for Login=%s' % login )
-                        else:
-                            ret = CODE_OK
-                            level = rightsLst
-                            self.trace( 'Access granted for Login=%s' % login )
-        except Exception as e:
-            self.error( "unable to check authorization: %s" % e )
-        return (ret, level)
-
-    def isAuthorized (self, client, login, password, fromGui=False):
-        """
-        Function called on xmlrpc_authenticateClient
-        Authenticate the user, check from the database
-        if authorization is ok then registered it
-
-        @param client:
-        @type client: tuple
-
-        @param login:
-        @type login: string
-
-        @param password:
-        @type password: string
-
-        @return:
-        @rtype: tuple
-        """
-        self.trace('[Login=%s] is authorization [fromGui=%s]' % (login, fromGui) )
-
-        # check if this login exists on the database
-        usersDb = UsersManager.instance().getUsersByLogin()
-        if not login in usersDb:
-            self.trace( "%s account not found" % login )
-            return ( CODE_NOT_FOUND, False, 0 )
-
-        if fromGui:
-            # check duplicate connection from the context
-            if login in self.usersConnected:
-                self.trace( "%s account already connected" % login )
-                return ( CODE_ALLREADY_CONNECTED, False, 0 )
-
-        # login exist in db and not already connected so continue
-        user_profile = usersDb[login]
-        
-        if not user_profile['active']: 
-            self.trace( "%s account not active" % login )
-            return ( CODE_DISABLED, False, 0 )
-        
-        if fromGui:
-            if not user_profile['gui']: 
-                self.trace( "gui access not authorized for %s account" % login )
-                return ( CODE_FORBIDDEN, False, 0 )
-        else:
-            if not user_profile['web']: 
-                self.trace( "api access not authorized for %s account" % login )
-                return ( CODE_FORBIDDEN, False, 0 )
-                
-        # check password, create a sha1 hash with salt: sha1( salt + sha1(password) )
-        sha1 = sha1_constructor()
-        sha1.update( "%s%s" % ( Settings.get( 'Misc', 'salt'), password )  )
-        if user_profile['password'] != sha1.hexdigest():
-            self.trace( "incorrect password for %s account" % login )
-            return ( CODE_FORBIDDEN, False, 0 )
-
-        if fromGui:
-            # Authent OK, continue register this user on the context
-            registered = self.registerUser( { 'address' : client, 'profile': user_profile } )
-
-        # append level of the user authorized and return it
-        levels = self.getLevels(userProfile=user_profile)
-        return ( CODE_OK, levels, user_profile['id'] )
 
     def getLevels(self, userProfile):
         """
@@ -887,10 +662,10 @@ class Context(Logger.ClassLogger):
         """
         levels = []
         if userProfile['administrator']: levels.append( Settings.get('Server', 'level-admin') )
-        if userProfile['leader']: levels.append( Settings.get('Server', 'level-leader') )
+        if userProfile['leader']: levels.append( Settings.get('Server', 'level-monitor') )
         if userProfile['tester']: levels.append( Settings.get('Server', 'level-tester') )
-        if userProfile['developer']: levels.append( Settings.get('Server', 'level-developer') )
-        if userProfile['system']: levels.append( Settings.get('Server', 'level-system') )
+        # if userProfile['developer']: levels.append( Settings.get('Server', 'level-developer') )
+        # if userProfile['system']: levels.append( Settings.get('Server', 'level-system') )
         return levels
 
     def registerUser (self, user):
@@ -906,23 +681,28 @@ class Context(Logger.ClassLogger):
         self.usersConnected[ user['profile']['login'] ] = user
         self.usersConnected[ user['profile']['login'] ]['connected-at'] = connStart
         self.usersConnected[ user['profile']['login'] ]['connection-id'] = connId
-        self.info( "User Registered: ConnectionID=%s PrivateAddress=%s Login=%s" % ( connId, user['address'],  user['profile']['login'] ) )
+        self.info( "User Registered: ConnectionID=%s PrivateAddress=%s Login=%s" % ( connId, 
+                                                                                    user['address'], 
+                                                                                    user['profile']['login'] ) )
 
         # update db
         UsersManager.instance().setOnlineStatus(login=user['profile']['login'], online=True)
-        UsersManager.instance().addStats(user=user['profile']['login'], connId=connId, startTime=connStart, duration=0)
+        UsersManager.instance().addStats(user=user['profile']['login'], 
+                                         connId=connId, 
+                                         startTime=connStart, 
+                                         duration=0)
     
         return True
 
-    def unregisterUserFromXmlrpc(self, login):
+    def unregisterChannelUser(self, login):
         """
-        Deletes user, disconnection from xml rpc
+        Force channel disconnection
         """
         self.info( "Unregister user Login=%s" % login )
         UsersManager.instance().setOnlineStatus(login=login, online=False)
         if not login in self.usersConnected:
             self.trace( "unregister user from api, user %s not found" % login )
-            return CODE_NOT_FOUND
+            return self.CODE_NOT_FOUND
         else:
             userProfile = self.usersConnected[login]
             
@@ -933,7 +713,7 @@ class Context(Logger.ClassLogger):
                 user_removed = self.usersConnected.pop(login)
                 del user_removed
                 
-        return CODE_OK
+        return self.CODE_OK
 
     def unregisterUser (self, user):
         """
@@ -951,7 +731,9 @@ class Context(Logger.ClassLogger):
             self.trace( 'client %s not connected' % str(user) )
         else:
             user_removed = self.usersConnected.pop(userLogin)
-            self.info( "Conn id %s: User (%s,  %s) unregistered" % ( user_removed['connection-id'], user_removed['address'], userLogin ) )
+            self.info( "Conn id %s: User (%s,  %s) unregistered" % ( user_removed['connection-id'], 
+                                                                     user_removed['address'], 
+                                                                     userLogin ) )
 
             # update db
             UsersManager.instance().setOnlineStatus(login=userLogin, online=False)
@@ -972,11 +754,11 @@ class Context(Logger.ClassLogger):
         """
         found = None
         if not login in self.usersConnected:
-            self.trace( 'user %s not found' % str(login) )
+            self.trace( 'User Login=%s connected with channel? no' % str(login) )
             return found
         else:
             found = self.usersConnected[login]
-            self.trace( 'user %s found' % str(login) )
+            self.trace( 'User Login=%s connected with channel? yes' % str(login) )
         return found
 
     def getInformations(self, user=None, b64=False):
@@ -1001,19 +783,19 @@ class Context(Logger.ClassLogger):
             if self.networkRoutes is not None:
                 ret.append( {'routes': self.networkRoutes } )
             ret.append( {'server-date': self.getServerDateTime() } )
-            ret.append( {'default-library': "%s" % RepoLibraries.instance().getDefaultV2() } ) # dynamic value
+            ret.append( {'default-library': "%s" % RepoLibraries.instance().getDefault() } ) # dynamic value
             ret.append( {'libraries': "%s" % RepoLibraries.instance().getInstalled() } )
-            ret.append( {'default-adapter': "%s" % RepoAdapters.instance().getDefaultV2() } ) # dynamic value
+            ret.append( {'default-adapter': "%s" % RepoAdapters.instance().getDefault() } ) # dynamic value
             ret.append( {'adapters': "%s" % RepoAdapters.instance().getInstalled() } )
 
             if user is not None:
                 ret.append( {'test-environment': self.getTestEnvironment(user=user) } )
                 
                 if isinstance(user, UserContext):
-                    ret.append( {'projects': user.getProjects(b64=False)  } )
+                    ret.append( {'projects': user.getProjects()  } )
                     ret.append( {'default-project': user.getDefault()  } )
                 else:
-                    ret.append( {'projects': ProjectsManager.instance().getProjects(user=user, b64=False)  } )
+                    ret.append( {'projects': ProjectsManager.instance().getProjects(user=user)  } )
                     ret.append( {'default-project': ProjectsManager.instance().getDefaultProjectForUser(user=user)  } )
 
             for section in Settings.instance().sections():
@@ -1022,9 +804,7 @@ class Context(Logger.ClassLogger):
 
         except Exception as e:
             self.error( 'unable to construct servers settings: %s' % str(e) )
-        else:
-            if b64:
-                ret = self.encodeData(data=ret)
+
         return  ret
 
     def getUptime(self):
@@ -1042,7 +822,12 @@ class Context(Logger.ClassLogger):
         @return: server date
         @rtype: string
         """
-        dt = commands.getoutput( "%s --rfc-3339=seconds" % Settings.get('Bin', 'date') )
+        dt = subprocess.check_output( "%s --rfc-3339=seconds" % Settings.get('Bin', 'date'), 
+                                        stderr=subprocess.STDOUT, shell=True )
+        dt = dt.strip()
+        if sys.version_info > (3,):
+            dt = dt.decode('utf8')
+        self.trace( 'Date Server: %s' % dt )
         return dt
 
     def getRn (self, pathRn, b64=False):
@@ -1059,23 +844,11 @@ class Context(Logger.ClassLogger):
         rn_ret = ''
         try:
             f = open( '%s/releasenotes.txt' % pathRn  )
-            rn = f.read()
+            rn_ret = f.read()
             f.close()
         except Exception as e:
             self.error( "Unable to read release notes: %s" % str(e) )
-        else:
-            if not b64:
-                rn_ret = rn
-            else:
-                try: 
-                    rn_zipped = zlib.compress(rn)
-                except Exception as e:
-                    self.error( "Unable to compress release notes: %s" % str(e) )
-                else:
-                    try: 
-                        rn_ret = base64.b64encode(rn_zipped)
-                    except Exception as e:
-                        self.error( "Unable to encode in base 64: %s" % str(e) )
+
         return rn_ret
 
     def listRoutes(self):
@@ -1087,8 +860,13 @@ class Context(Logger.ClassLogger):
         10.0.0.0/8 dev eth1  proto kernel  scope link  src 10.9.1.132
         default via 204.62.14.1 dev eth0
         """
-        iproute = commands.getoutput( Settings.get('Bin', 'iproute') )
-
+        iproute = subprocess.check_output(  Settings.get('Bin', 'iproute'), 
+                                            stderr=subprocess.STDOUT, shell=True )
+        iproute = iproute.strip()
+        if sys.version_info > (3,):
+            iproute = iproute.decode('utf8')
+        self.trace( 'iproute: %s' % iproute )
+        
         # save all eths
         self.networkRoutes = iproute
 
@@ -1109,7 +887,14 @@ class Context(Logger.ClassLogger):
             inet 10.9.1.132/8 brd 10.255.255.255 scope global eth1
         """
         eths = []
-        ipaddr = commands.getoutput( Settings.get('Bin', 'ipaddr') )
+
+        ipaddr = subprocess.check_output( Settings.get('Bin', 'ipaddr'), 
+                                          stderr=subprocess.STDOUT, shell=True )
+        ipaddr = ipaddr.strip()
+        if sys.version_info > (3,):
+            ipaddr = ipaddr.decode('utf8')
+        self.trace( 'ipaddr: %s' % ipaddr )
+        
         try:
             eth_tmp = {}
             for line in ipaddr.splitlines():
@@ -1129,6 +914,7 @@ class Context(Logger.ClassLogger):
                     eth_tmp = {}
         except Exception as e:
             self.error( 'unable to read network interfaces: %s' % e )
+        
         # adding this network
         eths.append( { 'name': 'all', 'ip':'0.0.0.0', 'mask': '255.0.0.0' } )
 
@@ -1143,13 +929,13 @@ class Context(Logger.ClassLogger):
         @rtype: list
         """
         eths = []
-        # detect installed language 
-        currentLang = self.detectLanguage()
-        if currentLang is None:
-            self.error( 'System language unknown')
-            return eths
-        # retrieve ifconfig command
-        ifconfig = commands.getoutput( Settings.get('Bin', 'ifconfig') )
+
+        ifconfig = subprocess.check_output( Settings.get('Bin', 'ifconfig'),
+                                            stderr=subprocess.STDOUT, shell=True )
+        if sys.version_info > (3,):
+            ifconfig = ifconfig.decode('utf8')
+        self.trace( 'ifconfig: %s' % ifconfig )
+        
         for eth in ifconfig.split('\n\n'):
             if currentLang == LANG_EN:
                 ret = self.parseEth_En(ethRaw=eth)
@@ -1159,6 +945,7 @@ class Context(Logger.ClassLogger):
                 ret = self.parseEth_Fr(ethRaw=eth)
                 if ret is not None:
                     eths.append( ret )
+                    
         # adding this network
         eths.append( { 'name': 'all', 'ip':'0.0.0.0', 'mask': '255.0.0.0' } )
 
@@ -1169,7 +956,12 @@ class Context(Logger.ClassLogger):
         """
         Detect the language
         """
-        lang = commands.getoutput( Settings.get('Bin', 'locale') )
+        lang = subprocess.check_output( Settings.get('Bin', 'locale'), 
+                                        stderr=subprocess.STDOUT, shell=True )
+        if sys.version_info > (3,):
+            lang = lang.decode('utf8')
+        self.trace( 'lang: %s' % lang )
+        
         lines = lang.splitlines()
         if lines[0].startswith('LANG=fr_FR'):
             return LANG_FR
@@ -1338,9 +1130,9 @@ class Context(Logger.ClassLogger):
         self.trace("Return the test environment for the user: %s" % user)
         
         if isinstance(user, UserContext):
-            projects = user.getProjects(b64=False)
+            projects = user.getProjects()
         else:
-            projects = ProjectsManager.instance().getProjects(user=user, b64=False)
+            projects = ProjectsManager.instance().getProjects(user=user)
         testEnvironment = []
         for prj in projects:
             if int( Settings.get( 'MySql', 'test-environment-encrypted' ) ):
@@ -1350,7 +1142,8 @@ class Context(Logger.ClassLogger):
                                     prj['project_id'] 
                         )
             else:
-                sql = 'SELECT * FROM `%s-test-environment` WHERE project_id="%s";' % ( Settings.get( 'MySql', 'table-prefix'), prj['project_id'] )
+                sql = 'SELECT * FROM `%s-test-environment` WHERE project_id="%s";' % ( Settings.get( 'MySql', 'table-prefix'), 
+                                                                                       prj['project_id'] )
             ret, rows = DbManager.instance().querySQL( query=sql, columnName=True )
             if not ret:
                 self.error( 'unable to get test environment for user %s: %s' % (user, str(ret)) )
@@ -1360,17 +1153,20 @@ class Context(Logger.ClassLogger):
                     try:
                         env_json = json.loads(env['value'])
                         
-                        # convert unicode to str encoded in utf8
-                        if sys.version_info > (2,6,):
-                            if isinstance(env_json, unicode):
-                                env_json = env_json.encode("utf8")
-                            elif isinstance(env_json, dict):
-                                env_json = self.__parseDict(d=env_json)
-                            elif isinstance(env_json, list):
-                                env_json = self.__parseList(d=env_json)
-                            else:
-                                env_json = env_json
-                            
+                        if sys.version_info > (3,):
+                            pass
+                        else:
+                            # convert unicode to str encoded in utf8
+                            if sys.version_info > (2,6,):
+                                if isinstance(env_json, unicode):
+                                    env_json = env_json.encode("utf8")
+                                elif isinstance(env_json, dict):
+                                    env_json = self.__parseDict(d=env_json)
+                                elif isinstance(env_json, list):
+                                    env_json = self.__parseList(d=env_json)
+                                else:
+                                    env_json = env_json
+                                
                     except Exception as e:
                         self.error( "Unable to encode in json: %s" % str(e) )
                     else:
@@ -1379,10 +1175,7 @@ class Context(Logger.ClassLogger):
         
         self.trace( "Test environment retrieved for Login=%s" % (user) )
 
-        if b64:
-            return self.encodeData(data=testEnvironment)
-        else:
-            return testEnvironment
+        return testEnvironment
 
     def refreshTestEnvironment(self):
         """
@@ -1390,8 +1183,9 @@ class Context(Logger.ClassLogger):
         And notify all connected user
         """
         for user_login, user_profile in self.usersConnected.items():
-            if user_profile['profile']['administrator'] or user_profile['profile']['tester'] or user_profile[cur_user]['profile']['developer'] :
-                data = ( 'context-server', ( "update", self.getInformations(user=user_login, b64=False) ) )
+            if user_profile['profile']['administrator'] or user_profile['profile']['tester'] or \
+                user_profile[cur_user]['profile']['developer'] :
+                data = ( 'context-server', ( "update", self.getInformations(user=user_login) ) )
                 ESI.instance().notify(body=data, toUser=user_login)
         return True
     
@@ -1411,13 +1205,21 @@ class Context(Logger.ClassLogger):
         @param portable:
         @type portable: boolean
         """
-        self.trace('Check update client requested client Version=%s OS=%s Portable=%s' % (currentVersion, systemOs, portable) )
-        ret = False
+        self.trace('Check update client requested client Version=%s OS=%s Portable=%s' % (currentVersion, 
+                                                                                          systemOs, 
+                                                                                          portable) )
+        available = self.CODE_NOT_FOUND
         
         # avoid exception during version check, provide default values
         if not len(currentVersion): currentVersion = '0.0.0'
         if not len(systemOs): systemOs = 'win32'  
         
+        if "beta" in currentVersion:
+            currentVersion = currentVersion.replace("beta", "")
+        
+        if "alpha" in currentVersion:
+            currentVersion = currentVersion.replace("alpha", "")
+            
         # new in v17, win32 is deprecated
         if systemOs == "win32": 
             systemOs = "win64"
@@ -1429,7 +1231,8 @@ class Context(Logger.ClassLogger):
         clientPackagePath = '%s%s/%s/' % ( Settings.getDirExec(), Settings.get( 'Paths', 'clt-package' ), systemOs )
         pkgs = os.listdir( clientPackagePath )
         latestPkg = (0,0,0)
-        latestPkgName = None
+        latestPkgStr = ''
+        latestPkgName = ''
         try:
             # discovers the latest client
             for pkg in pkgs:
@@ -1462,13 +1265,15 @@ class Context(Logger.ClassLogger):
             self.trace( 'latest client in server: %s' % str(latestPkg) )
             # check the latest version with the version passed on argument
             if latestPkg > tuple(map(int, currentVersion.split("."))):
-                ret = ( ".".join( map(str,latestPkg) ) , latestPkgName )
+                available = self.CODE_OK
+                latestPkgStr = ".".join( map(str,latestPkg) )
         except Exception as e:
             self.error("unable to check client update: %s" % str(e) )
-        
+            available = self.CODE_ERROR
+            
         # returns the result
-        self.trace('check update client returned with result %s' % str(ret) )
-        return ret
+        self.trace('check update client returned with result %s' % available )
+        return (available, latestPkgStr, latestPkgName)
         
     def trace(self, txt):
         """

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -21,6 +21,9 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+"""
+Init the tool
+"""
 
 from Libs import Logger, Settings
 
@@ -119,9 +122,15 @@ class Tool(object):
                 if not len(name): raise Exception("No tool name specified!")
                 
                 self.tool = plugins[(isAgent, str(type))].initialize( 
-                                                        controllerIp=str(ip), toolName=str(name), toolDesc=str(descr), 
-                                                        defaultTool=defaultTool, controllerPort=int(port), supportProxy=supportProxy,
-                                                        proxyIp=str(proxyIp), proxyPort=proxyPort, sslSupport=sslSupport
+                                                        controllerIp=str(ip), 
+                                                        toolName=str(name), 
+                                                        toolDesc=str(descr), 
+                                                        defaultTool=defaultTool, 
+                                                        controllerPort=int(port), 
+                                                        supportProxy=supportProxy,
+                                                        proxyIp=str(proxyIp), 
+                                                        proxyPort=proxyPort, 
+                                                        sslSupport=sslSupport
                                                     )
                 self.tool.setFromCmd()
                 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -21,32 +21,55 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-import CliFunctions
-import WebServer
-import RestServerInterface
-import XmlrpcServerInterface
-import XmlrpcServerRights
-import ProbeServerInterface
-import AgentServerInterface
-import EventServerInterface
-import TestServerInterface
-import ProbesManager
-import AgentsManager
-import ToolboxManager
-import RepoAdapters
-import RepoLibraries
-import TaskManager
-import RepoTests
-import RepoArchives
-import RepoPublic
-import Context
-import StatsManager
-import HelperManager
-import ProjectsManager
-import UsersManager
-import DbManager
-import StorageDataAdapters
-
+try:
+    import CliFunctions
+    import WebServer
+    import RestServerInterface
+    import ProbeServerInterface
+    import AgentServerInterface
+    import EventServerInterface
+    import TestServerInterface
+    import ProbesManager
+    import AgentsManager
+    import ToolboxManager
+    import RepoAdapters
+    import RepoLibraries
+    import TaskManager
+    import RepoTests
+    import RepoArchives
+    import RepoPublic
+    import Context
+    import StatsManager
+    import HelperManager
+    import ProjectsManager
+    import UsersManager
+    import DbManager
+    import StorageDataAdapters
+except ImportError: # python3 support
+    from . import CliFunctions
+    from . import WebServer
+    from . import RestServerInterface
+    from . import ProbeServerInterface
+    from . import AgentServerInterface
+    from . import EventServerInterface
+    from . import TestServerInterface
+    from . import ProbesManager
+    from . import AgentsManager
+    from . import ToolboxManager
+    from . import RepoAdapters
+    from . import RepoLibraries
+    from . import TaskManager
+    from . import RepoTests
+    from . import RepoArchives
+    from . import RepoPublic
+    from . import Context
+    from . import StatsManager
+    from . import HelperManager
+    from . import ProjectsManager
+    from . import UsersManager
+    from . import DbManager
+    from . import StorageDataAdapters
+    
 import time
 import sys
 import signal
@@ -57,6 +80,7 @@ from Libs import daemon, Settings, Logger
 
 class AutomationServer(Logger.ClassLogger, daemon.Daemon):
     """
+    Main automation server
     """
     def prepareDaemon(self):
         """
@@ -74,17 +98,23 @@ class AutomationServer(Logger.ClassLogger, daemon.Daemon):
             self.error("Unable to initialize settings: %s" % str(e))
         else:
             # config file exist so prepare the deamon
-            self.prepare(   pidfile="%s/%s/%s.pid" % (Settings.getDirExec(), Settings.get('Paths','run'), Settings.get('Server','acronym') ),
+            self.prepare(   pidfile="%s/%s/%s.pid" % (  Settings.getDirExec(), 
+                                                        Settings.get('Paths','run'), 
+                                                        Settings.get('Server','acronym') ),
                             name=Settings.get('Server','name'),
-                            stdout= "%s/%s/output.log" % (Settings.getDirExec(), Settings.get('Paths','logs') ),  
-                            stderr= "%s/%s/output.log" % (Settings.getDirExec(), Settings.get('Paths','logs') ),
+                            stdout= "%s/%s/output.log" % (  Settings.getDirExec(), 
+                                                            Settings.get('Paths','logs') ),  
+                            stderr= "%s/%s/output.log" % (  Settings.getDirExec(), 
+                                                            Settings.get('Paths','logs') ),
                             stdin= "/dev/null",
-                            runningfile="%s/%s/%s.running" % (Settings.getDirExec(), Settings.get('Paths','run'), Settings.get('Server','acronym') ),
+                            runningfile="%s/%s/%s.running" % (  Settings.getDirExec(), 
+                                                                Settings.get('Paths','run'), 
+                                                                Settings.get('Server','acronym') ),
                         )
                         
     def deploy(self):
         """
-        Deploy
+        Deploy all clients and tools
         """
         CliFunctions.instance().deployclients()
         CliFunctions.instance().deploytools()
@@ -118,7 +148,6 @@ class AutomationServer(Logger.ClassLogger, daemon.Daemon):
             # Initialize the core
             Context.initialize()
             Context.instance().setStartTime()
-            Context.instance().readLicence()
             Context.instance().setMysqlVersion()
             Context.instance().setApacheVersion()
             Context.instance().setPhpVersion()
@@ -131,22 +160,25 @@ class AutomationServer(Logger.ClassLogger, daemon.Daemon):
             self.info("Context ready")
             self.deploy()
             self.info("Symbolic links created")
-            ProjectsManager.initialize()
+            ProjectsManager.initialize(context = Context.instance())
             self.info("Projects Manager ready")
-            UsersManager.initialize()
+            UsersManager.initialize( context = Context.instance() )
             self.info("Users Manager ready")
             StatsManager.initialize( )
             self.info("Stats Manager ready")
             
+            TaskManager.initialize(statsmgr=StatsManager.instance(), context = Context)
+            self.info("Task Manager ready")
+            
             # Initialize all repositories
-            RepoTests.initialize()
+            RepoTests.initialize( context = Context.instance(), taskmgr = TaskManager.instance() )
             self.info("Repo manager for tests ready")
-            RepoArchives.initialize()
+            RepoArchives.initialize( context = Context.instance(), taskmgr = TaskManager.instance()  )
             self.info("Repo manager for archives ready")
-            RepoAdapters.initialize( )
-            StorageDataAdapters.initialize( )
+            RepoAdapters.initialize( context = Context.instance(), taskmgr = TaskManager.instance() )
+            StorageDataAdapters.initialize( context = Context.instance() )
             self.info("Adapters Manager and Storage Data ready")
-            RepoLibraries.initialize( )
+            RepoLibraries.initialize( context = Context.instance(), taskmgr = TaskManager.instance() )
             self.info("Libraries adapters manager ready")
             RepoPublic.initialize()
             self.info("Repo manager for public area is ready")
@@ -154,78 +186,82 @@ class AutomationServer(Logger.ClassLogger, daemon.Daemon):
             HelperManager.initialize()
             self.info("Helper manager ready")
 
-            ProbesManager.initialize( )
+            ProbesManager.initialize( context = Context.instance() )
             self.info("Probes Manager ready")
 
-            AgentsManager.initialize( )
+            AgentsManager.initialize( context = Context.instance() )
             self.info("Agents Manager ready")
             
             ToolboxManager.initialize( )
             self.info("Toolbox Manager ready")
             
             # Initialize all interfaces 
-            self.info("Starting ESI on %s:%s" %  ( Settings.get('Bind','ip-esi') , Settings.getInt('Bind','port-esi') ) )
-            EventServerInterface.initialize( listeningAddress = 
-                                (   Settings.get('Bind','ip-esi') ,
-                                    Settings.getInt('Bind','port-esi')
-                                ),
-                                sslSupport=Settings.getInt('Client_Channel','channel-ssl'),
-                                wsSupport=Settings.getInt('Client_Channel','channel-websocket-support')
-                        )
-            self.info("Starting TSI on %s:%s" %  ( Settings.get('Bind','ip-tsi') , Settings.getInt('Bind','port-tsi') ) )
+            self.info("Starting ESI on %s:%s" %  (  Settings.get('Bind','ip-esi') , 
+                                                    Settings.getInt('Bind','port-esi') ) )
+            EventServerInterface.initialize(listeningAddress = 
+                                                (   Settings.get('Bind','ip-esi') ,
+                                                    Settings.getInt('Bind','port-esi')
+                                                ),
+                                            sslSupport=Settings.getInt('Client_Channel','channel-ssl'),
+                                            wsSupport=Settings.getInt('Client_Channel','channel-websocket-support'),
+                                            context = Context.instance()
+                                            )
+            self.info("Starting TSI on %s:%s" %  (  Settings.get('Bind','ip-tsi') , 
+                                                    Settings.getInt('Bind','port-tsi') ) )
             TestServerInterface.initialize(listeningAddress =
-                            (           Settings.get('Bind','ip-tsi'),
-                                        Settings.getInt('Bind','port-tsi')
-                            )
-                        )
-            self.info("Starting WSU on %s:%s" %  ( Settings.get('Bind','ip-wsu') , Settings.getInt('Bind','port-wsu') ) )
-            XmlrpcServerRights.initialize()
-            XmlrpcServerInterface.initialize( listeningAddress = 
-                                    (   Settings.get('Bind','ip-wsu'),
-                                        Settings.getInt('Bind','port-wsu')
-                                    ),
-                                    https=Settings.getInt('WebServices','https')
-                        )
-            self.info("Starting RSU on %s:%s" %  ( Settings.get('Bind','ip-rsi') , Settings.getInt('Bind','port-rsi') ) )
+                                            (           Settings.get('Bind','ip-tsi'),
+                                                        Settings.getInt('Bind','port-tsi')
+                                            ),
+                                           statsmgr=StatsManager.instance(),
+                                           context = Context.instance()
+                                        )
+            self.info("Starting RSU on %s:%s" %  (  Settings.get('Bind','ip-rsi') , 
+                                                    Settings.getInt('Bind','port-rsi') ) )
             RestServerInterface.initialize( listeningAddress = 
-                                    (   Settings.get('Bind','ip-rsi'),
-                                        Settings.getInt('Bind','port-rsi')
-                                    )
-                        )
-            self.info("Starting PSI on %s:%s" %  ( Settings.get('Bind','ip-psi') , Settings.getInt('Bind','port-psi') ) )
+                                                (   Settings.get('Bind','ip-rsi'),
+                                                    Settings.getInt('Bind','port-rsi')
+                                                )
+                                            )
+            self.info("Starting PSI on %s:%s" %  (  Settings.get('Bind','ip-psi') , 
+                                                    Settings.getInt('Bind','port-psi') ) )
             ProbeServerInterface.initialize( listeningAddress = 
-                                    (   Settings.get('Bind','ip-psi'),
-                                        Settings.getInt('Bind','port-psi')
-                                    ),
-                                    sslSupport=Settings.getInt('Probe_Channel','channel-ssl'),
-                                    wsSupport=Settings.getInt('Probe_Channel','channel-websocket-support')
-                        )
-            self.info("Starting ASI on %s:%s" %  ( Settings.get('Bind','ip-asi') , Settings.getInt('Bind','port-asi') ) )
+                                                (   Settings.get('Bind','ip-psi'),
+                                                    Settings.getInt('Bind','port-psi')
+                                                ),
+                                                sslSupport=Settings.getInt('Probe_Channel','channel-ssl'),
+                                                wsSupport=Settings.getInt('Probe_Channel','channel-websocket-support'),
+                                                context = Context.instance()
+                                            )
+            self.info("Starting ASI on %s:%s" %  (  Settings.get('Bind','ip-asi') , 
+                                                    Settings.getInt('Bind','port-asi') ) )
             AgentServerInterface.initialize( listeningAddress = 
-                                    (   Settings.get('Bind','ip-asi'),
-                                        Settings.getInt('Bind','port-asi')
-                                    ),
-                                    sslSupport=Settings.getInt('Agent_Channel','channel-ssl'),
-                                    wsSupport=Settings.getInt('Agent_Channel','channel-websocket-support')
-                        )
+                                                (   Settings.get('Bind','ip-asi'),
+                                                    Settings.getInt('Bind','port-asi')
+                                                ),
+                                                sslSupport=Settings.getInt('Agent_Channel','channel-ssl'),
+                                                wsSupport=Settings.getInt('Agent_Channel','channel-websocket-support'),
+                                                tsi=TestServerInterface.instance(),
+                                                context = Context.instance()
+                                            )
 
             # Start on modules
-            XmlrpcServerInterface.instance().start()
-            self.info("WSU is listening on tcp://%s:%s" % ( Settings.get('Bind','ip-wsu'), Settings.get('Bind','port-wsu') ) ) 
             RestServerInterface.instance().start()
-            self.info("RSI is listening on tcp://%s:%s" % ( Settings.get('Bind','ip-rsi'), Settings.get('Bind','port-rsi') ) )                 
+            self.info("RSI is listening on tcp://%s:%s" % ( Settings.get('Bind','ip-rsi'), 
+                                                            Settings.get('Bind','port-rsi') ) )                 
             EventServerInterface.instance().startSA()
-            self.info("ESI is listening on tcp://%s:%s" % ( Settings.get('Bind','ip-esi'), Settings.get('Bind','port-esi') ) )          
+            self.info("ESI is listening on tcp://%s:%s" % ( Settings.get('Bind','ip-esi'), 
+                                                            Settings.get('Bind','port-esi') ) )          
             TestServerInterface.instance().startSA()
-            self.info("TSI is listening on tcp://%s:%s" % ( Settings.get('Bind','ip-tsi'), Settings.get('Bind','port-tsi') ) )                                          
+            self.info("TSI is listening on tcp://%s:%s" % ( Settings.get('Bind','ip-tsi'), 
+                                                            Settings.get('Bind','port-tsi') ) )                                          
             ProbeServerInterface.instance().startSA()
-            self.info("PSI is listening on tcp://%s:%s" % ( Settings.get('Bind','ip-psi'), Settings.get('Bind','port-psi') ) )  
+            self.info("PSI is listening on tcp://%s:%s" % ( Settings.get('Bind','ip-psi'), 
+                                                            Settings.get('Bind','port-psi') ) )  
             AgentServerInterface.instance().startSA()
-            self.info("ASI is listening on tcp://%s:%s" % ( Settings.get('Bind','ip-asi'), Settings.get('Bind','port-asi') ) )  
+            self.info("ASI is listening on tcp://%s:%s" % ( Settings.get('Bind','ip-asi'), 
+                                                            Settings.get('Bind','port-asi') ) )  
 
             # Now start the scheduler and reload tasks
-            TaskManager.initialize()
-            self.info("Task Manager ready")
             taskReloaded = TaskManager.instance().loadBackups()
             if taskReloaded is None:
                 self.info("Reload tasks disabled")
@@ -258,21 +294,14 @@ class AutomationServer(Logger.ClassLogger, daemon.Daemon):
                 self.info("Backup archives scheduled")
             else:
                 self.info("Backup archives disabled")
-                    
-            # Start the default tools if installed
-            time.sleep(0.25) # not nice ....
-            started = ToolboxManager.instance().startDefault()
-            if started is not None:
-                if started:
-                    self.info("All local tools are started")
-                else:
-                    self.error("unable to start default local tools")
+
         except Exception as e:
             self.error("Unable to start server: %s" % str(e))
             self.cleanup()
             sys.exit(3)
         stoptime = time.time()
-        self.info( "%s successfully started (in %s sec.)" % (Settings.get('Server','name'), int(stoptime - starttime) ) )
+        self.info( "%s successfully started (in %s sec.)" % (   Settings.get('Server','name'), 
+                                                                int(stoptime - starttime) ) )
         self.setrunning()
         self.run()
     
@@ -283,20 +312,14 @@ class AutomationServer(Logger.ClassLogger, daemon.Daemon):
         self.info('Cleanup...')
         self.trace("finalize probes manager")
         try:
-            # stop default probes if installed
-            ProbesManager.instance().stopDefault()
             ProbesManager.finalize()
         except Exception: pass
         self.trace("finalize agent manager")
         try:
-            # stop default agents if installed
-            AgentsManager.instance().stopDefault()
             AgentsManager.finalize()
         except Exception: pass
-        self.trace("finalize agent manager")
+        self.trace("finalize toolbox manager")
         try:
-            # stop default tools if installed
-            ToolboxManager.instance().stopDefault()
             ToolboxManager.finalize()
         except Exception: pass
         self.trace("finalize settings")
@@ -353,12 +376,6 @@ class AutomationServer(Logger.ClassLogger, daemon.Daemon):
         except Exception: pass
         self.trace("finalize WSU")
         try:
-            XmlrpcServerInterface.instance().stop()
-            XmlrpcServerInterface.finalize()
-            XmlrpcServerRights.finalize()
-        except Exception: pass
-        self.trace("finalize RSI")
-        try:
             RestServerInterface.instance().stop()
             RestServerInterface.finalize()
         except Exception: pass
@@ -397,9 +414,10 @@ class AutomationServer(Logger.ClassLogger, daemon.Daemon):
         On stopping the server
         """
         self.info("Stopping server...")
-        
+
         # cleanup all child processes 
-        for f in os.listdir( "%s/%s" % (Settings.getDirExec(), Settings.get('Paths','run')) ):
+        for f in os.listdir( "%s/%s" % (Settings.getDirExec(), 
+                                        Settings.get('Paths','run')) ):
             if f.endswith(".pid"):
                 pid = f.split(".pid")[0]
                 
@@ -415,7 +433,8 @@ class AutomationServer(Logger.ClassLogger, daemon.Daemon):
                     time.sleep(1)
                     # just to be sure, delete a second time
                     try:
-                        os.remove( "%s/%s/%s.pid" % (Settings.getDirExec(), Settings.get('Paths','run'), pid) )
+                        os.remove( "%s/%s/%s.pid" % (   Settings.getDirExec(), 
+                                                        Settings.get('Paths','run'), pid) )
                     except Exception as e:
                         pass  
     
@@ -424,7 +443,7 @@ class AutomationServer(Logger.ClassLogger, daemon.Daemon):
         On server stopped
         """
         self.info("%s successfully stopped!" % Settings.get('Server','name') )
-
+        
     def finalize(self):
         """
         Stops all modules

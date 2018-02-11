@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -24,6 +24,7 @@
 import TestInteropLib
 from TestInteropLib import doc_public
 
+import os
 import requests
 import json
 import hashlib
@@ -179,7 +180,13 @@ class ExtensiveTesting(TestInteropLib.InteropPlugin):
             return ret
            
         uri = 'rest/variables/add'
-        payload = { "project-name": projectName, "variable-name": variableName, "variable-value": variableValue }
+        
+        _project = self.searchProjectByName(projectName=projectName)
+        if _project is None: return ret
+        else:
+            _projectid = _project['id']
+ 
+        payload = { "project-id": _projectid, "variable-name": variableName, "variable-value": variableValue }
         headers = {'content-type': 'application/json', 'cookie': 'session_id=%s' % self.__jsessionid}
         url = "%s/%s" % (self.__url, uri)
        
@@ -232,9 +239,14 @@ class ExtensiveTesting(TestInteropLib.InteropPlugin):
         ret = None
         if self.__jsessionid is None:
             return ret
-           
+            
+        _project = self.searchProjectByName(projectName=projectName)
+        if _project is None: return ret
+        else:
+            _projectid = _project['id']
+            
         uri = 'rest/variables/search'
-        payload = { "project-name": projectName, "variable-name": variableName }
+        payload = { "project-id": _projectid, "variable-name": variableName }
         headers = {'content-type': 'application/json', 'cookie': 'session_id=%s' % self.__jsessionid}
         url = "%s/%s" % (self.__url, uri)
        
@@ -331,6 +343,63 @@ class ExtensiveTesting(TestInteropLib.InteropPlugin):
             self.logResponse(msg="update variable exception", details=tpl )
            
         return ret
+    @doc_public   
+    def searchProjectByName(self, projectName):
+        """
+        Search a project by name
+
+        @param projectName: the project name to search
+        @type projectName: string 
+        
+        @return: project
+        @rtype: dict
+        """
+        ret = None
+        if self.__jsessionid is None: return ret
+           
+        uri = 'rest/administration/projects/search/by/name'
+        payload = { "project-name": projectName }
+        headers = {'content-type': 'application/json', 'cookie': 'session_id=%s' % self.__jsessionid}
+        url = "%s/%s" % (self.__url, uri)
+       
+        # log message
+        content = {'extensivetesting-url': url, 'cmd': 'search-project-by-name',
+                   'jsessionid': self.__jsessionid,
+                   'project-name': projectName }
+        tpl = self.template(name=self.__class__.__name__.upper(), content=content )
+        self.logRequest(msg="search project by name", details=tpl )
+       
+        try:
+            r = requests.post( url, data=json.dumps(payload), proxies=self.__proxies,
+                                headers=headers, verify=self.__certCheck)
+            if r.status_code != 200:
+                content = {'response-code': "%s" % r.status_code, 
+                           'response-more': "%s" % r.text, 
+                           'cmd': 'search-project-by-name' }
+                tpl = self.template(name=self.__class__.__name__.upper(), content=content )
+                self.logResponse(msg="search project by name error", details=tpl )
+            else:
+                # decode json body
+                rsp = json.loads(r.text)
+
+                # log message
+                content = { 'cmd': 'search-project-by-name' }
+                content.update(rsp)
+
+                if "project" in rsp:
+                    ret = rsp['project']
+
+                tpl = self.template(name=self.__class__.__name__.upper(), content=content)
+                self.logResponse(msg="search project by name result", details=tpl  )
+
+        except Exception as e: # log message
+            content = { "response-code": "unknown", 
+                        "response-more": "%s" % e, 
+                        "cmd": "search-project-by-name" }
+            tpl = self.template(name=self.__class__.__name__.upper(), content=content )
+            self.logResponse(msg="search project by name exception", details=tpl )
+           
+        return ret    
     @doc_public    
     def runTest(self, testPath, projectName, testInputs=[], testAgents=[]):
         """
@@ -355,9 +424,31 @@ class ExtensiveTesting(TestInteropLib.InteropPlugin):
         if self.__jsessionid is None: 
             return ret
             
-        uri = 'rest/tests/run'
-        payload = { "test-path": testPath, "project-name": projectName, 
-                    'test-inputs': testInputs, 'test-agents': testAgents  }
+        if testPath.endswith('tpx') or testPath.endswith('tgx'):
+            uri = 'rest/tests/schedule/tpg'
+        else:
+            uri = 'rest/tests/schedule'
+
+        _testpath, _test = os.path.split(testPath)
+        _testname, _testextension = os.path.splitext(_test)
+        _testextension = _testextension[1:]
+        _project = self.searchProjectByName(projectName=projectName)
+        if _project is None: return ret
+        else:
+            _projectid = _project['id']
+            
+        payload = { 
+                    "test-execution": "",
+                    "test-definition": "",
+                    "test-properties": "",
+                    "test-path": _testpath, 
+                    "test-name": _testname,
+                    "test-extension": _testextension,
+                    "project-id": _projectid, 
+                    'test-inputs': testInputs, 
+                    'test-agents': testAgents,
+                    'schedule-id': -1,
+                    'schedule-at': [0,0,0,0,0,0] }
         headers = {'content-type': 'application/json', 'cookie': 'session_id=%s' % self.__jsessionid}
         url = "%s/%s" % (self.__url, uri)
 
@@ -396,20 +487,29 @@ class ExtensiveTesting(TestInteropLib.InteropPlugin):
     @doc_public 
     def testStatus(self, testIds=[], logEvents=True):
         """
+        Follow and get the status of a test or several
+        
+        @param testIds: list of testid
+        @type testIds: list     
+
+        @return: test(s) status
+        @rtype: dict
         """
-        ret = False
-        if self.__jsessionid is None: 
-            return ret
+        ret = {}
+        if self.__jsessionid is None: return ret
             
         uri = 'rest/results/follow'
         payload = { "test-ids":  testIds}
-        headers = {'content-type': 'application/json', 'cookie': 'session_id=%s' % self.__jsessionid}
+        headers = {'content-type': 'application/json', 
+                   'cookie': 'session_id=%s' % self.__jsessionid}
         url = "%s/%s" % (self.__url, uri)
 
         # log message
         if logEvents:
-            content = {'extensivetesting-url': url, 'cmd': 'get-test-result', 'jsessionid': self.__jsessionid,
-                        "test-ids":  testIds }
+            content = {'extensivetesting-url': url, 
+                       'cmd': 'get-test-result', 
+                       'jsessionid': self.__jsessionid,
+                       "test-ids":  testIds }
             tpl = self.template(name=self.__class__.__name__.upper(), content=content )
             self.logRequest(msg="get test(s) result(s)", details=tpl )
         
@@ -418,7 +518,9 @@ class ExtensiveTesting(TestInteropLib.InteropPlugin):
                                 headers=headers, verify=self.__certCheck)
             if r.status_code != 200: 
                 if logEvents:
-                    content = {'response-code': "%s" % r.status_code, 'response-more': "%s" % r.text, 'cmd': 'get-test-result' }
+                    content = {'response-code': "%s" % r.status_code, 
+                               'response-more': "%s" % r.text, 
+                               'cmd': 'get-test-result' }
                     tpl = self.template(name=self.__class__.__name__.upper(), content=content )
                     self.logResponse(msg="test result error", details=tpl )
             else:
@@ -436,7 +538,9 @@ class ExtensiveTesting(TestInteropLib.InteropPlugin):
 
         except Exception as e: # log message
             if logEvents:
-                content = { "response-code": "unknown", "response-more": "%s" % e, "cmd": "get-test-result" }
+                content = { "response-code": "unknown", 
+                            "response-more": "%s" % e, 
+                            "cmd": "get-test-result" }
                 tpl = self.template(name=self.__class__.__name__.upper(), content=content )
                 self.logResponse(msg="test result exception", details=tpl )
                 

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -82,10 +82,10 @@ class WritableObject(object):
 # E0611 = no-name-in-module
 
 # Enable following because code can contains error:
-#W0631: Using possibly undefined loop variable 
+# W0631: Using possibly undefined loop variable 
 
 ARGS = [ "--disable=all",  "--enable=E", "--enable=F", "--disable=E1101" , "--disable=E0611", "--disable=E1103",
-            "--enable=W0631", "--enable=C0111", "--enable=C0112"
+            "--enable=W0631", "--enable=C0111", "--enable=C0112", "--disable=E1126"
           ] 
 
 # "--enable=C0111", "--enable=C0112"
@@ -98,20 +98,20 @@ else:
     pathName = "code_analysis"
     prefixName = "Code"
 
-# exceptions
+# exceptions, because there are generated automatically
 EXCEPTIONS = [
     ( "Resources.py", "" ),
     ( "Translations.py", "" ),
 ]
 
 # print init
-print "Checking code according to PEP8 - Style Guide for Python Code"
-print "Analysing ERROR or FATAL messages..."
+print("Checking code according to PEP8 - Style Guide for Python Code")
+print("Analysing ERROR or FATAL messages...")
 
 # walk on the project folder and returns just python
 # files on a list
 result = [os.path.join(dp, f) for dp, dn, filenames in os.walk(PATH) for f in filenames if os.path.splitext(f)[1] == '.py']
-print "%s files to inspect" % len(result)
+print("%s files to inspect" % len(result))
 
 # nb errors counters
 nbAllError = 0
@@ -130,7 +130,7 @@ if not GenerateRepport:
 
 nbExceptions = 0
 for filename in result:
-    print "Inspecting the file %s" % filename
+    print("Inspecting the file %s" % filename)
 
     # checking files exception and update pylint arguments if needed
     ARGS_RUN = copy.copy(ARGS)
@@ -146,8 +146,6 @@ for filename in result:
     if exceptDetected:
         nbExceptions += 1
         continue
-
-    print ARGS_RUN
 
     # execute pylint to analyze the code
     pylint_output = WritableObject()
@@ -169,7 +167,7 @@ for filename in result:
         nbTotConvention = 0
         nbTot = 0
         if not len( pylint_output.read() ):
-            print '\tNo error or fatal message detected'
+            print('\tNo error or fatal message detected')
         else:
             f = open( "%s\\Scripts\\%s\\%s_%s.log" % (PATH, pathName, prefixName, os.path.basename(filename) ), 'w')
             f.write( ''.join(pylint_output.read()) )
@@ -181,39 +179,39 @@ for filename in result:
                 if line.startswith("R:"): nbTotRefactor += 1
                 if line.startswith("C:"): nbTotConvention += 1
             if nbTotError:
-                print '\t%s error(s) detected' % (nbTotError)
+                print('\t%s error(s) detected' % (nbTotError))
                 nbAllError += nbTotError
             if nbTotFatal:
-                print '\t%s fatal(s) detected' % (nbTotFatal)
+                print('\t%s fatal(s) detected' % (nbTotFatal))
                 nbAllFatal += nbTotFatal
             if nbTotWarning:
-                print '\t%s warning(s) detected' % (nbTotWarning)
+                print('\t%s warning(s) detected' % (nbTotWarning))
                 nbAllWarning += nbTotWarning
             if nbTotRefactor:
-                print '\t%s refactor(s) detected' % (nbTotRefactor)
+                print('\t%s refactor(s) detected' % (nbTotRefactor))
                 nbAllRefactor += nbTotRefactor
             if nbTotConvention:
-                print '\t%s convention(s) detected' % (nbTotConvention)
+                print('\t%s convention(s) detected' % (nbTotConvention))
                 nbAllConvention += nbTotConvention
 
 # final report
 if not GenerateRepport:
-    print 
-    print "To validate the code:"
-    print "\t- No error message"
-    print "\t- No fatal message"
-    print "If it's the case, your code is no valid, please to fix it"
-    print
-    print "Total: %s error(s) detected" % nbAllError
-    print "Total: %s fatal(s) detected" % nbAllFatal
-    print "Total: %s warning(s) detected" % nbAllWarning
-    print "Total: %s refactor(s) detected" % nbAllRefactor
-    print "Total: %s convention(s) detected" % nbAllConvention
+    print("")
+    print("To validate the code:")
+    print("\t- No error message")
+    print("\t- No fatal message")
+    print("If it's the case, your code is no valid, please to fix it")
+    print("")
+    print("Total: %s error(s) detected" % nbAllError)
+    print("Total: %s fatal(s) detected" % nbAllFatal)
+    print("Total: %s warning(s) detected" % nbAllWarning)
+    print("Total: %s refactor(s) detected" % nbAllRefactor)
+    print("Total: %s convention(s) detected" % nbAllConvention)
 else:
-    print 
-    print "Criteria:"
-    print "\t- No error message"
-    print "\t- No fatal message"
-    print "If the note is not equal to 10, please to review your code"
-    print
-    print "Global evaluation: %s/10" %  (sum(notes) / (len(result) - nbExceptions) )
+    print("")
+    print("Criteria:")
+    print("\t- No error message")
+    print("\t- No fatal message")
+    print("If the note is not equal to 10, please to review your code")
+    print("")
+    print("Global evaluation: %s/10" %  (sum(notes) / (len(result) - nbExceptions) ))

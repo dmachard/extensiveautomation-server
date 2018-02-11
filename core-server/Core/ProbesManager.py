@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -23,20 +23,25 @@
 
 import base64
 import zlib
+import json
+import sys
+
 try:
-    # python 2.4 support
-    import simplejson as json
-except ImportError:
-    import json
-
-import ProbeServerInterface as PSI
-import EventServerInterface as ESI
-import Context
-import Common
-
+    import ProbeServerInterface as PSI
+    import EventServerInterface as ESI
+    import Common
+except ImportError: # python3 support
+    from . import ProbeServerInterface as PSI
+    from . import EventServerInterface as ESI
+    from . import Common
+    
 from Libs import Settings, Logger
 
-import ConfigParser
+try:
+    import ConfigParser
+except ImportError: # python3 support
+    import configparser as ConfigParser
+    
 import os
 import signal
 import shlex
@@ -48,55 +53,15 @@ import tarfile
 
 
 class ProbesManager(Logger.ClassLogger):    
-    def __init__(self):
+    def __init__(self, context):
         """
         Construct Probes Manager
         """
         self.pkgsProbesPath = "%s/%s/%s/linux2/" % ( Settings.getDirExec(),   Settings.get( 'Paths', 'packages' ), 
                                         Settings.get( 'Paths', 'probes' ) )
-
+        self.context = context
         self.configsFile = None
         self.__pids__ = {}
-
-    def encodeData(self, data):
-        """
-        Encode data
-        """
-        ret = ''
-        try:
-            tasks_json = json.dumps(data)
-        except Exception as e:
-            self.error( "Unable to encode in json: %s" % str(e) )
-        else:
-            try: 
-                tasks_zipped = zlib.compress(tasks_json)
-            except Exception as e:
-                self.error( "Unable to compress: %s" % str(e) )
-            else:
-                try: 
-                    ret = base64.b64encode(tasks_zipped)
-                except Exception as e:
-                    self.error( "Unable to encode in base 64: %s" % str(e) )
-        return ret
-
-    def getStats(self, b64=False):
-        """
-        Constructs some statistics on probes
-            - Licence definition
-
-        @return: probes statistics
-        @rtype: dict
-        """
-        ret= {}
-        try:
-            ret['max-reg'] = Context.instance().getLicence()[ 'probes' ] [ 'instance' ]
-            ret['max-def'] = Context.instance().getLicence()[ 'probes' ] [ 'default' ]
-        except Exception as e:
-            self.error( "unable to get probes stats: %s" % e )
-        else:
-            if b64:
-                ret = self.encodeData(data=ret)
-        return ret
 
     def getDefaultProbes(self, b64=False):
         """
@@ -117,8 +82,7 @@ class ProbesManager(Logger.ClassLogger):
                     tpl[optKey] = optValue
                 # {'enable': '1', 'type': 'textual', 'name': 'textual01', 'description': 'default probe'},
                 probes.append( tpl )  
-        if b64:
-            probes = self.encodeData(data=probes)
+
         return probes
 
     def addDefaultProbe(self, pName, pType, pDescr):
@@ -137,36 +101,32 @@ class ProbesManager(Logger.ClassLogger):
         @return:
         @rtype: boolean
         """
-        ret = Context.CODE_ERROR
+        ret = self.context.CODE_ERROR
         try:
             if self.configsFile is not None:
-                # check licence
-                if len(self.configsFile.sections()) >=  Context.instance().getLicence()[ 'probes' ] [ 'default' ]:
-                    ret = Context.CODE_FORBIDDEN
-                else:
-                    # add the section in the config file object
-                    self.configsFile.add_section(pName)
-                    self.configsFile.set( pName, 'enable', 1)
-                    self.configsFile.set( pName, 'type', pType)
-                    self.configsFile.set( pName, 'description', pDescr)
-                    
-                    # write date the file 
-                    f = open(  "%s/probes.ini" % Settings.getDirExec() , 'w')
-                    self.configsFile.write(f)
-                    f.close()
+                # add the section in the config file object
+                self.configsFile.add_section(pName)
+                self.configsFile.set( pName, 'enable', 1)
+                self.configsFile.set( pName, 'type', pType)
+                self.configsFile.set( pName, 'description', pDescr)
+                
+                # write date the file 
+                f = open(  "%s/probes.ini" % Settings.getDirExec() , 'w')
+                self.configsFile.write(f)
+                f.close()
 
-                    # notify all admin and tester
-                    notif = ( 'probes-default', ( 'add', self.getDefaultProbes() ) )
-                    ESI.instance().notifyByUserTypes(body = notif, admin=True, leader=False, tester=True, developer=False)
-                    
-                    # return OK
-                    ret = Context.CODE_OK
+                # notify all admin and tester
+                notif = ( 'probes-default', ( 'add', self.getDefaultProbes() ) )
+                ESI.instance().notifyByUserTypes(body = notif, admin=True, leader=False, tester=True, developer=False)
+                
+                # return OK
+                ret = self.context.CODE_OK
         except ConfigParser.DuplicateSectionError:
             self.error( "probe already exist %s" % str(pName) ) 
-            ret = Context.CODE_ALLREADY_EXISTS
+            ret = self.context.CODE_ALLREADY_EXISTS
         except Exception as e:
             self.error( "unable to add default probe: %s" % str(e) )
-            ret = Context.CODE_FAILED
+            ret = self.context.CODE_FAILED
         return ret
     
     def delDefaultProbe(self, pName):
@@ -179,7 +139,7 @@ class ProbesManager(Logger.ClassLogger):
         @return:
         @rtype: boolean
         """
-        ret = Context.CODE_ERROR
+        ret = self.context.CODE_ERROR
         try:
             if self.configsFile is not None:
                 # remove the section in the config file object
@@ -202,13 +162,13 @@ class ProbesManager(Logger.ClassLogger):
 
 
                 # return OK
-                ret = Context.CODE_OK
+                ret = self.context.CODE_OK
         except ConfigParser.NoSectionError:
             self.error( "probe not found: %s" % str(pName) )    
-            ret = Context.CODE_NOT_FOUND
+            ret = self.context.CODE_NOT_FOUND
         except Exception as e:
             self.error( "unable to delete default probe: %s" % str(e) )
-            ret = Context.CODE_FAILED
+            ret = self.context.CODE_FAILED
         return ret
 
     def getRunning (self, b64=False):
@@ -220,8 +180,6 @@ class ProbesManager(Logger.ClassLogger):
         """
         self.trace("get running probes" )
         ret = PSI.instance().getProbes()
-        if b64:
-            ret = self.encodeData(data=ret)
         return ret
 
     def getInstalled (self, b64=False):
@@ -253,8 +211,7 @@ class ProbesManager(Logger.ClassLogger):
                         p['description'] = probeDescr
                     if  len(p) > 0:
                         pluginsInstalled.append( p )
-        if b64:
-            pluginsInstalled = self.encodeData(data=pluginsInstalled)
+
         return pluginsInstalled
 
     def disconnectProbe(self, name):
@@ -264,11 +221,11 @@ class ProbesManager(Logger.ClassLogger):
         self.info( "Disconnect probe Name=%s" % name )
         if not name in PSI.instance().probesRegistered:
             self.trace( "disconnect probe, probe %s not found" % name )
-            return Context.CODE_NOT_FOUND
+            return self.context.CODE_NOT_FOUND
         else:
             probeProfile =  PSI.instance().probesRegistered[name]
             PSI.instance().stopClient(client=probeProfile['address'] )
-        return Context.CODE_OK
+        return self.context.CODE_OK
     
     def stopProbe(self, pname):
         """
@@ -377,12 +334,12 @@ def instance ():
     """
     return PM
 
-def initialize ():
+def initialize (context):
     """
     Instance creation
     """
     global PM
-    PM = ProbesManager()
+    PM = ProbesManager(context=context)
 
 def finalize ():
     """

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -48,6 +48,7 @@ except ImportError:
     from PyQt5.QtCore import (Qt, QSize)
     
 import UserClientInterface as UCI
+import RestClientInterface as RCI
 from Libs import QtHelper, Logger
 
 COL_NAME        =   0
@@ -507,15 +508,20 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
                                             
         # backups archive sactions
         self.backupArchivesAction = QtHelper.createAction(self, "&Create Backup", self.backupAllArchives, 
-                    tip = 'Create a complete backup of all archives', icon = QIcon(":/file-zip.png") )
+                                                            tip = 'Create a complete backup of all archives', 
+                                                            icon = QIcon(":/file-zip.png") )
         self.deleteAllBackupsArchivesAction = QtHelper.createAction(self, "&Delete Backups", self.deleteAllBackupsArchives, 
-                    tip = 'Delete all backups', icon = QIcon(":/file-zip-del-all.png") )
+                                                            tip = 'Delete all backups', 
+                                                            icon = QIcon(":/file-zip-del-all.png") )
         self.exportBackupArchivesAction = QtHelper.createAction(self, "&Export", self.exportBackupArchives, 
-                    tip = 'Export the selected backup', icon = QIcon(":/file-zip-save.png"))
-        self.refreshArchivesAction = QtHelper.createAction(self, "&Refresh", self.refreshArchivesStats, tip = 'Partail refresh of the statistics', 
-                                            icon = QIcon(":/act-half-refresh.png") )
-        self.refreshFullArchivesAction = QtHelper.createAction(self, "&Refresh Full", self.refreshAllArchivesStats, tip = 'Refresh all statistics', 
-                                            icon = QIcon(":/act-refresh.png") )
+                                                            tip = 'Export the selected backup', 
+                                                            icon = QIcon(":/file-zip-save.png"))
+        # self.refreshArchivesAction = QtHelper.createAction(self, "&Refresh", self.refreshArchivesStats, 
+                                                            # tip = 'Partail refresh of the statistics', 
+                                                            # icon = QIcon(":/act-half-refresh.png") )
+        self.refreshFullArchivesAction = QtHelper.createAction(self, "&Refresh Full", 
+                                                                self.refreshAllArchivesStats, tip = 'Refresh all statistics', 
+                                                                icon = QIcon(":/act-refresh.png") )
 
     def createToolbar(self):
         """
@@ -562,7 +568,7 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         self.dockToolbarLibraries.setIconSize(QSize(16, 16))
         
         self.dockToolbarArchives.setObjectName("Archives backup toolbar")
-        self.dockToolbarArchives.addAction(self.refreshArchivesAction)
+        # self.dockToolbarArchives.addAction(self.refreshArchivesAction)
         self.dockToolbarArchives.addAction(self.refreshFullArchivesAction)
         self.dockToolbarArchives.addSeparator()
         self.dockToolbarArchives.addAction(self.backupArchivesAction)
@@ -626,7 +632,6 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
             if str(pname) == str(item_text):
                 self.prjTestsComboBox.setCurrentIndex(i)
 
-        
     def cleanStatsArchives(self):
         """
         Clean all statistics
@@ -700,11 +705,18 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         
         backupFileName = self.itemBackupCurrent.itemData # archive name
         extension = self.tr("All Files (*.*)")
-        destfileName = QFileDialog.getSaveFileName(self, self.tr("Export backup"), backupFileName, extension )
+        destfileName = QFileDialog.getSaveFileName(self, self.tr("Export backup"), 
+                                                   backupFileName, extension )
+        # new in v18 to support qt5
+        if QtHelper.IS_QT5:
+            _fileName, _type = destfileName
+        else:
+            _fileName = destfileName
+        # end of new
         
-        if destfileName:
-            UCI.instance().downloadBackupV2( fromRepo=UCI.REPO_ARCHIVES, backupFileName=backupFileName, 
-                                                destFileName="%s" % destfileName )
+        if _fileName:
+            RCI.instance().downloadBackupsResults(backupName=backupFileName,
+                                                destName="%s" % _fileName )
             
     def deleteAllBackupsArchives(self):
         """
@@ -713,16 +725,18 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         reply = QMessageBox.question(self, "Delete all backups", "Are you really sure ?",
                         QMessageBox.Yes | QMessageBox.No )
         if reply == QMessageBox.Yes:
-            UCI.instance().deleteBackupsRepo(repo=UCI.REPO_ARCHIVES)
-
+            RCI.instance().removeBackupsResults()
+            
     def backupAllArchives(self):
         """
         Create backup on server
         """
-        reply = QMessageBox.question(self, "Backups all test results", "A lot of data can be present in this storage!\nAre you really sure?",
-                        QMessageBox.Yes | QMessageBox.No )
+        reply = QMessageBox.question(self, "Backups all test results", 
+                                    "A lot of data can be present in this storage!\nAre you really sure?",
+                                    QMessageBox.Yes | QMessageBox.No )
         if reply == QMessageBox.Yes:
-            txt, ok = QInputDialog.getText(self, "Create backup", "Please to enter the name of the backup file:", QLineEdit.Normal)
+            txt, ok = QInputDialog.getText(self, "Create backup", 
+                                           "Please to enter the name of the backup file:", QLineEdit.Normal)
             if ok and txt:
                 try:
                     backupName = str(txt)
@@ -731,10 +745,11 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
                     if sys.version_info > (3,): # python3 support only 
                         backupName.encode("ascii") 
                 
-                    UCI.instance().backupRepo(backupName=backupName, repo=UCI.REPO_ARCHIVES)
+                    RCI.instance().backupResults(backupName=backupName)
                 except UnicodeEncodeError as e:
                     self.error(e)
-                    QMessageBox.warning(self, "Backups" , "Bad backup name!\nPerhaps one day, but not today, sorry for this limitation.")
+                    QMessageBox.warning(self, "Backups" , 
+                                        "Bad backup name!\nPerhaps one day, but not today, sorry for this limitation.")
 
     def unlockTests(self):
         """
@@ -743,8 +758,8 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         reply = QMessageBox.question(self, "Unlock all files", "Are you really sure ?",
                         QMessageBox.Yes | QMessageBox.No )
         if reply == QMessageBox.Yes:
-            UCI.instance().cleanupLockFiles(tests=True, adapters=False, libraries=False)
-        
+            RCI.instance().unlockTests()
+            
     def unlockAdapters(self):
         """
         Unlock all adapters files
@@ -752,8 +767,8 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         reply = QMessageBox.question(self, "Unlock all files", "Are you really sure ?",
                         QMessageBox.Yes | QMessageBox.No )
         if reply == QMessageBox.Yes:
-            UCI.instance().cleanupLockFiles(tests=False, adapters=True, libraries=False)
-        
+            RCI.instance().unlockAdapters()
+            
     def unlockLibraries(self):
         """
         Unlock all libraries files
@@ -761,8 +776,8 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         reply = QMessageBox.question(self, "Unlock all files", "Are you really sure ?",
                         QMessageBox.Yes | QMessageBox.No )
         if reply == QMessageBox.Yes:
-            UCI.instance().cleanupLockFiles(tests=False, adapters=False, libraries=True)
-        
+            RCI.instance().unlockLibraries()
+            
     def currentItemChanged(self, currentItem, previousItem):
         """
         Called on current item changed for backup tests treeview 
@@ -895,11 +910,17 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         extension = self.tr("All Files (*.*)")
     
         destfileName = QFileDialog.getSaveFileName(self, self.tr("Export backup"), backupFileName, extension )
+        # new in v18 to support qt5
+        if QtHelper.IS_QT5:
+            _fileName, _type = destfileName
+        else:
+            _fileName = destfileName
+        # end of new
         
-        if destfileName:
-            UCI.instance().downloadBackupV2( fromRepo=UCI.REPO_TESTS, backupFileName=backupFileName, 
-                                                destFileName="%s" % destfileName )
-
+        if _fileName:
+            RCI.instance().downloadBackupsTests(backupName=backupFileName,
+                                                destName="%s" % _fileName )
+    
     def exportBackupAdapter(self):
         """
         Download backup adapter from server
@@ -912,11 +933,17 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         extension = self.tr("All Files (*.*)")
     
         destfileName = QFileDialog.getSaveFileName(self, self.tr("Export backup"), backupFileName, extension )
+        # new in v18 to support qt5
+        if QtHelper.IS_QT5:
+            _fileName, _type = destfileName
+        else:
+            _fileName = destfileName
+        # end of new
         
-        if destfileName:
-            UCI.instance().downloadBackupV2( fromRepo=UCI.REPO_ADAPTERS, backupFileName=backupFileName,
-                                                destFileName="%s" % destfileName )
-
+        if _fileName:
+            RCI.instance().downloadBackupsAdapters(backupName=backupFileName,
+                                                destName="%s" % _fileName )
+    
     def exportBackupLibrary(self):
         """
         Download backup library from server
@@ -929,11 +956,17 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         extension = self.tr("All Files (*.*)")
     
         destfileName = QFileDialog.getSaveFileName(self, self.tr("Export backup"), backupFileName, extension )
+        # new in v18 to support qt5
+        if QtHelper.IS_QT5:
+            _fileName, _type = destfileName
+        else:
+            _fileName = destfileName
+        # end of new
         
-        if destfileName:
-            UCI.instance().downloadBackupV2( fromRepo=UCI.REPO_LIBRARIES, backupFileName=backupFileName, 
-                                            destFileName="%s" % destfileName )
-
+        if _fileName:
+            RCI.instance().downloadBackupsLibraries(backupName=backupFileName,
+                                                destName="%s" % _fileName )
+    
     def deleteAllBackupsTests(self):
         """
         Delete all backups tests on the server
@@ -941,8 +974,8 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         reply = QMessageBox.question(self, "Delete all tests backups", "Are you really sure ?",
                         QMessageBox.Yes | QMessageBox.No )
         if reply == QMessageBox.Yes:
-            UCI.instance().deleteBackupsRepo(repo=UCI.REPO_TESTS)
-
+            RCI.instance().removeBackupsTests()
+            
     def deleteAllBackupsAdapters(self):
         """
         Delete all backups adapters on the server
@@ -950,8 +983,8 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         reply = QMessageBox.question(self, "Delete all adapters backups", "Are you really sure ?",
                         QMessageBox.Yes | QMessageBox.No )
         if reply == QMessageBox.Yes:
-            UCI.instance().deleteBackupsRepo(repo=UCI.REPO_ADAPTERS)
-
+            RCI.instance().removeBackupsAdapters()
+            
     def deleteAllBackupsLibraries(self):
         """
         Delete all backups adapters on the server
@@ -959,13 +992,14 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         reply = QMessageBox.question(self, "Delete all libraries backups", "Are you really sure ?",
                         QMessageBox.Yes | QMessageBox.No )
         if reply == QMessageBox.Yes:
-            UCI.instance().deleteBackupsRepo(repo=UCI.REPO_LIBRARIES)
-
+            RCI.instance().removeBackupsLibraries()
+            
     def backupTests(self):
         """
         Create backup on server
         """
-        txt, ok = QInputDialog.getText(self, "Create tests backup", "Please to enter the name of the backup file:", QLineEdit.Normal)
+        txt, ok = QInputDialog.getText(self, "Create tests backup", 
+                                       "Please to enter the name of the backup file:", QLineEdit.Normal)
         if ok and txt:
             try:
                 backupName = str(txt)
@@ -973,17 +1007,19 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
                 # this limitation will be removed when the server side will be ported to python3
                 if sys.version_info > (3,): # python3 support only 
                     backupName.encode("ascii") 
-                    
-                UCI.instance().backupRepo(backupName=backupName, repo=UCI.REPO_TESTS)
+
+                RCI.instance().backupTests(backupName=backupName)
             except UnicodeEncodeError as e:
                 self.error(e)
-                QMessageBox.warning(self, "Backups" , "Bad backup name!\nPerhaps one day, but not today, sorry for this limitation.")
+                QMessageBox.warning(self, "Backups" , 
+                                    "Bad backup name!\nPerhaps one day, but not today, sorry for this limitation.")
 
     def backupAdapters(self):
         """
         Create backup on server
         """
-        txt, ok = QInputDialog.getText(self, "Create adapters backup", "Please to enter the name of the backup file:", QLineEdit.Normal)
+        txt, ok = QInputDialog.getText(self, "Create adapters backup", 
+                                       "Please to enter the name of the backup file:", QLineEdit.Normal)
         if ok and txt:
             try:
                 backupName = str(txt)
@@ -991,17 +1027,19 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
                 # this limitation will be removed when the server side will be ported to python3
                 if sys.version_info > (3,): # python3 support only 
                     backupName.encode("ascii") 
-                    
-                UCI.instance().backupRepo(backupName=backupName, repo=UCI.REPO_ADAPTERS)
+
+                RCI.instance().backupAdapters(backupName=backupName)
             except UnicodeEncodeError as e:
                 self.error(e)
-                QMessageBox.warning(self, "Backups" , "Bad backup name!\nPerhaps one day, but not today, sorry for this limitation.")
+                QMessageBox.warning(self, "Backups" , 
+                                    "Bad backup name!\nPerhaps one day, but not today, sorry for this limitation.")
 
     def backupLibraries(self):
         """
         Create backup on server
         """
-        txt, ok = QInputDialog.getText(self, "Create libraries backup", "Please to enter the name of the backup file:", QLineEdit.Normal)
+        txt, ok = QInputDialog.getText(self, "Create libraries backup", 
+                                       "Please to enter the name of the backup file:", QLineEdit.Normal)
         if ok and txt:
             try:
                 backupName = str(txt)
@@ -1009,11 +1047,12 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
                 # this limitation will be removed when the server side will be ported to python3
                 if sys.version_info > (3,): # python3 support only 
                     backupName.encode("ascii") 
-                    
-                UCI.instance().backupRepo(backupName=backupName, repo=UCI.REPO_LIBRARIES)
+
+                RCI.instance().backupLibraries(backupName=backupName)
             except UnicodeEncodeError as e:
                 self.error(e)
-                QMessageBox.warning(self, "Backups" , "Bad backup name!\nPerhaps one day, but not today, sorry for this limitation.")
+                QMessageBox.warning(self, "Backups" , 
+                                    "Bad backup name!\nPerhaps one day, but not today, sorry for this limitation.")
 
     def refreshStats(self):
         """
@@ -1021,34 +1060,29 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         """
         projectName = self.prjTestsComboBox.currentText()
         projectId = self.getProjectId(project="%s" % projectName)
-        UCI.instance().refreshRepoStats(repo=UCI.REPO_TESTS, projectId=projectId)
-    
+        
+        RCI.instance().statisticsTests(projectId=projectId)
+        
     def refreshAdaptersStats(self):
         """
         Refresh statistics for adapters
         """
-        UCI.instance().refreshRepoStats(repo=UCI.REPO_ADAPTERS)
-
+        RCI.instance().statisticsAdapters()
+        
     def refreshLibrariesStats(self):
         """
         Refresh statistics for libraries
         """
-        UCI.instance().refreshRepoStats(repo=UCI.REPO_LIBRARIES)
-        
-    def refreshArchivesStats(self):
-        """
-        Refresh statistics for archives
-        """
-        projectName = self.prjTestsComboBox.currentText()
-        projectId = self.getProjectId(project="%s" % projectName)
-        UCI.instance().refreshRepoStats(repo=UCI.REPO_ARCHIVES, projectId=projectId)
+        RCI.instance().statisticsLibraries()
+
     def refreshAllArchivesStats(self):
         """
         Refresh statistics for archives
         """
         projectName = self.prjArchivesComboBox.currentText()
         projectId = self.getProjectId(project="%s" % projectName)
-        UCI.instance().refreshRepoStats(repo=UCI.REPO_ARCHIVES, projectId=projectId, partialRefresh=False)
+        
+        RCI.instance().statisticsResults(projectId=projectId)
         
     def newBackup(self, data ):
         """
@@ -1081,7 +1115,7 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         else:
             self.error( 'dest repo unknown: %s' % str(data) )
 
-    def loadData (self, data, backups):
+    def loadData (self, data, backups=[]):
         """
         Load statistics and backups list for tests
 
@@ -1092,7 +1126,8 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         @type backups:
         """
         # clear the backups treeview
-        self.backup.clear()
+        if len(backups):
+            self.backup.clear()
 
         totalFiles = 0
         totalUsed = 0
@@ -1151,7 +1186,8 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
                     leftover, backuptime = rightover.rsplit('_', 1)
                     backupname, backupdate = leftover.rsplit('_', 1)
                     backupDate = "%s_%s" % ( backupdate, backuptime )
-                    item = BackupItem(  parent = self.backup, backupData=backup['name'], backupName=backupname,  backupDate=backupDate, 
+                    item = BackupItem(  parent = self.backup, backupData=backup['name'], 
+                                        backupName=backupname, backupDate=backupDate, 
                                         backupSize=backup['size'], newBackup=False )
             if len(backups) > 0:
                 self.deleteAllBackupsAction.setEnabled(True)
@@ -1159,7 +1195,7 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
             self.error( e )
         self.backup.sortItems(COL_DATE, Qt.DescendingOrder)
 
-    def loadDataAdapters (self, data, backups):
+    def loadDataAdapters (self, data, backups=[]):
         """
         Load statistics and backups list for adapters
 
@@ -1170,7 +1206,8 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         @type backups:
         """
         # clear the backups treeview
-        self.backupAdps.clear()
+        if len(backups):
+            self.backupAdps.clear()
 
         totalFiles = 0
         totalUsed = 0
@@ -1193,7 +1230,9 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
                     leftover, backuptime = rightover.rsplit('_', 1)
                     backupname, backupdate = leftover.rsplit('_', 1)
                     backupDate = "%s_%s" % ( backupdate, backuptime )
-                    item = BackupItem(  parent = self.backupAdps, backupData=backup['name'], backupName=backupname,  backupDate=backupDate, backupSize=backup['size'], newBackup=False )
+                    item = BackupItem(  parent = self.backupAdps, backupData=backup['name'], 
+                                        backupName=backupname,  backupDate=backupDate, 
+                                        backupSize=backup['size'], newBackup=False )
             
             if len(backups) > 0:
                 self.deleteAllBackupsAdaptersAction.setEnabled(True)
@@ -1201,7 +1240,7 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
             self.error( e )
         self.backupAdps.sortItems(COL_DATE, Qt.DescendingOrder)
 
-    def loadDataLibraries (self, data, backups):
+    def loadDataLibraries (self, data, backups=[]):
         """
         Load statistics and backups list for adapters
 
@@ -1212,7 +1251,8 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         @type backups:
         """
         # clear the backups treeview
-        self.backupLibAdps.clear()
+        if len(backups):
+            self.backupLibAdps.clear()
 
         totalFiles = 0
         totalUsed = 0
@@ -1235,7 +1275,9 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
                     leftover, backuptime = rightover.rsplit('_', 1)
                     backupname, backupdate = leftover.rsplit('_', 1)
                     backupDate = "%s_%s" % ( backupdate, backuptime )
-                    item = BackupItem(  parent = self.backupLibAdps, backupData=backup['name'], backupName=backupname,  backupDate=backupDate, backupSize=backup['size'], newBackup=False )
+                    item = BackupItem(  parent = self.backupLibAdps, backupData=backup['name'], 
+                                        backupName=backupname, backupDate=backupDate, 
+                                        backupSize=backup['size'], newBackup=False )
             
             if len(backups) > 0:
                 self.deleteAllBackupsLibrariesAction.setEnabled(True)
@@ -1243,7 +1285,7 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
             self.error( e )
         self.backupLibAdps.sortItems(COL_DATE, Qt.DescendingOrder)
         
-    def loadDataArchives(self, data, backups):
+    def loadDataArchives(self, data, backups=[]):
         """
         Load backups on treeview 
 
@@ -1251,7 +1293,8 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         @type backups:
         """
         # clear the backups treeview
-        self.backupArchives.clear()
+        if len(backups):
+            self.backupArchives.clear()
 
         totalFiles = 0
         totalUsed = 0
@@ -1284,7 +1327,9 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
                 leftover, backuptime = rightover.rsplit('_', 1)
                 backupname, backupdate = leftover.rsplit('_', 1)
                 backupDate = "%s_%s" % ( backupdate, backuptime )
-                item = BackupItem(  parent = self.backupArchives, backupData=backup['name'], backupName=backupname,  backupDate=backupDate, backupSize=backup['size'], newBackup=False )
+                item = BackupItem(  parent = self.backupArchives, backupData=backup['name'], 
+                                    backupName=backupname, backupDate=backupDate, 
+                                    backupSize=backup['size'], newBackup=False )
             if len(backups) > 0:
                 self.deleteAllBackupsArchivesAction.setEnabled(True)
         except Exception as e:            
@@ -1321,7 +1366,7 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         self.exportBackupArchivesAction.setEnabled(True)
         # end of new
                     
-        if UCI.RIGHTS_ADMIN in UCI.instance().userRights:
+        if UCI.RIGHTS_ADMIN in RCI.instance().userRights:
             self.emptyAction.setEnabled(True)
             self.uninstallAdaptersAction.setEnabled(True)
             self.uninstallLibrariesAction.setEnabled(True)
@@ -1391,8 +1436,8 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         reply = QMessageBox.question(self, "Empty all tests", "Are you really sure ?",
                         QMessageBox.Yes | QMessageBox.No )
         if reply == QMessageBox.Yes:
-            UCI.instance().emptyRepo(repo=UCI.REPO_TESTS)
-
+            RCI.instance().resetTests()
+            
     def uninstallAdapters(self):
         """
         Removes all adapters on server
@@ -1400,8 +1445,8 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         reply = QMessageBox.question(self, "Uninstall adapters", "Are you really sure ?",
                         QMessageBox.Yes | QMessageBox.No )
         if reply == QMessageBox.Yes:
-            UCI.instance().emptyRepo(repo=UCI.REPO_ADAPTERS)
-
+            RCI.instance().resetAdapters()
+            
     def uninstallLibraries(self):
         """
         Removes all adapters on server
@@ -1409,7 +1454,15 @@ class WRepositoriesSvr(QWidget, Logger.ClassLogger):
         reply = QMessageBox.question(self, "Uninstall libraries", "Are you really sure ?",
                         QMessageBox.Yes | QMessageBox.No )
         if reply == QMessageBox.Yes:
-            UCI.instance().emptyRepo(repo=UCI.REPO_LIBRARIES)
+            RCI.instance().resetLibraries()
+            
+    def resetBackupTestsPart(self):
+        """
+        Reset the backup treeview tests and actions
+        """
+        self.backup.clear()
+        self.deleteAllBackupsAction.setEnabled(False)
+        self.exportBackupAction.setEnabled(False)
 
     def resetBackupArchivesPart(self):
         """

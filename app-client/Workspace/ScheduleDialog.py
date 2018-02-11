@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # -------------------------------------------------------------------
-# Copyright (c) 2010-2017 Denis Machard
+# Copyright (c) 2010-2018 Denis Machard
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -90,7 +90,6 @@ class SchedSuccessiveDialog(QtHelper.EnhancedQDialog):
 
 
         buttonLayout = QHBoxLayout()
-        # QIcon(":/schedule.png")
         self.okButton = QPushButton(self.tr("OK"), self)
         self.cancelButton = QPushButton(self.tr("Cancel"), self)
         buttonLayout.addWidget(self.okButton)
@@ -123,7 +122,8 @@ class SchedSuccessiveDialog(QtHelper.EnhancedQDialog):
         if not len(runNb):
             runNb = 0
         if int(runNb) < 2:
-            QMessageBox.information(self, self.tr("Scheduler") , "Please to specify a correct number of run.")
+            QMessageBox.information(self, self.tr("Scheduler") , 
+                                    "Please to specify a correct number of run.")
         else:
             self.accept()
 
@@ -141,9 +141,11 @@ class SchedSuccessiveDialog(QtHelper.EnhancedQDialog):
 
 class WeeklyWidget(QWidget, Logger.ClassLogger):
     """
+    Weekly widget
     """
     def __init__(self, parent=None):
         """
+        Constructor
         """
         super(WeeklyWidget, self).__init__(parent)
         self.createWidgets()
@@ -163,7 +165,6 @@ class WeeklyWidget(QWidget, Logger.ClassLogger):
         self.schedWeeklyS.setDisplayFormat("ss")
 
         self.comboBoxDays = QComboBox()
-        #for d in UCI.SCHED_DAYS_DICT.values():
         for d in list(UCI.SCHED_DAYS_DICT.values()): # wrap to list for support python3
             self.comboBoxDays.addItem( d.title())
 
@@ -239,7 +240,8 @@ class WeeklyWidget(QWidget, Logger.ClassLogger):
             if not len(runNb): runNb = 0
             runNbInt = int(runNb)
             if runNbInt <= 1:
-                QMessageBox.information(self, self.tr("Scheduler") , "Please to specify a correct number of run.")
+                QMessageBox.information(self, self.tr("Scheduler") , 
+                                        "Please to specify a correct number of run.")
                 return None
             else:
                 ret['run-nb'] = runNbInt
@@ -248,16 +250,19 @@ class WeeklyWidget(QWidget, Logger.ClassLogger):
             pydtH = self.schedWeeklyH.dateTime().toPyDateTime()
             pydtM = self.schedWeeklyM.dateTime().toPyDateTime()
             pydtS = self.schedWeeklyS.dateTime().toPyDateTime()
-            ret['run-at'] = (0, 0, self.comboBoxDays.currentIndex(), pydtH.hour, pydtM.minute, pydtS.second)
+            ret['run-at'] = (0, 0, self.comboBoxDays.currentIndex(), 
+                                pydtH.hour, pydtM.minute, pydtS.second)
             ret['run-type'] = UCI.SCHED_WEEKLY
             
         return ret
         
 class DailyWidget(QWidget, Logger.ClassLogger):
     """
+    Daily widget
     """
     def __init__(self, parent=None):
         """
+        Constructor
         """
         super(DailyWidget, self).__init__(parent)
         self.createWidgets()
@@ -345,7 +350,8 @@ class DailyWidget(QWidget, Logger.ClassLogger):
             if not len(runNb): runNb = 0
             runNbInt = int(runNb)
             if runNbInt <= 1:
-                QMessageBox.information(self, self.tr("Scheduler") , "Please to specify a correct number of run.")
+                QMessageBox.information(self, self.tr("Scheduler") , 
+                                        "Please to specify a correct number of run.")
                 return None
             else:
                 ret['run-nb'] = runNbInt
@@ -360,9 +366,11 @@ class DailyWidget(QWidget, Logger.ClassLogger):
         
 class HourlyWidget(QWidget, Logger.ClassLogger):
     """
+    Hourly widget
     """
     def __init__(self, parent=None):
         """
+        Constructor
         """
         super(HourlyWidget, self).__init__(parent)
         self.createWidgets()
@@ -447,7 +455,8 @@ class HourlyWidget(QWidget, Logger.ClassLogger):
             if not len(runNb): runNb = 0
             runNbInt = int(runNb)
             if runNbInt <= 1:
-                QMessageBox.information(self, self.tr("Scheduler") , "Please to specify a correct number of run.")
+                QMessageBox.information(self, self.tr("Scheduler") , 
+                                        "Please to specify a correct number of run.")
                 return None
             else:
                 ret['run-nb'] = runNbInt
@@ -462,9 +471,11 @@ class HourlyWidget(QWidget, Logger.ClassLogger):
         
 class SuccessiveWidget(QWidget, Logger.ClassLogger):
     """
+    Successive widget
     """
     def __init__(self, parent=None):
         """
+        Constructor
         """
         super(SuccessiveWidget, self).__init__(parent)
         self.createWidgets()
@@ -537,7 +548,8 @@ class SuccessiveWidget(QWidget, Logger.ClassLogger):
             if not len(runNb): runNb = 0
             runNbInt = int(runNb)
             if runNbInt <= 1:
-                QMessageBox.information(self, self.tr("Scheduler") , "Please to specify a correct number of run.")
+                QMessageBox.information(self, self.tr("Scheduler") , 
+                                        "Please to specify a correct number of run.")
                 return None
             else:
                 ret['run-nb'] = runNbInt
@@ -545,15 +557,18 @@ class SuccessiveWidget(QWidget, Logger.ClassLogger):
         ret['run-type'] = UCI.SCHED_NOW_MORE
         if self.schedAt.isChecked():
             pydt = self.schedAtDateEdit.dateTime().toPyDateTime()
-            ret['run-from'] =  (pydt.year, pydt.month, pydt.day, pydt.hour, pydt.minute, pydt.second)
+            ret['run-from'] =  (pydt.year, pydt.month, pydt.day, 
+                                pydt.hour, pydt.minute, pydt.second)
             
         return ret
         
 class EveryWidget(QWidget, Logger.ClassLogger):
     """
+    Every widget
     """
     def __init__(self, parent=None):
         """
+        Constructor
         """
         super(EveryWidget, self).__init__(parent)
         self.createWidgets()
@@ -677,7 +692,8 @@ class EveryWidget(QWidget, Logger.ClassLogger):
             if not len(runNb): runNb = 0
             runNbInt = int(runNb)
             if runNbInt <= 1:
-                QMessageBox.information(self, self.tr("Scheduler") , "Please to specify a correct number of run.")
+                QMessageBox.information(self, self.tr("Scheduler") , 
+                                        "Please to specify a correct number of run.")
                 return None
             else:
                 ret['run-nb'] = runNbInt
@@ -693,7 +709,8 @@ class EveryWidget(QWidget, Logger.ClassLogger):
             pydtM = self.schedEveryM.dateTime().toPyDateTime()
             pydtS = self.schedEveryS.dateTime().toPyDateTime()
             if pydtH.hour == 0 and pydtM.minute == 0 and pydtS.second == 0:
-                QMessageBox.information(self, self.tr("Scheduler") , "Please to specify a correct value.")
+                QMessageBox.information(self, self.tr("Scheduler") , 
+                                        "Please to specify a correct value.")
                 return None
             else:
                 ret['run-at'] = (0, 0, 0, pydtH.hour, pydtM.minute, pydtS.second)
@@ -708,9 +725,11 @@ class EveryWidget(QWidget, Logger.ClassLogger):
         
 class OneTimeWidget(QWidget, Logger.ClassLogger):
     """
+    One time widget
     """
     def __init__(self, parent=None):
         """
+        Constructor
         """
         super(OneTimeWidget, self).__init__(parent)
         self.createWidgets()
@@ -774,7 +793,8 @@ class OneTimeWidget(QWidget, Logger.ClassLogger):
             else:
                 secInt = int(secStr)
             if secInt <= 0:
-                QMessageBox.information(self, self.tr("Scheduler") , "Please to specify a correct number of seconds.")
+                QMessageBox.information(self, self.tr("Scheduler") , 
+                                        "Please to specify a correct number of seconds.")
                 return None
             else:
                 ret['run-at'] = (0,0,0,0,0,secInt)
@@ -787,7 +807,8 @@ class OneTimeWidget(QWidget, Logger.ClassLogger):
                 QMessageBox.information(self, self.tr("Scheduler") , "Too late...")
                 return None
             else:
-                ret['run-at'] = (pydt.year, pydt.month, pydt.day, pydt.hour, pydt.minute, pydt.second)
+                ret['run-at'] = (pydt.year, pydt.month, pydt.day, 
+                                    pydt.hour, pydt.minute, pydt.second)
                 ret['run-type'] = UCI.SCHED_AT 
                 
         return ret
@@ -938,8 +959,10 @@ class SchedDialog(QtHelper.EnhancedQDialog):
         self.cancelButton.clicked.connect(self.reject)
         self.groupRadio.buttonClicked.connect(self.changePage)
         
-    def fillFields(self, schedType, schedArgs, taskName, taskId, schedNb, withoutProbes, enabled=True,
-                    noKeepTr=False, withoutNotifs=False, schedFrom=(0,0,0,0,0,0), schedTo=(0,0,0,0,0,0) ):
+    def fillFields(self, schedType, schedArgs, taskName, 
+                    taskId, schedNb, withoutProbes, enabled=True,
+                    noKeepTr=False, withoutNotifs=False, 
+                    schedFrom=(0,0,0,0,0,0), schedTo=(0,0,0,0,0,0) ):
         """
         Fill fields
         """
@@ -1118,7 +1141,6 @@ class SchedDialogV1(QtHelper.EnhancedQDialog):
         self.schedWeeklyLabel = QLabel(" at:")
 
         self.comboBoxDays = QComboBox()
-        #for d in UCI.SCHED_DAYS_DICT.values():
         for d in list(UCI.SCHED_DAYS_DICT.values()): # wrap to list to support python3 
             self.comboBoxDays.addItem( d.title())
 
@@ -1130,7 +1152,8 @@ class SchedDialogV1(QtHelper.EnhancedQDialog):
         self.withoutProbes  = QCheckBox( "Run without probes" )
         self.withoutNotifs  = QCheckBox( "Run without notifications" )
         self.noKeepTestResult  = QCheckBox( "Do not keep test result on success" )
-        if QtHelper.str2bool(Settings.instance().readValue( key = 'ScheduleRun/dont-keep-result-on-success' )):  self.noKeepTestResult.setChecked(True)
+        if QtHelper.str2bool(Settings.instance().readValue( key = 'ScheduleRun/dont-keep-result-on-success' )):  
+            self.noKeepTestResult.setChecked(True)
         
         configLayout = QGridLayout()
         configLayout.addWidget(self.schedIn, 0, 0)
@@ -1329,8 +1352,11 @@ class SchedDialogV1(QtHelper.EnhancedQDialog):
         if toggled:
             self.configBox.setChecked(False)
 
-    def fillFields(self, schedType, schedArgs, taskName, taskId, schedNb, withoutProbes, enabled=True,
-                            noKeepTr=False, withoutNotifs=False, schedFrom=(0,0,0,0,0,0), schedTo=(0,0,0,0,0,0)):
+    def fillFields(self, schedType, schedArgs, 
+                    taskName, taskId, schedNb, 
+                    withoutProbes, enabled=True, 
+                    noKeepTr=False, withoutNotifs=False, 
+                    schedFrom=(0,0,0,0,0,0), schedTo=(0,0,0,0,0,0) ):
         """
         Fill fields
         """
@@ -1444,7 +1470,8 @@ class SchedDialogV1(QtHelper.EnhancedQDialog):
             else:
                 runNb_int = int(runNb)
             if runNb_int <= 0:
-                QMessageBox.information(self, self.tr("Scheduler") , "Please to specify a correct number of run.")
+                QMessageBox.information(self, self.tr("Scheduler") , 
+                                        "Please to specify a correct number of run.")
                 nbRunOk = False
             else:
                 self.runNb = runNb_int
@@ -1467,7 +1494,8 @@ class SchedDialogV1(QtHelper.EnhancedQDialog):
                     else:
                         second_int = int(second_str)
                     if second_int <= 0:
-                        QMessageBox.information(self, self.tr("Scheduler") , "Please to specify a correct number of seconds.")
+                        QMessageBox.information(self, self.tr("Scheduler") , 
+                                                "Please to specify a correct number of seconds.")
                     else:
                         self.runAt = (0,0,0,0,0, second_int)
                         self.runType = UCI.SCHED_IN     
@@ -1481,27 +1509,31 @@ class SchedDialogV1(QtHelper.EnhancedQDialog):
                         self.runAt = (pydt.year, pydt.month, pydt.day, pydt.hour, pydt.minute, pydt.second)
                         self.runType = UCI.SCHED_AT 
                         self.accept()
+                        
             if self.config2Box.isChecked():
                 if self.schedEveryMin.isChecked():
                     pydt = self.schedEveryMinDateEdit.dateTime().toPyDateTime()
                     self.runAt = (0, 0, 0, 0, 0, pydt.second)
                     self.runType = UCI.SCHED_EVERY_MIN  
                     self.accept()
+                    
                 elif self.schedHourly.isChecked():
                     pydt = self.schedHourlyDateEdit.dateTime().toPyDateTime()
                     self.runAt = (0, 0, 0, 0, pydt.minute, pydt.second)
                     self.runType = UCI.SCHED_HOURLY 
                     self.accept()
+                    
                 elif self.schedDaily.isChecked():
                     pydt = self.schedDailyDateEdit.dateTime().toPyDateTime()
                     self.runAt = (0, 0, 0, pydt.hour, pydt.minute, pydt.second)
                     self.runType = UCI.SCHED_DAILY  
                     self.accept()
-                # BEGIN new schedulation type in 3.1.0
+
                 elif self.schedEveryX.isChecked():
                     pydt = self.schedEveryXDateEdit.dateTime().toPyDateTime()
                     if pydt.hour == 0 and pydt.minute == 0 and pydt.second == 0:
-                        QMessageBox.information(self, self.tr("Scheduler") , "Please to specify a correct value.")
+                        QMessageBox.information(self, self.tr("Scheduler") , 
+                                                "Please to specify a correct value.")
                     else:
                         self.runAt = (0, 0, 0, pydt.hour, pydt.minute, pydt.second)
                         self.runType = UCI.SCHED_EVERY_X
@@ -1511,19 +1543,18 @@ class SchedDialogV1(QtHelper.EnhancedQDialog):
                         self.runTo = (0, 0, 0, pydtTo.hour, pydtTo.minute, 0)
                         self.accept()
 
-                # END 
-                # BEGIN new schedulation type in 3.2.0
                 elif self.schedWeekly.isChecked():
                     pydt = self.schedWeeklyDateEdit.dateTime().toPyDateTime()
-                    self.runAt = (0, 0, self.comboBoxDays.currentIndex(), pydt.hour, pydt.minute, pydt.second)
+                    self.runAt = (0, 0, self.comboBoxDays.currentIndex(), 
+                                    pydt.hour, pydt.minute, pydt.second)
                     self.runType = UCI.SCHED_WEEKLY
                     self.accept()
-                # END 
 
     def getSchedtime(self):
         """
         Returns schedule time
         """ 
-        return (self.runAt, self.runType, self.runNb, self.noProbes, self.taskEnabled, self.noTr, self.noNotifs,
+        return (self.runAt, self.runType, self.runNb, self.noProbes, 
+                    self.taskEnabled, self.noTr, self.noNotifs,
                     self.runFrom, self.runTo)
 
