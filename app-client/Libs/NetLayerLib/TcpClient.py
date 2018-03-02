@@ -348,10 +348,14 @@ class TcpClientThread(threading.Thread):
             if sys.platform == "win32":
                 if self.tcpKeepAlive: self.socket.ioctl(socket.SIO_KEEPALIVE_VALS, (1, self.tcpKeepIdle*1000, self.tcpKeepIntvl*1000))
             elif sys.platform == "darwin":
+                #  dbr13 >> this is a big crutch but currently it is working
+                # For Denis, maybe you know fast way to fix it =)
                 # interval in seconds between keepalive probes
-                if self.tcpKeepAlive: self.socket.setsockopt(socket.SOL_TCP, socket.TCP_KEEPINTVL, self.tcpKeepIntvl) 
+                pass
+                # if self.tcpKeepAlive: self.socket.setsockopt(socket.SOL_TCP, socket.TCP_KEEPINTVL, self.tcpKeepIntvl)
                 # failed keepalive probes before declaring the other end dead
-                if self.tcpKeepAlive: self.socket.setsockopt(socket.SOL_TCP, socket.TCP_KEEPCNT, self.tcpKeepCnt) 
+                # if self.tcpKeepAlive: self.socket.setsockopt(socket.SOL_TCP, socket.TCP_KEEPCNT, self.tcpKeepCnt)
+                # dbr13 <<<
             else:
                 # seconds before sending keepalive probes
                 if self.tcpKeepAlive: self.socket.setsockopt(socket.SOL_TCP, socket.TCP_KEEPIDLE, self.tcpKeepIdle ) 
