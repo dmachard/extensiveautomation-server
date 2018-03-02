@@ -128,7 +128,7 @@ if not os.path.exists(settingsFile):
 # Detect the operating system 
 # For Unix systems, this is the lowercased OS name as returned
 # by uname -s with the first part of the version as returned by uname -r
-if sys.platform in [ "win32", "linux2", "linux" ]:
+if sys.platform in [ "win32", "linux2", "linux", "darwin" ]:
     try:
         from PyQt4.QtGui import (QMainWindow, QApplication, QMessageBox, QTabWidget, QIcon, QToolButton, 
                                 QAction, qApp, QDesktopServices, QFileDialog, QSystemTrayIcon, QDialog, 
@@ -3416,7 +3416,7 @@ if __name__ == '__main__':
     # Construct the main app
     if sys.platform == "win32":
         app = QApplication(sys.argv)
-    if sys.platform in [ "linux", "linux2" ] :
+    if sys.platform in [ "linux", "linux2" , "darwin"] :
         app = QApplication(sys.argv)
 
         
@@ -3491,7 +3491,7 @@ if __name__ == '__main__':
     # no more display the splash
     if sys.platform == "win32":
         splash.finish(window)
-    if sys.platform in [ "linux", "linux2" ]:
+    if sys.platform in [ "linux", "linux2", "darwin" ]:
         splash.finish(window)
 
     # performance measurement only  for debug mode
