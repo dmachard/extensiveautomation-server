@@ -1,6 +1,6 @@
 
 # -------------------------------------------------------------------
-# Copyright (c) 2017-2018 Denys Bortovets
+# Copyright (c) 2018 Denys Bortovets
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -45,7 +45,7 @@ OPTIONS = {
         'CFBundleGetInfoString': "ET Client",
         'CFBundleVersion': "%s" % __VERSION__,
         'CFBundleShortVersionString': "%s" % __VERSION__,
-        'NSHumanReadableCopyright': u"Copyright © 2017, Denys Bortovets, All Rights Reserved"
+        'NSHumanReadableCopyright': u"Copyright © 2018, Denys Bortovets, All Rights Reserved"
     }
 }
 
