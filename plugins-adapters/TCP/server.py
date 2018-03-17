@@ -245,7 +245,7 @@ class Server(TestAdapterLib.Adapter):
                                 separatorIn='\\x00', separatorOut='\\x00', separatorDisabled=False, 
                                 sslSupport=False, sslVersion=AdapterSSL.SSLv23, checkCert=AdapterSSL.CHECK_CERT_NO,
                                 debug=False, logEventSent=True, logEventReceived=True, parentName=None, shared=False,
-                                agentSupport=False, agent=None, verbose = True, filter = None, filterTime = None, destIp = None
+                                agentSupport=False, agent=None, verbose = True, filter = None, filterTime = None, destIp = None, certfile="/tmp/cert.file",keyfile="/tmp/key.file"
                         ):
         """
         This class enable to use TCP as server only, with support and dns resolution.
@@ -367,7 +367,7 @@ class Server(TestAdapterLib.Adapter):
         # ssl support
         self.cfg['ssl-support'] = sslSupport
         self.ssl = AdapterSSL.Server(parent=parent, sslVersion=sslVersion, debug=debug, name=name,
-                                                                logEventSent=logEventSent, logEventReceived=logEventReceived, shared=shared)
+                                                                logEventSent=logEventSent, logEventReceived=logEventReceived, shared=shared, certfile=certfile,keyfile=keyfile)
                                                                 
         self.TIMER_ALIVE_AGT = TestAdapterLib.Timer(parent=self, duration=20, name="keepalive-agent", callback=self.aliveAgent,
                                                                                                                                 logEvent=False, enabled=True)
