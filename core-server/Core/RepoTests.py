@@ -35,6 +35,7 @@ import tarfile
 import scandir
 import copy
 import json
+import re
 
 # unicode = str with python3
 if sys.version_info > (3,):
@@ -1013,7 +1014,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                 old_test_file_name = oldFilename
             else:
                 # for rename func
-                old_test_file_name = '%s:%s/%s.%s' % (project_name, mainPath, oldFilename, extFilename)
+                old_test_file_name = '%s:/*%s/%s.%s' % (project_name, mainPath[1:], oldFilename, extFilename)
         else:
             new_test_file_name = '%s:%s.%s' % (project_name, newFilename, extFilename)
 
@@ -1054,7 +1055,8 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                 is_changed = False
 
                 for test_file in test_files_list:
-                    if old_test_file_name == test_file['file']:
+                    old_test_file_name_regex = re.compile(old_test_file_name)
+                    if re.findall(old_test_file_name_regex, test_file['file']):
                         test_file['file'] = new_test_file_name
                         test_file['extension'] = extFilename
                         is_changed = True
