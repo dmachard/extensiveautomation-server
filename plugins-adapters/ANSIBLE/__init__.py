@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# -------------------------------------------------------------------
-# Copyright (c) 2010-2018 Denis Machard
+# ------------------------------------------------------------------
+# Copyright (c) 2018 Denys Bortovets
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -21,29 +21,6 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-"""
-All embeded agents and probes
-"""
+from ansible_adapter import *
 
-from Embedded import DummyAgent
-from Embedded import SocketAgent
-from Embedded import CommandAgent
-from Embedded import FileAgent
-from Embedded import FtpAgent
-from Embedded import Selenium3ServerAgent
-from Embedded import Selenium2ServerAgent
-from Embedded import SoapUIAgent
-from Embedded import SmsAgent
-from Embedded import SshAgent
-from Embedded import DatabaseAgent
-from Embedded import AdbAgent
-from Embedded import SikulixServerAgent
-
-from Embedded import DummyProbe
-from Embedded import TextualProbe
-from Embedded import FileProbe
-from Embedded import NetworkProbe
-
-# dbr13 >>> only for Linux.
-from Embedded import AnsibleAgent
-# dbr13 <<<
+__DESCRIPTION__ = """This adapter enable to use ansible"""
