@@ -2639,7 +2639,8 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
         # finally replace all keys in the template
         newTest = newTest.replace( "<<PURPOSE>>", 'self.setPurpose(purpose="%s")' % self.tcPurposeLine.text() )
         if not len(adpsGui): adpsGui = [ "pass" ]
-        newTest = newTest.replace( "<<ADPS>>", '\n\t'.join(adpsGui) )
+        if TS: newTest = newTest.replace( "<<ADPS>>", '\n\t\t'.join(adpsGui) )
+        if TU: newTest = newTest.replace( "<<ADPS>>", '\n\t'.join(adpsGui) )
         
         if not len(steps): steps = [ "pass" ]
         
