@@ -1,6 +1,6 @@
 Contributors are welcome on this project.
 
-You can contribute on different way
+You can contribute on different ways
  - write documentations
  - report issues
  - fix issues
@@ -17,4 +17,4 @@ Best practices to add new feature
  - one feature per pull request
 
 Best practices to contribute on the documentations
- - please to contact me on this case
+ - contact me on this case
