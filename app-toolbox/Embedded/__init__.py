@@ -38,6 +38,7 @@ from Embedded import SshAgent
 from Embedded import DatabaseAgent
 from Embedded import AdbAgent
 from Embedded import SikulixServerAgent
+from Embedded import KafkaAgent
 
 from Embedded import DummyProbe
 from Embedded import TextualProbe
