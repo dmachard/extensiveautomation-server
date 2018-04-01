@@ -147,6 +147,8 @@ CRYPTOGRAPHY="cryptography-1.8.1"
 PARAMIKO="paramiko-2.1.2"
 JSONPATH="jsonpath-ng-1.4.2"
 WRAPT="wrapt-1.10.10"
+PYKAFKA="kafka-python-1.4.2"
+PYSNAPPY="python-snappy-0.5.2"
 
 NODEJS="node-v6.11.0-linux-x64"
 
@@ -529,7 +531,15 @@ if [ "$DL_MISSING_PKGS" = "Yes" ]; then
         echo "Unable to download packages freetype and more with yum" >> "$LOG_FILE"
         exit_on_error
     fi
-    
+
+        echo -ne "* Adding snappy deps                \r"
+        $YUM_BIN -y install gcc-c++ snappy-devel >> "$LOG_FILE" 2>&1
+    if [ $? -ne 0 ]; then
+        echo_failure; echo
+        echo "Unable to download packages snappy-devel and more with yum" >> "$LOG_FILE"
+        exit_on_error
+    fi
+
 	echo -ne "* Adding postgresql                \r"
 	$YUM_BIN -y install postgresql postgresql-libs postgresql-devel >> "$LOG_FILE" 2>&1
     if [ $? -ne 0 ]; then
@@ -1009,6 +1019,20 @@ if [ "$INSTALL_EMBEDDED_PKGS" = "Yes" ]; then
 	$PYBIN setup.py install 1>> "$LOG_FILE" 2>&1
 	cd .. 1>> "$LOG_FILE" 2>&1
 	rm -rf $APP_PATH/$PYGIT/ 1>> "$LOG_FILE" 2>&1
+
+    echo -ne "* Installing python-snappy                \r"
+    $TAR_BIN xvf $PKG_PATH/$PYSNAPPY.tar.gz  1>> "$LOG_FILE" 2>&1
+        cd $APP_PATH/$PYSNAPPY/
+        $PYBIN setup.py install 1>> "$LOG_FILE" 2>&1
+        cd .. 1>> "$LOG_FILE" 2>&1
+        rm -rf $APP_PATH/$PYSNAPPY/ 1>> "$LOG_FILE" 2>&1
+
+    echo -ne "* Installing kafka-python                \r"
+    $TAR_BIN xvf $PKG_PATH/$PYKAFKA.tar.gz  1>> "$LOG_FILE" 2>&1
+        cd $APP_PATH/$PYKAFKA/
+        $PYBIN setup.py install 1>> "$LOG_FILE" 2>&1
+        cd .. 1>> "$LOG_FILE" 2>&1
+        rm -rf $APP_PATH/$PYKAFKA/ 1>> "$LOG_FILE" 2>&1
 
     echo -ne "* Installing nodejs                \r"
     $TAR_BIN --strip-components 1 -xzvf $NODEJS* -C /usr/local 1>> "$LOG_FILE" 2>&1
