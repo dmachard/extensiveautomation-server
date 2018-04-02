@@ -206,7 +206,7 @@ class Server(TestAdapter.Adapter):
 	def __init__(self, parent, name=None, debug=False, shared=False, agentSupport=False, agent=None,
 														 bindIp = '', bindPort=0,  sslSupport=False,  strictMode=False, octetStreamSupport=True, 
 														 manStreamSupport=True, websocketMode=False, truncateBody=False,
-														  logEventSent=True, logEventReceived=True):
+														  logEventSent=True, logEventReceived=True, checkCert=AdapterSSL.CHECK_CERT_NO, certfile="/tmp/cert.file",keyfile="/tmp/key.file"):
 		"""
 		HTTP server, based on TCP server adapter.
 		
@@ -276,7 +276,7 @@ class Server(TestAdapter.Adapter):
 		
 		self.ADP_TCP = AdapterTCP.Server(parent=parent, bindIp = bindIp, bindPort=bindPort, separatorDisabled=True, 
 																													logEventSent=False, logEventReceived=False, agent=agent, shared=shared,
-																													agentSupport=agentSupport, sslSupport=sslSupport)
+																													agentSupport=agentSupport, sslSupport=sslSupport, checkCert=checkCert, certfile=certfile,keyfile=keyfile)
 		self.ADP_TCP.onClientIncomingData = self.onClientIncomingData	
 		self.ADP_TCP.onClientNoMoreData = self.onClientNoMoreData
 		

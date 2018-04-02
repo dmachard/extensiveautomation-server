@@ -93,7 +93,7 @@ class HandshakeFailed(Exception):
 	
 class Server(TestAdapterLib.Adapter):
 	def __init__ (self, parent, sslVersion=TLSv1, checkCert=CHECK_CERT_NO, debug=False, name=None,
-											logEventSent=True, logEventReceived=True, shared=False):
+											logEventSent=True, logEventReceived=True, shared=False, certfile="/tmp/cert.file",keyfile="/tmp/key.file"):
 		"""
 		@param parent: parent testcase
 		@type parent: testcase
@@ -120,9 +120,9 @@ class Server(TestAdapterLib.Adapter):
 		self.cfg['ssl-version'] = sslVersion
 		self.cfg['check-cert'] = checkCert
 		self.cfg['cert'] = INTERNAL_CERT
-		self.cfg['cert-file'] = "/tmp/cert.file"
+		self.cfg['cert-file'] = certfile
 		self.cfg['key'] = INTERNAL_KEY
-		self.cfg['key-file'] = "/tmp/key.file"
+		self.cfg['key-file'] = keyfile
 		
 		self.sslCipher = ''
 		self.sslVersion = ''
@@ -172,6 +172,7 @@ class Server(TestAdapterLib.Adapter):
 		"""
 		# log sent event
 		tpl = self.encapsule( tpl=tpl_s, ssl_event=templates.do_handshake(self.cfg['check-cert']) )
+		tpl.addRaw(raw="certificate: %s\nkey file: %s"%(self.cfg['cert-file'],self.cfg['key-file']))
 		self.logSentEvent( shortEvt = msg, tplEvt = tpl )
 
 	def logHandshakeAccepted(self, tpl_r, msg ):
