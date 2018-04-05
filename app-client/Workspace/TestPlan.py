@@ -1261,11 +1261,26 @@ class WTestPlan(Document.WDocument):
         """
         Update the path of a test
         """
+        item_id = self.itemCurrent.text(COL_ID)
+        update_location = False
         ret = self.addTestFile(updatePath=True)
         if ret is None:
             return
         
-        (testName, fromRepo, currentItem, projectId ) = ret
+        if len(ret) == 4:
+            (testName, fromRepo, currentItem, projectId ) = ret
+        else:
+            (testName, fromRepo, currentItem, projectId, update_location) = ret
+
+        # dbr13 >>>
+        # prepare old file name
+        old_test_file_name = None
+        if update_location:
+            for test_file in self.dataModel.testplan['testplan']['testfile']:
+                if item_id == test_file['id']:
+                    old_test_file_name = test_file['file']
+                    break
+        # dbr13 <<<
 
         # local file
         if projectId is None:
@@ -1288,12 +1303,21 @@ class WTestPlan(Document.WDocument):
                 RCI.instance().openFileTests(projectId=int(projectId), filePath=absPath, 
                                              ignoreLock=False, readOnly=False, 
                                              customParam=int(currentItem.text(COL_ID)), 
-                                             actionId=RCI.ACTION_UPDATE_PATH, destinationId=RCI.FOR_DEST_TG)
+                                             actionId=RCI.ACTION_UPDATE_PATH, destinationId=RCI.FOR_DEST_TG,
+                                             # dbr13 >>>
+                                             extra={'update_location': update_location,
+                                                    'file_name': old_test_file_name})
+                                             # dbr13 <<<
             else:
                 RCI.instance().openFileTests(projectId=int(projectId), filePath=absPath, 
                                              ignoreLock=False, readOnly=False, 
                                              customParam=int(currentItem.text(COL_ID)), 
-                                             actionId=RCI.ACTION_UPDATE_PATH, destinationId=RCI.FOR_DEST_TP)
+                                             actionId=RCI.ACTION_UPDATE_PATH, destinationId=RCI.FOR_DEST_TP,
+                                             # dbr13 >>>
+                                             extra={'update_location': update_location,
+                                                    'file_name': old_test_file_name})
+                                             # dbr13 <<<
+
     def updateMainLocations(self):
         """
         Update projects of all remote tests
@@ -2830,19 +2854,33 @@ class WTestPlan(Document.WDocument):
             prjId = self.iRepo.remote().getProjectId(project=prjName)
             if self.testGlobal:
                 self.iRepo.remote().saveAs.getFilename(multipleSelection=True, project=prjName, 
-                                                    type=[TYPE, TestSuite.TYPE, TestUnit.TYPE, TestAbstract.TYPE] )
+                                                       type=[TYPE, TestSuite.TYPE, TestUnit.TYPE, TestAbstract.TYPE],
+                                                       # dbr13 >>>
+                                                       update_path=updatePath)
+                                                       # dbr13 <<<
             else:
                 self.iRepo.remote().saveAs.getFilename(multipleSelection=True, project=prjName, 
-                                                    type=[TestSuite.TYPE, TestUnit.TYPE, TestAbstract.TYPE] )
+                                                       type=[TestSuite.TYPE, TestUnit.TYPE, TestAbstract.TYPE],
+                                                       # dbr13 >>>
+                                                       update_path=updatePath)
+                                                       # dbr13 <<<
             dialog = self.iRepo.remote().saveAs
             if dialog.exec_() == QDialog.Accepted:
                 prjName = dialog.getProjectSelection()
                 prjId = self.iRepo.remote().getProjectId(project=prjName)
+                # dbr13 >>>
+                update_location_in_tests = dialog.update_location_in_tests.isChecked()
+                # dbr13 <<<
                 if updatePath:
-                    return (dialog.getSelection(), FROM_REMOTE_REPO, self.itemCurrent, prjId)
+                    # dbr13 >>> added - update_location
+                    return (dialog.getSelection(), FROM_REMOTE_REPO, self.itemCurrent, prjId, update_location_in_tests)
+                    # dbr13 <<<
                 else:
-                    self.addSubItems( files = dialog.getSelection(), fromType = FROM_REMOTE_REPO, 
-                                    parentTs=self.itemCurrent, project=prjId, insertTest=insertTest )
+                    self.addSubItems(files=dialog.getSelection(), fromType=FROM_REMOTE_REPO,
+                                     parentTs=self.itemCurrent, project=prjId, insertTest=insertTest)
+                    #  dbr13 >>>
+                    self.updateProjectsAction.setEnabled(True)
+                    #  dbr13 <<<
         else:
             QMessageBox.warning(self, self.tr("Import") , self.tr("Connect to the test center first!")     )   
 
