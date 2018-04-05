@@ -1714,16 +1714,17 @@ class RestClientInterface(QObject, Logger.ClassLogger):
         self.makeRequest( uri=CMD_ADAPTERS_FILE_RENAME, request=HTTP_POST, _json=_json )
 
     @calling_rest
-    def renameFileTests(self, filePath, fileName, fileExt, fileProject, newName):
+    def renameFileTests(self, filePath, fileName, fileExt, fileProject, newName, update_location=False):
         """
         Add probe
         """
         _json = { 
-                    "source": { "project-id": int(fileProject),
-                                "file-path": filePath,
-                                "file-name": fileName,
-                                "file-extension": fileExt },
-                    "destination": { "file-name": newName }
+                    "source": {"project-id": int(fileProject),
+                               "file-path": filePath,
+                               "file-name": fileName,
+                               "file-extension": fileExt},
+                    "destination": {"file-name": newName},
+                    "update_location": update_location
                 }
         self.makeRequest( uri=CMD_TESTS_FILE_RENAME, request=HTTP_POST, _json=_json )
         
@@ -1917,12 +1918,14 @@ class RestClientInterface(QObject, Logger.ClassLogger):
     
     @calling_rest
     def openFileTests(self, projectId, filePath, ignoreLock=False, readOnly=False, 
-                      customParam=None, actionId=None, destinationId=None):
+                      customParam=None, actionId=None, destinationId=None, extra={}):
+        # dbr13 extra for updating location
         """
         add snapshot
         """
-        _json = { "project-id": projectId, "file-path": filePath,
-                  "ignore-lock": ignoreLock, "read-only": readOnly}
+        _json = {"project-id": projectId, "file-path": filePath,
+                 "ignore-lock": ignoreLock, "read-only": readOnly,
+                 "extra": extra}
         if customParam is not None:
             _json["custom-param"] = customParam
         if actionId is not None:

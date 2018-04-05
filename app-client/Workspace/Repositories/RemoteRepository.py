@@ -217,11 +217,19 @@ class SaveOpenToRepoDialog(QDialog, Logger.ClassLogger):
         self.filenameLineEdit = QLineEdit()
         fileLayout.addWidget( self.filenameLineEdit )
         layout.addLayout(fileLayout)
-        
+
+        # dbr13 >>
+        # Checkbox for Update --> Location
+        self.update_location_in_tests = QCheckBox(self.tr('Update all occurrences in my projects'))
+        # dbr13 <<
+
         # Buttons
         self.cancelButton = QPushButton(self.tr("Cancel"))
         buttonLayout = QHBoxLayout()
         buttonLayout.addStretch()
+        # dbr13 >> added checkbox to buttons layout
+        buttonLayout.addWidget(self.update_location_in_tests)
+        # dbr13 <<<
         buttonLayout.addWidget(self.acceptButton)
         buttonLayout.addWidget(self.cancelButton)
         layout.addLayout(buttonLayout)
@@ -577,6 +585,10 @@ class SaveOpenToRepoDialog(QDialog, Logger.ClassLogger):
 
         self.setWindowTitle(self.tr('Save to remote repository as ...'))
         self.acceptButton.setText(self.tr("Save"))
+        # dbr13 >>
+        self.update_location_in_tests.setChecked(False)
+        self.update_location_in_tests.hide()
+        # dbr13 <<
         self.filenameLabel.show()
         self.filenameLineEdit.show()
         self.filenameLineEdit.setText(filename)
@@ -612,7 +624,8 @@ class SaveOpenToRepoDialog(QDialog, Logger.ClassLogger):
         self.filenameLineEdit.show()
         self.filenameLineEdit.setText(filename)
 
-    def getFilename(self, type= EXTENSION_TSX, multipleSelection=False, project=''):
+    # dbr13 >>> update_path
+    def getFilename(self, type= EXTENSION_TSX, multipleSelection=False, project='', update_path=False):
         """
         Returns filename
 
@@ -675,6 +688,13 @@ class SaveOpenToRepoDialog(QDialog, Logger.ClassLogger):
         self.typeFile=type
         self.setWindowTitle(self.tr('Open from remote repository ...'))
         self.acceptButton.setText(self.tr("Open"))
+        # dbr13>>>
+        self.update_location_in_tests.setChecked(False)
+        if update_path:
+            self.update_location_in_tests.show()
+        else:
+            self.update_location_in_tests.hide()
+        # dbr13 <<<
         self.filenameLabel.hide()
         self.filenameLineEdit.hide()
 
@@ -940,6 +960,7 @@ class DuplicateDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         
         mainLayout.addWidget(self.projectLabel)
         mainLayout.addWidget(self.projectCombobox)
+
         mainLayout.addWidget(self.buttonBox)
         self.setLayout(mainLayout)
 
@@ -1044,6 +1065,10 @@ class RenameDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         self.newnameEdit.setText(self.dataCurrent)
 
         self.nameUppercase = QCheckBox(self.tr("Change the new name in uppercase"))
+
+        # dbr13 >>
+        self.update_location = QCheckBox(self.tr('Search and update location in higher test tree ?'))
+        # dbr13 <<
         self.buttonBox = QDialogButtonBox(self)
         self.buttonBox.setStyleSheet( """QDialogButtonBox { 
             dialogbuttonbox-buttons-have-icons: 1;
@@ -1058,11 +1083,16 @@ class RenameDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         mainLayout.addWidget(self.newLabel)
         mainLayout.addWidget(self.newnameEdit)
         mainLayout.addWidget(self.nameUppercase)
+        # dbr13 >>>
+        mainLayout.addWidget(self.update_location)
+        # dbr13 <<<
         mainLayout.addWidget(self.buttonBox)
         self.setLayout(mainLayout)
 
         if self.isFolder:
             self.setWindowTitle(self.tr("Rename folder"))
+            # dbr13 currently it doesn't work with folders
+            self.update_location.hide()
         else:
             self.setWindowTitle(self.tr("Rename file"))
         
@@ -2497,6 +2527,9 @@ class Repository(QWidget, Logger.ClassLogger):
 
         renameDialog = RenameDialog( currentName = str(currentName), folder=folder )
         if renameDialog.exec_() == QDialog.Accepted:
+            # dbr13 >>> for rename
+            update_location = renameDialog.update_location.isChecked()
+            # dbr13 <<<
             txt = renameDialog.getNewName()
             try:
                 txt = str(txt)
@@ -2519,8 +2552,11 @@ class Repository(QWidget, Logger.ClassLogger):
                         if self.projectSupport:
                             project = self.getCurrentProject()
                             projectid = self.getProjectId(project=str(project))
+                            # dbr13  update_location for rename>>>
                             self.renameFile(mainPath=pathFolder, oldFileName=self.itemCurrent.fileName, newFileName=txt,
-                                            extFile=self.itemCurrent.fileExtension, project=projectid)
+                                            extFile=self.itemCurrent.fileExtension, project=projectid,
+                                            update_location=update_location)
+                            # dbr13 <<<
                         else:
                             self.renameFile(mainPath=pathFolder, oldFileName=self.itemCurrent.fileName, newFileName=txt, 
                                             extFile=self.itemCurrent.fileExtension)
@@ -2538,7 +2574,8 @@ class Repository(QWidget, Logger.ClassLogger):
                     else:
                         self.error( "should not be happened" )
 
-    def renameFile (self, mainPath, oldFileName, newFileName, extFile, project=0):
+# dbr13 update_location for rename >>>
+    def renameFile (self, mainPath, oldFileName, newFileName, extFile, project=0, update_location=False):
         """
         Rename file
         You should override this method
@@ -2554,6 +2591,9 @@ class Repository(QWidget, Logger.ClassLogger):
 
         @param extFile: 
         @type extFile:
+
+        @param update_location:
+        @type update_location:
         """
         raise NotReimplemented("renameFile")
 
