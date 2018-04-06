@@ -289,8 +289,8 @@ class Repository(RemoteRepository.Repository):
         RCI.instance().listingTests(projectId=project, 
                                     forSaveAs=saveAsOnly, 
                                     forRuns=False)
-        
-    def renameFile (self, mainPath, oldFileName, newFileName, extFile, project=0):
+    # dbr13 udpdate_location for rename>>>
+    def renameFile (self, mainPath, oldFileName, newFileName, extFile, project=0, update_location=False):
         """
         Reimplemented from RemoteRepository
         Rename file
@@ -306,13 +306,16 @@ class Repository(RemoteRepository.Repository):
 
         @param extFile: 
         @type extFile:
+
+        @param update_location:
+        @type update_location:
         """
-        RCI.instance().renameFileTests( filePath=mainPath, 
-                                        fileName=oldFileName, 
-                                        fileExt=extFile, 
-                                        fileProject=project,
-                                        newName=newFileName
-                                       )
+        RCI.instance().renameFileTests(filePath=mainPath,
+                                       fileName=oldFileName,
+                                       fileExt=extFile,
+                                       fileProject=project,
+                                       newName=newFileName,
+                                       update_location=update_location)
                                              
     def renameFolder (self, mainPath, oldFolderName, newFolderName, project=0):
         """

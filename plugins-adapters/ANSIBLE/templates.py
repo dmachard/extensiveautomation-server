@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# -*- coding=utf-8 -*-
 
-# -------------------------------------------------------------------
-# Copyright (c) 2010-2018 Denis Machard
+# ------------------------------------------------------------------
+# Copyright (c) 2018 Denys Barleben
 # This file is part of the extensive testing project
 #
 # This library is free software; you can redistribute it and/or
@@ -21,27 +21,28 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-"""
-All embeded agents and probes
-"""
+import TestExecutorLib.TestTemplatesLib as TestTemplatesLib
 
-from Embedded import DummyAgent
-from Embedded import SocketAgent
-from Embedded import CommandAgent
-from Embedded import FileAgent
-from Embedded import FtpAgent
-from Embedded import Selenium3ServerAgent
-from Embedded import Selenium2ServerAgent
-from Embedded import SoapUIAgent
-from Embedded import SmsAgent
-from Embedded import SshAgent
-from Embedded import DatabaseAgent
-from Embedded import AdbAgent
-from Embedded import SikulixServerAgent
-from Embedded import KafkaAgent
-from Embedded import AnsibleAgent
 
-from Embedded import DummyProbe
-from Embedded import TextualProbe
-from Embedded import FileProbe
-from Embedded import NetworkProbe
+def ansibleAgent(layerName='ANSIBLE', get=None, event=None, cmd=None):
+    """
+    Construct a template
+    :param layerName:
+    :param get:
+    :param event:
+    :param cmd:
+    :return:
+    """
+
+    tpl = TestTemplatesLib.TemplateLayer(layerName)
+
+    if get is not None:
+        tpl.addKey(name='get', data=get)
+
+    if event is not None:
+        tpl.addKey(name='event', data=event)
+
+    if cmd is not None:
+        tpl.addKey(name='cmd', data=cmd)
+
+    return tpl
