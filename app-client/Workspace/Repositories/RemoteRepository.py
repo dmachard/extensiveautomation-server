@@ -39,16 +39,16 @@ except NameError: # support python3
 USE_PYQT5 = False
 try:
     from PyQt4.QtGui import (QDialog, QPushButton, QLabel, QFont, QComboBox, QVBoxLayout, QHBoxLayout, 
-                            QTreeWidget, QFrame, QHeaderView, QAbstractItemView, QLineEdit, QMessageBox, 
-                            QTreeWidgetItem, QDialogButtonBox, QDrag, QTreeView, QFormLayout, QStyle, 
-                            QPixmap, QWidget, QIcon, QMenu, QToolBar, QInputDialog, QCheckBox)
+                             QTreeWidget, QFrame, QHeaderView, QAbstractItemView, QLineEdit, QMessageBox,
+                             QTreeWidgetItem, QDialogButtonBox, QDrag, QTreeView, QFormLayout, QStyle,
+                             QPixmap, QWidget, QIcon, QMenu, QToolBar, QInputDialog, QCheckBox)
     from PyQt4.QtCore import (pyqtSignal, Qt, QRect, QMimeData, QSize, QObject, QEvent)
 except ImportError:
     from PyQt5.QtGui import (QFont, QDrag, QPixmap, QIcon)
     from PyQt5.QtWidgets import (QDialog, QPushButton, QLabel, QComboBox, QVBoxLayout,
-                                QHBoxLayout, QTreeWidget, QFrame, QHeaderView, QAbstractItemView, 
-                                QLineEdit, QMessageBox, QTreeWidgetItem, QDialogButtonBox, QCheckBox,
-                                QTreeView, QFormLayout, QStyle, QWidget, QMenu, QToolBar, QInputDialog)
+                                 QHBoxLayout, QTreeWidget, QFrame, QHeaderView, QAbstractItemView,
+                                 QLineEdit, QMessageBox, QTreeWidgetItem, QDialogButtonBox, QCheckBox,
+                                 QTreeView, QFormLayout, QStyle, QWidget, QMenu, QToolBar, QInputDialog)
     from PyQt5.QtCore import (pyqtSignal, Qt, QRect, QMimeData, QSize, QObject, QEvent)
     USE_PYQT5 = True
     
@@ -1022,6 +1022,67 @@ class DuplicateDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         project = self.projectCombobox.currentText()
         return str(project)
 
+# dbr13 >>>
+class UpdateAdapterLibraryDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
+
+    """Update used Adapter and Library in the test file"""
+
+    def __init__(self, parent=None):
+        """
+        Dialog to update used Adapter or Library in the test file
+
+        @param parent:
+        @type parent
+        """
+        super(UpdateAdapterLibraryDialog, self).__init__(parent)
+        self.createDialog()
+        self.createConnections()
+
+    def createDialog(self):
+        """create dialog"""
+
+        self.adapter = QLabel(self.tr('Update Adapter: '))
+        self.update_adapter_combobox = QComboBox(self)
+        self.update_adapter_combobox.clear()
+        self.update_adapter_combobox.addItem('None')
+        serverSutAdps = Settings.instance().serverContext['adapters']
+        self.update_adapter_combobox.addItems(serverSutAdps.split(','))
+
+
+        self.library = QLabel(self.tr('Update Library: '))
+        self.update_library_combobox = QComboBox(self)
+        self.update_library_combobox.clear()
+        self.update_library_combobox.addItem('None')
+        serverSutLibs = Settings.instance().serverContext['libraries']
+        self.update_library_combobox.addItems(serverSutLibs.split(','))
+
+        self.buttonBox = QDialogButtonBox(self)
+        self.buttonBox.setStyleSheet("""QDialogButtonBox { 
+                    dialogbuttonbox-buttons-have-icons: 1;
+                    dialog-ok-icon: url(:/ok.png);
+                    dialog-cancel-icon: url(:/ko.png);
+                }""")
+        self.buttonBox.setStandardButtons(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+
+        mainLayout = QVBoxLayout()
+        mainLayout.addWidget(self.adapter)
+        mainLayout.addWidget(self.update_adapter_combobox)
+        mainLayout.addWidget(self.library)
+        mainLayout.addWidget(self.update_library_combobox)
+        mainLayout.addWidget(self.buttonBox)
+
+        self.setLayout(mainLayout)
+
+        self.setWindowTitle(self.tr("Update Adapter/Library"))
+        # self.resize(600, 300)
+
+    def createConnections(self):
+        """Create connections"""
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+# dbr13 <<<
+
+
 class RenameDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
     """
     Rename dialog
@@ -1528,6 +1589,10 @@ class Repository(QWidget, Logger.ClassLogger):
         self.dockToolbarRemote.addAction(self.moveFileAction)
         self.dockToolbarRemote.addAction(self.moveFolderAction)
         self.dockToolbarRemote.addSeparator()
+        # dbr13 >>>
+        self.dockToolbarRemote.addAction(self.updateAdapterLibraryAction)
+        self.dockToolbarRemote.addSeparator()
+        # dbr13 <<<
         self.dockToolbarRemote.setIconSize(QSize(16, 16))
 
     def itemEventExpandedCollapsed(self, item):
@@ -1622,6 +1687,13 @@ class Repository(QWidget, Logger.ClassLogger):
         self.renameAction = QtHelper.createAction(self, self.tr("&Rename"), self.__renameItem, shortcut = "Ctrl+Alt+R",
                                         icon = QIcon(":/rename.png"), 
                                         tip = self.tr('Rename') )
+
+        # dbr13 >>>
+        self.updateAdapterLibraryAction = QtHelper.createAction(self, self.tr("&Update Adapter/Library"),
+                                                                self.__update_adapter_library,
+                                                                icon=QIcon(":/update-adapter.png"),
+                                                                tip=self.tr('Update Adapters/Library'))
+        # dbr13 <<<
         self.duplicateDirAction = QtHelper.createAction(self, self.tr("&Duplicate Folder"), self.__duplicateItem, 
                                         icon = QIcon(":/duplicate_folder.png"), 
                                         tip = self.tr('Duplicate folder') )
@@ -1733,6 +1805,9 @@ class Repository(QWidget, Logger.ClassLogger):
         self.collapseAllAction.setEnabled(False)
         self.runAction.setEnabled(False)
 
+        # dbr13 >>>
+        self.updateAdapterLibraryAction.setEnabled(False)
+        # dbr13 <<<
         self.moreDefaultActions()
     
     def moreDefaultActions(self):
@@ -1786,6 +1861,10 @@ class Repository(QWidget, Logger.ClassLogger):
                 self.menu.addAction( self.moveFolderAction )
                 self.menu.addSeparator()
                 self.menu.addAction( self.openPropertiesAction )
+                # dbr13 >>>
+                self.menu.addAction(self.updateAdapterLibraryAction)
+                self.menu.addSeparator()
+                # dnr13 <<<
                 
             if item.type() == QTreeWidgetItem.UserType+10 : # root
                 self.menu.addAction( self.refreshRemoteAction )
@@ -2512,6 +2591,26 @@ class Repository(QWidget, Logger.ClassLogger):
         """
         raise NotReimplemented("refresh")
 
+# dbr13 >>>
+    def __update_adapter_library(self):
+        """
+        Update Adapters/Libraries version for multiple test entities
+        """
+
+        project = self.getCurrentProject()
+        project_id = self.getProjectId(project)
+        path_folder = self.itemCurrent.getPath(withFileName=False, withFolderName=True)
+        updateAdpLibDialog = UpdateAdapterLibraryDialog()
+        if updateAdpLibDialog.exec_() == QDialog.Accepted:
+            adapter_version = updateAdpLibDialog.update_adapter_combobox.currentText()
+            library_version = updateAdpLibDialog.update_library_combobox.currentText()
+            if adapter_version != 'None' or library_version != 'None':
+                RCI.instance().updateAdapterLibraryVForTestEntities(projectId=project_id,
+                                                                    pathFolder=path_folder,
+                                                                    adapterVersion=adapter_version,
+                                                                    libraryVersion=library_version)
+# dbr13 <<<
+
     def __renameItem(self):
         """
         Rename item
@@ -2776,6 +2875,9 @@ class Repository(QWidget, Logger.ClassLogger):
                     self.snapshotAction.setEnabled(True)
                 else:
                     self.snapshotAction.setEnabled(False)
+                # dbr13 >>>
+                self.updateAdapterLibraryAction.setEnabled(False)
+                # dbr13 <<<
             elif self.itemCurrent.type() == QTreeWidgetItem.UserType+100: # file snapshot
                 self.addDirAction.setEnabled(False)
                 self.delDirAction.setEnabled(False)
@@ -2793,6 +2895,9 @@ class Repository(QWidget, Logger.ClassLogger):
                 self.expandAllAction.setEnabled(False)
                 self.collapseAllAction.setEnabled(False)
                 self.runAction.setEnabled(False)
+                # dbr13 >>>
+                self.updateAdapterLibraryAction.setEnabled(False)
+                # dbr13 <<<
             elif self.itemCurrent.type() == QTreeWidgetItem.UserType+1: # folder
                 self.addDirAction.setEnabled(True)
                 self.delDirAction.setEnabled(True)
@@ -2813,6 +2918,9 @@ class Repository(QWidget, Logger.ClassLogger):
                 self.expandAllAction.setEnabled(False)
                 self.collapseAllAction.setEnabled(False)
                 self.runAction.setEnabled(False)
+                # dbr13 >>>
+                self.updateAdapterLibraryAction.setEnabled(True)
+                # dbr13 <<<
             elif self.itemCurrent.type() == QTreeWidgetItem.UserType+10 : #root
                 self.addDirAction.setEnabled(True)
                 self.delDirAction.setEnabled(False)
@@ -2830,6 +2938,9 @@ class Repository(QWidget, Logger.ClassLogger):
                 self.expandAllAction.setEnabled(True)
                 self.collapseAllAction.setEnabled(True)
                 self.runAction.setEnabled(False)
+                # dbr13 >>>
+                self.updateAdapterLibraryAction.setEnabled(False)
+                # dbr13 <<<
             elif self.itemCurrent.type() == QTreeWidgetItem.UserType+101: # reserved (trash, sandbox)
                 self.addDirAction.setEnabled(True)
                 self.delDirAction.setEnabled(False)
@@ -2847,6 +2958,9 @@ class Repository(QWidget, Logger.ClassLogger):
                 self.expandAllAction.setEnabled(False)
                 self.collapseAllAction.setEnabled(False)
                 self.runAction.setEnabled(False)
+                # dbr13 >>>
+                self.updateAdapterLibraryAction.setEnabled(False)
+                # dbr13 <<<
             else:
                 self.addDirAction.setEnabled(False)
                 self.delDirAction.setEnabled(False)
@@ -2864,6 +2978,9 @@ class Repository(QWidget, Logger.ClassLogger):
                 self.expandAllAction.setEnabled(False)
                 self.collapseAllAction.setEnabled(False)
                 self.runAction.setEnabled(False)
+                # dbr13 >>>
+                self.updateAdapterLibraryAction.setEnabled(False)
+                # dbr13 <<<
 
             self.onMoreCurrentItemChanged( self.itemCurrent.type() )
 
