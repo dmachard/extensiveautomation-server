@@ -7351,6 +7351,107 @@ class TestsFileUnlock(Handler):
 
         return { "cmd": self.request.path, "message": "file sucessfully unlocked", 
                  "project-id": projectId }
+
+# dbr13 >>>
+class TestsUpdateAdapterLibrary(Handler):
+    """
+    tests/update/adapter-library
+    """
+    @_to_yaml
+    def post(self):
+        """
+        tags:
+          - tests
+        summary: Update Adapters/Libraries for multiple test entities
+        description: ''
+        operationId: testsUpdateAdapterLibrary
+        consumes:
+          - application/json
+        produces:
+          - application/json
+        parameters:
+          - name: Cookie
+            in: header
+            description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
+            required: true
+            type: string
+          - name: body
+            in: body
+            required: true
+            schema:
+              required: [ project-id, folder-path, adapter-version, library-version ]
+              properties:
+                project-id:
+                  type: integer
+                folder-path:
+                  type: string
+                adapter-version:
+                  type: string
+                library-version:
+                  type: string
+        responses:
+          '200':
+            schema :
+              properties:
+                cmd:
+                  type: string
+                folder-content:
+                  type: dict
+            examples:
+              application/json: |
+                {
+                  "cmd": "tests/update/adapter-library",
+                  "folder-content": {}
+                }
+          '400':
+            description: Bad request provided
+          '403':
+            description: Access denied to this project
+          '500':
+            description: Server error
+        """
+        user_profile = _get_user(request=self.request)
+        if user_profile['leader']: raise HTTP_403("Access refused")
+
+        try:
+            projectId = self.request.data.get("project-id")
+            if projectId is None: raise EmptyValue("Please specify a project id")
+            folderPath = self.request.data.get("folder-path")
+            if folderPath is None: raise EmptyValue("Please specify a source filepath")
+            adapterVersion = self.request.data.get('adapter-version')
+            libraryVersion = self.request.data.get('library-version')
+        except EmptyValue as e:
+            raise HTTP_400("%s" % e)
+        except Exception as e:
+            raise HTTP_400("Bad request provided (%s ?)" % e)
+
+        # checking input
+        if not isinstance(projectId, int):
+            raise HTTP_400("Bad project id provided in request, int expected")
+
+        # get the project id according to the name and checking authorization
+        projectAuthorized = ProjectsManager.instance().checkProjectsAuthorization(user=user_profile['login'],
+                                                                                  projectId=projectId)
+        if not projectAuthorized:
+            raise HTTP_403('Access denied to this project')
+
+        # avoid directory traversal
+        folderPath = os.path.normpath("/" + folderPath)
+
+        status, result = RepoTests.instance().updateAdaptersLibrariesVForTestEnteties(folder_path=folderPath,
+                                                                                      adapter_version=adapterVersion,
+                                                                                      library_version=libraryVersion,
+                                                                                      project_id=projectId,
+                                                                                      user_login=user_profile['login'])
+        return {
+            'cmd': self.request.path,
+            'status': status,
+            'result': result,
+            'adapter_version': adapterVersion,
+            'library_version': libraryVersion,
+            'path_folder': folderPath
+        }
+# dbr13 <<<
                  
 class TestsFileRename(Handler):
     """
