@@ -42,6 +42,8 @@ import ServerExplorer
 import Settings
 import TestResults
 
+import Workspace.Repositories as Repositories
+
 import Workspace.FileModels.TestData as FileModelTestData
 import Workspace.FileModels.TestSuite as FileModelTestSuite
 import Workspace.FileModels.TestUnit as FileModelTestUnit
@@ -178,6 +180,7 @@ CMD_TESTS_SCHEDULE_TPG          =   "/tests/schedule/tpg"
 CMD_TESTS_SCHEDULE_GROUP        =   "/tests/schedule/group"
 # dbr13 >>>
 CMD_TESTS_UPDATE_V_ADAPTER_LIBRARY = "/tests/update/adapter-library"
+CMD_FIND_TEST_FILE_USAGE        =   "/tests/find/file-usage"
 # dbr13 <<<
 
 CMD_LIBRARIES_UNLOCK_ALL        =   "/libraries/file/unlock/all"
@@ -356,7 +359,7 @@ class RestClientInterface(QObject, Logger.ClassLogger):
     FileTestsRenamed = pyqtSignal(int, str, str, str, str)
     FileAdaptersRenamed = pyqtSignal(str, str, str, str)
     FileLibrariesRenamed = pyqtSignal(str, str, str, str)
-    OpenTestFile = pyqtSignal(str, str, str, str, int, bool, str)
+    OpenTestFile = pyqtSignal(str, str, str, str, int, bool, str, dict)
     OpenAdapterFile = pyqtSignal(str, str, str, str, bool, str)
     OpenLibraryFile = pyqtSignal(str, str, str, str, bool, str)
     FileTestsUploaded = pyqtSignal(str, str, str, int, bool, bool)
@@ -609,6 +612,8 @@ class RestClientInterface(QObject, Logger.ClassLogger):
             # dbr13 >>>
             elif response['cmd'] == CMD_TESTS_UPDATE_V_ADAPTER_LIBRARY:
                 self.onUpdateAdapterLibraryVForTestEntities(details=response)
+            elif response['cmd'] == CMD_FIND_TEST_FILE_USAGE:
+                self.onFindTestFileUsage(details=response)
             # dbr13 <<<
             elif response['cmd'] == CMD_TASKS_WAITING:
                 self.onWaitingTasks(details=response) 
@@ -1955,6 +1960,16 @@ class RestClientInterface(QObject, Logger.ClassLogger):
                  'adapter-version': adapterVersion, 'library-version': libraryVersion}
 
         self.makeRequest(uri=CMD_TESTS_UPDATE_V_ADAPTER_LIBRARY, request=HTTP_POST, _json=_json)
+
+    @calling_rest
+    def findTestFileUsage(self, projectId, filePath):
+        """
+        Find test file usage
+        """
+
+        _json = {'project-id': projectId, 'file-path': filePath}
+
+        self.makeRequest(uri=CMD_FIND_TEST_FILE_USAGE, request=HTTP_POST, _json=_json)
 
     # dbr13 <<<
     
@@ -3305,13 +3320,16 @@ class RestClientInterface(QObject, Logger.ClassLogger):
                                    details["action-id"],
                                    details["custom-param"] )
         else:
-            self.OpenTestFile.emit( details["file-path"],
-                                    details["file-name"],
-                                    details["file-extension"],
-                                    details["file-content"],
-                                    details["project-id"],
-                                    details["locked"],
-                                    details["locked-by"] )
+            self.OpenTestFile.emit(details["file-path"],
+                                   details["file-name"],
+                                   details["file-extension"],
+                                   details["file-content"],
+                                   details["project-id"],
+                                   details["locked"],
+                                   details["locked-by"],
+                                   # dbr13>>> Find usage func
+                                   details['extra'])
+                                   # dbr13 <<<
         
     def onTestsFileUploaded(self, details):
         """
@@ -3456,6 +3474,15 @@ class RestClientInterface(QObject, Logger.ClassLogger):
                                                 details["close-after"])
 
     # dbr13 >>>
+
+    def onFindTestFileUsage(self, details):
+        """
+        """
+
+        self.trace("On find test file usage")
+        usage_test_tree = Repositories.instance().remote().initFindTestFileUsageWTree(response=details)
+        usage_test_tree.exec_()
+
     def onUpdateAdapterLibraryVForTestEntities(self, details):
         """
 

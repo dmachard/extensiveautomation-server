@@ -289,8 +289,23 @@ class Repository(RemoteRepository.Repository):
         RCI.instance().listingTests(projectId=project, 
                                     forSaveAs=saveAsOnly, 
                                     forRuns=False)
+
+    ##dbr13 >>>
+    def find_usage(self, project_id, file_path):
+        """
+
+        @param project_id:
+        @type project_id
+
+        @param file_path:
+        @type file_path
+        """
+        RCI.instance().findTestFileUsage(projectId=project_id, filePath=file_path)
+
+    # dbr13 <<<
+
     # dbr13 udpdate_location for rename>>>
-    def renameFile (self, mainPath, oldFileName, newFileName, extFile, project=0, update_location=False):
+    def renameFile(self, mainPath, oldFileName, newFileName, extFile, project=0, update_location=False):
         """
         Reimplemented from RemoteRepository
         Rename file

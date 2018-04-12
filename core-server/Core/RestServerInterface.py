@@ -254,7 +254,8 @@ class _WebServices(WSGI):
 
         # dbr13 >>>
         ('/tests/update/adapter-library',               RestTesterFunctions.TestsUpdateAdapterLibrary()),
-        
+        ('/tests/find/file-usage',                      RestTesterFunctions.TestsFindFileUsage()),
+        # dbr13 <<<
         # variables
         ('/variables/listing',                          RestTesterFunctions.VariablesListing()),
         ('/variables/add',                              RestTesterFunctions.VariablesAdd()),
