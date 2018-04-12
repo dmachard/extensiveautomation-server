@@ -274,8 +274,6 @@
    <file>refresh-statistics.png</file>
    <file>steps.png</file>
    <file>state_right.png</file>
-   <!-- ## dbr13 -->
    <file>update-adapter.png</file>
-   <!-- ## dbr13 -->
 </qresource>
 </RCC>
