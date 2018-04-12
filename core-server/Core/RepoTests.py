@@ -993,6 +993,48 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         return ret
 
     # dbr13 >>
+    def getTestFileUsage(self, file_path, project_id, user_login):
+
+        project_name = ProjectsManager.instance().getProjectName(prjId=project_id)
+        projects = ProjectsManager.instance().getProjects(user=user_login)
+        # escape special character
+        escaped_file_path = '/'.join([re.escape(path) for path in file_path.rsplit('/')])
+        usage_path_file_regex = re.compile('%s:/*%s' % (project_name, escaped_file_path))
+        extFile = file_path.rsplit('.')[-1]
+
+        search_result = []
+
+        for proj in projects:
+            project_id = proj['project_id']
+            tmp_proj_info = {}
+            tmp_proj_info.update(proj)
+            tmp_proj_info['content'] = []
+            tmp_content = tmp_proj_info['content']
+            _, _, listing, _ = self.getTree(project=project_id)
+            tests_tree_update_locations = self.getTestsForUpdate(listing=listing, extFileName=extFile)
+            files_paths = self.get_files_paths(tests_tree=tests_tree_update_locations)
+
+            for file_path in files_paths:
+
+                if file_path.endswith(RepoManager.TEST_PLAN_EXT):
+                    doc = TestPlan.DataModel()
+                elif file_path.endswith(RepoManager.TEST_GLOBAL_EXT):
+                    doc = TestPlan.DataModel(isGlobal=True)
+                else:
+                    return "Bad file extension: %s" % file_path
+                absPath = '%s%s%s' % (self.testsPath, project_id, file_path)
+                res = doc.load(absPath=absPath)
+                test_files_list = doc.testplan['testplan']['testfile']
+                line_ids = []
+                for test_file in test_files_list:
+                    if re.findall(usage_path_file_regex, test_file['file']):
+                        line_ids.append(test_file['id'])
+
+                tmp_content.append({'file_path': file_path, 'lines_id': line_ids}) if line_ids else None
+
+            search_result.append(tmp_proj_info)
+        return search_result
+
     def updateAdaptersLibrariesVForTestEnteties(self, folder_path, adapter_version,
                                                 library_version, project_id, user_login):
 
