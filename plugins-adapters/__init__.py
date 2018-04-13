@@ -78,6 +78,7 @@ import Database
 import NTP
 import LDAP
 import KAFKA
+import ANSIBLE
 
 __HELPER__ =	[ ]
 __HELPER__.append("Ethernet")
@@ -108,3 +109,4 @@ __HELPER__.append("Database")
 __HELPER__.append("NTP") 
 __HELPER__.append("LDAP")
 __HELPER__.append("KAFKA")
+__HELPER__.append("ANSIBLE")
