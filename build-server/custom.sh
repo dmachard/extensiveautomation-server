@@ -149,7 +149,7 @@ JSONPATH="jsonpath-ng-1.4.2"
 WRAPT="wrapt-1.10.10"
 PYKAFKA="kafka-python-1.4.2"
 PYSNAPPY="python-snappy-0.5.2"
-
+PyYAML="PyYAML-3.12"
 NODEJS="node-v6.11.0-linux-x64"
 
 # websocket module for apache, only for centos 5/6
@@ -1033,6 +1033,13 @@ if [ "$INSTALL_EMBEDDED_PKGS" = "Yes" ]; then
         $PYBIN setup.py install 1>> "$LOG_FILE" 2>&1
         cd .. 1>> "$LOG_FILE" 2>&1
         rm -rf $APP_PATH/$PYKAFKA/ 1>> "$LOG_FILE" 2>&1
+
+    echo -ne "* Installing PyYAML                 \r"
+    $TAR_BIN xvf $PKG_PATH/$PyYAML.tar.gz  1>> "$LOG_FILE" 2>&1
+    cd $APP_PATH/$PyYAML/
+    $PYBIN setup.py install 1>> "$LOG_FILE" 2>&1
+    cd .. 1>> "$LOG_FILE" 2>&1
+    rm -rf $APP_PATH/$PyYAML/ 1>> "$LOG_FILE" 2>&1
 
     echo -ne "* Installing nodejs                \r"
     $TAR_BIN --strip-components 1 -xzvf $NODEJS* -C /usr/local 1>> "$LOG_FILE" 2>&1

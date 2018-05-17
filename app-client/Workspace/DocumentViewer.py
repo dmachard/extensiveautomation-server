@@ -1551,11 +1551,12 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
         self.newTab( path = path, filename = _filename, 
                      extension = extension, repoDest=UCI.REPO_UNDEFINED)
 
-    def openRemoteTestFile(self, filePath, fileName, fileExtension, fileContent, projectId, isLocked, lockedBy):
+    def openRemoteTestFile(self, filePath, fileName, fileExtension, fileContent,
+                           projectId, isLocked, lockedBy, extra=None):
         """
         """
         content = base64.b64decode(fileContent)
-        
+
         newTab = False
         isReadOnly = False
         if not isLocked:
@@ -1570,31 +1571,32 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
             msg = "User (%s) is editing this file. Edit the file anyway?\n\n" % lockedByDecoded
             msg += "Yes = Edit the file\n"
             msg += "No = Open as read only\n"
-            msg += "Cancel = Do nothing.\n" 
-            
-            reply = messageBox.warning(self, self.tr("File locked"), msg, 
+            msg += "Cancel = Do nothing.\n"
+
+            reply = messageBox.warning(self, self.tr("File locked"), msg,
                                        QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel )
-                        
+
             # force to open the file
             if reply == QMessageBox.Yes:
-                RCI.instance().openFileTests(projectId=int(projectId), 
-                                             filePath="%s/%s.%s" % (filePath, fileName, fileExtension), 
-                                             ignoreLock=True, 
+                RCI.instance().openFileTests(projectId=int(projectId),
+                                             filePath="%s/%s.%s" % (filePath, fileName, fileExtension),
+                                             ignoreLock=True,
                                              readOnly=False)
             # force as read only
-            if reply == QMessageBox.No: 
-                RCI.instance().openFileTests(projectId=int(projectId), 
-                                             filePath="%s/%s.%s" % (filePath, fileName, fileExtension), 
-                                             ignoreLock=True, 
+            if reply == QMessageBox.No:
+                RCI.instance().openFileTests(projectId=int(projectId),
+                                             filePath="%s/%s.%s" % (filePath, fileName, fileExtension),
+                                             ignoreLock=True,
                                              readOnly=True)
             # cancel the opening
             else:
                 newTab = False
-        
+
         if newTab:
-            self.newTab( path = filePath, filename = fileName, extension = fileExtension, 
-                        remoteFile=True, contentFile=content,  repoDest=UCI.REPO_TESTS, newAdp=False, 
-                        newLib=False, project=projectId, isReadOnly=isReadOnly, isLocked=isLocked)
+            self.newTab(path=filePath, filename=fileName, extension=fileExtension,
+                        remoteFile=True, contentFile=content,  repoDest=UCI.REPO_TESTS, newAdp=False,
+                        newLib=False, project=projectId, isReadOnly=isReadOnly, isLocked=isLocked, extra=extra)
+
                         
     def openRemoteAdapterFile(self, filePath, fileName, fileExtension, fileContent, isLocked, lockedBy):
         """
@@ -3185,7 +3187,7 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
 
     def newTab(self, path = None, filename = None, extension = None, remoteFile=False, contentFile=None, 
                     repoDest=None, newAdp=False, newLib=False, project=0, testDef=None, testExec=None,
-                    testInputs=None, testOutputs=None, testAgents=None, isReadOnly=False, isLocked=False):
+                    testInputs=None, testOutputs=None, testAgents=None, isReadOnly=False, isLocked=False, extra=None):
         """
         Called to open a document
 
@@ -3246,6 +3248,11 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                                         repoType=repoDest, project=cur_prj_id)
         if tabId is not None:
             self.tab.setCurrentIndex(tabId)
+            # dbr13 >>> Find usage
+            if extension in [TestPlan.TYPE, TestPlan.TYPE_GLOBAL]:
+                doc = self.getCurrentDocument()
+                doc.showFileUsageLine(line_id=extra.get('id', None))
+                # dbr13 <<<
         else:
             __error__ = False
             if extension == TestAbstract.TYPE:
@@ -3696,6 +3703,10 @@ class WDocumentViewer(QWidget, Logger.ClassLogger):
                 self.updateActions( wdocument=doc )
                 self.findWidget.setEnabled(True)
                 self.DocumentOpened.emit(doc)
+                # dbr13 >>>> Find Usage functionality
+                if extension in [TestPlan.TYPE, TestPlan.TYPE_GLOBAL]:
+                    doc.showFileUsageLine(line_id=extra.get('id', None))
+                    # dbr13 <<<
                 
     def addToRecent(self, filepath, repodest, project=''):
         """
