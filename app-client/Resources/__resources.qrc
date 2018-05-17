@@ -274,5 +274,7 @@
    <file>refresh-statistics.png</file>
    <file>steps.png</file>
    <file>state_right.png</file>
+   <file>update-adapter.png</file>
+   <file>find-usage@1x.png</file>
 </qresource>
 </RCC>

@@ -42,6 +42,8 @@ import ServerExplorer
 import Settings
 import TestResults
 
+import Workspace.Repositories as Repositories
+
 import Workspace.FileModels.TestData as FileModelTestData
 import Workspace.FileModels.TestSuite as FileModelTestSuite
 import Workspace.FileModels.TestUnit as FileModelTestUnit
@@ -176,6 +178,10 @@ CMD_TESTS_DEFAULT_VERSION       =   "/tests/default/all"
 CMD_TESTS_SCHEDULE              =   "/tests/schedule"
 CMD_TESTS_SCHEDULE_TPG          =   "/tests/schedule/tpg"
 CMD_TESTS_SCHEDULE_GROUP        =   "/tests/schedule/group"
+# dbr13 >>>
+CMD_TESTS_UPDATE_V_ADAPTER_LIBRARY = "/tests/update/adapter-library"
+CMD_FIND_TEST_FILE_USAGE        =   "/tests/find/file-usage"
+# dbr13 <<<
 
 CMD_LIBRARIES_UNLOCK_ALL        =   "/libraries/file/unlock/all"
 CMD_LIBRARIES_BUILD             =   "/libraries/build"
@@ -353,7 +359,7 @@ class RestClientInterface(QObject, Logger.ClassLogger):
     FileTestsRenamed = pyqtSignal(int, str, str, str, str)
     FileAdaptersRenamed = pyqtSignal(str, str, str, str)
     FileLibrariesRenamed = pyqtSignal(str, str, str, str)
-    OpenTestFile = pyqtSignal(str, str, str, str, int, bool, str)
+    OpenTestFile = pyqtSignal(str, str, str, str, int, bool, str, dict)
     OpenAdapterFile = pyqtSignal(str, str, str, str, bool, str)
     OpenLibraryFile = pyqtSignal(str, str, str, str, bool, str)
     FileTestsUploaded = pyqtSignal(str, str, str, int, bool, bool)
@@ -364,6 +370,9 @@ class RestClientInterface(QObject, Logger.ClassLogger):
     FileLibrariesUploadError = pyqtSignal(str, str, str, bool, bool)
     GetFileRepo = pyqtSignal(str, str, str, str, int, int, int, int)
     AddTestTab = pyqtSignal(object)
+    # dbr13 >>>
+    UpdateAdapterLibraryVForTestEntities = pyqtSignal(dict)
+    # dbr13 <<<
     def __init__(self, parent, clientVersion):
         """
         Constructor
@@ -599,8 +608,13 @@ class RestClientInterface(QObject, Logger.ClassLogger):
             elif response['cmd'] == CMD_TESTS_SCHEDULE:
                 self.onTestScheduled(details=response) 
             elif response['cmd'] == CMD_TESTS_SCHEDULE_TPG:
-                self.onTestScheduled(details=response) 
-                
+                self.onTestScheduled(details=response)
+            # dbr13 >>>
+            elif response['cmd'] == CMD_TESTS_UPDATE_V_ADAPTER_LIBRARY:
+                self.onUpdateAdapterLibraryVForTestEntities(details=response)
+            elif response['cmd'] == CMD_FIND_TEST_FILE_USAGE:
+                self.onFindTestFileUsage(details=response)
+            # dbr13 <<<
             elif response['cmd'] == CMD_TASKS_WAITING:
                 self.onWaitingTasks(details=response) 
             elif response['cmd'] == CMD_TASKS_RUNNING:
@@ -1934,6 +1948,30 @@ class RestClientInterface(QObject, Logger.ClassLogger):
             _json["destination-id"] = destinationId
               
         self.makeRequest( uri=CMD_TESTS_FILE_OPEN, request=HTTP_POST, _json=_json )
+
+    # dbr13 >>>
+    @calling_rest
+    def updateAdapterLibraryVForTestEntities(self, projectId, pathFolder,
+                                             adapterVersion, libraryVersion):
+        """
+        Update Adapters/Libraries version for multiple test entities
+        """
+        _json = {'project-id': projectId, 'folder-path': pathFolder,
+                 'adapter-version': adapterVersion, 'library-version': libraryVersion}
+
+        self.makeRequest(uri=CMD_TESTS_UPDATE_V_ADAPTER_LIBRARY, request=HTTP_POST, _json=_json)
+
+    @calling_rest
+    def findTestFileUsage(self, projectId, filePath):
+        """
+        Find test file usage
+        """
+
+        _json = {'project-id': projectId, 'file-path': filePath}
+
+        self.makeRequest(uri=CMD_FIND_TEST_FILE_USAGE, request=HTTP_POST, _json=_json)
+
+    # dbr13 <<<
     
     @calling_rest
     def openFileAdapters(self, filePath, ignoreLock=False, readOnly=False):
@@ -3282,13 +3320,16 @@ class RestClientInterface(QObject, Logger.ClassLogger):
                                    details["action-id"],
                                    details["custom-param"] )
         else:
-            self.OpenTestFile.emit( details["file-path"],
-                                    details["file-name"],
-                                    details["file-extension"],
-                                    details["file-content"],
-                                    details["project-id"],
-                                    details["locked"],
-                                    details["locked-by"] )
+            self.OpenTestFile.emit(details["file-path"],
+                                   details["file-name"],
+                                   details["file-extension"],
+                                   details["file-content"],
+                                   details["project-id"],
+                                   details["locked"],
+                                   details["locked-by"],
+                                   # dbr13>>> Find usage func
+                                   details['extra'])
+                                   # dbr13 <<<
         
     def onTestsFileUploaded(self, details):
         """
@@ -3431,7 +3472,26 @@ class RestClientInterface(QObject, Logger.ClassLogger):
                                                 details["file-extension"],
                                                 details["overwrite"],
                                                 details["close-after"])
-            
+
+    # dbr13 >>>
+
+    def onFindTestFileUsage(self, details):
+        """
+        """
+
+        self.trace("On find test file usage")
+        usage_test_tree = Repositories.instance().remote().initFindTestFileUsageWTree(response=details)
+        usage_test_tree.exec_()
+
+    def onUpdateAdapterLibraryVForTestEntities(self, details):
+        """
+
+        """
+        self.trace('on update adapters and libtraries')
+        self.UpdateAdapterLibraryVForTestEntities.emit(details)
+    # dbr13 <<<
+
+
     def onAdaptersFileUnlocked(self, details):
         """
         """
