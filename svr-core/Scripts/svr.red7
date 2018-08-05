@@ -1,0 +1,15 @@
+[Unit]
+Description=Extensive Automation Service
+After=network.target httpd.service mariadb.service
+
+[Service]
+Type=forking
+PIDFile=
+ExecStart=/usr/sbin/xtctl start
+ExecStop=/usr/sbin/xtctl stop
+ExecReload=/usr/sbin/xtctl reload
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<file>
+<properties><descriptions><description><value>admin</value><key>author</key></description><description><value>20/11/2016 19:29:16</value><key>creation date</key></description><description><value>Just a basic sample.</value><key>summary</key></description><description><value>None.</value><key>prerequisites</key></description><description><value><comments /></value><key>comments</key></description><description><value>myplugins</value><key>libraries</key></description><description><value>myplugins</value><key>adapters</key></description><description><value>Writing</value><key>state</key></description><description><value>TESTCASE</value><key>name</key></description><description><value>REQ_01</value><key>requirement</key></description></descriptions><inputs-parameters><parameter><color>#D4FFAF</color><description /><type>text</type><name>DATAS</name><value># Save misc data
+[!TO:CACHE:EXAMPLE:];hello world
+
+# Save server information in the cache
+[!TO:CACHE:SERVER_DESCRIPTION:];[!FROM:INPUT:TEST_PURPOSE:]</value><scope>local</scope></parameter><parameter><color>#C1EEFF</color><description /><type>text</type><name>STEP_DESCRIPTION</name><value>Set values in the cache of your test</value><scope>local</scope></parameter><parameter><color>#C1EEFF</color><description /><type>text</type><name>STEP_EXPECTED</name><value>All values saved</value><scope>local</scope></parameter><parameter><color>#C1EEFF</color><description /><type>text</type><name>TEST_PURPOSE</name><value>Set data in cache</value><scope>local</scope></parameter></inputs-parameters><agents><agent><description /><type>dummy</type><name>AGENT</name><value>agent-dummy01</value></agent></agents><probes><probe><active>False</active><args /><name>probe01</name><type>default</type></probe></probes><outputs-parameters><parameter><color /><description /><type>float</type><name>TIMEOUT</name><value>1.0</value><scope>local</scope></parameter></outputs-parameters></properties>
+<testdefinition><![CDATA[
+def description(self):
+	# testcase description
+	self.setPurpose(purpose=input('TEST_PURPOSE'))
+	self.setRequirement(requirement=description('requirement'))
+
+	# steps description
+	self.step1 = self.addStep(expected=input('STEP_EXPECTED'), 
+																			description=input('STEP_DESCRIPTION'), 
+																			summary=input('STEP_DESCRIPTION'), 
+																			enabled=True)
+
+	i = 0
+	block = 3
+	for log_msg in input('DATAS').splitlines():
+		if not (i % block):
+			Trace(self).info(txt="%s" % log_msg[1:].lstrip(), bold=True, italic=False, multiline=False, raw=False)
+		
+		if (i % block) == 1:
+			if ";" not in log_msg: self.abort("bad data format provided, expected: <.to.>;<.from.>" )
+			
+			# separates to with from
+			_to, _from = log_msg.split(";", 1)
+			
+			# extract the to
+			caches = re.findall("\[!TO:CACHE:\w+\:\]", _to)
+			if len(caches) != 1: self.abort("bad data format provided, expected: [!TO:CACHE:<.key.>:]" )
+			cacheKey = caches[0].split(":")[2:-1][0]
+
+			# extract the from
+			inputs = re.findall("\[!FROM:INPUT:\w+\:\]|\[!FROM:OUTPUT:\w+\:\]", _from)
+			if len(inputs) > 1: self.abort("bad data format provided, expected: [!FROM:INPUT:<.name.>:] or [!FROM:OUTPUT:<.name.>:]" )
+
+			if len(inputs):
+				name = inputs[0].split(":")[2:-1][0]
+				if "FROM:INPUT" in _from:
+					before = _from.split("[!FROM:INPUT")[0]
+					after = _from.split(":]")[1]
+					v = "%s%s%s" % (before, input(name=name), after)
+					Cache().set(name=cacheKey, data=v, flag=False)
+					Trace(self).warning(txt=v, bold=False, italic=False, multiline=False, raw=False)
+				else:
+					Cache().set(name=cacheKey, data=output(name=name), flag=False)
+					Trace(self).warning(txt=output(name=name), bold=False, italic=False, multiline=False, raw=False)
+			else:
+				Cache().set(name=cacheKey, data=_from, flag=False)
+				Trace(self).warning(txt=_from, bold=False, italic=False, multiline=False, raw=False)
+
+		i += 1
+		
+def prepare(self):
+	pass
+def definition(self):
+	# starting initial step
+	if self.step1.isEnabled():
+		self.step1.start()
+		self.step1.setPassed(actual="success")
+def cleanup(self, aborted):
+	if aborted: self.step1.setFailed(actual="%s" % aborted)]]></testdefinition>
+<testdevelopment>1479666556.293746</testdevelopment>
+</file>

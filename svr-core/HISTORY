@@ -1,0 +1,1687 @@
+
+18.0.0
+	Date: 11/02/2018
+	What's new
+		1. (minor) test library: change open source project url in test report header
+		2. (major) toolboxes windows and linux no more embedded in the package
+		3. (medium) no more default agent and probe running on server side
+		4. (medium) no more toolbox deployed on boot server
+		5. (medium) build: update of the python selenium library with version 3.9.0
+		6. (minor) remove deprecated python modules: commands, compiler
+		7. (major) rest api: /rest/results/* updated to support replay id, new type of reports and more
+		8. (major) test library: task uuid added in test logger xml events
+		9. (major) rest api: /rest/tasks/* updated with news functions
+		10. (major) rest api: /rest/tests/* updated with news functions
+		11. (major) XmlRPC API no more available, client update not possible from 17.1 to the new version
+		12. (major) no more dependencies with python-twisted libraries
+		13. (minor) licence feature removed from the product, code simplification
+		14. (major) Web server: no more support php 5.1
+		15. (major) Web server: xmlrpc api no more used
+		16. (minor) Test Interop: new function to search a project by name
+		17. (major) Test Interop: update runTest, [add|Update]Variable function to the support the new rest api
+		18. (minor) xtcpyrc-3.0.tar.gz removed from the project, no more development on it
+		19. (minor) code cleanup to support python 3.5 and more in future
+		20. (major) rest api: no more return base64 and compressed data en response
+		21. (medium) test interop: new functions in quality center plugin
+		22. (major) cleanup on default users, new monitor user with read only access
+		23. (major) New major client 18.0.0 embedded
+		24. (medium) Web server: change on add user page, no more options for access rights
+		25. (medium) New set of sut adapters 12.0.0
+		26. (minor) New tests samples
+		27. (minor) test library: support float with comma in test properties
+		28. (minor) New set of sut librairies 8.1.0
+		29. (major) Scheduler - modification of id for all run type 
+	Issues Fixed
+		1. (minor) test library: undefined variable in virtualRun function - #issue 1
+		2. (minor) unable to reset libraries and adapters repositories
+		3. (minor) unable to import test abstract, extension not authorized
+		4. (minor) test library: fix bad test basic report with test abstract in testplan
+		5. (minor) test library: fix encoding in info messages in test report
+		6. (medium) web server: unable to link project to user - #issue 4
+		7. (major) fix pysnmp error import 'module' object has no attribute 'noValue'
+
+17.1.0
+	Date: 22/10/2017
+	What's new
+		1. (medium) New script to generate api key for user
+		2. (medium) Rest API: return None instead of undefined when the test result is not yet available
+		3. (major) Build: new nodejs v6.11 embedded by default
+		4. (medium) New email interop library
+		5. (medium) Build: new sut adapters 11.1.0
+		6. (major) Build: executable client, toolboxes and plugins are no more embedded by default, can be always added manually
+		7. (medium) Build: new client 12.1.0
+		8. (medium) Task Manager: new function to send test report in attachment
+		9. (minor) Web server: display download links only if additionals packages exists in server
+		10. (minor) Web server: alphabetical ordered for all users and projects list
+		11. (minor) Build: some improvements in default snippets (run_cmd,...)
+		12. (major) Test Library: new feature to save cache data in memory instead of a file
+		13. (minor) Test Library: new function to get previous step from a testcase
+		14. (medium) Cli: new state to indicate when the server is booting or not
+		15. (minor) Rest API: /results/status updated to return the progress of the execution in percent
+		16. (minor) Test Library: add wait message in the basic report
+		17. (medium) Test Library: new json test properties 
+		18. (major) New function to terminate or interrupt a test or a testcase
+	Issues Fixed
+		1. (minor) Test Model: fix bad generic adapters/libraries version in loading modules event
+		2. (minor) Repo Archives: no more log an error when the test result is not found in repository
+		3. (minor) Task Manager: fix issue to enable to receive basic report by email
+		4. (medium) Test Library/TestModel: bad test executed on fail condition, only for testplan/testglobal
+		5. (minor) Test Library: wrong reference name for TestOperatorsLib in line 4456 - Issue #3
+		6. (minor) Test Library: Condition and Label methods of TestCase class missing in help - Issue #4
+		7. (minor) Test Library: fix error in test logger xml, bad variable name
+
+17.0.0
+	Date: 04/06/2017
+	What's new
+		1. (medium) Test Library: new feature to stop a testplan/testglobal before the end
+		2. (minor) Test Model: update to support the new feature to force to stop a test
+		3. (medium) Build: new embedded python libraries (jsonpath-ng)
+		4. (medium) Test Library: change to support tuple object on prepare layer function
+		5. (medium) New snippets to send REST and SOAP requests with jsonpath/xpath and regular expressions
+		6. (medium) New major adapters 11.0.0
+		7. (medium) New major libraries 8.0.0
+		8. (minor) Update and new tests samples
+		9. (major) New major toolbox 12.0.0
+		10. (minor) Web server: xmlrpc api marked as deprecated
+		11. (minor) Build: update to support selenium 3.4.2
+		12. (minor) Web server: more informations added on 'are you sure' warning before to do a deletion
+		13. (minor) Web server: new cancel button on the edition page of a project variable 
+		14. (medium) Test Model: support the not condition on testplan preparation
+		15. (major) New major client 17.0.0
+		16. (medium) New version of the testplan file model (new parent-condition and control fields)
+		17. (minor) Test Library: new function to get all the content in the cache
+		18. (major) Repo tests: check if all tests files exists inside a testplan or testglobal before to open-it
+		19. (minor) Test library: new feature to keep data in the cache even with a reset
+		20. (minor) Web server: truncate long string value on variable projects
+		21. (medium) Test Interop: new function to search/update variable in a extensivetesting instance
+		22. (major) Build: new pyte 0.6.0 library to support special character in ssh stream
+		23. (major) Rest API: return json on search/listing variables functions and support json on add/update
+		24. (minor) Web server: new feature to print pretty json on project variables
+		25. (medium) Web server: all old stuffs like documentations are removed
+		26. (major) Test repository: new folders reserved (recycle and sandbox) - delete, remane and more actions denied
+		27. (major) Documentation builder: new wrapt python library added and code factory
+		28. (major) Test Library: new public decorator for documentation 
+		29. (minor) Test Library: code factory in adapters and libraries files and add support of the new public decorator
+		30. (minor) Rest API: new option to get the basic html report on /results/report/html ressource
+		31. (major) Rest API: New swagger, yaml and online documentation
+		32. (minor) Test Library: new functions to add folder, save and get file in the public area
+		33. (medium) Default database samples updated
+		34. (medium) Test Library: step result added on basic test report
+		35. (major) Test Library: improvement to compute the final verdict of a testcase
+		36. (major) Test Library: errors and logs messages can be added on basic test report
+		37. (medium) Update of all test models to support the configurable timeout parameter
+		38. (minor) New script to convert a test in xml format
+		39. (medium) Python xml library: updated to support huge tree and content
+		40. (medium) Test result: support xml huge tree and content
+		41. (minor) New script to generate default certificate with sha256 signature and alternate name
+		42. (minor) Test library: string protecton added on step result definition
+		43. (major) XmlRPC API: Win32 client and toolbox are deprecated on automatic process feature
+		44. (major) Web server: update in download page to get the 64-bit client and toolbox
+		45. (medium) New embedded 64-bit plugins for toolbox and client
+		46. (medium) Test interop: new public function to add variable in the remote instance
+		47. (medium) New column in user table to handle apikey id and secret
+	Issues Fixed
+		1. (medium) Build: fix old pyasn1 version before to install the new one
+		2. (minor) Web server: project variables - bad redirection page on duplicate action
+		3. (minor) Web server: project variables - add flag to avoid bad incorrect scrolling on expand action
+		4. (medium) Unable to reload configuration from cli, signal import missing
+		5. (medium) Rest API: unable to update a variable from rest api with projectid as argument
+		6. (medium) Test Library: fix bad encoding in test operator
+		7. (minor) Test Library: fix bad test result when some steps are failed and other undefined
+		8. (minor) Archives repository: return empty list with get comments function, in all errors cases
+		9. (minor) Test Library: remove bad error message on compare template
+		10. (minor) Fix bad link to the shell recorder from the web download page
+		11. (medium) Regression - unable to use the generate command from xtctl cli
+
+16.1.0
+	Date: 30/03/2017
+	What's new
+		1. (minor) New test samples (gui and custom input)
+		2. (medium) Test model: limitation on custom test parameters removed, dash character is authorized
+		3. (medium) Build: update to support selenium 3.3.1
+		4. (medium) Build: new embedded python libraries (requests-ntlm, ordereddict, ntlm-auth and more)
+		5. (medium) Build: update of others python embedded libraries
+		6. (medium) Build: pycrypto replaced by pycryptodome library, because no more support on pycrypto
+		7. (medium) Build: new client 16.1.0
+		8. (medium) Build: new adapters and libraries packages 10.2.0 and 7.3.1
+		9. (medium) Build: new toolbox 11.1.0
+		10. (minor) Small changes in code to support python3
+		11. (minor) New plugin hp alm 3.0.1
+	Issues Fixed
+		1. (medium) Web server: directory browsing disabled
+		2. (major) Test library: fix malformed xml on test design
+		3. (medium) Test library: escape xml on step actual value
+		4. (minor) Network library: tcpclient - fix to support macos
+		5. (medium) Repository manager: fix bad scan dir listing, folder not listed
+
+16.0.0
+	Date: 25/02/2017
+	What's new
+		1. (minor) Test Interop: new function to get the status of a virtual machine
+		2. (minor) Test Interop: new sonar nexus plugin to download artefact
+		3. (major) Rest API: uri updated to get test results (no backward compatibility)
+		4. (minor) Product installation: inprovement in all scripts
+		5. (major) Test Library/TestModel: new feature to support the new custom parameter
+		6. (minor) New test samples (system and automation assistant)
+		7. (medium) Rest API: new feature to execute a test in successive mode
+		8. (medium) Rest API: new feature to schedule a test in advanced mode
+		9. (medium) New SUT Adapters
+		10. (medium) New function to follow one or more tests from the Rest API
+		11. (minor) Rest API: new feature to reset all variables in a project
+		12. (medium) Test Library: new capture function in cache
+		13. (major) New script to read test result file, can be used for huge test result
+		14. (minor) Repository Manager: normalize extensions file to lower case before to list them
+		15. (minor) New default projects variables in the common project
+		16. (major) New generic tests to send http/rest request, ssh command and more
+		17. (minor) New repository manager for public files storage
+		18. (minor) Rest API: new feature to manage the public storage from api
+		19. (major) Rest API: uri updated to get test files (no backward compatibility)
+		20. (medium) Test Model: update to support the new custom parameter in design generation
+		21. (minor) Test Interop: new datastore option added to the clone function for vsphere
+		22. (major) Rest API: uri updated to rename a project (no backward compatibility)
+		23. (minor) Test Interop: return test-id on runTest function for extensivetesting plugin
+		24. (medium) Test Model/Test Properties: update to support the new cache parameter
+		25. (minor) Rest API: new feature to search variable, users and projects
+		26. (major) Basic test report improved, more lisible
+		27. (minor) Optimization: prepare the test during the schedule phase for immediate run only
+		28. (medium) Rest API: new method to get the basic html test report
+		29. (minor) Test Library: major changes on basic test report
+		30. (minor) Test Library: xml verdict updated with a new test status attribute (disable, executed, not-executed)
+		31. (minor) Test Library: test path and project attributes added on test xml verdict
+		32. (medium) Test Library: improvement in advanced report, support expand/collapse test view
+		33. (minor) Test Library: extension attribute added on xml test verdict
+		34. (minor) Database: new project variables added by default
+		35. (minor) All code sources updated according to the new year
+		36. (minor) Test Library/TestModel: updated to export the complete test description in xml test design
+		37. (medium) Test Library: new improvement to display errors directly in basic report
+		38. (minor) Rest API: new feature added to retrieve the resume of a test, information on system and more
+		39. (minor) Core: new cli library, better code separation
+		40. (medium) Rest API: new feature to execute a test with a test config
+		41. (medium) New SUT Libraries
+		42. (minor) New embedded library idna, enum34, ipaddress, pycparser, cffi and cryptography 
+		43. (minor) Rest API: user and project id added on session login service
+		44. (minor) Rest API: new functions to get statistics on users, projects and tests
+		45. (minor) Rest API: new functions to check syntax for adapters, libraries and more
+		46. (medium) Sql queries reduced: no more notify users on tests statistics changed, only when the script is terminated
+		47. (major) Build: new major selenium changed (version 3 support)
+		48. (medium) Update of all test files models
+		49. (minor) New test samples, basic folder renamed to snippets
+		50. (medium) Send basic report on email notifications by default, can be changed in settings file
+	Issues Fixed
+		1. (minor) Interop: vpshere - fix error in clone function
+		2. (minor) Product update: add missing key test-environment-encrypted on process
+		3. (medium) Unable to dispath properly alias parameters in test global and test plan
+		4. (medium) Test Library: fix to take in account the alias parameter in the test design
+		5. (minor) Test Model: missing test abstract support in testplan/testglobal for test design
+		6. (medium) Test Library: escape test name on xml verdict
+		7. (medium) Web server: unable to update the project in variable project
+		8. (minor) Test Library: fix bad test result with test global only (specific case)
+		9. (minor) Test Library: fix bad id in test xml verdict
+		10. (minor) Test Model: fix minor error to generate design with test abstract only
+		11. (major) Fix security issue on rest API: fix error on get variables listing
+		12. (major) Unable to run test: fix test name too long 
+		13. (minor) Web server: bad description on system page
+		14. (medium) Test Library: fix bad test execution in testplan only in test xml logger
+		15. (medium) Test Library: fix encoding issue on test summary description
+		16. (major) Task Manager: bad prepare time on recurcive call
+
+15.0.3
+	Date: 04/11/2016
+	What's new
+		1. New test samples for the major version
+		2. Small change on server logs, no more trace as error some behaviour
+		3. Installation: force the GMP library installation throught yum 
+		4. Logs improvement on update task call
+		5. Security improvement: checking project authorization before to schedule a test
+		6. Test Library: new interact module, no more in testcase
+		7. Default font size reduced to 13px for basic and advanced reports
+		8. Test Library: add some protections in operators
+		9. Test Library: more informations added in xml design and verdict
+		10. Changed in test model to provided test path in creation
+		11. Web server: user interface improvement in add projects variables page
+		12. Web server: no more display help area, not really useful
+		13. Rest API: new functions to manage projects (add, remove and update)
+		14. New major client 15.0.0
+		15. New major toolbox 10.0.0
+		16. Rest API: new feature to find which test was used in test plans and test global
+		17. New major sut adapters 10.0.0
+		18. Rest API: new functions to disconnect users, agents and probes
+		19. Rest API: new functions to manage users (add, remove, update, reset and more) 
+		20. New embedded python libraries for pywinrm, pyte support
+		21. Rest API: new feature to configure tests parameters
+		22. Rest API: new feature to configure the project variables (add/remove/duplicate)
+		23. Rest API: new feature to reset/kill and cancel tasks
+		24. Test Library: new trace module, no more in testcase
+		25. Test Library: new test properties to support hex value
+		26. Build: move database scripts in new folder
+		27. Test Library: new test properties to support text value
+		28. Core Scheduler: major behaviour update, execute callback function in a thread
+		29. Ignore dot on version for adapters and libraries, just for release notes
+		30. Web server: update to support new plugins for client (jenkins and ssh recorder)
+		31. Optimization: change on Xml2Dict library to parse XML with more efficient
+		32. New embedded python libraries for pychef and pysphere
+		33. Test Interop: update of the extensive testing client to support inputs and agents
+		34. Test Interop: new vsphere client support
+		35. Build: new python jenkins library embedded
+		36. Test Interop: new jenkins client support
+		37. Update product: read previous config with more efficient, update sed commands
+	Issues Fixed
+		1. Install: fix rights folders issue on red hat 7 
+		2. Security issue: no more use mysql TRUNCATE query
+		3. Fix call to undefined variable in getTestEnvironment function
+		4. Secure product: missing escape on mysql config update
+		5. Fix regression: unable to duplicate or move folder in adapters/libraries repositories
+		6. Web server: unable to download plugins for toolbox
+		7. Web server: '+' character replaced by space in projet variables
+		8. Test Library: escape properly testcase name in test design/verdict xml
+		9. Fix issue - unable to execute test plan because of bad optimization on the xml lib
+		10. Adding missing dependencies for pyte when internet connection is not available
+		11. Interop: mising received events on vsphere
+
+14.0.0
+	Date: 28/08/2016
+	What's new
+		1. Test Library: prevent bad value on info/warning/error and trace functions
+		2. New embedded python library for jenkins 0.4.13
+		3. Test Library: function to get the id of a testcase is now public
+		4. Test Library: new test reporting lib
+		5. Build: requests library updated to 2.10.0
+		6. Test Library: new test interoperability library
+		7. Test Library: support the definition of the test requirement
+		8. Update of all file models to support properly the new requirement field
+		9. Xml test design and verdict content improved with some new values
+		10. New set of adapters 9.3.0
+		11. New set of libraries 7.2.1
+		12. Small update on text about page
+		13. Test Interop: new Quality Center and Jira interop library
+		14. Test Library: new generator of template layer
+		15. Update product: preserve insert and read test statistics settings 
+		16. Minor improvement to secure the product (php and apache)
+		17. Rest api: update to rename/duplicate/move folder in test repository
+		18. Rest api: update to rename/duplicate/move file in test repository
+		19. Rest api: get all running probes and agents
+		20. Rest api: update to get all running/waiting tests and the history
+		21. Rest api: new function to read release notes
+		22. Test Library: new generation of a basic test report
+		23. Security script: security improvement, encrypt test environment data
+		24. Security script: no more run server as root
+		25. Web server: base64 format for test environnment value on import/export feature
+		26. Security script: no more use root account for database access
+		27. Rest api: new expires value on login response and return request path on all responses
+		28. XmlRPC API is deprecated, just bug fixes will be applied on the future. Use REST API.
+		29. New toolbox 9.1.0
+		30. New tests samples
+		31. Repo Manager: ignore hidden files and folders on listing
+		32. Test Library: no more overwrite test param from main if the type is not the same
+		33. Test Library: new test repositories module
+		34. New embedded python library for git 2.0.7
+		35. Test Interop: new git and extensivetesting library
+		36. Test Library: small update on get testname, new function to set the name of the testcase
+		37. Support tar.gz output file on backup generation for adapters and libraries
+		38. Update on cron script, better detection of the database configuration
+		39. Test Library: small change to prevent bad integer value in input parameter
+		40. Web server: update to support plugins delivery from web interface
+	Issues Fixed
+		1. Test Model: fix bad name on loading modules... event
+		2. Repo Manager: fix local variable 'e' referenced before assignment on zipFolder
+		3. Task Manager: no more log as ERROR all syntax error during test preparation
+		4. Test Server Interface: detect when the test is no more connected to avoid error in log file
+		5. Test Library: fix issue #7 support slash and backslashes in testcase suffix name
+		6. Backups: add missing relation-projects table on database dump script
+		7. Fix encoding issue to read projects variables - issue occured only on centos7
+		8. Installation: fix some folders bad rights to support properly redhat7
+		9. Installation: fix minor error with custom install bad ip displayed
+		10. Unable to generate test design with projects variables
+		11. Unable to run a scheduled test, falls in error without reason
+        
+13.0.0
+	Date: 26/06/2016
+	What's new
+		1. Web services: support mp4 files on upload logs function
+		2. New REST api for easy interop with server
+		3. New REST api online documentation
+		4. New embedded library pycnic version 0.0.5
+		5. Update on test and archives repositories to support the new rest api
+		6. Web services: recursive add folder on import file function
+		7. Probes/Agent Manager: update to support the new toolbox version
+		8. Test Library: automatic resize of the html report on mobile
+		9. Test Library: support default value on interact function
+		10. Security improvement: no more truncate table
+		11. New set of adapters 9.2.0
+		12. New toolbox 9.0.0
+		13. New client 13.0.0 for windows and linux
+		14. Test Library: support image on step definition
+		15. Web service: update to return verdict on test preview
+		16. Test Library: chart.js 2.1.4 added on html report by default
+		17. New set of libraries 7.2.0
+		18. Test Library: new feature to support chart on step actual
+		19. Test Library: documentation added for onReset function (adapter/library)
+		20. Security improvement: no more create folders with 777 mode
+		21. TestModel: support disabled tests on testplan/global preparation
+		22. Test Library: new feature to display "disabled"/"not executed" tests in test report
+		23. Test Library: new icons added on test report
+		24. Update on wsdl adapter generator
+		25. New script to secure the server after a from scratch installation
+		26. Security improvement: mysql user dump in settings file, update on all services
+		27. Test Library: new default template for test design
+		28. All file models updated to ignore bad xml in test definition
+		29. Test Library: project name added on test report
+		30. New test samples
+		31. Embedded library xlrd updated to the version 1.0.0
+		32. New embedded library xlwt version 1.1.2
+		33. Embedded library paramiko updated to the version 1.17.0
+	Issues Fixed
+		1. Online API documentation not generated properly on build
+		2. Test Library: fix bad statistics on test report for test global only 
+		3. Build: fix issue #2 installation failed on RHEL 7.2
+		4. Test Library: fix regression - unable to generate test design
+		5. Test Library: fix malformed xml test report
+		6. Test Library: fix bad actions values on xml test report
+		7. Issue #10: fix major encoding issue during test report
+		8. Web Administration: unable to import project variables in a new project on the same server 
+		9. Test Model: unable to generate the test design from a testplan
+
+12.1.0
+	Date: 29/04/2016
+	What's new
+		1. Test Library: improvement to intercept bad arguments from adapters and libraries
+		2. Test Library: minor improvment to add color in test report for verdict
+		3. Test Library: new isPrepared function to check if the testcase if ready to run
+		4. Optimization: support jpeg file on test result
+		5. Test Library: minor code cleanup
+		6. Web services: major code factory, use python decorators, code source reduced of 20%
+		7. Test Library: new feature to add folder, read file in private area
+		8. Test Library: commit #8c4b79d53e changed the function for RegEx matching.
+		9. Web services: change on kill task function, return list of task id
+		10. Test Library: update to support parallel testcase running
+		11. Build: selenium library updated to 2.53.1
+		12. New set of adapters 9.1.0
+		13. New toolbox 8.1.0
+		14. New set of libraries 7.1.0
+		15. New client 12.1.0 for windows and linux
+		16. Optimization: use tar system function instead of python library, reduced pic cpu on startup
+		17. Test Library: global setFailed/setPassed functions are deprecated
+		18. Security: reactivation of SSLv3 cipher to support linux client in python 2.6
+		19. Build: automatic install of zip system command
+		20. New test samples and documentations
+		21. New settings to disable to dispatch events in the current testcase
+		22. Test Library: no more dispatch events only on the current testcase - new default behaviour
+		23. Web access: small change, global variables renamed to projects variables
+		24. Test Library/TestModel: support outputs parameters (prefixed with SUT_ and DATA_) in test report
+		25. Test Library: decode properly shared and shared parameter in test report
+		26. Test Library/TestModel: improvement to avoid some freeze on test termination
+		27. Test Library: new shared mode added on Library module
+		28. Test Model: adding all adapters and libraries version on loading modules event
+	Issues Fixed
+		1. Test Library: fix minor error in cache handler
+		2. Prepare test global: fix encodage issue on alias value with special character
+		3. Test Library: unable to generate reports with unicode characters
+		4. Fix security issue on web services, bad  handle of the level access
+		5. Test Library: cannot get local/utc time with timeshift argument activated
+		6. Task Manager: no more authorized only ascii on task listing
+		7. Task Manager: minor fix bad test identifier encoding
+		8. Fix security issue on folder creation in repository, no more full rights
+		9. Fix zip folder function to avoid some errors on repository manager
+		10. Fix issue #1 properly handle arguments on authenticateClient API function
+		11. Fix issue #2 properly handle arguments on refreshRepo API function
+		12. Unable to authenticate user because already connected in rare case condition 
+		13. Fix bad backup zip contents on test result files
+		14. Web services: fix issue during detection of bad data, only with scheduleTest API function
+		15. Test Library/Test Model: fix bad summary in test global only - testlibrary/issue#2
+
+12.0.0
+	Date: 12/02/2016
+	What's new
+		1. New option to disable read/insert tests statistics/history in database
+		2. Enable application keepalive and tcp keepalive
+		3. Increate timeout select for socket 
+		4. Default color for step-started event changed, more lisible
+		5. Test Library: reduce time loop in received function
+		6. External library: paramiko updated with version 1.16.0 (ssh library)
+		7. New set of adapters 9.0.0
+		8. New toolbox 8.0.0
+		9. New set of libraries 7.0.0
+		10. All tests files models updated to support the new default input VERBOSE
+		11. Web services: new function to shift local time for test area
+		12. Client connection improvment: reduce release notes content
+		13. Server startup optimization: no more start default agents and probes
+		14. Optimization: remove test log file after termination
+		15. Webservices: refresh repositories and statistics improved
+		16. Repo Archives: update statitics function to support png files and more
+		17. Repositories: code factory, no more specific function to compute files statistics - no backward compatibility
+		18. Time for client connection reduced
+		19. Installation: new scandir v1.1 added, performance improved
+		20. Web Services: support properly portable version on client update
+		21. New user context to reduce interaction in database
+		22. Web Services: small change to improve application log
+		23. Repositories: save user login in lock file
+		24. TestModel: test description added
+		25. Test Report: major improvement to support html display
+		26. Web Services: new function to delete test result in repository archive
+		27. New tests samples for sftp, ssh, gui automations
+		28. Test Library: global result added on report
+		29. Test Library/Test Model: test duration added on test report
+		30. Test Library/Test Model: adding sut and data parameters in test report
+		31. Test Library: new feature to append data in private storage
+		32. Test Library: new accessors to save/append file in private area from adapter
+		33. Repository Manager: new feature to zip a folder with a relative path
+		34. Adapter storage: one zip file which contains all data adapters, systematic zip file
+		35. Repositories: create backups with relative path on it, zip files are also compressed
+		36. Web server/Tests: update to refresh properly test result from xml rpc api, show only trx files
+		37. Minor update on all code sources according to the new year
+		38. Security improvment in apache: disable SSLv2, SSLv3 and RC4 by default, new default CA of 2048 bits
+		39. Test Library: replay id added in test context
+		40. Test Library: new functions to convert integer to string in test manipulators module
+		41. Web server/Administration: new feature to open test report from treeview
+		42. Template mail updated according to the new test report
+		43. Web server/Administration: new feature to disable default users
+		44. Test Model/Test Library/Web Services: new feature to support default and generic set of adapters
+		45. Default configuration change: automatic daily backup of all tests, adapters and librairies
+		46. Test Library: small change to support greater/lower than or equal in test operators
+		47. New cron script to remove automatically backups older than xx days (14 days by default)
+		48. Web server/Administration: new feature to update the name of a user who already exists
+		49. Web server/Administration: new feature to duplicate a user but some limitations exists (project not yet duplicated)
+		50. Web server/Tests: new feature to duplicate a global test variables
+		51. Test Library: no more log error when the test is aborted by the tester
+		52. New cron script to backup automatically tables (users, projects and global variables)
+		53. Web server/Tests: new features to import/export all global variables from/to csv file
+		54. Test Library: new option to add arguments to callback in timer
+		55. Test Library: new feature to concatenate actual message on setPassed and setFailed functions for steps
+		56. Test Library: new argument in sleepUntil/waitUntil function to shift the date in seconds
+		57. Self testing: basic test plan added, can be used as sample also
+		58. New default ftp library to properly support tls on python 2.6
+		59. Test Library: Universally unique IDentifiers added on test logger xml
+	Issues Fixed
+		1. Fix unable to load partial test because of bad log file name
+		2. Web services: delete all tasks from history - reference to undefined variable
+		3. Repo Manager: fix bad extension support to list backup files
+		4. Task Manager: task scheduled every one hour from 23:00 to 3:00 run only one time
+		5. Web services: unable to cancel all waiting tasks
+		6. Unable to update user password because of the character Ampersand
+		7. Test Library: missing call to update storage data when the name of the adapter is updated
+		8. Test Library: fix bad testname (none value) on private storage area
+		9. Fix bad error message to run a test plan from the web interface
+		10. Test Library: fix minor error in state documentation, bad parent type
+		11. Test Library: fix bad ascii encoding on setFailed step function
+		12. Product update: fix missing migration of the public data
+
+11.2.0
+	Date: 22/11/2015
+	What's new
+		1. Test Library: new function to get id from a step
+		2. Test result updated to support header model
+		3. Test Library: new header logging with indexes
+		4. Task Manager: updated to support new test result format
+		5. Web services: cancel/kill task updated to support a list of id
+		6. Task Manager: save pid for all child processes
+		7. New client 11.2.0 for windows and linux
+		8. New major set of adapters 8.0.0
+		9. New major toolbox 7.0.0
+		10. Test Library: new function to send a keepalive or ready messages to agent
+		11. Test Library: new wait until function
+		12. Offline product installation on centos 6 and 7 (local repository)
+		13. Minor changed to log python and system version in install log file 
+		14. New tests samples
+		15. New network library, minor change on inactivity detection
+		16. Test Library: new specific Time handler 
+		17. New how to documentations
+		18. Test Library: new function to read excel data directly from a test
+		19. New major libraries 6.0.0
+		20. Test Library: new sleep function to support time shifting 
+		21. New public storage accessible from the test user
+		22. Test Library: new access to the public and private storage
+	Issues Fixed
+		1. Test Model: fix bad log level for test unit summary message
+		2. Fix remove global verdict before test replay
+		3. Server shut-down failed when child process exist
+		4. Fix issue on generate wsdl function from adapter class
+		5. Reset all agent/probes on test kill
+		6. Test Server Interface: reduce the number of agent reset
+		7. Test Model: fix issue on test description generation
+		8. Test Library: missing to re-register shared adapter on next testcase 
+		9. Installation: adding missing library setuptools-git to install pymssql
+		10. Web services: fix regression to kill all running tasks
+
+11.1.0
+	Date: 18/10/2015
+	What's new
+		1. Test Library: update to support local-file type
+		2. Update product: check product version before to update
+		3. Product installation: new setuptools, requests and suds libraries embedded
+		4. Test Library: new function to get sutadapters installation path from adapter
+		5. New script to generate adapters from wsdl file
+		6. Web services: new function to prepare the assistant in one time
+		7. Web services: new function to generate adapters from wsdl
+		8. Product installation: new python library embedded to support ntlm authentication
+		9. Test model: updated to log inputs/ouputs and agents on test logs
+		10. Product installation: embedded kerberos library for python
+		11. Product installation: adding postgresql library for python
+		12. New major SUT adapters 7.0.0
+		13. Web services: new function to set all tests with the current version of adapters and libraries
+		14. All files model updated
+		15. New minor version for SUT libraries 5.2.0
+		16. New minor version for toolbox 6.1.0
+		17. External python libraries updated: pymssql 2.1.1, paramiko 1.15.3, httplib2.0.9.2
+		18. External python libraries updated: pysnmp 4.3.0 and pyasn1 0.1.9
+		19. Web server: new sub menu to reset all tests statistics or just by user and project
+		20. Web server: download page updated to support portable client and toolbox
+		21. Product installation: embedded library to support excel file (xls and xlsx)
+		22. Test Model: new loading modules event
+		23. New tests samples
+		24. New client 11.1.0 for windows and linux
+		25. New portable client and toolbox
+		26. Improvement in custom installation
+	Issues Fixed
+		1. Adapter/library template: fix bad year in header 
+		2. Unable to generate test design, bad project id folder on tmp
+		3. Test Library: unable to trace message on debug activated
+		4. Agent server interface: removed unneeded error when agent is not registered
+		5. Test library: fix csv export, missing columns 
+		6. Test Library/Test Model: add missing alias on test report as csv/xml
+		7. Unzip command can be missing with from scratch installation
+		8. Unable to connect when the core is only installed
+
+11.0.0
+	Date: 14/09/2015
+	What's new
+		1. Guidelines documentations updated
+		2. New option to show the current version of the server with xtctl command
+		3. Test samples updated
+		4. Test Library/XML Logger: changes on save notifications, to support python3 on client side (no backward compatibility)
+		5. Web services: new check update function for automatic mode
+		6. Installation new selenium library integrated (version 2.47)
+		7. Web services: new function to upload result log for probes
+		8. Script to generate agent/probe updated to support python3 (remove pycache and build folders)
+		9. Task Manager: new feature to run test in simultaneous
+		10. Test Library: new function to reset the cache
+		11. Test Library: new cache storage accessors
+		12. Test Library: new function to compare templates from testcase
+		13. Installation: checking space left before to install or update the product
+		14. Archive repository: support png files on test result
+		15. Test Model / Test Library: new relative path for test result added on test manager initialization
+		16. Code source factory to create symbolic links
+		17. Major update to support the toolbox package
+		18. New toolbox 6.0.0: merge of the agent and probe modules
+		19. Web server: update to support the merge between agent and probes
+		20. Web services/Repositories: new feature to lock files on opening (no backward compatibility)
+		21. New scripts to cleanup all lock files, available through webservice too
+		22. All file models updated
+		23. Web services/Repositories: new feature to support snapshot
+		24. New major client 11.0.0 for windows and linux
+		25. New update for SUT adapters 6.2.0
+		26. New network layer library (updated to support python3)
+		27. Test Library/Test Model: update to support test alias name on testplan and testglobal
+		28. Interval keepalive increased to 60s, inactivity timeout increased to 90s
+		29. New tests samples
+		30. Web Services: new specific documentations, prepare api to support next release
+		31. Web Server: update to support ws api documentations
+		32. Default system password updated with a more robust password
+		33. New major version 3.0 of the plugin xtcpyrc
+		34. New pdf files for documentations
+	Issues Fixed
+		1. Update script: add missing information regarding os and architecture on product update
+		2. Task Manager: no more return long type for the project id in a group of tests
+		3. Unable to stop agent/probe properly because there are not started as default
+		4. Test Library: template, fix unicode encode error on getEvent function
+		5. Test Library: fix unicode encode error on test executor and adapter
+		6. External selenium library: fix error on constructor
+		7. Test Library: fix debug message on timer
+		8. Update product: reload config is missing after change
+		9. Web services: properly dispatch agent keys on test construction
+		10. Network Layer Library: fix error to detect inactivity on ping/pong
+		11. Fix error when authentication failed (unknown user)
+		12. Context module: fix error on check user authorization
+
+10.1.0
+	Date: 12/07/2015
+	What's new
+		1. Product update: detecting primary network ip from previous settings
+		2. Test Library: new functions to set the value of an input/output directly from the test
+		3. Test Library: new option to disable a timer
+		4. New update for SUT adapters 6.1.0
+		5. New client 10.1.0 for windows and linux
+		6. Web Services: new function to download test result files
+		7. Web Services: new functions to download backup files and client package
+		8. Download page is deprecated, update of the default config for apache 
+		9. Web Server: default project loaded on test repository and environment data
+		10. Web Server: new tests result page in tests part
+		11. Update product: improvement of the database update model, based on template
+		12. Web Services/Server: changes on authentication, system user is deprecated for xml api
+		13. Web server: default level tester and access web/api/gui activated by default during user creation
+		14. Default users: cli option activated by default for all
+		15. Redhat/Centos < 6 is no more supported because of the old default python version
+		16. Test Library: export test result in csv improved for testglobal
+		17. Test Model: small change to support properly test abstract
+		18. New update for SUT libraries 5.1.0
+		19. Test Library: loadData and saveData functions from testcase are deprecated
+		20. Test Library: new accessors to handle cache as a dictionary: set, get and del
+		21. Test Library: test properties lib updated to support the new type list-shared
+		22. New python ldap library added on installation processus
+		23. Test Library: add personal test arguments on cleanup function too
+		24. New guidelines documentations
+		25. Installation script renamed to custom.sh
+		26. New script to install the product without ask anything
+		27. New network layer library (updated to support login/password on hello)
+		28. Web Server: new feature to order test environment data by name
+		29. New agents 5.1.0 for windows and linux
+		30. New probes 6.3.0 for windows and linux
+		31. Web Server: list of data in test environment improved, adding protection on name
+		32. Test Library: new functions to get the result of a testcase (isPassed, isFailed)
+		33. Update of file models (test unit, suite and test plan)
+		34. Test Model/TaskManager: test model updated to push running agents/probes to the test executor
+		35. Test Library: new function "running" to get agent just with his name
+		40. Functions to set the default adapter or library are enhanced
+		41. Settings library updated to add the possibility to set a value
+		42. Support properly the migration of all adapters and libraries during the update of the product
+		43. Installation new selenium library integrated (version 2.46)
+	Issues Fixed
+		1. Unable to load backuped tasks because of syntax error on server starting
+		2. Product update: add missing host parameter on mysql commands
+		3. Test properties: add missing documentations on shared function
+		4. Test Library: unable to get a sub key in a shared parameter from the test
+		5. Test Library: remove the reference to the old product name in adapter functions
+		6. Startup script: add missing product name on centos6
+		7. Web server: fix error with test abstract listing files
+		8. Unable to load a partial test, fix missing project id
+		9. Update product: add missing column is_ta in table writing-stats
+		10. Web server: fix some errors in xml rpc interface
+		11. Web server: workaround addded on encoding in lang function, on centos 7/php 5.4 only 
+		12. French language: fix some errors on update password message, memory usage or free keys
+		13. Web server: fix bad system memory usage on centos7 only
+		14. Web server: fix issue unable to list test files from a project different of the common
+		15. Unable to export result of a unsave test because the project=0 is not authorized
+		16. Login page: fix bad position of the label version
+		17. Task Manager: return errors if exists on get design function
+		18. Test storage data: fix bad project support
+		19. No more possible to have several default packages on adapters or libraries
+		20. Fix a minor typo error in setting key file (everyminx-run-immediately)
+		21. Web services: unable to duplicate folder/file with a different destination
+
+10.0.0
+	Date: 28/05/2015
+	What's new
+		1. Properly handle io exception on daemon during pid deletion
+		2. Test Library: new argument to get sub value in a template layer
+		3. New major update for SUT libraries 5.0.0
+		4. New major update for SUT adapters 6.0.0
+		5. Protection added to prevent max disk usage on testresult storage
+		6. New client 10.0.0 for windows and linux
+		7. New agents 5.0.0 for windows and linux
+		8. New probes 6.2.0 for windows and linux
+		10. New default SoapUI agent to start on boot
+		11. Installation: python selenium library added
+		12. Test Library: new option to enable/disable a step
+		13. Some protections added before to launch install
+		14. Ctrl command: adding product name in start/stop messages
+		15. Repositories Archives/Web Services: major update to support project - no backward compatibility
+		16. Web services: checking authorization on projects before to access files
+		17. Task Manager: properly separate running, waiting tasks per project between users
+		18. New file model for test abstract imported in libs
+		19. TestLogger/Web Services/TestModel: updated to support the new test abstract file
+		20. Database update: new table for tests abstracts statistics
+		21. Statistics/Tests Repositories: updated to support new abstract test files
+		22. Web server: updated to support abstract test files
+		23. Database model updated for the table writing stats; new column is_ta
+		24. Web server: small change on login page
+		25. Installation: netsnmp utils package added on automatic download
+		26. Test Model: improved log messages to start/stop and prepare probes
+		27. Probe Server interface: updated to support new projects separations
+		28. Test Library: new function to get the real test result path from a testcase or adapter
+		29. Installation improved: exit on error if yum not working properly
+		30. Adapters/Libraries generation: no more executed if folders are empty
+		31. New tests samples
+		32. New guidelines documentations
+	Issues Fixed
+		1. Fix bad default style on user database creation
+		2. Fix issue on gui adapter and agent to properly simulate short-cut keyboard
+		3. Test Library: fix syntax error in interact function
+		4. Test library: return always response user with utf8 codec
+		5. Task Manager: fix missing utf8 encoding charset in email reporting
+		6. Fix regression: unable to get test design
+		7. Task Manager: fix bad interval time from/to on schedule
+		8. Fix error on install script (syntax error); firewall not stopped because of that on centos7
+		9. Web services: fix error on authentication function when major version greater than 10
+		10. Web server: fix division by zero in tests statistics
+		11. Test Model: add missing task-id on probe commands prepare/start/stop 
+		12. Test Library: reference to old product name removed
+		13. Install/Uninstall: fix upload file from probe in centos7 only - disable privatetmp for apache
+		14. Unable to make symbolic link on the latest client when major version greater than 10
+		15. Web services: fix error on check update client, error when major version greater than 10
+		16. Server/Context: fix error to make symbolic link for linux client
+		17. Remove No such process message on service status
+
+9.1.0
+	Date: 22/03/2015
+	What's new
+		1. Web services/TestLibrary/TestModel: updated to run a test step by step
+		2. New option to stop the run of a test when one step is failed
+		3. Test Library: unneeded error removed on testcase request for agent control
+		4. Test Library: new feature to add breakpoint in a test
+		5. New client for windows and linux
+		6. New tests samples
+		7. Test Library: summary no more optional on add step function
+		8. Test Library: catch exceptions for step and breakpoint
+		9. Update of troubleshooting guides for the test library
+		10. Test Library: no more possible to set the result of a step without start-it before
+		11. Test Library: some functions deprecated on testcase or no more visible
+		12. Test Library: savaDataInStorage renamed to saveFile (no backward compatibility)
+		13. Test Repository: updated to support new abstract test file
+		14. Test Library: update interact function
+		15. Test Library: testcase accessors for adapter and library
+		16. Test Library: overwrite str function in all test operators
+		17. Test Library: new accessors to read templates messages or layer
+		18. Troubleshooting guides update for test library
+		19. Test Library: new function to make several condition at once
+		20. Test Library: new test manipulators library
+		21. Doc Generator/Test Model: updated to support the new manipulator library
+		22. New logo for the login page interface
+		23. Installation improved
+	Issues Fixed
+		1. Fix error on interact function, timeout is not properly used
+		2. Ip addr: unable to read network interfaces
+		3. Test Library: fix bad level in internal message for test global
+		4. Test Library: global wait function is deprecated
+		5. Test Library: no more possible to start several time a step
+		6. Fix error to detect version on XML API
+
+9.0.0
+	Date: 05/01/2015
+	What's new
+		1. Web server: new option to reset password account
+		2. Test Library: support float on greater/lower operators (Enhancement 493)
+		3. Default templates for adapters/libraries init file updated
+		4. Info logs improvment in xml rpc interface
+		5. Test Library / Test Model: image parameter renamed to remote-image
+		6. Test Library: support new local-image in test properties
+		7. New tests samples
+		8. New client 8.1.0 for windows and linux
+		9. Test Library: new test parameter for password
+		10. Test Library: support new snapshot-image in test properties
+		11. Update of all file models
+		12. Test Library: agent function updated to return agent name with type (no backward compatibility)
+		13. New major sut adapters 5.0.0 package (no backward compatibility)
+		14. Test Library: agent name argument renamed to agent on adapter generic class
+		15. No more support of Centos/RedHat 4 and Python 2.4
+		16. Packaging: new php mcrypt rpm integrated to support Centos/RedHat 7
+		17. Default http configuration updated to support apache 2.4
+		18. New systemctl file to support Centos/RedHat 7
+		19. Default iptables rules updated to removed deprecated lines
+		20. Code cleanup on all exceptions, new syntax used
+		21. New packages (vim,mlocate) downloaded automatically on installation
+		22. Major update in the script of installation, uninstall to support Centos/RedHat 7
+		23. Update to support the fork of mysql: mariadb
+		24. Major update in the script of update and roll-back to support Centos/RedHat 7
+		25. No more folder for virtual host, default configuration updated
+		26. Web server: environment menu renamed to environment data
+		27. New symbolic link with the http configuration, roll-back more efficient
+		28. Test Library: make the difference between match and match received event on xml logger
+		29. Add info message on agent or probes registration
+		30. New major sut libraries 4.0.0 package (no backward compatibility)
+		31. New network layer library (updated to support python3)
+		32. Pickle version 2 used instead of 0 in the network layer library (no backward compatibility)
+		33. Configuration file: pickle version is now defined
+		34. Hashlib no more embedded because python 2.4 is no more supported
+		35. Test Library: support of alias on agent properties
+		36. Web Server: new feature to disconnect agent or probe from web interface
+		37. Context: projects and default project added on context
+		38. Task Manager/Web Services: new feature to run a group of tasks
+		39. New major version for the library xtcpyrc 2.0
+		40. New option to execute one test or more from command line
+		41. New guides for overview and how to
+	Issues Fixed
+		1. Core: avoid exception on get release note when empty
+		2. Web server: fix some errors on french localization
+		3. Fix error in testmodel, bad test id for testglobal (Issue 496)
+		4. Web server: fix bad warning on memory usage
+		5. Update: fix bad path during adapters and libraries restoration
+		6. Web server: fix a division by zero on metrics
+		7. Unable to create symbolic link on http configuration file
+		8. TestModel/TestLibrary/Webservices: bad test run order with testplan in testglobal
+		9. Web server: fix bad link to tests statistics from overview page
+		10. Test Library: add missing testplan separator terminated
+		11. Web service: run group of tests not working with test global and test disabled
+		12. Fix error on installation of the sbin script on centos 6 or 5
+		13. Fix exception on xtcctl script when test is missing on run action
+		14. Fix minor errors on product description
+
+8.0.0
+	Date: 25/10/2014
+	What's new
+		1. Packaging: remove unneeded symbolic links in build package
+		2. Documentations updated: installation and troubleshooting guides
+		3. Update: keep demo mode value on upgrade
+		4. Test Library: new option to hide timer events (Enhancement 467)
+		5. Test Library: documentations improved on trace, info and warning functions (Enhancement 463)
+		6. Uninstall: force to kill httpd process on uninstall
+		7. Cleanup tests samples
+		8. Update: improvement of the copy of old tests, adapters and libraries
+		9. Update: database is now properly updated
+		10. Support of the ip binary to list all network interfaces, no more use of ifconfig
+		11. All network routes added on context server
+		12. New symbolic link on service for easy rollback
+		13. New configuration guides for the server
+		14. New client 8.0.0 for windows and linux
+		15. Web Core: links properly dispatch on each tab downloads
+		16. Web Core: documentations page improved on overview
+		17. Web Core: Cpu, load, memory usage and more added on system page
+		18. New installation and configuration guides for the client
+		19. New tests samples
+		20. Test Library: improved operators to display and/or conditions in templates result (Enhancement 482)
+		21. Test Library/Test Model: test id added on started event in xml logger (Enhancement 474)
+		22. Test Library/Test Model/Webservice: update to support testplan separator in testglobal (Enhancement 427)
+		23. Web services: new function to open remote file instead of get file
+		24. Web services: get file function improved (no backward compatibility)
+		25. New test environment table in database
+		26. New services startup file to support Centos and RedHat 7, not yet supported officialy
+		27. Web Core: new environment page in tests (Enhancement 153)
+		28. Context/Web Services: updated to return the test environment on user connection
+		29. Source code: some doc string added
+		30. Test Library: new feature to support the shared type on test properties
+		31. Web services: new function to refresh the test environment and notify all users
+		32. Web services: updated to move files/folders between projects (Enhancement 459)
+		33. Web services: updated to duplicate files/folders between projects
+		34. File models updated: testplan, testdata
+		35. TestModel/Test Library: limitation run test under testplan in testglobal (Enhancement 488)
+		36. Test Library: multi-line deprecated on info, warning messages
+		37. New default agents (file and ftp) started on boot
+		38. New troubleshooting guide en/fr for the test library
+		39. Improvement of all error codes in the test library
+		40. Test Library: new negative operator for greater and lower than
+		41. Test Library: new equal argument on the greater/lower operator
+		42. Duration to start the server application added in log file
+		43. Logs improved on xml rpc interface
+	Issues Fixed
+		1. Fix error during clients deployment, bad symbolic links
+		2. Web core: fix bad order tabulation on login page (Issue 451)
+		3. Test Library: fix error in test operator documentation (Issue 469)
+		4. Test Library: test stay stuck at the end because of running timer (Issue 466)
+		5. Test plan/global file model updated because of bad test order (Issue 472)
+		6. Web Core: fix missing translation on system page
+		7. Fix missing json library to support php4
+		8. Fix incorrect line number on syntax error, only for testsuite (Issue 464)
+		9. Web Core: access denied because of bad redirection (Issue 465)
+		10. Run of bad test on testglobal, incorrect status (Issue 485)
+		11. Test Library: debug function got an unexpected keyword argument raw (Issue 490)
+
+7.1.0
+	Date: 20/09/2014
+	What's new
+		1. All ip (0.0.0.0) added on eths listing
+		2. Packaging: tcpdump added on external libraries, check perl
+		3. New tests samples
+		4. Login page: new error message added when the config table is empty
+		5. New client 7.1.0 for windows and linux
+		6. Test Library: new input/output parameter of type alias
+		7. Packages agents and probes renamed to xta and xtp
+		8. New troubleshooting guides
+		9. New version of the module xtcpyrc 1.1 
+		10. New deploy function on command line (Enhancement 413)
+		11. Checking database on start to prevent errors
+		12. Installation: java added as external libraries
+		13. New network layer library 3.1.0, add public ip support
+		14. Test Library: new function to save data in storage from a testcase (Enhancement 428)
+		15. Optimization: time to construct test reduced of 90%
+		16. Installation: pycrypto, ecdsa, pil and paramiko added as external libraries
+		17. New sut libraries 3.4.0
+		18. New sut adapters 4.4.0
+		19. Update of all file models
+		20. Test Library: timer documentation updated (Enhancement 437)
+		21. Core Web: metrics improved (Enhancement 442)
+		22. Installation: nmap added as external libraries (Enhancement 444)
+		23. Packaging: installation and update scripts improved
+		24. Quick start for server updated and new installation guide
+		25. Change to yes the default value of the key download missing packages
+		26. New external ip key on settings
+	Issues Fixed
+		1. Agent server interface: fix bad agent type on registration
+		2. Web overview: admin documentation no more displayed on welcome page
+		3. Fix bad symbolic link on public_html (Issue 402)
+		4. Unable to reload configuration (Issue 397)
+		5. Alias parameters: add new param in test for testplan (Issue 420)
+		6. Test global: test plan parameter not properly dispatched (Issue 421 & 409)
+		7. Test Library: outputs parameter not properly dispatched from main to sub test (Issue 430)
+		8. Fix to avoid several default adapters or libraries on folders duplication (Issue 411)
+		9. Task manager: bad time on schedule every minutes (Issue 434)
+		10. Test Library: none parameter not correctly push (Issue 440)
+		11. Core web: fix missing testglobal number of files in statistics repository
+		12. Fix selinux config path file, no more used symbolic link
+		13. Web core: unable to download documentation of installation
+
+7.0.0
+	Date: 08/08/2014
+	What's new
+		1. Improvment on the deployment of a new client, probe or agent
+		2. Webservice, scripts: updated to support the new package name for agent and probe
+		3. Core Web: column ID added on project list (Enhancement 351)
+		4. Core Web: main logo added on login and overview pages
+		5. New reverse proxy for xmlrpc and web access - no backward compatibility - (Enhancement 280)
+		6. Support reverse proxy on installation script (Enhancement 280)
+		7. New network layer library 3.0.0, support websocket rfc6455
+		8. Ssl support on notification channel
+		9. New proxy ws tunnel module in installation for apache
+		10 Install/uninstall/update scripts updated (Enhancement 308)
+		11. Web App: robots.txt file added, site inspection not authorized (Enhancement 367)
+		12. Agent/Probe Server: new feature to check the type on registration
+		13. Iptables rules updated to support the reverse proxy
+		14. Doc generator: new feature to defect default adapters or libraries packages
+		15. Adapters/Libraries repositories: template updated to support default key
+		16. Adapters/Libraries repositories: get default function updated
+		17. Web services: new functions to set the default package of adapters or libraries
+		18. New script to generate self-signed certificate (Enhancement 363)
+		19. New feature to generate packages adapters, libraries and samples from the command line (Enhancement 299)
+		20. Web services: new function to generate packages from the gui/cli (Enhancement 340)
+		21. Agents manager updated: new major agents packages 3.0.0 
+		22. Probes manager updated: new major probes packages 5.0.0
+		23. Debug logs improved
+		24. New feature to support demo mode
+		25. Web access: improvment on default style (login page, default colors and logo)
+		26. Update of the file models (testplan)
+		27. Prepare testplan/testglobal, ID added when test file is missing (Enhancement 364)
+		28. New client 7.0.0 for windows and linux
+		29. New sut adapters 4.3.0
+		30. New tables in database for agents and probes
+		31. Test Library/Test model: new parameters from and to in logs events (Enhancement 290)
+		32. Web services: new function to generate samples
+		33. Task Manager: new feature to run immediately for the firt run in every minutes type (Enhancement 315)
+		34. Task Manager: sched now more type updated to support start time
+		35. Task Manager: improvment of the schedulation type every x with interval time (Enhancement 336)
+		36. New scripts to make analysis of the source code
+		37. Code analysing added according to the PEP8
+		38. Licence GPLv3 applied on all files of the website
+		39. Adapters and libraries headers template updated to support the new license
+		40. License LGPLv21 applied on all files
+		41. License agreement added on website
+		42. Web access overview: getting started added on welcome page
+		43. New quickstart guides en/fr
+		44. New sut libraries 3.3.0
+		45. New folders to store install, config, troubleshooting and quickstart documentations
+		46. Code cleanup
+		47. Packaging: freetds library added, httplib2 updated to 0.9
+	Issues Fixed
+		1. Installation: unable to copy service on redhat (Issue 350)
+		2. Helper Manager: fix bad error on cache generation
+		3. Installation: selinux warning on install removed (Issue 330) 
+		4. Wep app: fix missing testglobal translation in fr and en files (Issue 366)
+		5. Agent server interface: fix error on registration when remote agent disabled
+		6. Command line: fix bad usage documentation 
+		7. Fix launcher name in setting file
+		8. Test model: fix missing import in sub test model generator
+		9. Web upload: return 400 bad request file id is missing
+		10. Fix error on url to download backup file
+		11. Web access: fix error on delete cookie
+		12. Fix user already connected after deletion (Issue 276)
+		13. Web access: fix bad message server stopped when no running agents or probes (Issue 296)
+		14. Uninstall: fix bad path to delete database
+		15. Test Library/TestModel: fix bad csv content with test global
+		16. Test Library: fix minor error in documentations with templates messages
+		17. Repo archives: fix missing shutil import on delete thanks to code analysis
+		18. Agents Manager: fix some errors thanks to code analysis
+		19. Probes Manager: fix undefined variable in stop probe function thanks to code analysis
+		20. Task Manager: fix some errors thanks to code analysis
+		21. Probe server interface: fix undefined variable in get probe function thanks to code analysis
+		22. Automation server: fix bad helper class object in cleanup function thanks to code analysis
+		23. Scheduler: fix some errors thanks to code analysis
+		24. Test library: fix some errors thanks to code analysis
+		25. Schedule test: fix bad test order during a run for testplan/testglobal
+		26. Test Library: debug function as raw view (Issue 390)
+		27. Uninstall: fix bad path to delete website logs from the system
+		28. Fix bad prefix table name during installation
+
+6.2.0
+	Date: 02/06/2014
+	What's new
+		1. Archives: replay id add on zip logs
+		2. Database model: new column project id on task history
+		3. Task Manager: updated to support properly project
+		4. Task Manager: year add on the internal id for test result 
+		5. Web Services / Repo tests: support test global file
+		6. Statistic manager: database model changed
+		7. Test model / Test Library / Test Server Interface: updated to support test global
+		8. Web server updated to support the new test global format
+		9. New basics tests samples
+		10. Context: statistics function remote disk usage
+		11. Context: configuration file added on server information
+		12. Add warning when the test to execute is too big (more than 10 000 lines)
+		13. Test model: split of the script to support big test, python 2.4 deprecated
+		14. Packaging: new script to update or rollback from previous version
+		15. Change the product name to extensive testing center
+		16. Generate sut adapter and libraries packages before to stop or start the server
+		17. Remove reference to tas
+		18. Test Library: change level name of each event
+		19. New sut adapters 4.2.0
+		20. New sut libraries 3.2.0
+		21: Repositories adapters and libraries: new templates for headers
+		22. New major agents package 2.0.0
+		23. New default dummy agent
+		24. TestLibrary: logs improvment for debugging on template compare function
+		25. All files model updated
+		26. Test Library: realname added on adapter
+		27. New basics tests on samples
+		28. Test Library: news functions to update summary, description and expected value of a step (Enhancement 321)
+		29. Code cleanup to suport future code analysing
+		30. Test Library: debug mode improved on compare template library
+		31. Web services: developer lever is not authorized to generate or load the cache documentation (Enhancement 320) 
+		32. Web services: helper manager updated to return more details when an error occurred on generation
+		33. Task manager: major check syntax improvment
+		34. Web: new script to generate digest password
+		35. New default dummy probe
+		36. Test Library: errors normalized
+		37. Test statistics: updated to return number of pass, fail and undef on user connection
+	Issues Fixed
+		1. Statistic: missing reset on table testunit
+		2. Test Library: fix bad statistics on number of testcase, testunit and testsuite
+		3. Packaging: remove all tests on make package (Issue 301)
+		4. Test Library: fix missing documentation on agents functions
+		5. Repository: fix missing check on file extension with import and put file
+		6. Fix minor error on the Network layer library 2.1.1
+		9. Test Library: re-display all type of test result on csv export (Issue 317)
+		10. Test Library: fix bad undefined result on test plan (Issue 319)
+		11. Test Library: missing documentation on received function on adapter (Issue 304)
+		12. Test Library: restart timer not working (Issue 324)
+		13. Test Library: compare template error (Issue 313)
+
+6.1.0
+	Date: 25/04/2014
+	What's new
+		1. New sut adapters 4.1.0
+		2. Network layer library updated to 2.1.0 version (Enhancement 272)
+		3. Web services: run test without the test content (only for remote tests)
+		4. Context: new function to unregister user from web services
+		5. Web services: new unauthenticateClient function
+		6. Web services: all functions can be called from cli
+		7. Model of the table users updated to support new option cli, gui and web
+		8. Web server > administration: user profile access levels (cli, gui and web) added
+		9. Web services: new function to add and remove project
+		9. Web services: new function to return server informations only and release notes
+		10. Web server > system: new method to detect the server status, and new server description and usage
+		11. Web server > administration: new account tab for user profile
+		12. Web server > overview : new agents and probes sub pages
+		13. Model of the table projects updated with a new description column
+		14. Web server > administration: new option to disconnect user
+		15. Web server > tests: display my statistic by project
+		16. Web server > tests: run tests, repository content and statistics
+		17. New agents package 1.1.0
+		18. Web services: get statistics for tests updated to support project
+		19. New probes package 4.0.0 for windows and linux
+		20. New client 6.1.0 for windows and linux
+		21. Test Library: new function to share adapter between tests
+		22. Test Model updated to support shared adapters and save designs
+		23. New basics tests on samples
+		24. New sut libraries 3.1.0
+		25. New template file for design test
+		26. Task manager/Repo archives: updated report and design functions
+		27. Test Library: improved step event, result added
+		28. Test Library: update to return xml structure on step, verdict and reports
+		28. TestPlan file model updated
+		29. Test Library: new description function on testcase
+		30. Web services: new function to export test design from test source
+		31. Web server > about: new section for contributors
+		32. Web server > overview: improvment on text
+		33. First misc package included xtcpyrc 1.0 from contributor jvo
+	Issues Fixed
+		1. Web server: use ws xmlrpc to prevent error on creation and project deletion
+		2. Web server: fix error on configuration column name
+		3. Test Model: missing agent overwrite option on testplan (Issue 291)
+		4. Repositories: unable to move file at the root
+
+6.0.0
+	Date: 23/03/2014
+	What's new
+		1. Library logger updated
+		2. Https support on web services by default (configurable)
+		3. Add comment on archive updated to support python3
+		4. Web service: json replace pickle on prepare and schedule a test
+		5. Improve logs in task manager
+		6. Major update due to the major update of the client
+		7. All files model updated
+		8. Web service: new options close file after save on put file function
+		9. Remove reference to tac or tas acronym
+		10. New licenses menu available through the web server
+		11. New client 6.0.0 for windows
+		12. New Sut Libraries 3.0.0 (New packaging mode)
+		13. New Sut Adapters 4.0.0 (New packaging mode)
+		14. Remote tests: all path in testplans are updated automatically on duplicate folder (Enhancement 240)
+		15. New mode to construct release notes for adapters and libraries
+		16. Test library: support multiple values on contains test operators (Enhancement 247)
+		17. Network layer library updated to 2.0.0 version
+		18. New probes package 3.0.0
+		19. Test library / TestModel: support specific testcase name of test unit file (Enhancement 253) 
+		20. Probe server interface: get probe by name function improved
+		21. Test Library: new function to get adapter unique id
+		22. New script to generate agent package
+		23. New agent server interface and agents manager
+		24. Web services: new function to add, remove, start or stop an agent
+		25. Automatic deployment of local agents in server boot
+		26. Test Library: properties function updated to support agent function
+		27. Test Model: updated to support agents parameters
+		28. Web services: new importFile function
+		29. Repo manager updated to support image files on test repositories
+		30. Test Library/TestModel: updated to support the new image parameter type
+		31. Web server: package page updated to support agent
+		32. Iptables rules updated to support agents
+	Issues Fixed
+		1. ProbeManager: fix an unexpected keyword argument 'manager' on add/del probe
+		2. Fix incorrect names returned on kill and cancel tasks
+		3. Test library: global test result always undefined (Issue 234)
+		4. Missing a translation in french language
+		5. Web server: request denied on password update (Issue 239)
+		6. Fix a missing deprecated warning on sut libraries and adapters for testplan (Issue 242)
+		7. Test library:  string index out of range on string validator (Issue 227)
+		8. Fix an incorrect event sent when release notes are updated on adapters or libraries
+		9. Fix no space left warning on prepare test (Issue 228)
+		10. RepoManager: returns errors on empty filename or folder
+		11. RepoManager: move folder no more exist (Issue 248)
+		12. Test library: test id does not exist not handle on xml logger (Issue 255)
+		13. Test Server Interface: fix test not removed properly from context at the end
+		14. Fix error on load dataset function in Test Model
+		15. Fix bad statistics on test data size files
+
+5.2.0
+	Date: 12/01/2014
+	What's new
+		1. Test Library: steps failed in red in report and notifications
+		2. New embedded httplib2, php-mcrypt, pysnmp, pyasn, uuid for installation from scratch
+		3. Test Library: new raw display mode on logging event function (info, warning, etc...)
+		4. New automaton default user (Enhancement 202)
+		5. New probes 2.3.1
+		6. New Sut Adapters 3.2.0
+		7. New Sut Libraries 2.1.0
+		8. Test Library: new property for none value (Enhancement 206)
+		9. Test Library: new validator for email, ipv4, ipv6, mac, hostname, http/ftp url and uri
+		10. Repository/TestModel/TestLibrary/Web services: updated to support the new file model testunit
+		11. New file models for testunit added
+		12. New table testunit-stats in database
+		13. New statistics added for testunit on webserver and database
+		14. New launch bash to execute the command line of the test on test result
+		15. Check syntax improved with number line
+		16. New move folders function for repositories
+	Issues Fixed
+		1. fix bad task cleanup on manager (Issue 197)
+		2. Installation: fix incorrect mysqld package name on download
+		3. Installation: fix automatic startup of mysql and httpd (Issue 200)
+		4. Fix syntax error when dataset is missing in testplan (Issue 198)
+		5. Network layer library updated to 1.6.1 version (Issue 201)
+		6. Fix no event to client when data is saved in storage
+		7. Fix bad french translation on download web page (Issue 203)
+		8. Compiled files not removed after deletion on adapters and libraries repository
+		9. Fix syntax error when no testsuite exists in testplan
+		10. Fix list index out of range on test plan run when the project does not exists
+		11. Add user: fix null value on field system (Issue 220) 
+		12. TemplateMessage object has no attribute getName (Issue 205) 
+
+5.1.0
+	Date: 08/12/2013
+	What's new
+		1. Web services: get file from repository updated to support new outputs parameters
+		2. File models: test suite, test data models updated
+		3. Test Library: properties handler changed to support inputs/outputs parameters
+		4. Test Library: new inputs and outputs functions to returns all test parameters
+		5. Test Model: changed to support new inputs/outputs parameters in testsuite and testplan
+		6. Test summary event renamed to Description event
+		7. Test Library: new design and report events on testcase
+		8. Remove deprecated sut adapters and librairies from documentation cache
+		9. New TAC client 5.1.0 for windows and linux
+		10. New Sut Adapters 3.1.0
+		11. New tests samples
+		12. Code source documentation added
+		13. New default directory installation on /opt/ (Enhancement 194) 
+		14. Detecting selinux activation on product installation
+		15. Database update: new table to support project
+		16. Web portal update to support administration project
+		17. Licence updated to support project
+		18. Web portal: configuration displayed on administration part
+		19. Daemon server improved (logs, code factory and more)
+		20. Web portal: new system part with server status
+		21. New parameters in configuration file
+		22. Web services: code factory
+		23. Databases model updated and improved on users table
+		24. Manager renamed to Leader
+		25. Authentication user improved, user profile more clear
+		26. User management: support multiple level access for one user
+		27. Web services / Task Manager: New test run without keep test result (Enhancement 195) 
+		28. Unlimited license by default
+		29. Installation product: automatic folders rights update
+		30. Parameters file renamed to settings.ini
+		31: Test model: update to support project on dataset load
+		32. Web server: news test runs history and statistics
+		33. Web server: nice round on test duration
+		34. Test Library: new function to add the testcase description 
+		35. Test Library: testcase case report improved
+		36. Test result notification: html email support
+		37. New var templates files for email notifications and reports
+		38. New test result report file
+		39. Web service: new function to export test report
+		40. File for logs server renamed to output.log
+		41. Web services: add testsuite function in testplan updated to support project
+		42. Web server: basic css style renamed to default
+		43. Web server: users statistic
+		44. User authentication method updated to return user id 
+		45. Web server: tests statistics update to support project
+		46. Web server: new tests statistics to follow duration of writing
+	Issues fixed
+		1. Fix uninstall: harcoded database name (Issue 190)
+		2. Detecting apache/mysql failed (Issue 187)
+		3. Reload option missing on redhat system (Issue 185)
+		4. Cleanup installation (Issue 189)
+		5. Fix installation when selinux is deactivated (Issue 193)
+		6. Test Library: fix compare function to support unicode
+		7. Web server: delete the fifth user is not possible
+		8. Task Manager: task parameters not keep on re-schedulation
+		9. Test Model: fix incorrect file syntax when remote dataset are missing
+		10. Web server: fix a incorrect path on download documentations
+		11. Fix incorrect path of the client to update it automatically
+		12. Fix table model, data too long for column eventname
+		13. Fix a missing import os on _extractall function
+
+5.0.0
+	Date: 15/09/2013
+	What's new
+		1. Warning added in testresult and testplan when one or more dataset is missing (Enhancement 155)
+		2. Mail content improved (Enhancement 157)
+		3. Preparation Python3 support: no more use of the function has_key on dict
+		4. Network layer library updated to 1.6.0 version
+		5. Web server: tests graphics statistics readability improved
+		6. Task Manager / WebServices / Test Library: updated to support the new type of run as debug
+		7. Test Library: set automatically the test to fail if an error occured
+		8. Task Manager / WebServices: updated to support the new type of run without mail notifications (Enhancement 162)
+		9. New TAC client 5.0.0
+		10. Test Library: get function is deprecated, use parameter function instead
+		11. Test Library: new function to get test description
+		12. File Models: new test data model file
+		13. Test Model: updated to support dataset parameters (Enhancement 151)
+		14. Test Library: documentation added on test operators
+		15. RepoLibraries / RepoAdapters / Task Manager / TestModel: updated to support versionning (no backward compatibility)
+		16. Test Library: new functions to set the sut adapters and libraries versions
+		17. Test Library: TestAdapter renamed to SutAdapter, new SutLibrary
+		18. Automatic deployment for adapters and libraries on boot, new scripts to generate packages easily
+		19. New default sandbox directory in test repositories
+		20. Automatic deployment for samples on boot, new scrips to generate the package
+		21. Web server: multi destination on mail notification (Enhancement 159)
+		22. Test Library: set automatically the test to fail when an error occured in adapter or library
+		23. Test Library: max timer value added on interact event
+		24. New script to generate easily the probe packages
+		25: Test Library: improvment compare multiple template with and or xor condition
+		26. Test Library: improved colors used for template mach
+		27. Test Library: new getLayer function with template message (Enhancement 170)
+		28. Task Manager / WebServices: new run type successive (Enhancement 169) 
+		29. Test Library: new argument aborted on cleanup function, no backward compatibility (Enhancement 173)
+		30. Test Library: new general wait function (Enhancement 174)
+		31. Test Library: new event summary sent to users before the beginning of the test
+		32. Test Library: multiline support on tas event info, trace, error and warning functions (Enhancement 176)
+		33. New external library embedded: pexpect, hashlib to support python2.4
+		34. New Sut Adapters 3.0.0
+		35. New Sut Libraires 2.0.0
+		36. New tests samples
+		37. New probes package 2.3.0
+		38. Test Library: new deprecated functions
+		39. Dynamic reload of the configuration without restarting the server
+		40. Detecting php on installation, exit if not present on the system
+	Issues fixed
+		1. Test properties: list empty but not really (Issue 137)
+		2. Test Library: testcase suffix name does not work anymore (Issue 143)
+		3. Web server: no warning when mcrypt library is missing (Issue 144)
+		4. Test Library: incorrect final state result with undefined step (Issue 131)
+		5. Web server: json library does not exist with php 5.1 (Issue 146)
+		6. Web server: undefined misc-salt (Issue 142)
+		7. Web server: delete the fifth user is not possible (Issue 149)
+		8. Web server: Undefined variable: notifications in administration.php (Issue 148)
+		9. Archives repository: partial load failed (Issue 140)
+		10. Web server: no graphics with tests statistic (Issue 150)
+		11. Test Library: fixed incorrect level info on step event logger
+		12. Context: fix incorrect connection id on user registration
+		13. Mysql connection lost: fix exception during statistic user add
+		14. Test Library: set incorrect final result when an error occurred in the cleanup function (Issue 175)
+		15. User connected context: fix dictionary changed size during iteration
+		16. Fix installation: missing python-twisted library
+		17. Failed to connect to the server on centos french because of the date (Issue 178)
+		18. Parse test: unable to prepare (Issue 178)
+		19. Fix installation: whitespace in install directory name (Issue 132)
+		20. Fix missing iptable rules for outgoing probes connections
+		21. No probe result, php size limitation on upload (Issue 182)
+
+4.2.0
+	Date: 08/04/2013
+	What's new
+		1. Web server: center menu renamed to Packages
+		2. Task Manager / Test Model / WebServices: updated to support the new type of run without probes
+		3. Installation: download missing libraries automatically (Enhancement 121)
+		4. Network layer library updated to 1.5.0 version
+		5. Test Library: interact timeout customizable
+		6. Enable/Disable local or remote probes module
+		7. Probe Manager: stop a remote probe
+		8. Probe Server Interface: logs improved on registration
+		9. Web server: new menu documentations in overview
+		10. New storage for the documentations
+		11. Task Manager: disable or enable a waiting task
+		12. New TAC client 4.2.0 and Probes 2.2.0
+	Issues fixed
+		1. TaskManager: failed to update a task
+		2. Installation failed on redhat because of a syntax error in script (Issue 123)
+		3. Httpd isn't configured during installation: too much questions about apache (Issue 119)
+		4. Installation: database name missing in default cfg (Issue 125)
+		5. Installation: hardcoded database name (Issue 126)
+		6. Installation: mysql check failed (Issue 120)
+		7. Installation: template service name incorrect on redhat (Issue 122)
+		8. Installation: failed to connect to the db (Issue 124)
+		9. Cleanup uninstallation, service file not removed
+
+4.1.0
+	Date: 10/03/2013
+	What's new
+		1. Web server: help administration updated
+		2. Web server: title added on overview page
+		3. Web server: global tests statistics
+		4. Web server: user tests statistics
+		5. Privileges update: manager can export test verdict, add/remove comments to archives
+		6. Web Services: refreshTestsStats functions deprecated and removed
+		7. New startup script to support CentOS 6, Red Hat 5 and 6
+		8. Apache: virtual host configuration embedded, with certificates
+		9. New packaging with install and uninstall scripts
+		10. Task Manager: updated to support a number of run
+		11. Iptables rules embedded with script of installation
+		12. Start server script improved
+		13. Default probes to start updated to support the probe of type "command"
+		14. Task Manager: updated to return the current number of run with waiting tasks
+	Issues fixed
+		1. Web server: fix syntax error in help overview/about page
+		2. Add a missing check with openssl binary
+		3. Warning message: sha module no more used with python greater to 2.5
+		4. Fix incorrect default ip in config file
+		5. Server web not ready, incorrect url and port to support ssl
+
+4.0.0
+	Date: 30/01/2013
+	What's new
+		1. Local adapters directory removed (no backward compatibility)
+		2. Test system logging added to debug
+		3. Test Library: steps definition, new start function
+		4. User time connection reduced by four
+		5. Test Library: new function to initialize network socket 
+		6. Test Library: support "tas-eth" parameter on get function
+		7. Test Library: new mac address validator 
+		8. Test Library: new ipv4 address validator
+		9. Test Library: new update key and name function for templatelayer
+		10. Test Library: new getInt function on templatemessage and templatelayer
+		11. Test Library: new restart function on timer
+		12. Test Library: testsuites manager updated to support csv test result export
+		13. Test Model, Task Manager and Archives Manager: updated to support csv test result export
+		14. Web Services: new exportTestResultCsv function for admin and tester
+		15. User Manager: new authentication with salt and sha1 algorithm
+		16. Database model for users updated (no backward compatibility)
+		17. New dynamic configuration in database
+		18. New web server with some nice features on port 8082 with ssl
+		19. New feature to add, delete, update and disable user account
+		20. Backup paths removed from the context
+		21. Web Services: addUser/delUser/refreshUsers functions are deprecated and removed
+		22. User manager: new statistics
+		23. New licence model
+		24. User and stats manager: code cleanup
+		25. Web server: new user profile
+		26. Receive emails notifications on specific test result verdict or task states
+		27. Tests repository manager updated to support test data files
+		28. Libs updated: new files models
+		29. Test Library: tas-ip and tas-mac parameters updated, interface name added
+		30. Test Library: new dataset parameter (Enhancement 54)
+		31. Automatic backup for all repositories
+		32. Network layer library updated to 1.4.0 version
+		33. Network parameters (keepalive) is now configurable in tas.ini
+		34. Test Library: Network parameters are now configurable in test.ini
+		35. Test Library: user assistance (Enhancement 55)
+		36. Test Library: no more use the class Parameters, removed from helper
+		37. Scheduler changed to 3.1.0 version
+	Issues fixed
+		1. Help manager: return incorrect value on error
+		2. Doc generator: minor fix 
+		3. Fix incorrect statistics for adapters and libraries repositories
+		4. Task backup missing on test replay
+		5. Test Library: getParameters function missing
+		6. Web services: fix error on killTask when the task does not exist
+		7. No auto update for client 3.1.0 to 3.2.0 (Issue 115)
+		8. Xmlrpc fault can't serialize output (Issue 104)
+		9. Test Library: test blocked, fix internal cleanup 
+		10. Task Manager: debugging mode improved
+		11. Probes deployment failed (Issue 117)
+		12. Test Library: fix getevent function on templatemessage
+		13. Test Library: failed to add comments on testplan, variable referenced before assignment 
+		14. Probre Manager: fix incorrect bind ip to start probe
+		15. Bad link to download tac client (Issue 114)
+		16. No error returned when the task manager failed to fork a test
+		17. ParseTest: fix undefined variable te
+		18. Stats Manager: incorrect avg on duration (Issue 112)
+
+3.2.0
+	Date: 29/09/2012
+	What's new
+		1. Test Library: support "tas-ip" and "tas-mac" parameters on get function
+		2. Test Library: str description added on template object 
+		3. Web Services: new moveFileRepo function for admin, tester and developer users.
+		4. New configuration keys for modules tsi, wsu, psi and esi to bind on specific ip
+		5. Web Services: new refreshContextServer, refreshTasks functions for admin and tester
+		6. Server date added on the context of connection
+		7. Automatic deployment of the probes package on boot
+		8. Check update client function improved
+		9. Test Library: support italic font on display functions
+		10. Test Library: steps definition improved
+		11. TaskManager: new schedulation type weekly added
+		12. RepoManager: more metadata added on listing function
+		13. Test Library: get value by the key with case sensitive option
+		14. TestModel: factory code and improvements
+		15. New adapters storage data
+		16. Test Library: storing misc data function
+		17. New libraries repository for adapters
+		18. Test Library: test definition format changed, new abort function
+		19. Test Library: template layer updated to add raw data
+		20. TestLogger: timer term replaced by match
+		21. TestLogger: text events color is now configurable
+		22. Test Library: Timers and state manager support
+		23. Improvement: helper documentations are compressed before sending
+		24. Improvement: releases notes are compressed before sending
+	Issues fixed
+		1. Fix bad parsing during the discovery of all network interfaces (support french system)
+		2. Test Library: fix incorrect documentations with step definition
+		3. Repository Adapter: incorrect deny to rename file
+		4. Doc generator: fix to support function without arguments
+
+3.1.0
+	Date: 14/07/2012
+	What's new
+		1. New config file to start default probes
+		2. Web Services: new addProbe, delProbe functions for admin and tester 
+		3: Licence support with probes
+		4. Web Services: new addAdapterRepo function for admin and developer 
+		5. Network layer library changed to 1.3.0 version
+		6. Helper and release notes are encoded on xml rpc call
+		7. Test Library: new library for adapters and templates
+		8. Test Library: new tas template comparator 
+		9. Partial load of archives on connection
+		10. TextExecutorLib: new RegEx and NotRegEx operators
+		11. Web Services: new refreshHelper function for admin and tester 
+		12. Partial load of tasks history on connection
+		13. Web Services: new checkSyntaxAdapter and checkSyntaxAdapters functions for admin and developer 
+		14. TaskManager: new schedulation type added every xx
+		15. Final verdict added on the result test filename
+		16. Network interfaces list added on the context
+		17. New config key to disable the remote adapter development
+	Issues fixed
+		1. Log message improved: address already in use
+		2. Doc Generator: Boolean variable not correctly handled
+		3. Test Library: fix missing bold argument in the adapter library
+		4. Test Library: fix documentations in the template library
+
+3.0.0
+	Date: 09/06/2012
+	What's new
+		1. TestLibrary: new types validators: string, integer, float, date, time and datetime (Enhancement 76)
+		2. Test Library: new font parameter on xml logger
+		3. TaskManager: tests are prepared firstly in the temp environment before the real run
+		4. New backups storage
+		5. Microsecond support on test result folder name to avoid overwrite
+		6. DbManager: sql query escaped and return the last id on insert data
+		7. Database type and version added on context
+		8. Database status check on boot with timeout support
+		9. Web server status check on boot with timeout support
+		10. Logger changed to the version 1.0.2
+		11. Scheduler changed to 3.0.0 version
+		12. TaskManager: recursivity full support, new table in db
+		13. Web Services: new rescheduleTest function for admin and tester 
+		14. Web Services: new refreshRunningProbes function for admin and tester 
+		15. New config key to enable/disable debug logs on running tests
+		16. Test Statistics improved with execution time, number of tp and ts by day week and month; two new tables in db
+		17. New config key to enable/disable users notification on statistic, archives update
+		18. Statistics users notification disabled by default
+		19. Web Services: new refreshTestsStats function for admin and tester 
+		20. New default users: developer and manager
+		21. RepoManager: code review and improvements
+		22. Remote repository for adapters
+		23. New test result model (trx file), no backward compatibility
+		24. Web Services: addComment, loadComments, delComments functions for archives and admin/tester user
+		25. Network layer library changed to 1.2.0 version
+		26. EventServerInterface: new notify functions by users type
+		27. New public folders for tests and adapters backups
+		28. Web Services: new functions backupRepo, deleteBackupsRepo for admin and some factory code
+		29. UserManager: support user creation with multiple rights
+		30. Web Services: new functions refreshUsers for admin and manager
+		31. Test Library: new library for operators and validators
+	Issues fixed
+		1. Can't connect to local MySQL server (Issue 92)
+		2. Failed to add new user (Issue 95)
+		3. The deletion of his own user account is now denied
+		4. Incorrect tac version in index.php (Issue 93)
+		5. Server refused to start "web server not ready" (Issue 101)
+
+2.2.0
+	Date: 28/03/2012
+	What's new
+		1. TestModel: support "float" parameter on get function
+		2. TextExecutorLib: new storage to save/load temporary data from testcases
+		3. Web Services: function killTask updated to return taskId to client
+		4. Web Services: function killTask is now authorized for tester
+		5. Web Services: new cancelAllTasks and cancelTask functions for admin and tester 
+		6. Scheduler changed to 2.2.0 version
+		7. Help Manager updated to support sut adapters documentations
+		8. New tmp path in configuration file
+		9. New cache for the documentation
+		10. Web Services: new functions for admin only: genCacheHelp
+		11. Web Services: new response code "400 failed"
+		12. Task name prefixed by test path only for remote file
+		13. Web Services: new refreshStatsRepoArchives function for admin and user
+		14. Web Services: new refreshStatsServer function for admin
+		15. Web Services: getFileRepo updated to return testsuite id on testplan
+		16. All level logs improved
+		17. Log level set to INFO for stable release
+		18. Logger changed to the first stable release 1.0.1
+		19. New settings file for the test executor
+		20. Enhancement 56: TestExecutorLib: new warning function on testcase
+		21. Web: new "Packages directory", contains the tac client
+		22. Network layer library changed to 1.1.1 version
+		23. StatsManager module renamed to TestStatsManager
+		24. New module DbManager
+		25. New module UsersManager, split from the context module
+	Issues fixed
+		1. Default user 'tester' is missing after update 1.x.x to 2.1.0 (Issue 32)
+		2. Default config file incorrect (Issue 26)
+		3. "No module named Probes" on server stop (Issue 34)
+		4. Get bool argument returns always true in test (Issue 39)
+		5. Test name for archive improved only for remote file (Issue 35)
+		6. None object on stopDefault probe (Issue 50)
+		7. Shut-down error on start server failed (Issue 23)
+		8. File not supported error messages on computeStats (Issue 46)
+		9. Load: events not send to client (Issue 53)
+		10. Load: wrong statistics with testcase (Issue 51)
+		11. The server send events but it is not necessary (Issue 42)
+		12. Hard coded client version in index.php (Issue 19)
+		13. Probe still running when a test is killed (Issue 38)
+		14. No cache generated for the documentation (Issue 64)
+		15. Sometime restart server failed (Issue 33)
+
+2.1.0
+	Date: 27/02/2012
+	What's new
+		1. Web Services: getAdvancedInformations updated to return probes release notes
+		2. Network layer library changed to 1.1.0 version
+		3. Test model: code factory
+		4. Archive Manager: new index file on zip file
+		5. Prover Server Interface: start at information added
+		6. Context: connected at, server started at informations added
+		7. New probes manager
+		8. Default probes (network, textual and file) started on start
+		9. Web Services: new functions for admin and tester, stopProbe and startProbe
+		10. TestModel: support "bool" parameter on get function
+	Issues fixed
+		1. Zip archived failed: No space left on device (Issue 21)
+		2. Error message on connection: user already connected (Issue 7)
+		3. Improve step display (Issue 24)
+		4. Testplan: parameters mandatory (Issue 17)
+
+2.0.0
+	Date: 13/02/2012
+	What's new
+		1. TestModel: support "int" parameter on get function
+		2. Web Services: new functions for admin and users: duplicateFileRepo, duplicateDirRepo
+		3. Web Services: new functions for admin only: delDirAllRepo
+		4. RepoManager: getListingFiles updated to support test config file
+		5. Web Services: new resetTestsStats function for admin only
+		6. TestResults: extension *.zlog changed to *.trx, no backward compatibility
+		7. Tree storage for tests results changed, no backward compatibility
+		8. Web Services: new emptyRepoTests and emptyRepoArchives function for admin only
+		9. Web Services: getAdvancedInformations updated to return test repository statistics
+		10. Web Services: new refreshStatsRepoTests function for admin and user
+		11. Support zip file for archive manager
+		12. Web Services: new zipRepoArchives function for admin and user	
+		13: Licence support on add user
+		14. New helper manager to generate documentations for test executor lib, adapters, etc...
+	Issues fixed
+		1. Tas server does not restart after a crash server (Issue 11)
+
+1.2.0
+	Date: 14/01/2012
+	What's new
+		1. Task Manager: new state "KILLED" added
+		2. Web Services: new killTask function for admin only
+		3. Stats manager updated to support the new state 'killed'
+		4. Web Services: new killAllTasks function for admin only
+		5. LocalAdapters directory re-integrated but always deprecated
+		6. Stats Manager: users statistic added 
+		7. Web directory which contains all tests and tests result and more
+		8. Repository library manager
+		9. Web Services: new functions for admin and users: getFileRepo, putFileRepo, addDirRepo, delDirRepo, renameDirRepo, delFileRepo, renameFileRepo
+		10. Web Services: scheduleTest and checkSyntaxTest functions updated to support remote testsuite in testplan
+		11. New user level: Administrator, Tester and Developer
+		12. Web Services: getAdvancedInformations updated to return adapter release notes
+		13. Samples integrated in the remote repository
+		14. Very basic web homepage
+		15. Default username guest changed to "tester"
+	Issues fixed
+		1. Robustness : no error if tas.ini doesn't exist (Issue 9)
+		2. fix uninstall database
+
+1.1.0
+	Date: 29/12/2011
+	What's new
+		1. Test Library: logTasPayload functions added
+		2. Test Library: Tas payload new compare functions (greaterthan, lowerthan, etc...)
+		3. Test Library: colors definition for events
+		4. Test Library: trace function added on component
+		5. Test Library: wait function improved, support str value
+		6. SutAdapters directory added with new tree, replace the old directory LocalAdapters
+		7. Script to package the server
+	Issues fixed
+		1. Error message "invalid syntax" on test run (Issue 2)
+		2. Zip file contains tas.pid, so server can't start (Issue 4)
+		3. Restart service tas failed (Issue 5)
+
+1.0.0
+	Date: 13/12/2011
+	What's new
+		1. Rc init script for centos5
+		2. tas daemon available as service
+	Issues fixed
+		1. Fix install
+		2. Fix utf8 encodage type in test model
+
+1.0.0 beta
+	Date: 17/05/2010
+	What's new
+		1. First beta release
+	Issues fixed
+		1. None

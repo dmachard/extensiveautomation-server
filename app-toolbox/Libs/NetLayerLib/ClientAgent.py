@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -161,7 +161,7 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
         TcpClient.TcpClientThread.start(self)
         res =  self.getLocalAddress()
         if res[0] == '':
-            self.__localAddress = ('localhost', res[1])
+            self.__localAddress = ('127.0.0.1', res[1])
         else:
             self.__localAddress = res
         if self.__startAuto:

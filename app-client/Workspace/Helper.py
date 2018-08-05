@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -59,7 +59,7 @@ except ImportError:
 import Settings
 from Libs import QtHelper, Logger
 import DefaultTemplates
-import UserClientInterface as UCI
+# import UserClientInterface as UCI
 import RestClientInterface as RCI
 
 class Item(QTreeWidgetItem):
@@ -102,14 +102,14 @@ class Item(QTreeWidgetItem):
         self.setMetadata()
 
         if isGeneric and isDefault and self.itemData['type'] in [ 'libraries', 'adapters' ]:
-            self.setText(0, "%s (default)" % self.itemData['name'])
+            self.setText(0, "%s (extra)" % self.itemData['name'])
             self.setExpanded(True)
         else:  
             if isGeneric and self.itemData['type'] in [ 'libraries', 'adapters' ] :
                 self.setText(0, "%s (generic)" % self.itemData['name'])
                 self.setExpanded(True)
             elif isDefault and self.itemData['type'] in [ 'libraries', 'adapters' ] :
-                self.setText(0, "%s (default)" % self.itemData['name'])
+                self.setText(0, "%s (extra)" % self.itemData['name'])
                 self.setExpanded(True)
             else:
                 self.setText(0, self.itemData['name'])
@@ -222,6 +222,15 @@ class Item(QTreeWidgetItem):
                     elif self.parent.itemData['realname'].startswith("SutLibraries."):
                         __name = self.parent.itemData['realname'].split("SutLibraries.")[1]
                         self.metadata = [ '@obj = SutLibraries.Generic.%s.%s(%s)' % (__name, className,methodArgs) , '']
+                    else:
+                        self.metadata = [ '@obj = %s.%s(%s)' % (self.parent.itemData['realname'], className,methodArgs) , '']
+                if not self.isGeneric and self.isDefault:
+                    if self.parent.itemData['realname'].startswith("SutAdapters."):
+                        __name = self.parent.itemData['realname'].split("SutAdapters.")[1]
+                        self.metadata = [ '@obj = SutAdapters.Extra.%s.%s(%s)' % (__name, className,methodArgs) , '']
+                    elif self.parent.itemData['realname'].startswith("SutLibraries."):
+                        __name = self.parent.itemData['realname'].split("SutLibraries.")[1]
+                        self.metadata = [ '@obj = SutLibraries.Extra.%s.%s(%s)' % (__name, className,methodArgs) , '']
                     else:
                         self.metadata = [ '@obj = %s.%s(%s)' % (self.parent.itemData['realname'], className,methodArgs) , '']
                 else:
@@ -822,7 +831,7 @@ class WHelper(QWidget, Logger.ClassLogger):
         self.helperLibraries.setContextMenuPolicy(Qt.CustomContextMenu)
         
         self.areaTab.addTab(self.helper, QIcon(":/processes.png"), "Framework")
-        self.areaTab.addTab(self.helperInterop, QIcon(":/plugin.png"), "Interoperability")
+        self.areaTab.addTab(self.helperInterop, QIcon(":/plugin.png"), "Third party tools")
         self.extsTab.addTab(self.helperAdapters, QIcon(":/adapters-help.png"), "Adapters")
         self.extsTab.addTab(self.helperLibraries, QIcon(":/libraries-help.png"), "Libraries")
 
@@ -1109,7 +1118,7 @@ class WHelper(QWidget, Logger.ClassLogger):
         self.masterTab.setEnabled(True)
 
         self.reloadAllAction.setEnabled(True)
-        if UCI.RIGHTS_ADMIN in RCI.instance().userRights :
+        if RCI.RIGHTS_ADMIN in RCI.instance().userRights :
             self.rebuildCacheAction.setEnabled(True)
             self.generateAdaptersAction.setEnabled(True)
             self.generateLibrariesAction.setEnabled(True)
@@ -1261,9 +1270,7 @@ class WHelper(QWidget, Logger.ClassLogger):
                 self.assistantData = helpObj
             except Exception as e:
                 self.error( 'unable to loads helper data: %s' % str(e) )
-
-        # if  UCI.RIGHTS_ADMIN in RCI.instance().userRights or UCI.RIGHTS_TESTER in RCI.instance().userRights or \
-                # UCI.RIGHTS_DEVELOPER in RCI.instance().userRights:
+                
         self.setConnected() 
 
         self.helper.setEnabled(True)
@@ -1312,7 +1319,7 @@ class WHelper(QWidget, Logger.ClassLogger):
                                                     if f['name'] == functionName: 
                                                         return f
 
-    def helpAdapters(self, name=None):
+    def helpAdapters(self, name=None, generic=False):
         """
         return help all objects
         """
@@ -1321,12 +1328,15 @@ class WHelper(QWidget, Logger.ClassLogger):
         for h in self.assistantData:
             if  h['type'] == 'package-adapters':
                 for sutadp in h['adapters']:
-                    if name is not None:
-                        if sutadp['name'] == name:
-                            return sutadp['modules']
+                    if generic:
+                        return sutadp['modules']
                     else:
-                        if sutadp['is-default']:
-                            return sutadp['modules']
+                        if name is not None:
+                            if sutadp['name'] == name:
+                                return sutadp['modules']
+                        else:
+                            if sutadp['is-default']:
+                                return sutadp['modules']
                 return []
 
     def isGuiGeneric(self, name="GUI"):
@@ -1345,7 +1355,7 @@ class WHelper(QWidget, Logger.ClassLogger):
                                 break
         return isGeneric
         
-    def helpLibraries(self, name=None):
+    def helpLibraries(self, name=None, generic=False):
         """
         return help all objects
         """
@@ -1354,12 +1364,15 @@ class WHelper(QWidget, Logger.ClassLogger):
         for h in self.assistantData:
             if  h['type'] == 'package-libraries':
                 for sutlib in h['libraries']:
-                    if name is not None:
-                        if sutlib['name'] == name:
-                            return sutlib['modules']
+                    if generic:
+                        return sutlib['modules']
                     else:
-                        if sutlib['is-default']:
-                            return sutlib['modules']
+                        if name is not None:
+                            if sutlib['name'] == name:
+                                return sutlib['modules']
+                        else:
+                            if sutlib['is-default']:
+                                return sutlib['modules']
                 return []
 
     def onReset(self):

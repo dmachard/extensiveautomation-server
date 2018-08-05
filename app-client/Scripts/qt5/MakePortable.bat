@@ -1,6 +1,6 @@
 :: -------------------------------------------------------------------
 :: Copyright (c) 2010-2018 Denis Machard
-:: This file is part of the extensive testing project
+:: This file is part of the extensive automation project
 ::
 :: This library is free software; you can redistribute it and/or
 :: modify it under the terms of the GNU Lesser General Public
@@ -20,19 +20,22 @@
 
 @echo off
 
-set Project=%~dp0..\..\
+:: init paths
+set Path_Project=%~dp0..\..\
+set Path_Python=C:\Python36
 
-set PythonPath=C:\Python36
-set Python=%PythonPath%\python.exe
+:: init tools path
+set Tool_Python=%Path_Python%\python.exe
+set Tool_PyInstaller=%Path_Python%\Scripts\pyinstaller.exe
 
 :: make resources
-%PythonPath%\python.exe -m PyQt5.pyrcc_main -o "%Project%\Resources\Resources.py" "%Project%\Resources\__resources.qrc"
+%Tool_Python% -m PyQt5.pyrcc_main -o "%Path_Project%\Resources\Resources.py" "%Path_Project%\Resources\__resources.qrc"
 
 :: build the project
 echo Build the project...
-cd "%Project%"
-%Python% "%Project%\ConfigureExe.py" portable
-%PythonPath%\Scripts\pyinstaller.exe --clean --noconfirm BuildWinIns.spec
-%Python% "%Project%\BuildWinIns.py"
+cd "%Path_Project%"
+%Tool_Python% "%Path_Project%\ConfigureExe.py" portable
+%Tool_PyInstaller% --clean --noconfirm BuildWinIns.spec
+%Tool_Python% "%Path_Project%\BuildWinIns.py"
 
 pause

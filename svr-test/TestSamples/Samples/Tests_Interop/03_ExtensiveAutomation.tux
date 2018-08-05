@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<file>
+<properties><descriptions><description><value>admin</value><key>author</key></description><description><value>02/08/2016 22:15:52</value><key>creation date</key></description><description><value>Just a basic sample.</value><key>summary</key></description><description><value>None.</value><key>prerequisites</key></description><description><value><comments /></value><key>comments</key></description><description><value>myplugins</value><key>libraries</key></description><description><value>myplugins</value><key>adapters</key></description><description><value>Writing</value><key>state</key></description><description><value>TESTCASE</value><key>name</key></description><description><value>REQ_01</value><key>requirement</key></description></descriptions><inputs-parameters><parameter><color /><description /><type>bool</type><name>DEBUG</name><value>False</value><scope>local</scope></parameter><parameter><color>#FDFFBD</color><description /><type>str</type><name>EA_LOGIN</name><value>tester</value><scope>local</scope></parameter><parameter><color>#FDFFBD</color><description /><type>pwd</type><name>EA_PASSWORD</name><value /><scope>local</scope></parameter><parameter><color>#FDFFBD</color><description /><type>str</type><name>EA_PROJECT</name><value>Common</value><scope>local</scope></parameter><parameter><color>#FDFFBD</color><description /><type>text</type><name>EA_URL</name><value>https://[!CACHE:NODE_REST_API:HTTP_DEST_HOST:]</value><scope>local</scope></parameter><parameter><description /><name>NODE_REST_API</name><color>#D4FFAF</color><value>1:Common:SAMPLE_NODE:REST_API</value><scope>cache</scope><type>global</type></parameter><parameter><color /><description /><type>float</type><name>TIMEOUT</name><value>1.0</value><scope>local</scope></parameter><parameter><color /><description /><type>bool</type><name>VERBOSE</name><value>True</value><scope>local</scope></parameter></inputs-parameters><agents><agent><description /><type>dummy</type><name>AGENT</name><value>agent-dummy01</value></agent></agents><probes><probe><active>False</active><args /><name>probe01</name><type>default</type></probe></probes><outputs-parameters><parameter><color /><description /><type>float</type><name>TIMEOUT</name><value>1.0</value><scope>local</scope></parameter></outputs-parameters></properties>
+<testdefinition><![CDATA[ 
+def description(self):
+	# testcase description
+	self.setPurpose(purpose=description('summary'))
+	self.setRequirement(requirement=description('requirement'))
+
+	# steps description
+	self.step1 = self.addStep(expected="result expected", description="step description", summary="step sample", enabled=True)
+def prepare(self):
+	self.ET = TestInteroperability.ExtensiveAutomation(parent=self, url=input('EA_URL'), 
+																								login=input('EA_LOGIN'), password=input('EA_PASSWORD'),
+																								 verifySsl=False, proxies={})
+def definition(self):
+	# starting initial step
+	if self.step1.isEnabled():
+		self.step1.start()
+		
+		if not self.ET.login():
+			self.abort("unable to connect")
+
+		testInputs = [ {'name': 'DURATION', 'type': 'int' , 'value':  '5'} ]
+		self.ET.runTest(testPath="/Snippets/Do/01_Wait.tux", projectName=input('EA_PROJECT'), testInputs=testInputs)
+			
+		if not self.ET.logout():
+			self.abort("unable to connect")
+
+		self.step1.setPassed(actual="success")
+def cleanup(self, aborted):
+	pass]]></testdefinition>
+<testdevelopment>1470168952.945167</testdevelopment>
+</file>

@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2017 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -65,11 +65,13 @@ The data argument can contains anything, but a dictionary is prefered.
 
 Targetted operating system: Windows, Linux"""
 
-def initialize (controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport):
+def initialize (controllerIp, controllerPort, toolName, toolDesc, 
+                defaultTool, supportProxy, proxyIp, proxyPort, sslSupport):
     """
     Wrapper to initialize the object agent
     """
-    return Kafka( controllerIp, controllerPort, toolName, toolDesc, defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
+    return Kafka( controllerIp, controllerPort, toolName, toolDesc, 
+                  defaultTool, supportProxy, proxyIp, proxyPort, sslSupport )
     
 
 class Kafka(GenericTool.Tool):
@@ -94,7 +96,8 @@ class Kafka(GenericTool.Tool):
         @type defaultTool: boolean
         """
         GenericTool.Tool.__init__(self, controllerIp, controllerPort, toolName, toolDesc, defaultTool, 
-                                    supportProxy=supportProxy, proxyIp=proxyIp, proxyPort=proxyPort, sslSupport=sslSupport)
+                                    supportProxy=supportProxy, proxyIp=proxyIp, 
+                                    proxyPort=proxyPort, sslSupport=sslSupport)
         self.__type__ = __TYPE__
         self.__mutex__ = threading.RLock()
 
@@ -249,17 +252,14 @@ class Kafka(GenericTool.Tool):
         """
         self.__mutex__.acquire()
         self.onToolLogWarningCalled(msg="notify received: %s" % request['data'])
-        #self.sendData(request=request, data="data sent")
-        #self.sendError(request=request, data="error sent")
+
         if request['uuid'] in self.context():
             if request['source-adapter'] in self.context()[request['uuid']]:
                 ctx_test = self.context()[request['uuid']][request['source-adapter']]
-                #if ctx_test.ctx() is None: 
-                #    ctx_test.ctx_plugin = FtpContext()
                 self.execAction(request)
-                #ctx_test.putItem( lambda: self.execAction(request) )
             else:
-                self.error("Adapter context does not exists TestUuid=%s AdapterId=%s" % (request['uuid'], request['source-adapter'] ) )
+                self.error("Adapter context does not exists TestUuid=%s AdapterId=%s" % (request['uuid'], 
+                                                                                         request['source-adapter'] ) )
         else:
             self.error("Test context does not exits TestUuid=%s" % request['uuid'])
         self.__mutex__.release()
@@ -270,7 +270,9 @@ class Kafka(GenericTool.Tool):
         """
         currentTest = self.context()[request['uuid']][request['source-adapter']]
 
-        self.onToolLogWarningCalled( "<< Starting Command=%s TestId=%s AdapterId=%s" % (request['data']['cmd'],request['script_id'], request['source-adapter']) )
+        self.onToolLogWarningCalled( "<< Starting Command=%s TestId=%s AdapterId=%s" % (request['data']['cmd'],
+                                                                                        request['script_id'], 
+                                                                                        request['source-adapter']) )
         try:
             cmd = request['data']['cmd']
             data = request['data']
@@ -281,34 +283,39 @@ class Kafka(GenericTool.Tool):
                 try:
                     self.producer = KafkaProducer(bootstrap_servers=data['bootstrap_servers'], **kargs )
                     self.sendNotify(request=request, data={ "cmd": cmd , 'result': 'connected' } )
-		except KafkaError  as e:
+                except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )	
+                    
             elif cmd == 'producer_send':
                 kargs=data['kargs']
                 try:
                     future = self.producer.send(data['topic'], **kargs)
-		    record_metadata=future.get(timeout=data['timeout'])
+                    record_metadata=future.get(timeout=data['timeout'])
                     self.sendNotify(request=request, data={ "cmd": cmd , 'result': record_metadata } )
-		except KafkaError  as e:
+                except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'producer_flush':
                 try:
                     self.producer.flush(data['timeout'])
                     self.sendNotify(request=request, data={ "cmd": cmd , 'result': 'flushed' })
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'producer_partitions_for':
                 try:
                     partitions = self.producer.partitions_for(data['topic'])
                     self.sendNotify(request=request, data={ "cmd": cmd , 'result': partitions })
-		except KafkaError  as e:
+                except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'producer_close':
                 try:
                     self.producer.close(int(data['timeout']))
                     self.sendNotify(request=request, data={ "cmd": cmd , 'result': 'closed' })
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_connect':
                 kargs=data['kargs']
                 try:
@@ -319,150 +326,175 @@ class Kafka(GenericTool.Tool):
                     self.sendNotify(request=request, data={ "cmd": cmd , 'result': 'connected' })
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_consume':
                 try:
                     for msg in self.consumer :
                         self.sendNotify(request=request, data={ "cmd": cmd , 'result': msg } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_close':
                 try:
                     self.consumer.close(data['autocommit'])
                     self.sendNotify(request=request, data={ "cmd": cmd , 'result': 'closed' } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_assign':
                 try:
                     self.consumer.assign(data['partitions'])
                     self.sendNotify(request=request, data={ "cmd": cmd , 'result': 'assigned' } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_assignment':
                 try:
                     topicpartitions = self.consumer.assignment()
                     self.sendNotify(request=request, data={ "cmd": cmd , 'topicpartitions': topicpartitions } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_beginning_offsets':
                 try:
                     offsets = self.consumer.beginning_offsets(data['partitions'])
                     self.sendNotify(request=request, data={ "cmd": cmd , 'offsets': offsets } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_commit':
                 try:
                     self.consumer.commit(data['offsets'])
                     self.sendNotify(request=request, data={ "cmd": cmd , 'result': 'committed' } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_commit_async':
                 try:
                     future = self.consumer.commit_async(offsets=data['offsets'],callback=data['callback'])
                     self.sendNotify(request=request, data={ "cmd": cmd , 'future': future } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_committed':
                 try:
                     offsets = self.consumer.committed(data['topicpartition'])
                     self.sendNotify(request=request, data={ "cmd": cmd , 'offsets': offsets } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_end_offsets':
                 try:
                     partitions = self.consumer.end_offsets(data['partitions'])
                     self.sendNotify(request=request, data={ "cmd": cmd , 'partitions': partitions } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_highwater':
                 try:
                     offset = self.consumer.highwater(data['partition'])
                     self.sendNotify(request=request, data={ "cmd": cmd , 'offset': offset } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_offsets_for_times':
                 try:
                     offsets = self.consumer.offsets_for_times(data['timestamps'])
                     self.sendNotify(request=request, data={ "cmd": cmd , 'offsets': offsets } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_partitions_for_topic':
                 try:
                     partitions = self.consumer.partitions_for_topic(data['topic'])
                     self.sendNotify(request=request, data={ "cmd": cmd , 'partitions': partitions } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_pause':
                 try:
                     self.consumer.pause(data['partitions'])
                     self.sendNotify(request=request, data={ "cmd": cmd , 'result': 'success' } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_paused':
                 try:
                     partitions=self.consumer.paused()
                     self.sendNotify(request=request, data={ "cmd": cmd , 'partitions': partitions } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_poll':
                 try:
                     records = self.consumer.poll(timeout_ms=data['timeout_ms'], max_records=data['max_records'])
                     self.sendNotify(request=request, data={ "cmd": cmd , 'records': records } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_position':
                 try:
                     offset = self.consumer.position(data['topicpartition'])
                     self.sendNotify(request=request, data={ "cmd": cmd , 'offset': offset } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_resume':
                 try:
                     self.consumer.resume(data['partitions'])
                     self.sendNotify(request=request, data={ "cmd": cmd , 'result': 'success' } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_seek':
                 try:
                     self.consumer.seek(data['partition'],data['offset'])
                     self.sendNotify(request=request, data={ "cmd": cmd , 'result': 'success' } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_seek_to_beginning':
                 try:
                     self.consumer.seek_to_beginning(*data['partitions'])
                     self.sendNotify(request=request, data={ "cmd": cmd , 'result': 'success' } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_seek_to_end':
                 try:
                     self.consumer.seek_to_end(*data['partitions'])
                     self.sendNotify(request=request, data={ "cmd": cmd , 'result': 'success' } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_subscribe':
                 try:
                     self.consumer.subscribe(topics=data['topics'], pattern=data['pattern'], listener=data['listener'])
                     self.sendNotify(request=request, data={ "cmd": cmd , 'result': 'success' } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_subscription':
                 try:
                     topics=self.consumer.subscription()
                     self.sendNotify(request=request, data={ "cmd": cmd , 'topics': topics } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_topics':
                 try:
                     topics = self.consumer.topics()
                     self.sendNotify(request=request, data={ "cmd": cmd , 'topics': topics } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             elif cmd == 'consumer_unsubscribe':
                 try:
                     self.consumer.unsubscribe()
                     self.sendNotify(request=request, data={ "cmd": cmd , 'result': 'success' } )
                 except KafkaError  as e:
                     self.sendError( request , data={"cmd": cmd , "err-msg": str(e)} )
+                    
             # unknown command
             else:
                 raise Exception('cmd not supported: %s' % request['data']['cmd'] )
@@ -470,5 +502,7 @@ class Kafka(GenericTool.Tool):
             self.error( 'unable to run command: %s' % str(e) )
             self.sendError( request , data="unable to run command")
 
-        self.onToolLogWarningCalled( "<< Terminated Command=%s TestId=%s AdapterId=%s" % (request['data']['cmd'],request['script-id'], request['source-adapter']) )
+        self.onToolLogWarningCalled( "<< Terminated Command=%s TestId=%s AdapterId=%s" % (request['data']['cmd'],
+                                                                                          request['script-id'], 
+                                                                                          request['source-adapter']) )
 

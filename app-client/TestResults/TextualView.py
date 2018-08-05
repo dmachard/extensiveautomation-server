@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -522,7 +522,6 @@ class TextualView2(QWidget):
         @param event:
         @type event: 
         """
-        # print(ihmId)
         event["ihm_id"] = ihmId
         
         # new in v11.2

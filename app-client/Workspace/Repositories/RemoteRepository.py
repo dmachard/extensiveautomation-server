@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -39,16 +39,18 @@ except NameError: # support python3
 USE_PYQT5 = False
 try:
     from PyQt4.QtGui import (QDialog, QPushButton, QLabel, QFont, QComboBox, QVBoxLayout, QHBoxLayout, 
-                             QTreeWidget, QFrame, QHeaderView, QAbstractItemView, QLineEdit, QMessageBox,
-                             QTreeWidgetItem, QDialogButtonBox, QDrag, QTreeView, QFormLayout, QStyle,
-                             QPixmap, QWidget, QIcon, QMenu, QToolBar, QInputDialog, QCheckBox)
+                            QTreeWidget, QFrame, QHeaderView, QAbstractItemView, QLineEdit, QMessageBox, 
+                            QTreeWidgetItem, QDialogButtonBox, QDrag, QTreeView, QFormLayout, QStyle, 
+                            QPixmap, QWidget, QIcon, QMenu, QToolBar, QInputDialog, QCheckBox,
+                            QDesktopWidget)
     from PyQt4.QtCore import (pyqtSignal, Qt, QRect, QMimeData, QSize, QObject, QEvent)
 except ImportError:
     from PyQt5.QtGui import (QFont, QDrag, QPixmap, QIcon)
     from PyQt5.QtWidgets import (QDialog, QPushButton, QLabel, QComboBox, QVBoxLayout,
-                                 QHBoxLayout, QTreeWidget, QFrame, QHeaderView, QAbstractItemView,
-                                 QLineEdit, QMessageBox, QTreeWidgetItem, QDialogButtonBox, QCheckBox,
-                                 QTreeView, QFormLayout, QStyle, QWidget, QMenu, QToolBar, QInputDialog, QDesktopWidget)
+                                QHBoxLayout, QTreeWidget, QFrame, QHeaderView, QAbstractItemView, 
+                                QLineEdit, QMessageBox, QTreeWidgetItem, QDialogButtonBox, QCheckBox,
+                                QTreeView, QFormLayout, QStyle, QWidget, QMenu, QToolBar, 
+                                QInputDialog, QDesktopWidget)
     from PyQt5.QtCore import (pyqtSignal, Qt, QRect, QMimeData, QSize, QObject, QEvent)
     USE_PYQT5 = True
     
@@ -112,8 +114,7 @@ class SaveOpenToRepoDialog(QDialog, Logger.ClassLogger):
         super(SaveOpenToRepoDialog, self).__init__(parent)
         
         self.owner = parent
-        
-        #
+
         self.filenameLineEdit = None
         self.selectedFilename = None
         self.selectedFilenames = []
@@ -186,13 +187,16 @@ class SaveOpenToRepoDialog(QDialog, Logger.ClassLogger):
         layout = QVBoxLayout()
         
         layoutProject = QHBoxLayout()
-        
+
         layoutProject.addWidget( self.projectLabel )
         layoutProject.addWidget( self.projectCombobox )
+
+        layoutProject.addWidget( self.warningLabel )
         
         layoutProject.setContentsMargins(0, 0, 0, 0)
         layoutProject.setSpacing(10)
         layoutProject.setAlignment(Qt.AlignLeft)
+
         layout.addLayout(layoutProject)
 
         self.wrepository = QTreeWidget()
@@ -207,9 +211,7 @@ class SaveOpenToRepoDialog(QDialog, Logger.ClassLogger):
         if self.multipleSelection:
             self.wrepository.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
-        
         layout.addWidget( self.wrepository )
-        layout.addWidget( self.warningLabel )
 
         fileLayout = QHBoxLayout()
         self.filenameLabel = QLabel(self.tr('File name:'))
@@ -217,19 +219,23 @@ class SaveOpenToRepoDialog(QDialog, Logger.ClassLogger):
         self.filenameLineEdit = QLineEdit()
         fileLayout.addWidget( self.filenameLineEdit )
         layout.addLayout(fileLayout)
-
-        # dbr13 >>
-        # Checkbox for Update --> Location
-        self.update_location_in_tests = QCheckBox(self.tr('Update all occurrences in my projects'))
+        
+        # dbr13 >> Checkbox for Update --> Location
+        text_update = self.tr('Search and update this new test location in all\ntestplan or testglobal?')
+        text_refresh = self.tr('Update all occurences in this current test with\n this new test location?')
+        self.update_location_in_tests = QCheckBox(text_update)
+        self.referer_refresh_in_tests = QCheckBox(text_refresh)
         # dbr13 <<
+        
+        optLayout = QVBoxLayout()
+        optLayout.addWidget(self.referer_refresh_in_tests)
+        optLayout.addWidget(self.update_location_in_tests)
 
         # Buttons
         self.cancelButton = QPushButton(self.tr("Cancel"))
         buttonLayout = QHBoxLayout()
         buttonLayout.addStretch()
-        # dbr13 >> added checkbox to buttons layout
-        buttonLayout.addWidget(self.update_location_in_tests)
-        # dbr13 <<<
+        buttonLayout.addLayout(optLayout)
         buttonLayout.addWidget(self.acceptButton)
         buttonLayout.addWidget(self.cancelButton)
         layout.addLayout(buttonLayout)
@@ -330,16 +336,20 @@ class SaveOpenToRepoDialog(QDialog, Logger.ClassLogger):
                     return
 
                 if '>' in filename or '<' in filename:
-                    QMessageBox.warning(self, self.tr("Save") , self.tr("Invalid filename (\/:?<>*|\").") )
+                    QMessageBox.warning(self, self.tr("Save") , 
+                                        self.tr("Invalid filename (\/:?<>*|\").") )
                     return
                 if '?' in filename or ':' in filename:
-                    QMessageBox.warning(self, self.tr("Save") , self.tr("Invalid filename (\/:?<>*|\").") )
+                    QMessageBox.warning(self, self.tr("Save") , 
+                                        self.tr("Invalid filename (\/:?<>*|\").") )
                     return
                 if '|' in filename or '*' in filename:
-                    QMessageBox.warning(self, self.tr("Save") , self.tr("Invalid filename (\/:?<>*|\").") )
+                    QMessageBox.warning(self, self.tr("Save") , 
+                                        self.tr("Invalid filename (\/:?<>*|\").") )
                     return
                 if '"' in filename or '\\' in filename or '/' in filename:
-                    QMessageBox.warning(self, self.tr("Save") , self.tr("Invalid filename (\/:?<>*|\").") )
+                    QMessageBox.warning(self, self.tr("Save") , 
+                                        self.tr("Invalid filename (\/:?<>*|\").") )
                     return
 
             if self.modeRepoSave:
@@ -420,7 +430,8 @@ class SaveOpenToRepoDialog(QDialog, Logger.ClassLogger):
         
         if self.modeMoveFolder:
             self.hideItems( hideTsx=True, hideTpx=True, hideTcx=True, hideTdx=True, 
-                            hideTxt=True, hidePy=True, hideTux=True, hidePng=True, hideTgx=True, hideTax=True)
+                            hideTxt=True, hidePy=True, hideTux=True, 
+                            hidePng=True, hideTgx=True, hideTax=True)
 
         if self.modeSaveFile:
             self.hideItems(hideTsx=True, hideTpx=True, hideTcx=True, hideTdx=True, hideTxt=True, 
@@ -497,7 +508,7 @@ class SaveOpenToRepoDialog(QDialog, Logger.ClassLogger):
         """
         self.selectedFilename = dirValue
 
-    def setMoveFile(self, project=''):
+    def setMoveFile(self, project='', update_path=False):
         """
         Set as move file
 
@@ -525,8 +536,17 @@ class SaveOpenToRepoDialog(QDialog, Logger.ClassLogger):
         self.acceptButton.setText(self.tr("Select"))
         self.filenameLabel.hide()
         self.filenameLineEdit.hide()
-
-    def setMoveFolder(self, project=''):
+        
+        self.update_location_in_tests.setChecked(False)
+        self.referer_refresh_in_tests.setChecked(False)
+        if update_path:
+            self.update_location_in_tests.show()
+            self.referer_refresh_in_tests.show()
+        else:
+            self.update_location_in_tests.hide()
+            self.referer_refresh_in_tests.hide()
+            
+    def setMoveFolder(self, project='', update_path=False):
         """
         Set as move folder
 
@@ -556,7 +576,16 @@ class SaveOpenToRepoDialog(QDialog, Logger.ClassLogger):
         self.acceptButton.setText(self.tr("Select"))
         self.filenameLabel.hide()
         self.filenameLineEdit.hide()
-
+        
+        self.update_location_in_tests.setChecked(False)
+        self.referer_refresh_in_tests.setChecked(False)
+        if update_path:
+            self.update_location_in_tests.show()
+            self.referer_refresh_in_tests.show()
+        else:
+            self.update_location_in_tests.hide()
+            self.referer_refresh_in_tests.hide()
+            
     def setFilename(self, filename, project=''):
         """
         Set the filename
@@ -585,15 +614,28 @@ class SaveOpenToRepoDialog(QDialog, Logger.ClassLogger):
 
         self.setWindowTitle(self.tr('Save to remote repository as ...'))
         self.acceptButton.setText(self.tr("Save"))
+        
         # dbr13 >>
         self.update_location_in_tests.setChecked(False)
         self.update_location_in_tests.hide()
+        self.referer_refresh_in_tests.setChecked(False)
+        self.referer_refresh_in_tests.hide()
         # dbr13 <<
         self.filenameLabel.show()
         self.filenameLineEdit.show()
         self.filenameLineEdit.setText(filename)
 
-    def setImportFilename(self, filename, project=''):
+    def getUpdateLocationStatus(self):
+        """
+        """
+        return self.update_location_in_tests.isChecked()
+
+    def getRefererRefreshStatus(self):
+        """
+        """
+        return self.referer_refresh_in_tests.isChecked()
+
+    def setImportFilename(self, filename, project='', update_path=False):
         """
         Set import filename
 
@@ -624,8 +666,17 @@ class SaveOpenToRepoDialog(QDialog, Logger.ClassLogger):
         self.filenameLineEdit.show()
         self.filenameLineEdit.setText(filename)
 
-    # dbr13 >>> update_path
-    def getFilename(self, type= EXTENSION_TSX, multipleSelection=False, project='', update_path=False):
+        self.update_location_in_tests.setChecked(False)
+        self.referer_refresh_in_tests.setChecked(False)
+        if update_path:
+            self.update_location_in_tests.show()
+            self.referer_refresh_in_tests.show()
+        else:
+            self.update_location_in_tests.hide()
+            self.referer_refresh_in_tests.hide()
+
+    def getFilename(self, type= EXTENSION_TSX, multipleSelection=False, 
+                    project='', update_path=False):
         """
         Returns filename
 
@@ -641,7 +692,7 @@ class SaveOpenToRepoDialog(QDialog, Logger.ClassLogger):
             
         self.multipleSelection = multipleSelection
         if multipleSelection:
-            self.warningLabel.setText(self.tr('Multiple selection files available.'))
+            self.warningLabel.setText(self.tr('(Multiple selection in tree can be done.)'))
             self.wrepository.setSelectionMode(QAbstractItemView.ExtendedSelection)
         else:
             self.warningLabel.setText('')
@@ -688,13 +739,18 @@ class SaveOpenToRepoDialog(QDialog, Logger.ClassLogger):
         self.typeFile=type
         self.setWindowTitle(self.tr('Open from remote repository ...'))
         self.acceptButton.setText(self.tr("Open"))
+        
         # dbr13>>>
         self.update_location_in_tests.setChecked(False)
+        self.referer_refresh_in_tests.setChecked(False)
         if update_path:
             self.update_location_in_tests.show()
+            self.referer_refresh_in_tests.show()
         else:
             self.update_location_in_tests.hide()
+            self.referer_refresh_in_tests.hide()
         # dbr13 <<<
+        
         self.filenameLabel.hide()
         self.filenameLineEdit.hide()
 
@@ -703,9 +759,10 @@ class Item(QTreeWidgetItem, Logger.ClassLogger):
     Item tree widget item
     """
     def __init__( self, repo, txt, parent = None, 
-                        type = QTreeWidgetItem.UserType+1, isRoot = False, isFolder=False,
-                        propertiesFile=None, projectId=None, projectName=None, 
-                        snapRealname=None, snapMode=False, icon=None, virtualTxt=None, reserved=False):
+                    type = QTreeWidgetItem.UserType+1, isRoot = False, isFolder=False,
+                    propertiesFile=None, projectId=None, projectName=None, 
+                    snapRealname=None, snapMode=False, icon=None, 
+                    virtualTxt=None, reserved=False):
         """
         Item constructor
 
@@ -960,7 +1017,6 @@ class DuplicateDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         
         mainLayout.addWidget(self.projectLabel)
         mainLayout.addWidget(self.projectCombobox)
-
         mainLayout.addWidget(self.buttonBox)
         self.setLayout(mainLayout)
 
@@ -1022,12 +1078,14 @@ class DuplicateDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         project = self.projectCombobox.currentText()
         return str(project)
 
+
 # dbr13 >>>
-class FindTestFileUsageWTree(QWidget, Logger.ClassLogger):
 
-    """Display files tree using current test file"""
-
-    def __init__(self, response, parent=None):
+class FindTestFileUsageWTree(QtHelper.EnhancedQDialog, Logger.ClassLogger):
+    """
+    Display files tree using current test file
+    """
+    def __init__(self, result_list, file_path, file_projectid, parent=None):
         """
         @param response: onFindTestFileUsage
         @type response: dict
@@ -1035,15 +1093,14 @@ class FindTestFileUsageWTree(QWidget, Logger.ClassLogger):
         @param parent:
         @type parent
         """
-        super(FindTestFileUsageWTree, self).__init__(parent=parent)
-        self.usage_list = response['response']
-        self.usage_file_path = response['usage-file-path']
-        self.usage_pr_id = response['usage-project-id']
+        super(FindTestFileUsageWTree, self).__init__(parent)
+        self.usage_list = result_list
+        self.usage_file_path = file_path
+        self.usage_pr_id = file_projectid
+        
         self.createWidgets()
         self.createConnections()
         self.createTree()
-        self.center()
-        self.show()
 
     def center(self):
         """
@@ -1055,7 +1112,9 @@ class FindTestFileUsageWTree(QWidget, Logger.ClassLogger):
         self.move(qr.topLeft())
 
     def createWidgets(self):
-        """create dialog"""
+        """
+        create dialog
+        """
         self.test_usage_tree = QTreeWidget(self)
         self.test_usage_tree.move(25, 25)
         self.test_usage_tree.setHeaderHidden(True)
@@ -1065,29 +1124,42 @@ class FindTestFileUsageWTree(QWidget, Logger.ClassLogger):
 
         self.setLayout(mainLayout)
         self.setWindowTitle(self.tr("Find Usage Tree"))
-        self.resize(1280, 720)
-        self.setWindowIcon(QIcon(":/find-usage@1x.png"))
+        # self.resize(1280, 720)
+        # self.setWindowIcon(QIcon(":/find-usage@1x.png"))
 
+        self.resize(700, 700)
+        
     def createConnections(self):
-        """Create connections"""
+        """
+        Create connections
+        """
         self.test_usage_tree.itemDoubleClicked.connect(self.on_item_double_clicked)
 
     def on_item_double_clicked(self):
+        """
+        """
         item = self.test_usage_tree.currentItem()
         if item.type == 'usage_line':
-            RCI.instance().openFileTests(projectId=int(item.project_id), filePath=item.path, extra={'id': item.id})
+            RCI.instance().openFileTests(projectId=int(item.project_id), 
+                                         filePath=item.path, 
+                                         extra={'subtest_id': "%s" % item.id})
 
     def createTree(self):
-        """This is not what I want.
+        """
+        This is not what I want.
         """
         for usage in self.usage_list:
             if usage['content']:
+                
+                # create the project item
                 item_pr = QTreeWidgetItem([usage['name']])
                 item_pr.path = None
                 item_pr.project_id = usage['project_id']
                 item_pr.prject_name = usage['name']
                 item_pr.type = 'project'
                 item_pr.setIcon(0, QIcon(":/folders.png"))
+
+                # create the result
                 for file in usage['content']:
                     item_file = QTreeWidgetItem([file['file_path']])
                     item_file.path = file['file_path']
@@ -1107,11 +1179,12 @@ class FindTestFileUsageWTree(QWidget, Logger.ClassLogger):
                             item_file.addChild(item_line_id)
 
                 self.test_usage_tree.addTopLevelItem(item_pr)
-
+                item_pr.setExpanded(True)
+                
 class UpdateAdapterLibraryDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
-
-    """Update used Adapter and Library in the test file"""
-
+    """
+    Update used Adapter and Library in the test file
+    """
     def __init__(self, parent=None):
         """
         Dialog to update used Adapter or Library in the test file
@@ -1124,7 +1197,9 @@ class UpdateAdapterLibraryDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         self.createConnections()
 
     def createDialog(self):
-        """create dialog"""
+        """
+        create dialog
+        """
 
         self.adapter = QLabel(self.tr('Update Adapter: '))
         self.update_adapter_combobox = QComboBox(self)
@@ -1159,20 +1234,20 @@ class UpdateAdapterLibraryDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         self.setLayout(mainLayout)
 
         self.setWindowTitle(self.tr("Update Adapter/Library"))
-        # self.resize(600, 300)
 
     def createConnections(self):
-        """Create connections"""
+        """
+        Create connections
+        """
         self.buttonBox.accepted.connect(self.accept)
         self.buttonBox.rejected.connect(self.reject)
 # dbr13 <<<
-
 
 class RenameDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
     """
     Rename dialog
     """
-    def __init__(self, currentName, folder, parent=None):
+    def __init__(self, currentName, folder, parent=None, show_update_location=False):
         """
         Dialog to rename file or folder
 
@@ -1188,13 +1263,14 @@ class RenameDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         super(RenameDialog, self).__init__(parent)
         self.dataCurrent = currentName
         self.isFolder = folder
+        self.show_update_location = show_update_location
+        
         self.createDialog()
         self.createConnections()
         
         # new in v12, auto select of the new text 
         self.newnameEdit.setFocus()
         self.newnameEdit.selectAll()
-
 
     def createDialog (self):
         """
@@ -1211,10 +1287,11 @@ class RenameDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         self.newnameEdit.setText(self.dataCurrent)
 
         self.nameUppercase = QCheckBox(self.tr("Change the new name in uppercase"))
-
+        
         # dbr13 >>
-        self.update_location = QCheckBox(self.tr('Search and update location in higher test tree ?'))
+        self.update_location = QCheckBox(self.tr('Search and update test location in all testplan or testglobal?'))
         # dbr13 <<
+        
         self.buttonBox = QDialogButtonBox(self)
         self.buttonBox.setStyleSheet( """QDialogButtonBox { 
             dialogbuttonbox-buttons-have-icons: 1;
@@ -1235,13 +1312,18 @@ class RenameDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         mainLayout.addWidget(self.buttonBox)
         self.setLayout(mainLayout)
 
+        if self.show_update_location:
+            self.update_location.show()
+        else:
+            self.update_location.hide()
+            
         if self.isFolder:
             self.setWindowTitle(self.tr("Rename folder"))
             # dbr13 currently it doesn't work with folders
             self.update_location.hide()
         else:
             self.setWindowTitle(self.tr("Rename file"))
-        
+            
         self.resize(600, 100)
 
     def createConnections (self):
@@ -1291,6 +1373,11 @@ class RenameDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         """
         return self.newnameEdit.text()
 
+    def getUpdateLocationStatus(self):
+        """
+        """
+        return self.update_location.isChecked()
+        
 class TreeWidgetRepository(QTreeWidget):
     """
     Tree widget repository
@@ -1308,7 +1395,8 @@ class TreeWidgetRepository(QTreeWidget):
         QTreeWidget.__init__(self, parent)
         self.repoType = repoType
         self.setDragDropMode(QAbstractItemView.DragDrop)
-
+        self.mine_flag = Settings.instance().readValue( key = 'Common/acronym' ).lower()
+        
         self.setDragEnabled(True)
         self.setAcceptDrops(True)
         self.setExpandsOnDoubleClick(False)
@@ -1333,8 +1421,9 @@ class TreeWidgetRepository(QTreeWidget):
                     meta['path'] = self.itemCurrent.getPath(withFileName = False, withFolderName = False)
 
                     # create mime data object
+                    mine_data = 'application/x-%s-repo-openfile' % self.mine_flag
                     mime = QMimeData()
-                    mime.setData('application/x-%s-repo-openfile' % Settings.instance().readValue( key = 'Common/acronym' ).lower(), pickle.dumps(meta) )
+                    mime.setData(mine_data, pickle.dumps(meta) )
                     # start drag 
                     drag = QDrag(self)
                     drag.setMimeData(mime) 
@@ -1348,7 +1437,8 @@ class TreeWidgetRepository(QTreeWidget):
         @param event: 
         @type event:
         """
-        if event.mimeData().hasFormat('application/x-%s-repo-openfile' % Settings.instance().readValue( key = 'Common/acronym' ).lower()):
+        mine_data = 'application/x-%s-repo-openfile' % self.mine_flag
+        if event.mimeData().hasFormat(mine_data):
             event.accept()
         else:
             QTreeWidget.dragEnterEvent(self, event)
@@ -1360,7 +1450,8 @@ class TreeWidgetRepository(QTreeWidget):
         @param event: 
         @type event:
         """
-        if event.mimeData().hasFormat("application/x-%s-repo-openfile" % Settings.instance().readValue( key = 'Common/acronym' ).lower() ):
+        mine_data = "application/x-%s-repo-openfile" % self.mine_flag
+        if event.mimeData().hasFormat(mine_data):
             event.setDropAction(Qt.CopyAction)
             event.accept()
         else:
@@ -1398,17 +1489,22 @@ class TreeWidgetRepository(QTreeWidget):
             return False
         else:
             newPath = parent.getPath(withFileName = False, withFolderName = True)
-            meta = data.data("application/x-%s-repo-openfile" %  Settings.instance().readValue( key = 'Common/acronym' ).lower() )
-            data = pickle.loads(meta)
+            meta_data = data.data("application/x-%s-repo-openfile" %  self.mine_flag )
+            data = pickle.loads(meta_data)
             if self.parent().projectSupport:
                 project = self.parent().getCurrentProject()
                 projectid = self.parent().getProjectId(project=str(project))
-                self.parent().moveRemoteFile(currentName=data['filename'], currentPath=data['path'],
-                                            currentExtension=data['ext'], newPath=newPath,
-                                            project=projectid, newProject=projectid)
+                self.parent().moveRemoteFile(currentName=data['filename'], 
+                                             currentPath=data['path'],
+                                             currentExtension=data['ext'], 
+                                             newPath=newPath,
+                                             project=projectid, 
+                                             newProject=projectid)
             else:
-                self.parent().moveRemoteFile(currentName=data['filename'], currentPath=data['path'],
-                                            currentExtension=data['ext'], newPath=newPath)
+                self.parent().moveRemoteFile(currentName=data['filename'], 
+                                             currentPath=data['path'],
+                                             currentExtension=data['ext'], 
+                                             newPath=newPath)
             return False
 
     def mousePressEvent(self, event):
@@ -1515,10 +1611,14 @@ class PropertiesDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
             if self.item.propertiesFile['type'] == "folder":
                 self.setWindowTitle( self.tr("Repository > Folder Properties") )
                 
-                txtContains = "%s Files, %s Folders" % (self.item.propertiesFile['nb-files'],self.item.propertiesFile['nb-folders'])
+                txtContains = "%s Files, %s Folders" % (self.item.propertiesFile['nb-files'],
+                                                        self.item.propertiesFile['nb-folders'])
                 self.layoutSize.addRow( QLabel("Contains:"), QLabel( txtContains ) )
                 style = self.parent.style()
-                self.labelIcon.setPixmap(  style.standardPixmap(QStyle.SP_DirClosedIcon) )
+
+                folder_icon = QIcon( QIcon(":/folder_base.png")  )
+                self.labelIcon.setPixmap( folder_icon.pixmap(QSize(16, 16)) )
+                
                 self.labelName.setText( self.item.folderName )
                 self.labelType.setText('Folder')
                 self.labelLocation.setText( "/%s" % self.item.getPath(withFileName = False) ) 
@@ -1528,7 +1628,9 @@ class PropertiesDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
             self.labelSize.setText(  QtHelper.bytes2human( int(self.item.propertiesFile['size']) )  )
         
         if 'modification' in self.item.propertiesFile:
-            self.labelModif.setText( time.strftime( "%Y-%m-%d %H:%M:%S", time.localtime( self.item.propertiesFile['modification'] ) )  )
+            local_time = time.localtime( self.item.propertiesFile['modification'] )
+            text_time = time.strftime( "%Y-%m-%d %H:%M:%S", local_time )
+            self.labelModif.setText( text_time  )
 
         if self.item.fileName is not None:
             self.labelName.setText( self.item.fileName )
@@ -1617,10 +1719,8 @@ class Repository(QWidget, Logger.ClassLogger):
         self.wrepository = None
         
         style = self.parent.style()
-        self.folderIcon = QIcon()
+        self.folderIcon = QIcon( QIcon(":/folder_base.png")  )
         self.rootIcon = QIcon()
-        self.folderIcon.addPixmap( style.standardPixmap(QStyle.SP_DirClosedIcon), QIcon.Normal, QIcon.Off)
-        self.folderIcon.addPixmap( style.standardPixmap(QStyle.SP_DirOpenIcon), QIcon.Normal, QIcon.On)
         self.rootIcon.addPixmap( style.standardPixmap(QStyle.SP_DriveNetIcon) )
         self.testAbstractIcon = QIcon(":/%s.png" % EXTENSION_TAX)
         self.testUnitIcon = QIcon(":/%s.png" % EXTENSION_TUX)
@@ -1637,8 +1737,7 @@ class Repository(QWidget, Logger.ClassLogger):
         self.projectInitialized = False
 
         # new in v17
-        self.trashIcon = QIcon()
-        self.trashIcon.addPixmap( style.standardPixmap(QStyle.SP_TrashIcon) )
+        self.trashIcon = QIcon(":/trash.png")
         self.sandboxIcon = QIcon(":/folder_add.png")
         self.reservedItems = []
         # end of new
@@ -1757,23 +1856,30 @@ class Repository(QWidget, Logger.ClassLogger):
          * save as
         """
         # remote actions
-        self.refreshRemoteAction = QtHelper.createAction(self, self.tr("&Refresh"), self.__refreshAll, 
-                                        icon = QIcon(":/refresh.png"), 
-                                        tip = self.tr('Refresh remote repository content') )
-        self.addDirAction = QtHelper.createAction(self, self.tr("&Add Folder"), self.__createItem, 
-                                        icon = QIcon(":/folder_add.png"), 
-                                        tip = self.tr('Create new folder') )
-        self.delDirAction = QtHelper.createAction(self, self.tr("&Delete"), self.__deleteItem, shortcut = "Ctrl+Alt+D", 
-                                        icon = QIcon(":/folder_delete.png"), 
-                                        tip = self.tr('Add the selected directory') )
-        self.delAllDirAction = QtHelper.createAction(self, self.tr("&Delete All"), self.__deleteAllItem, 
-                                        shortcut = "Ctrl+Alt+A", 
-                                        icon = QIcon(":/folder_delete_all.png"), 
-                                        tip = self.tr('Delete all folder and contents') )
-        self.renameAction = QtHelper.createAction(self, self.tr("&Rename"), self.__renameItem, shortcut = "Ctrl+Alt+R",
-                                        icon = QIcon(":/rename.png"), 
-                                        tip = self.tr('Rename') )
-
+        self.refreshRemoteAction = QtHelper.createAction(self, 
+                                                self.tr("&Refresh"), 
+                                                self.__refreshAll, 
+                                                icon = QIcon(":/refresh.png"), 
+                                                tip = self.tr('Refresh remote repository content') )
+        self.addDirAction = QtHelper.createAction(self, self.tr("&Add Folder"), 
+                                                self.__createItem, 
+                                                icon = QIcon(":/folder_add.png"), 
+                                                tip = self.tr('Create new folder') )
+        self.delDirAction = QtHelper.createAction(self, self.tr("&Delete"), 
+                                                self.__deleteItem, 
+                                                shortcut = "Ctrl+Alt+D", 
+                                                icon = QIcon(":/folder_delete.png"), 
+                                                tip = self.tr('Add the selected directory') )
+        self.delAllDirAction = QtHelper.createAction(self, self.tr("&Delete All"), 
+                                                self.__deleteAllItem, 
+                                                shortcut = "Ctrl+Alt+A", 
+                                                icon = QIcon(":/folder_delete_all.png"), 
+                                                tip = self.tr('Delete all folder and contents') )
+        self.renameAction = QtHelper.createAction(self, self.tr("&Rename"), 
+                                                self.__renameItem, 
+                                                shortcut = "Ctrl+Alt+R",
+                                                icon = QIcon(":/rename.png"), 
+                                                tip = self.tr('Rename') )
         # dbr13 >>>
         self.updateAdapterLibraryAction = QtHelper.createAction(self, self.tr("&Update Adapter/Library"),
                                                                 self.__update_adapter_library,
@@ -1784,52 +1890,99 @@ class Repository(QWidget, Logger.ClassLogger):
                                                      icon=QIcon(":/find-usage@1x.png"),
                                                      tip=self.tr('Find test file usage'))
         # dbr13 <<<
-        self.duplicateDirAction = QtHelper.createAction(self, self.tr("&Duplicate Folder"), self.__duplicateItem, 
-                                        icon = QIcon(":/duplicate_folder.png"), 
-                                        tip = self.tr('Duplicate folder') )
-        self.duplicateFileAction = QtHelper.createAction(self, self.tr("&Duplicate File"), self.__duplicateItem, 
-                                        icon = QIcon(":/filenew2.png"), 
-                                        tip = self.tr('Duplicate file') )
-        self.deleteFileAction = QtHelper.createAction(self, self.tr("&Delete File"), self.__deleteItem, 
-                                        shortcut = "Ctrl+Alt+D", 
-                                        icon = QIcon(":/delete_file.png"), 
-                                        tip = self.tr('Delete File') )
-        self.moveFileAction = QtHelper.createAction(self, self.tr("&Move File"), self.__moveItem, 
-                                        icon = QIcon(":/move_file.png"), 
-                                        tip = self.tr('Move the selected file') )
-        self.moveFolderAction = QtHelper.createAction(self, self.tr("&Move Folder"), self.__moveItem, 
-                                        icon = QIcon(":/move_folder.png"), 
-                                        tip = self.tr('Move the selected folder') )
-        self.openFileAction = QtHelper.createAction(self, self.tr("&Open File"), self.__openItem, 
-                                        icon = None, tip = self.tr('Open the selected file') )
-        self.openPropertiesAction = QtHelper.createAction(self, self.tr("&Properties"), self.__openProperties, 
-                                        icon = None, tip = self.tr('Open properties') )
-        self.snapshotAction = QtHelper.createAction(self, self.tr("&Snapshot"), self.__addSnapshot, 
-                                        icon = QIcon(":/snapshot.png"), 
-                                        tip = self.tr('Snapshot manager') )
-        self.snapshotAddAction = QtHelper.createAction(self, self.tr("&Create..."), self.__addSnapshot, 
-                                        icon = None, tip = self.tr('Add snapshot') )
-        self.snapshotRestoreAction = QtHelper.createAction(self, self.tr("&Restore..."), self.__restoreSnapshot, 
-                                        icon = None, tip = self.tr('Restore snapshot') )
-        self.snapshotDeleteAction = QtHelper.createAction(self, self.tr("&Delete..."), self.__deleteSnapshot, 
-                                        icon = None, tip = self.tr('Delete snapshot') )
-        self.snapshotDeleteAllAction = QtHelper.createAction(self, self.tr("&Delete All"), self.__delAllSnapshots, 
-                                        icon = None, tip = self.tr('Delete All') )
+        
+        self.duplicateDirAction = QtHelper.createAction(self, 
+                                                self.tr("&Duplicate Folder"), 
+                                                self.__duplicateItem, 
+                                                icon = QIcon(":/duplicate_folder.png"), 
+                                                tip = self.tr('Duplicate folder') )
+        self.duplicateFileAction = QtHelper.createAction(self, 
+                                                self.tr("&Duplicate File"), 
+                                                self.__duplicateItem, 
+                                                icon = QIcon(":/filenew2.png"), 
+                                                tip = self.tr('Duplicate file') )
+        self.deleteFileAction = QtHelper.createAction(self, 
+                                                self.tr("&Delete File"), 
+                                                self.__deleteItem, 
+                                                shortcut = "Ctrl+Alt+D", 
+                                                icon = QIcon(":/delete_file.png"), 
+                                                tip = self.tr('Delete File') )
+        self.moveFileAction = QtHelper.createAction(self, 
+                                                self.tr("&Move File"), 
+                                                self.__moveItem, 
+                                                icon = QIcon(":/move_file.png"), 
+                                                tip = self.tr('Move the selected file') )
+        self.moveFolderAction = QtHelper.createAction(self, 
+                                                self.tr("&Move Folder"), 
+                                                self.__moveItem, 
+                                                icon = QIcon(":/move_folder.png"), 
+                                                tip = self.tr('Move the selected folder') )
+        self.openFileAction = QtHelper.createAction(self, 
+                                                self.tr("&Open File"), 
+                                                self.__openItem, 
+                                                icon = None, 
+                                                tip = self.tr('Open the selected file') )
+        self.openPropertiesAction = QtHelper.createAction(self, 
+                                                self.tr("&Properties"), 
+                                                self.__openProperties, 
+                                                icon = None, 
+                                                tip = self.tr('Open properties') )
+        self.snapshotAction = QtHelper.createAction(self, 
+                                                self.tr("&Snapshot"), 
+                                                self.__addSnapshot, 
+                                                icon = QIcon(":/snapshot.png"), 
+                                                tip = self.tr('Snapshot manager') )
+        self.snapshotAddAction = QtHelper.createAction(self, 
+                                                self.tr("&Create..."), 
+                                                self.__addSnapshot, 
+                                                icon = None, 
+                                                tip = self.tr('Add snapshot') )
+        self.snapshotRestoreAction = QtHelper.createAction(self, 
+                                                self.tr("&Restore..."), 
+                                                self.__restoreSnapshot, 
+                                                icon = None, 
+                                                tip = self.tr('Restore snapshot') )
+        self.snapshotDeleteAction = QtHelper.createAction(self, 
+                                                self.tr("&Delete..."), 
+                                                self.__deleteSnapshot, 
+                                                icon = None, 
+                                                tip = self.tr('Delete snapshot') )
+        self.snapshotDeleteAllAction = QtHelper.createAction(self, 
+                                                self.tr("&Delete All"), 
+                                                self.__delAllSnapshots, 
+                                                icon = None, 
+                                                tip = self.tr('Delete All') )
         menu1 = QMenu(self)
         menu1.addAction( self.snapshotAddAction )
         menu1.addAction( self.snapshotDeleteAllAction )
         self.snapshotAction.setMenu(menu1) 
         
-        self.saveAsFileAction = QtHelper.createAction(self, self.tr("&Save As"), self.__saveasItem, 
-                                        icon = None, tip = self.tr('Save the file as') )
-        self.runAction = QtHelper.createAction(self, self.tr("&Execute"), self.__runItem, shortcut = "Ctrl+Alt+E", 
-                                        icon = QIcon(":/test-play.png"), tip = self.tr('Execute the test') )
-        self.expandSubtreeAction = QtHelper.createAction(self, self.tr("&Expand folder..."), self.expandSubFolder, 
-                                        icon = None, tip = self.tr('Expand folder') )
-        self.expandAllAction = QtHelper.createAction(self, self.tr("&Expand All"), self.expandAllFolders, 
-                                        icon = None, tip = self.tr('Expand all folders') )
-        self.collapseAllAction  = QtHelper.createAction(self, self.tr("&Collapse All"), self.collapseAllFolders, 
-                                        icon = None, tip = self.tr('Collapse all folder') )
+        self.saveAsFileAction = QtHelper.createAction(self, 
+                                                self.tr("&Save As"), 
+                                                self.__saveasItem, 
+                                                icon = None, 
+                                                tip = self.tr('Save the file as') )
+        self.runAction = QtHelper.createAction(self, 
+                                                self.tr("&Execute"), 
+                                                self.__runItem, 
+                                                shortcut = "Ctrl+Alt+E", 
+                                                icon = QIcon(":/test-play.png"), 
+                                                tip = self.tr('Execute the test') )
+        self.expandSubtreeAction = QtHelper.createAction(self, 
+                                                self.tr("&Expand folder..."), 
+                                                self.expandSubFolder, 
+                                                icon = None, 
+                                                tip = self.tr('Expand folder') )
+        self.expandAllAction = QtHelper.createAction(self, 
+                                                self.tr("&Expand All"), 
+                                                self.expandAllFolders, 
+                                                icon = None, 
+                                                tip = self.tr('Expand all folders') )
+        self.collapseAllAction  = QtHelper.createAction(self, 
+                                                self.tr("&Collapse All"), 
+                                                self.collapseAllFolders, 
+                                                icon = None, 
+                                                tip = self.tr('Collapse all folder') )
 
         self.moreCreateActions()
         self.defaultActions()
@@ -1899,6 +2052,7 @@ class Repository(QWidget, Logger.ClassLogger):
         self.updateAdapterLibraryAction.setEnabled(False)
         self.findUsageAction.setEnabled(False)
         # dbr13 <<<
+        
         self.moreDefaultActions()
     
     def moreDefaultActions(self):
@@ -2192,8 +2346,11 @@ class Repository(QWidget, Logger.ClassLogger):
         self.refreshRemoteAction.setEnabled(True)
         self.wrepository.clear()
 
-        self.testcasesRoot = Item(repo = self, parent = self.wrepository, txt = "Root",  
-                                    type = QTreeWidgetItem.UserType+10, isRoot = True )
+        self.testcasesRoot = Item(repo = self, 
+                                  parent = self.wrepository, 
+                                  txt = "Root",  
+                                  type = QTreeWidgetItem.UserType+10, 
+                                  isRoot = True )
         self.testcasesRoot.setSelected(True)
         self.createRepository(listing=listing, parent=self.testcasesRoot, firstCalled=True)
         self.wrepository.sortItems(0, Qt.AscendingOrder)
@@ -2208,11 +2365,16 @@ class Repository(QWidget, Logger.ClassLogger):
         Create the root item for the save as
         """
         self.saveAs.wrepository.clear()
-        self.testcasesRoot2 = Item(repo = self, parent = self.saveAs.wrepository, txt = "Root",  
-                                    type = QTreeWidgetItem.UserType+10, isRoot = True )
+        self.testcasesRoot2 = Item(repo = self, 
+                                   parent = self.saveAs.wrepository, 
+                                   txt = "Root",  
+                                   type = QTreeWidgetItem.UserType+10, 
+                                   isRoot = True )
         self.testcasesRoot2.setSelected(True)
-        self.createRepository(listing=listing, parent=self.testcasesRoot2,
-                              fileincluded=True, firstCalled=True)
+        self.createRepository(listing=listing, 
+                              parent=self.testcasesRoot2,
+                              fileincluded=True, 
+                              firstCalled=True)
         self.saveAs.wrepository.sortItems(0, Qt.AscendingOrder)
 
         if reloadItems:
@@ -2246,18 +2408,30 @@ class Repository(QWidget, Logger.ClassLogger):
                         reserved = True     
                         virtualTxt = " %s" % dct["name"][1:]
 
-#                   {'nb-folders': '0', 'name': 'SSL', 'nb-files': '3', 'content': [{'modification':
-#                        1342259500, 'type': 'file', 'name': '__init__.py', 'size': '378'}, {'modificati
-#                       on': 1342259500, 'type': 'file', 'name': 'templates.py', 'size': '1795'}, {'modi
-#                       fication': 1342259500, 'type': 'file', 'name': 'client.py', 'size': '7096'}], 'm
-#                       odification': 1342465145, 'type': 'folder', 'size': '32549'}
+                    # {'nb-folders': '0', 'name': 'SSL', 'nb-files': '3', 'content': [{'modification':
+                    # 1342259500, 'type': 'file', 'name': '__init__.py', 'size': '378'}, {'modificati
+                    # on': 1342259500, 'type': 'file', 'name': 'templates.py', 'size': '1795'}, {'modi
+                    # fication': 1342259500, 'type': 'file', 'name': 'client.py', 'size': '7096'}], 'm
+                    # odification': 1342465145, 'type': 'folder', 'size': '32549'}
                     if reserved:
-                        item = Item(repo = self, type = QTreeWidgetItem.UserType+101, parent = parent, 
-                                    txt = dct["name"], propertiesFile=dct, isFolder=True, 
-                                    icon=folderIcon, virtualTxt=virtualTxt, reserved=reserved )
+                        item = Item(repo = self, 
+                                    type = QTreeWidgetItem.UserType+101, 
+                                    parent = parent, 
+                                    txt = dct["name"], 
+                                    propertiesFile=dct, 
+                                    isFolder=True, 
+                                    icon=folderIcon, 
+                                    virtualTxt=virtualTxt, 
+                                    reserved=reserved )
                     else:
-                        item = Item(repo = self, parent = parent, txt = dct["name"], propertiesFile=dct, isFolder=True, 
-                                icon=folderIcon, virtualTxt=virtualTxt, reserved=reserved )
+                        item = Item(repo = self, 
+                                    parent = parent, 
+                                    txt = dct["name"], 
+                                    propertiesFile=dct, 
+                                    isFolder=True, 
+                                    icon=folderIcon, 
+                                    virtualTxt=virtualTxt, 
+                                    reserved=reserved )
 
                     self.createRepository(  dct["content"] , item, fileincluded )
                 else:
@@ -2265,17 +2439,28 @@ class Repository(QWidget, Logger.ClassLogger):
                         if dct["type"] == "file":
                             pname = self.getProjectName(dct["project"])
                             # {'modification': 1342259500, 'type': 'file', 'name': '__init__.py', 'size': '562 }
-                            item = Item(repo = self, parent = parent, txt = dct["name"] , propertiesFile=dct,
-                                            type = QTreeWidgetItem.UserType+0, projectId=dct["project"], projectName=pname )
+                            item = Item(repo = self, 
+                                        parent = parent, 
+                                        txt = dct["name"] , 
+                                        propertiesFile=dct,
+                                        type = QTreeWidgetItem.UserType+0, 
+                                        projectId=dct["project"], 
+                                        projectName=pname )
                             
                             # adding snapshots
                             if 'snapshots' in dct:
                                 if len(dct['snapshots']):
                                     for snap in dct['snapshots']:
                                         # extract snap name 
-                                        itemSnap = Item(repo = self, parent = item, txt = snap['name'] , propertiesFile=dct,
-                                                        type = QTreeWidgetItem.UserType+100, projectId=dct["project"], 
-                                                        projectName=pname, snapRealname=snap['realname'], snapMode=True )
+                                        itemSnap = Item(repo = self, 
+                                                        parent = item, 
+                                                        txt = snap['name'] , 
+                                                        propertiesFile=dct,
+                                                        type = QTreeWidgetItem.UserType+100, 
+                                                        projectId=dct["project"], 
+                                                        projectName=pname, 
+                                                        snapRealname=snap['realname'], 
+                                                        snapMode=True )
 
         except Exception as e:
             self.error( "unable to create tree: %s" % e )
@@ -2294,22 +2479,34 @@ class Repository(QWidget, Logger.ClassLogger):
 
             testId = TestResults.instance().getTestId()
             
-            _json = DocumentViewer.instance().prepareTest( wdocument=None, tabId=testId, background = False, 
-                                                           runAt = (0,0,0,0,0,0), runType=UCI.SCHED_NOW, runNb=-1, 
-                                                           withoutProbes=False, debugActivated=False, 
-                                                           withoutNotif=False, keepTr=True, 
-                                                           prjId=projectId, testFileExtension=self.itemCurrent.fileExtension, 
-                                                           testFilePath=pathFile, testFileName=self.itemCurrent.fileName, 
+            _json = DocumentViewer.instance().prepareTest( wdocument=None, 
+                                                           tabId=testId, 
+                                                           background = False, 
+                                                           runAt = (0,0,0,0,0,0), 
+                                                           runType=UCI.SCHED_NOW, 
+                                                           runNb=-1, 
+                                                           withoutProbes=False, 
+                                                           debugActivated=False, 
+                                                           withoutNotif=False, 
+                                                           keepTr=True, 
+                                                           prjId=projectId, 
+                                                           testFileExtension=self.itemCurrent.fileExtension, 
+                                                           testFilePath=pathFile, 
+                                                           testFileName=self.itemCurrent.fileName, 
                                                            fromTime=(0,0,0,0,0,0), 
-                                                           toTime=(0,0,0,0,0,0), prjName='', 
-                                                           stepByStep=False, breakpoint=False,
+                                                           toTime=(0,0,0,0,0,0), 
+                                                           prjName='', 
+                                                           stepByStep=False, 
+                                                           breakpoint=False,
                                                            channelId=False, 
                                                            basicMode=False  )
                                                            
             if self.itemCurrent.fileExtension in [ RCI.EXT_TESTSUITE, RCI.EXT_TESTABSTRACT, RCI.EXT_TESTUNIT]:
                 RCI.instance().scheduleTest(req=_json, wdocument=None)
+                
             elif self.itemCurrent.fileExtension in [ RCI.EXT_TESTPLAN, RCI.EXT_TESTGLOBAL]:
                 RCI.instance().scheduleTestTpg(req=_json, wdocument=None)
+                
             else:
                 pass
             
@@ -2395,7 +2592,9 @@ class Repository(QWidget, Logger.ClassLogger):
         """
         if self.itemCurrent is None:
             return
-        propertiesDialog = PropertiesDialog(parent=self, item=self.itemCurrent, repoType=self.repoType)
+        propertiesDialog = PropertiesDialog(parent=self, 
+                                            item=self.itemCurrent, 
+                                            repoType=self.repoType)
         if propertiesDialog.exec_() == QDialog.Accepted:
             pass
 
@@ -2422,7 +2621,7 @@ class Repository(QWidget, Logger.ClassLogger):
             currentName = self.itemCurrent.fileName
             pathFolder = self.itemCurrent.getPath(withFileName = False, withFolderName=False)
             if self.repoType == UCI.REPO_TESTS:
-                self.parent.remote().saveAs.setMoveFile(project=project)
+                self.parent.remote().saveAs.setMoveFile(project=project, update_path=True)
                 dialog = self.parent.remote().saveAs
             elif self.repoType == UCI.REPO_ADAPTERS:
                 self.parent.remoteAdapter().saveAs.setMoveFile()
@@ -2436,6 +2635,9 @@ class Repository(QWidget, Logger.ClassLogger):
             if dialog.exec_() == QDialog.Accepted:
                 newPath = dialog.getSelection()
                 newProject = dialog.getProjectSelection()
+                
+                update_location = dialog.getUpdateLocationStatus()
+                
                 if self.projectSupport:
                     project = self.getCurrentProject()
                     projectid = self.getProjectId(project=str(project))
@@ -2443,12 +2645,17 @@ class Repository(QWidget, Logger.ClassLogger):
                         newprojectid = self.getProjectId(project=str(newProject))
                     else:
                         newprojectid = projectid
-                    self.moveRemoteFile(    currentName=currentName, currentPath=pathFolder, 
+                    self.moveRemoteFile(    currentName=currentName, 
+                                            currentPath=pathFolder, 
                                             currentExtension=self.itemCurrent.fileExtension,
-                                            newPath=newPath, project=projectid, newProject=newprojectid
+                                            newPath=newPath, 
+                                            project=projectid, 
+                                            newProject=newprojectid,
+                                            update_location = update_location
                                         )
                 else:
-                    self.moveRemoteFile(currentName=currentName, currentPath=pathFolder, 
+                    self.moveRemoteFile(currentName=currentName, 
+                                        currentPath=pathFolder, 
                                         currentExtension=self.itemCurrent.fileExtension, 
                                         newPath=newPath)
         elif self.itemCurrent.type() == QTreeWidgetItem.UserType+1: # folder
@@ -2476,12 +2683,18 @@ class Repository(QWidget, Logger.ClassLogger):
                         newprojectid = self.getProjectId(project=str(newProject))
                     else:
                         newprojectid = projectid
-                    self.moveRemoteFolder(  currentName=currentName, currentPath=pathFolder,newPath=newPath,
-                                                project=projectid, newProject=newprojectid )
+                    self.moveRemoteFolder(  currentName=currentName, 
+                                            currentPath=pathFolder,
+                                            newPath=newPath,
+                                            project=projectid, 
+                                            newProject=newprojectid )
                 else:
-                    self.moveRemoteFolder(currentName=currentName, currentPath=pathFolder, newPath=newPath)
+                    self.moveRemoteFolder(currentName=currentName, 
+                                          currentPath=pathFolder, 
+                                          newPath=newPath)
 
-    def moveRemoteFile(self, currentName, currentPath, currentExtension, newPath, project=0, newProject=0):
+    def moveRemoteFile(self, currentName, currentPath, currentExtension, newPath, 
+                       project=0, newProject=0, update_location=False):
         """
         Move remote file
 
@@ -2593,6 +2806,7 @@ class Repository(QWidget, Logger.ClassLogger):
                     self.deleteFile(pathFile=pathFile, project=projectid)
                 else:
                     self.deleteFile(pathFile=pathFile)
+                    
         elif self.itemCurrent.type() == QTreeWidgetItem.UserType+1:
             reply = QMessageBox.question(self, self.tr("Delete folder"), self.tr("Are you sure ?"),
                     QMessageBox.Yes | QMessageBox.No )
@@ -2685,8 +2899,8 @@ class Repository(QWidget, Logger.ClassLogger):
         You should override this method
         """
         raise NotReimplemented("refresh")
-
-# dbr13 >>>
+        
+    # dbr13 >>>
     def __update_adapter_library(self):
         """
         Update Adapters/Libraries version for multiple test entities
@@ -2704,15 +2918,16 @@ class Repository(QWidget, Logger.ClassLogger):
                                                                     pathFolder=path_folder,
                                                                     adapterVersion=adapter_version,
                                                                     libraryVersion=library_version)
-
     def __find_usage(self):
         """
         Find file usage
         """
         project = self.getCurrentProject()
         project_id = self.getProjectId(project)
-        path_file = self.itemCurrent.getPath(withFileName=True, withFolderName=False)
-        self.find_usage(project_id=project_id, file_path=path_file)
+        path_file = self.itemCurrent.getPath(withFileName=True, 
+                                             withFolderName=False)
+        self.find_usage(project_id=project_id, 
+                        file_path=path_file)
 
     def find_usage(self, project_id, file_path):
         """
@@ -2725,15 +2940,18 @@ class Repository(QWidget, Logger.ClassLogger):
         """
         raise NotReimplemented("find_usage")
 
-    def initFindTestFileUsageWTree(self, response):
+    def initFindTestFileUsageWTree(self, result_list, file_path, file_projectid):
         """
         Init Find Usage Treewidget
         :param response:
         :return:
         """
-        usage_tree = FindTestFileUsageWTree(response=response)
-        return usage_tree
-# dbr13 <<<
+        usage_tree = FindTestFileUsageWTree(result_list=result_list, 
+                                            file_path=file_path, 
+                                            file_projectid=file_projectid)
+        return usage_tree                                                         
+    # dbr13 <<<
+
 
     def __renameItem(self):
         """
@@ -2748,11 +2966,19 @@ class Repository(QWidget, Logger.ClassLogger):
             currentName = self.itemCurrent.folderName
             folder=True
 
-        renameDialog = RenameDialog( currentName = str(currentName), folder=folder )
+        if self.repoType in [ UCI.REPO_ADAPTERS, UCI.REPO_LIBRARIES ]:
+            show_update_location = False
+        else:
+            show_update_location = True
+            
+        renameDialog = RenameDialog( currentName = str(currentName), 
+                                     folder=folder,
+                                     show_update_location = show_update_location)
         if renameDialog.exec_() == QDialog.Accepted:
             # dbr13 >>> for rename
-            update_location = renameDialog.update_location.isChecked()
+            update_location = renameDialog.getUpdateLocationStatus()
             # dbr13 <<<
+            
             txt = renameDialog.getNewName()
             try:
                 txt = str(txt)
@@ -2770,35 +2996,42 @@ class Repository(QWidget, Logger.ClassLogger):
                 if "'" in txt or txt.startswith("."):
                     QMessageBox.warning(self, self.tr("Rename") , self.tr("Invalid name.") )
                 else:
+                
                     if self.itemCurrent.type() == QTreeWidgetItem.UserType+0: #rename file
                         pathFolder = self.itemCurrent.getPath(withFileName = False, withFolderName=False)
                         if self.projectSupport:
                             project = self.getCurrentProject()
                             projectid = self.getProjectId(project=str(project))
-                            # dbr13  update_location for rename>>>
-                            self.renameFile(mainPath=pathFolder, oldFileName=self.itemCurrent.fileName, newFileName=txt,
-                                            extFile=self.itemCurrent.fileExtension, project=projectid,
+                            self.renameFile(mainPath=pathFolder, 
+                                            oldFileName=self.itemCurrent.fileName, 
+                                            newFileName=txt, 
+                                            extFile=self.itemCurrent.fileExtension, 
+                                            project=projectid, 
                                             update_location=update_location)
-                            # dbr13 <<<
                         else:
-                            self.renameFile(mainPath=pathFolder, oldFileName=self.itemCurrent.fileName, newFileName=txt, 
+                            self.renameFile(mainPath=pathFolder, 
+                                            oldFileName=self.itemCurrent.fileName, 
+                                            newFileName=txt, 
                                             extFile=self.itemCurrent.fileExtension)
+                                            
                     elif self.itemCurrent.type() == QTreeWidgetItem.UserType+1: # rename folder
                         pathFolder = self.itemCurrent.getPath(withFileName = False, withFolderName=False)
                         if self.projectSupport:
                             project = self.getCurrentProject()
                             projectid = self.getProjectId(project=str(project))
-                            self.renameFolder(mainPath=pathFolder, oldFolderName=self.itemCurrent.folderName, 
+                            self.renameFolder(mainPath=pathFolder, 
+                                              oldFolderName=self.itemCurrent.folderName, 
                                               newFolderName= txt, 
-                                                project=projectid)
+                                              project=projectid)
                         else:
-                            self.renameFolder(mainPath=pathFolder, oldFolderName=self.itemCurrent.folderName, 
+                            self.renameFolder(mainPath=pathFolder, 
+                                              oldFolderName=self.itemCurrent.folderName, 
                                               newFolderName= txt)
                     else:
                         self.error( "should not be happened" )
 
-# dbr13 update_location for rename >>>
-    def renameFile (self, mainPath, oldFileName, newFileName, extFile, project=0, update_location=False):
+    def renameFile (self, mainPath, oldFileName, newFileName, extFile, 
+                     project=0, update_location=False):
         """
         Rename file
         You should override this method
@@ -2849,7 +3082,8 @@ class Repository(QWidget, Logger.ClassLogger):
             currentName = self.itemCurrent.folderName
             folder=True
 
-        pathFolder = self.itemCurrent.getPath(withFileName = False, withFolderName=False)
+        pathFolder = self.itemCurrent.getPath(withFileName = False, 
+                                              withFolderName=False)
         
         if self.projectSupport:
             project = self.getCurrentProject()
@@ -2857,8 +3091,12 @@ class Repository(QWidget, Logger.ClassLogger):
         else:
             projectid = 0
             
-        duplicateDialog = DuplicateDialog( currentName = str(currentName), folder=folder, repoType=self.repoType,
-                                    projects=self.projects, defaultProject=projectid, currentPath=pathFolder )
+        duplicateDialog = DuplicateDialog( currentName = str(currentName), 
+                                           folder=folder, 
+                                           repoType=self.repoType,
+                                           projects=self.projects, 
+                                           defaultProject=projectid, 
+                                           currentPath=pathFolder )
         if duplicateDialog.exec_() == QDialog.Accepted:
             txt = duplicateDialog.getDuplicateName()
             newProjectName = duplicateDialog.getProjectSelected()
@@ -2905,8 +3143,11 @@ class Repository(QWidget, Logger.ClassLogger):
                                                    project=projectid, newProject=newprojectid, 
                                                    newPath=newPath)
                             else:
-                                self.duplicateFile(mainPath=pathFolder, oldFileName=self.itemCurrent.fileName, newFileName= txt, 
-                                        extFile=self.itemCurrent.fileExtension, newPath=newPath)
+                                self.duplicateFile(mainPath=pathFolder, 
+                                                   oldFileName=self.itemCurrent.fileName, 
+                                                   newFileName= txt, 
+                                                   extFile=self.itemCurrent.fileExtension, 
+                                                   newPath=newPath)
                         elif self.itemCurrent.type() == QTreeWidgetItem.UserType+1: # not yet impletemented
                             pathFolder = self.itemCurrent.getPath(withFileName = False, withFolderName=False)
                             if self.projectSupport:
@@ -2916,15 +3157,22 @@ class Repository(QWidget, Logger.ClassLogger):
                                     newprojectid = self.getProjectId(project=str(newProjectName))
                                 else:
                                     newprojectid = projectid
-                                self.duplicateFolder(mainPath=pathFolder, oldFolderName=self.itemCurrent.folderName, newFolderName= txt,
-                                                                project=projectid, newProject=newprojectid, newPath=newPath)
+                                self.duplicateFolder(mainPath=pathFolder, 
+                                                     oldFolderName=self.itemCurrent.folderName, 
+                                                     newFolderName= txt,
+                                                     project=projectid, 
+                                                     newProject=newprojectid, 
+                                                     newPath=newPath)
                             else:
-                                self.duplicateFolder(mainPath=pathFolder, oldFolderName=self.itemCurrent.folderName, newFolderName= txt,
-                                                        newPath=newPath)
+                                self.duplicateFolder(mainPath=pathFolder, 
+                                                     oldFolderName=self.itemCurrent.folderName, 
+                                                     newFolderName= txt,
+                                                     newPath=newPath)
                         else:
                             self.error( "should not be happened" )
 
-    def duplicateFile (self, mainPath, oldFileName, newFileName, extFile, project=0, newProject=0, newPath=''):
+    def duplicateFile (self, mainPath, oldFileName, newFileName, 
+                        extFile, project=0, newProject=0, newPath=''):
         """
         Duplicate file
         You should override this method
@@ -2943,7 +3191,8 @@ class Repository(QWidget, Logger.ClassLogger):
         """
         raise NotReimplemented("duplicateFile")
 
-    def duplicateFolder (self, mainPath, oldFolderName, newFolderName, project=0, newProject=0, newPath=''):
+    def duplicateFolder (self, mainPath, oldFolderName, newFolderName, 
+                            project=0, newProject=0, newPath=''):
         """
         Duplicate folder
         You should override this method
@@ -2972,6 +3221,7 @@ class Repository(QWidget, Logger.ClassLogger):
         if witem1 is not None:
             self.itemCurrent = witem1
             self.wrepository.itemCurrent = witem1
+            
             if self.itemCurrent.type() == QTreeWidgetItem.UserType+0: # file
                 self.addDirAction.setEnabled(False)
                 self.delDirAction.setEnabled(False)
@@ -2989,25 +3239,31 @@ class Repository(QWidget, Logger.ClassLogger):
                 self.expandAllAction.setEnabled(False)
                 self.collapseAllAction.setEnabled(False)
                 if self.itemCurrent.fileExtension.lower() in [ EXTENSION_TUX, EXTENSION_TAX, 
-                                                               EXTENSION_TPX, EXTENSION_TSX, EXTENSION_TGX ]:
+                                                               EXTENSION_TPX, EXTENSION_TSX, 
+                                                               EXTENSION_TGX ]:
                     self.runAction.setEnabled(True)
                 else:
                     self.runAction.setEnabled(False)
                     
-                if self.itemCurrent.fileExtension.lower() in [ EXTENSION_TUX, EXTENSION_TAX, EXTENSION_TPX, EXTENSION_TSX,
-                                                               EXTENSION_TGX, EXTENSION_TDX, EXTENSION_TCX ]:
+                if self.itemCurrent.fileExtension.lower() in [ EXTENSION_TUX, EXTENSION_TAX, 
+                                                               EXTENSION_TPX, EXTENSION_TSX,
+                                                               EXTENSION_TGX, EXTENSION_TDX, 
+                                                               EXTENSION_TCX ]:
                     self.snapshotAction.setEnabled(True)
                 else:
                     self.snapshotAction.setEnabled(False)
+                    
                 # dbr13 >>>
                 self.updateAdapterLibraryAction.setEnabled(False)
-
-                if self.itemCurrent.fileExtension in [EXTENSION_TAX, EXTENSION_TUX,
-                                                      EXTENSION_TSX, EXTENSION_TPX]:
+                
+                if self.itemCurrent.fileExtension.lower() in [ EXTENSION_TUX, EXTENSION_TAX, 
+                                                               EXTENSION_TPX, EXTENSION_TSX]:
                     self.findUsageAction.setEnabled(True)
                 else:
                     self.findUsageAction.setEnabled(False)
+                    
                 # dbr13 <<<
+                
             elif self.itemCurrent.type() == QTreeWidgetItem.UserType+100: # file snapshot
                 self.addDirAction.setEnabled(False)
                 self.delDirAction.setEnabled(False)
@@ -3025,9 +3281,11 @@ class Repository(QWidget, Logger.ClassLogger):
                 self.expandAllAction.setEnabled(False)
                 self.collapseAllAction.setEnabled(False)
                 self.runAction.setEnabled(False)
+                
                 # dbr13 >>>
                 self.updateAdapterLibraryAction.setEnabled(False)
                 # dbr13 <<<
+                
             elif self.itemCurrent.type() == QTreeWidgetItem.UserType+1: # folder
                 self.addDirAction.setEnabled(True)
                 self.delDirAction.setEnabled(True)
@@ -3048,9 +3306,11 @@ class Repository(QWidget, Logger.ClassLogger):
                 self.expandAllAction.setEnabled(False)
                 self.collapseAllAction.setEnabled(False)
                 self.runAction.setEnabled(False)
+                
                 # dbr13 >>>
                 self.updateAdapterLibraryAction.setEnabled(True)
                 # dbr13 <<<
+                
             elif self.itemCurrent.type() == QTreeWidgetItem.UserType+10 : #root
                 self.addDirAction.setEnabled(True)
                 self.delDirAction.setEnabled(False)
@@ -3068,9 +3328,11 @@ class Repository(QWidget, Logger.ClassLogger):
                 self.expandAllAction.setEnabled(True)
                 self.collapseAllAction.setEnabled(True)
                 self.runAction.setEnabled(False)
+                
                 # dbr13 >>>
                 self.updateAdapterLibraryAction.setEnabled(False)
                 # dbr13 <<<
+                
             elif self.itemCurrent.type() == QTreeWidgetItem.UserType+101: # reserved (trash, sandbox)
                 self.addDirAction.setEnabled(True)
                 self.delDirAction.setEnabled(False)
@@ -3088,6 +3350,7 @@ class Repository(QWidget, Logger.ClassLogger):
                 self.expandAllAction.setEnabled(False)
                 self.collapseAllAction.setEnabled(False)
                 self.runAction.setEnabled(False)
+                
                 # dbr13 >>>
                 self.updateAdapterLibraryAction.setEnabled(False)
                 # dbr13 <<<
@@ -3108,10 +3371,11 @@ class Repository(QWidget, Logger.ClassLogger):
                 self.expandAllAction.setEnabled(False)
                 self.collapseAllAction.setEnabled(False)
                 self.runAction.setEnabled(False)
+
                 # dbr13 >>>
                 self.updateAdapterLibraryAction.setEnabled(False)
                 # dbr13 <<<
-
+                
             self.onMoreCurrentItemChanged( self.itemCurrent.type() )
 
     def onMoreCurrentItemChanged (self, itemType):

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<file>
+<properties><inputs-parameters><parameter><color /><type>bool</type><value>False</value><name>DEBUG</name><description /><scope>local</scope></parameter><parameter><value>Test terminated by user</value><type>str</type><name>STOP_TEST_MSG</name><description /><scope>local</scope></parameter><parameter><color /><type>float</type><value>1.0</value><name>TIMEOUT</name><description /><scope>local</scope></parameter><parameter><color /><type>bool</type><value>True</value><name>VERBOSE</name><description /><scope>local</scope></parameter></inputs-parameters><agents><agent><value>agent-dummy01</value><type>dummy</type><name>AGENT</name><description /></agent></agents><probes><probe><active>False</active><args /><name>probe01</name><type>default</type></probe></probes><outputs-parameters><parameter><color /><type>float</type><value>1.0</value><name>TIMEOUT</name><description /><scope>local</scope></parameter></outputs-parameters><descriptions><description><value>admin</value><key>author</key></description><description><value>18/04/2017 22:35:10</value><key>creation date</key></description><description><value>Just a basic sample.</value><key>summary</key></description><description><value>None.</value><key>prerequisites</key></description><description><value><comments /></value><key>comments</key></description><description><value>myplugins</value><key>libraries</key></description><description><value>myplugins</value><key>adapters</key></description><description><value>Writing</value><key>state</key></description><description><value>TESTCASE</value><key>name</key></description><description><value>REQ_01</value><key>requirement</key></description></descriptions></properties>
+<testdefinition><![CDATA[
+def description(self):
+	# testcase description
+	self.setPurpose(purpose=description('summary'))
+	self.setRequirement(requirement=description('requirement'))
+
+	# steps description
+	self.step1 = self.addStep(expected="test terminated", description="terminate the test", summary="terminate the test", enabled=True)
+def prepare(self):
+	pass
+def definition(self):
+	# starting initial step
+	if self.step1.isEnabled():
+		self.step1.start()
+		
+		Test(self).terminate(err=input('STOP_TEST_MSG'))
+
+def cleanup(self, aborted):
+	self.step1.setPassed(actual=aborted)]]></testdefinition>
+<testdevelopment>1492547710.967804</testdevelopment>
+</file>

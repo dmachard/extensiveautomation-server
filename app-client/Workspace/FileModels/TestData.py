@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -125,7 +125,9 @@ class DataModel(GenericModel.GenericModel):
                                                ]
                                       },
                                     'inputs-parameters': {
-                                        'parameter': [ {'type': 'str', 'name': 'PARAM1', 'description': '', 'value' : 'Sample', 'color': '' } ]
+                                        'parameter': [ {'type': 'str', 'name': 'PARAM1', 
+                                                        'description': '', 'value' : 'Sample', 
+                                                        'color': '',  'scope': 'local' } ]
                                             }
                                 }
                             }
@@ -165,13 +167,6 @@ class DataModel(GenericModel.GenericModel):
         Fix encodage not pretty....
         """
         for param in self.properties['properties']['inputs-parameters']['parameter']:
-            # if sys.version_info > (3,): # python3 support
-                # param['color'] = bytes2str(param['color'])
-                # param['type'] = bytes2str(param['type'])
-                # param['value'] = bytes2str(param['value'])
-                # param['description'] = bytes2str(param['description'])
-                # param['name'] = bytes2str(param['name'])
-            # else:
             param['value'] = param['value'].decode("utf-8")
             param['description'] = param['description'].decode("utf-8")
             param['name'] = param['name'].decode("utf-8")
@@ -181,17 +176,11 @@ class DataModel(GenericModel.GenericModel):
         Fix encodage not pretty....
         """
         for descr in self.properties['properties']['descriptions']['description']:
-            # if sys.version_info > (3,): # python3 support
-                # descr['key'] =  bytes2str(descr['key'])
-            # else:
             descr['key'] = descr['key'].decode("utf-8")
                 
             if isinstance( descr['value'], dict):
                 pass
             else:
-                # if sys.version_info > (3,): # python3 support
-                    # descr['value'] =  bytes2str(descr['value'])
-                # else:
                 descr['value'] = descr['value'].decode("utf-8")
 
     def setTestData(self, testData):
@@ -273,6 +262,14 @@ class DataModel(GenericModel.GenericModel):
                         self.fixXML( data = properties['descriptions'], key = 'description' )
                         if '@description' in properties['descriptions']:
                             self.fixXML( data = properties['descriptions'], key = '@description' )
+
+                        # BEGIN NEW in 19.0.0 : add missing scope parameters
+                        for p in properties['inputs-parameters']['parameter']:
+                            if "scope" not in p: 
+                                p["scope"] = "local"
+                                p["@scope"] = {}
+                        # END OF NEW
+                        
                     except Exception as e:
                         self.error( "TestData >  fix xml %s" % str(e) )
                     else:

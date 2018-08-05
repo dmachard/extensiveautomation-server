@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -730,7 +730,8 @@ class WSikuliX(QWidget, Logger.ClassLogger):
         """
         On similar value changed
         """
-        self.similarLabel.setText( self.tr("Similarity threshold\n(%s%%)" % value ) )
+        pass
+        # self.similarLabel.setText( self.tr("Similarity threshold\n(%s%%)" % value ) )
 
     def onActionChanged(self):
         """

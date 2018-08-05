@@ -22,7 +22,7 @@ a = Analysis(['Systray.py'],
                         ( './Bin/Selenium2', './Bin/Selenium2' ),
                         ( './Bin/Selenium3', './Bin/Selenium3' ),
                         ( './Bin/Sikuli', './Bin/Sikuli' ),
-                        ( './Resources/ExtensiveTestingToolbox.ico', '.' )
+                        ( './Resources/ExtensiveAutomationToolbox.ico', '.' )
              ],
              hiddenimports=[],
              hookspath=[],
@@ -36,16 +36,16 @@ pyz = PYZ(a.pure, a.zipped_data,
 exe = EXE(pyz,
           a.scripts,
           exclude_binaries=True,
-          name='ExtensiveTestingToolbox',
+          name='ExtensiveAutomationToolbox',
           debug=False,
           strip=False,
           upx=True,
           console=False,
-          icon='./Resources/ExtensiveTestingToolbox.ico')
+          icon='./Resources/ExtensiveAutomationToolbox.ico')
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
                a.datas,
                strip=False,
                upx=True,
-               name='ExtensiveTestingToolbox')
+               name='ExtensiveAutomationToolbox')

@@ -2,7 +2,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -22,7 +22,7 @@
 
 ARCH=x86_64
 PY=2.7
-CLT_NAME=ExtensiveTestingClient
+CLT_NAME=ExtensiveAutomationClient
 CLT_VERSION=17.0.0
 
 python ../../BuildLinux.py build

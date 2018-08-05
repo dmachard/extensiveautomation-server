@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -1111,107 +1111,131 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
                 if stepsReg[i]["action-type"] == GuiSteps.ACTION_SYSTEM:
                     if stepsReg[i]['action'] in [ GuiSteps.SYSTEM_SESSION ]:
                         if stepsReg[i]['parameters']['from-alias-login']:
-                            newInputs.append( {'type': 'alias', 'name': 'SYS_LOGIN', 
+                            newInputs.append( { 'type': 'alias', 'name': 'SYS_LOGIN', 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : stepsReg[i]['parameters']['login'], 'color': '' } )    
+                                                'value' : stepsReg[i]['parameters']['login'], 
+                                                'color': '', 
+                                                'scope': 'local' } )    
                             if not self.checkDuplicateAlias(inputs=newInputs, alias=stepsReg[i]['parameters']['login']):
-                                newInputs.append( {'type': 'str', 'name': stepsReg[i]['parameters']['login'] , 
+                                newInputs.append( { 'type': 'str', 
+                                                    'name': stepsReg[i]['parameters']['login'] , 
                                                     'description': stepsReg[i]['description'],  
-                                                    'value' : '', 'color': '' } ) 
+                                                    'value' : '', 
+                                                    'color': '', 
+                                                    'scope': 'local' } ) 
                         elif stepsReg[i]['parameters']['from-cache-login']: 
                             newInputs.append( {'type': 'str', 'name': 'SYS_LOGIN_KEY' , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : str(stepsReg[i]['parameters']['login']), 'color': '' } ) 
+                                                'value' : str(stepsReg[i]['parameters']['login']), 
+                                                'color': '',
+                                                'scope': 'local' } ) 
                         else:
                             newInputs.append( {'type': 'str', 'name': 'SYS_LOGIN' , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : str(stepsReg[i]['parameters']['login']), 'color': '' } ) 
+                                                'value' : str(stepsReg[i]['parameters']['login']), 
+                                                'color': '', 'scope': 'local' } ) 
                                         
                         if stepsReg[i]['parameters']['from-alias-pwd']:
                             newInputs.append( {'type': 'alias', 'name': 'SYS_PWD', 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : stepsReg[i]['parameters']['password'], 'color': '' } )    
+                                                'value' : stepsReg[i]['parameters']['password'], 
+                                                'color': '', 'scope': 'local' } )    
                             if not self.checkDuplicateAlias(inputs=newInputs, alias=stepsReg[i]['parameters']['password']):
                                 newInputs.append( {'type': 'pwd', 'name': stepsReg[i]['parameters']['password'] , 
                                                     'description': stepsReg[i]['description'],  
-                                                    'value' : '', 'color': '' } )   
+                                                    'value' : '', 'color': '', 'scope': 'local' } )   
                         elif stepsReg[i]['parameters']['from-cache-pwd']: 
                             newInputs.append( {'type': 'pwd', 'name': 'SYS_PWD_KEY' , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : str(stepsReg[i]['parameters']['password']), 'color': '' } )           
+                                                'value' : str(stepsReg[i]['parameters']['password']), 
+                                                'color': '', 'scope': 'local' } )           
                         else:
                             newInputs.append( {'type': 'pwd', 'name': 'SYS_PWD' , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : str(stepsReg[i]['parameters']['password']), 'color': '' } ) 
+                                                'value' : str(stepsReg[i]['parameters']['password']), 
+                                                'color': '', 'scope': 'local' } ) 
                                         
                         if stepsReg[i]['parameters']['from-alias-ip']:
                             newInputs.append( {'type': 'alias', 'name': 'SYS_DEST_HOST', 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : stepsReg[i]['parameters']['dest-ip'], 'color': '' } )    
+                                                'value' : stepsReg[i]['parameters']['dest-ip'], 
+                                                'color': '', 'scope': 'local' } )    
                             if not self.checkDuplicateAlias(inputs=newInputs, alias=stepsReg[i]['parameters']['dest-ip']):
                                 newInputs.append( {'type': 'str', 'name': stepsReg[i]['parameters']['dest-ip'] , 
                                                     'description': stepsReg[i]['description'],  
-                                                    'value' : '', 'color': '' } )  
+                                                    'value' : '', 
+                                                    'color': '', 'scope': 'local' } )  
                         elif stepsReg[i]['parameters']['from-cache-ip']: 
                             newInputs.append( {'type': 'str', 'name': 'SYS_DEST_HOST_KEY' , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : str(stepsReg[i]['parameters']['dest-ip']), 'color': '' } )                   
+                                                'value' : str(stepsReg[i]['parameters']['dest-ip']), 
+                                                'color': '', 'scope': 'local' } )                   
                         else:
                             newInputs.append( {'type': 'str', 'name': 'SYS_DEST_HOST' , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : str(stepsReg[i]['parameters']['dest-ip']), 'color': '' } ) 
+                                                'value' : str(stepsReg[i]['parameters']['dest-ip']), 
+                                                'color': '', 'scope': 'local' } ) 
                                         
                         if stepsReg[i]['parameters']['from-alias-port']:
                             newInputs.append( {'type': 'alias', 'name': 'SYS_DEST_PORT', 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : stepsReg[i]['parameters']['dest-port'], 'color': '' } )    
+                                                'value' : stepsReg[i]['parameters']['dest-port'], 
+                                                'color': '', 'scope': 'local' } )    
                             if not self.checkDuplicateAlias(inputs=newInputs, alias=stepsReg[i]['parameters']['dest-port']):
                                 newInputs.append( {'type': 'int', 'name': stepsReg[i]['parameters']['dest-port'] , 
                                                     'description': stepsReg[i]['description'],  
-                                                    'value' : '', 'color': '' } )   
+                                                    'value' : '', 'color': '', 'scope': 'local' } )   
                         elif stepsReg[i]['parameters']['from-cache-port']: 
                             newInputs.append( {'type': 'int', 'name': 'SYS_DEST_PORT_KEY' , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : str(stepsReg[i]['parameters']['dest-port']), 'color': '' } )               
+                                                'value' : str(stepsReg[i]['parameters']['dest-port']), 
+                                                'color': '', 'scope': 'local' } )               
                         else:
                             newInputs.append( {'type': 'int', 'name': 'SYS_DEST_PORT' , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : str(stepsReg[i]['parameters']['dest-port']), 'color': '' } ) 
+                                                'value' : str(stepsReg[i]['parameters']['dest-port']), 
+                                                'color': '', 'scope': 'local' } ) 
                                         
                         newInputs.append( {'type': 'bool', 'name': 'SYS_AGT_SUPPORT' , 
                                             'description': stepsReg[i]['description'],
-                                            'value' : str(stepsReg[i]['parameters']['agent-support']), 'color': '' } )      
+                                            'value' : str(stepsReg[i]['parameters']['agent-support']), 
+                                            'color': '', 'scope': 'local' } )      
                     if stepsReg[i]['action'] in [ GuiSteps.SYSTEM_TEXT ]:
                         if stepsReg[i]['parameters']['from-alias']:
                             newInputs.append( {'type': 'alias', 'name': 'SYS_TEXT_%s' % j , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : stepsReg[i]['parameters']['text'], 'color': '' } )    
+                                                'value' : stepsReg[i]['parameters']['text'], 
+                                                'color': '', 'scope': 'local' } )    
                             if not self.checkDuplicateAlias(inputs=newInputs, alias=stepsReg[i]['parameters']['text']):
                                 newInputs.append( {'type': 'str', 'name': stepsReg[i]['parameters']['text'] , 
                                                     'description': stepsReg[i]['description'], 
-                                                    'value' : '', 'color': '' } )    
+                                                    'value' : '', 'color': '', 'scope': 'local' } )    
                         else:
                             newInputs.append( {'type': 'str', 'name': 'SYS_TEXT_%s' % j , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : stepsReg[i]['parameters']['text'], 'color': '' } )  
+                                                'value' : stepsReg[i]['parameters']['text'], 
+                                                'color': '', 'scope': 'local' } )  
                     if stepsReg[i]['action'] in [  GuiSteps.SYSTEM_CHECK_SCREEN ]:
                         if stepsReg[i]['parameters']['operator'] != GuiSteps.OP_ANY:
                             if stepsReg[i]['parameters']['from-alias']:
                                 newInputs.append( {'type': 'alias', 'name': 'SYS_SCREEN_%s' % j , 
                                                     'description': stepsReg[i]['description'],
-                                                    'value' : stepsReg[i]['parameters']['value'], 'color': '' } )    
+                                                    'value' : stepsReg[i]['parameters']['value'], 
+                                                    'color': '', 'scope': 'local' } )    
                                 if not self.checkDuplicateAlias(inputs=newInputs, alias=stepsReg[i]['parameters']['value']):
                                     newInputs.append( {'type': 'str', 'name': stepsReg[i]['parameters']['value'] , 
                                                         'description': stepsReg[i]['description'], 
-                                                        'value' : '', 'color': '' } )    
+                                                        'value' : '', 'color': '', 'scope': 'local' } )    
                             else:
                                 newInputs.append( {'type': 'str', 'name': 'SYS_SCREEN_%s' % j , 
                                                     'description': stepsReg[i]['description'],
-                                                    'value' : stepsReg[i]['parameters']['value'], 'color': '' } )  
+                                                    'value' : stepsReg[i]['parameters']['value'], 
+                                                    'color': '', 'scope': 'local' } )  
                         if stepsReg[i]['parameters']['to-cache']:
                             newInputs.append( {'type': 'str', 'name': 'SYS_CACHE_%s' % j , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : stepsReg[i]['parameters']['cache-key'], 'color': '' } )  
+                                                'value' : stepsReg[i]['parameters']['cache-key'], 
+                                                'color': '', 'scope': 'local' } )  
                             
                 # framework
                 elif stepsReg[i]["action-type"] == GuiSteps.ACTION_FRAMEWORK:
@@ -1219,81 +1243,103 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
                         if stepsReg[i]['parameters']['from-alias']:
                             newInputs.append( {'type': 'alias', 'name': 'FWK_TEXT_%s' % j , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : stepsReg[i]['parameters']['text'], 'color': '' } )    
+                                                'value' : stepsReg[i]['parameters']['text'], 
+                                                'color': '', 'scope': 'local' } )    
                             if not self.checkDuplicateAlias(inputs=newInputs, alias=stepsReg[i]['parameters']['text']):
                                 newInputs.append( {'type': 'str', 'name': stepsReg[i]['parameters']['text'] , 
                                                     'description': stepsReg[i]['description'],  
-                                                    'value' : '', 'color': '' } )    
+                                                    'value' : '', 'color': '', 'scope': 'local' } )    
                         else:
                             newInputs.append( {'type': 'str', 'name': 'FWK_TEXT_%s' % j , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : stepsReg[i]['parameters']['text'], 'color': '' } )     
+                                                'value' : stepsReg[i]['parameters']['text'], 
+                                                'color': '', 'scope': 'local' } )     
                                         
                     elif stepsReg[i]['action'] == GuiSteps.FRAMEWORK_WAIT:
                         if stepsReg[i]['parameters']['from-alias']:
                             newInputs.append( {'type': 'alias', 'name': 'FWK_WAIT_%s' % j , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : str(stepsReg[i]['misc']), 'color': '' } )    
+                                                'value' : str(stepsReg[i]['misc']), 
+                                                'color': '', 'scope': 'local' } )    
                             if not self.checkDuplicateAlias(inputs=newInputs, alias=str(stepsReg[i]['misc'])):
                                 newInputs.append( {'type': 'int', 'name': str(stepsReg[i]['misc']) , 
                                                     'description': stepsReg[i]['description'],  
-                                                    'value' : '', 'color': '' } )    
+                                                    'value' : '', 'color': '', 'scope': 'local' } )    
                         elif stepsReg[i]['parameters']['from-cache']:  
                             newInputs.append( {'type': 'str', 'name': 'FWK_WAIT_%s' % j , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : str(stepsReg[i]['misc']), 'color': '' } )   
+                                                'value' : str(stepsReg[i]['misc']), 
+                                                'color': '', 'scope': 'local' } )   
                         else:
                             newInputs.append( {'type': 'int', 'name': 'FWK_WAIT_%s' % j , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : str(stepsReg[i]['misc']), 'color': '' } )     
+                                                'value' : str(stepsReg[i]['misc']), 
+                                                'color': '', 'scope': 'local' } )     
 
                     elif stepsReg[i]['action'] == GuiSteps.FRAMEWORK_CACHE_SET:
                         if stepsReg[i]['parameters']['from-alias']:
                             newInputs.append( {'type': 'alias', 'name': 'FWK_CACHE_VALUE_%s' % j , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : stepsReg[i]['parameters']['value'], 'color': '' } )    
+                                                'value' : stepsReg[i]['parameters']['value'], 
+                                                'color': '', 'scope': 'local' } )    
                             if not self.checkDuplicateAlias(inputs=newInputs, alias=stepsReg[i]['parameters']['value']):
                                 newInputs.append( {'type': 'str', 'name': stepsReg[i]['parameters']['value'] , 
                                                     'description': stepsReg[i]['description'],  
-                                                    'value' : '', 'color': '' } )    
+                                                    'value' : '', 'color': '', 'scope': 'local' } )    
                         else:
-                            newInputs.append( {'type': 'str', 'name': 'FWK_CACHE_VALUE_%s' % j , 'description': stepsReg[i]['description'],
-                                        'value' : stepsReg[i]['parameters']['value'], 'color': '' } )     
-                        newInputs.append( {'type': 'str', 'name': 'FWK_CACHE_KEY_%s' % j , 'description': '',
-                                        'value' : stepsReg[i]['parameters']['key'], 'color': '' } )
+                            newInputs.append( {'type': 'str', 
+                                               'name': 'FWK_CACHE_VALUE_%s' % j , 
+                                               'description': stepsReg[i]['description'],
+                                               'value' : stepsReg[i]['parameters']['value'], 
+                                               'color': '', 'scope': 'local' } )     
+                        newInputs.append( {'type': 'str', 
+                                           'name': 'FWK_CACHE_KEY_%s' % j , 
+                                           'description': '',
+                                           'value' : stepsReg[i]['parameters']['key'], 
+                                           'color': '',
+                                           'scope': 'local' } )
                                         
                     elif stepsReg[i]['action'] == GuiSteps.FRAMEWORK_CHECK_STRING:
                         if stepsReg[i]['parameters']['from-alias']:
-                            newInputs.append( {'type': 'alias', 'name': 'FWK_CHECK_%s' % j , 'description': stepsReg[i]['description'],
-                                        'value' : stepsReg[i]['parameters']['value'], 'color': '' } )    
+                            newInputs.append( {'type': 'alias', 
+                                               'name': 'FWK_CHECK_%s' % j , 
+                                               'description': stepsReg[i]['description'],
+                                               'value' : stepsReg[i]['parameters']['value'], 
+                                               'color': '',
+                                               'scope': 'local' } )    
                             if not self.checkDuplicateAlias(inputs=newInputs, alias=stepsReg[i]['parameters']['value']):
                                 newInputs.append( {'type': 'str', 'name': stepsReg[i]['parameters']['value'] , 
                                                     'description': stepsReg[i]['description'],  
-                                                    'value' : '', 'color': '' } )       
+                                                    'value' : '', 'color': '', 'scope': 'local' } )       
                         else:
                             newInputs.append( {'type': 'str', 'name': 'FWK_CHECK_%s' % j , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : str(stepsReg[i]['parameters']['value']), 'color': '' } )     
+                                                'value' : str(stepsReg[i]['parameters']['value']), 
+                                                'color': '', 'scope': 'local' } )     
                         newInputs.append( {'type': 'str', 'name': 'FWK_CHECK_KEY_%s' % j , 
                                             'description': stepsReg[i]['description'],
-                                            'value' : str(stepsReg[i]['parameters']['key']), 'color': '' } )        
+                                            'value' : str(stepsReg[i]['parameters']['key']), 
+                                            'color': '', 'scope': 'local' } )        
                                         
                     elif stepsReg[i]['action'] == GuiSteps.FRAMEWORK_INTERACT:
                         if stepsReg[i]['parameters']['from-alias']:
                             newInputs.append( {'type': 'alias', 'name': 'FWK_ASK_%s' % j , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : stepsReg[i]['parameters']['value'], 'color': '' } )    
+                                                'value' : stepsReg[i]['parameters']['value'], 
+                                                'color': '', 'scope': 'local' } )    
                             if not self.checkDuplicateAlias(inputs=newInputs, alias=stepsReg[i]['parameters']['value']):
                                 newInputs.append( {'type': 'str', 'name': stepsReg[i]['parameters']['value'] , 
                                                     'description': stepsReg[i]['description'],  
-                                                    'value' : '', 'color': '' } )       
+                                                    'value' : '', 'color': '', 'scope': 'local' } )       
                         else:
                             newInputs.append( {'type': 'str', 'name': 'FWK_ASK_%s' % j , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : str(stepsReg[i]['parameters']['value']), 'color': '' } )     
+                                                'value' : str(stepsReg[i]['parameters']['value']), 
+                                                'color': '', 'scope': 'local' } )     
                         newInputs.append( {'type': 'str', 'name': 'FWK_ASK_KEY_%s' % j , 
                                             'description': stepsReg[i]['description'],
-                                            'value' : str(stepsReg[i]['parameters']['key']), 'color': '' } )      
+                                            'value' : str(stepsReg[i]['parameters']['key']), 
+                                            'color': '', 'scope': 'local' } )      
                                             
                 # android    
                 elif stepsReg[i]["action-type"] == GuiSteps.ACTION_ANDROID:
@@ -1307,87 +1353,109 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
                                 if stepsReg[i]['parameters']['from-el-alias']:
                                     newInputs.append( {'type': 'alias', 'name': 'ANDROID_UI_TXT_%s' % j , 
                                                         'description': '',  'value' : stepsReg[i]['parameters']['text'], 
-                                                        'color': '' } )
+                                                        'color': '', 'scope': 'local' } )
                                     if not self.checkDuplicateAlias(inputs=newInputs, alias=stepsReg[i]['parameters']['text']):
                                         newInputs.append( {'type': 'str', 'name': stepsReg[i]['parameters']['text'] , 
-                                                            'description': '', 'value' : '', 'color': '' } )
+                                                            'description': '', 'value' : '', 
+                                                            'color': '', 'scope': 'local' } )
                                 else:
-                                    newInputs.append( {'type': 'str', 'name': 'ANDROID_UI_TXT_%s' % j , 'description': '',  
-                                                    'value' : stepsReg[i]['parameters']['text'], 'color': '' } )
+                                    newInputs.append( {'type': 'str', 
+                                                       'name': 'ANDROID_UI_TXT_%s' % j , 
+                                                       'description': '',  
+                                                       'value' : stepsReg[i]['parameters']['text'], 
+                                                       'color': '', 'scope': 'local' } )
                         if 'description' in stepsReg[i]['parameters']:            
                             if len(stepsReg[i]['parameters']['description']):
-                                newInputs.append( {'type': 'str', 'name': 'ANDROID_UI_DESCR_%s' % j , 'description': '',  
-                                                    'value' : stepsReg[i]['parameters']['description'], 'color': '' } )  
+                                newInputs.append( {'type': 'str', 'name': 'ANDROID_UI_DESCR_%s' % j , 
+                                                   'description': '',  
+                                                    'value' : stepsReg[i]['parameters']['description'], 
+                                                    'color': '', 'scope': 'local' } )  
                         if 'class' in stepsReg[i]['parameters']:            
                             if len(stepsReg[i]['parameters']['class']):
-                                newInputs.append( {'type': 'str', 'name': 'ANDROID_UI_CLS_%s' % j , 'description': '',  
-                                                    'value' : stepsReg[i]['parameters']['class'], 'color': '' } )  
+                                newInputs.append( {'type': 'str', 'name': 'ANDROID_UI_CLS_%s' % j , 
+                                                    'description': '',  
+                                                    'value' : stepsReg[i]['parameters']['class'], 
+                                                    'color': '', 'scope': 'local' } )  
                         if 'ressource' in stepsReg[i]['parameters']:            
                             if len(stepsReg[i]['parameters']['ressource']):
                                 newInputs.append( {'type': 'str', 'name': 'ANDROID_UI_RES_%s' % j , 'description': '', 
-                                                    'value' : stepsReg[i]['parameters']['ressource'], 'color': '' } )  
+                                                    'value' : stepsReg[i]['parameters']['ressource'], 
+                                                    'color': '', 'scope': 'local' } )  
                         if 'package' in stepsReg[i]['parameters']:            
                             if len(stepsReg[i]['parameters']['package']):
                                 newInputs.append( {'type': 'str', 'name': 'ANDROID_UI_PKG_%s' % j , 'description': '',  
-                                                    'value' : stepsReg[i]['parameters']['package'], 'color': '' } )   
+                                                    'value' : stepsReg[i]['parameters']['package'], 
+                                                    'color': '', 'scope': 'local' } )   
                             
                     if stepsReg[i]['action'] in [ GuiSteps.ANDROID_CLICK_POSITION, GuiSteps.ANDROID_DRAG_ELEMENT ] :
                         if len(stepsReg[i]['parameters']['x']):
                             newInputs.append( {'type': 'int', 'name': 'ANDROID_UI_X_%s' % j , 'description': '',  
-                                                'value' : stepsReg[i]['parameters']['x'], 'color': '' } )  
+                                                'value' : stepsReg[i]['parameters']['x'], 
+                                                'color': '', 'scope': 'local' } )  
                         if len(stepsReg[i]['parameters']['y']):
                             newInputs.append( {'type': 'int', 'name': 'ANDROID_UI_Y_%s' % j , 'description': '',  
-                                                'value' : stepsReg[i]['parameters']['y'], 'color': '' } )  
+                                                'value' : stepsReg[i]['parameters']['y'], 
+                                                'color': '', 'scope': 'local' } )  
                             
                     if stepsReg[i]['action'] in [ GuiSteps.ANDROID_DRAG_POSITION, GuiSteps.ANDROID_SWIPE_POSITION ] :
                         if len(stepsReg[i]['parameters']['start-x']):
                             newInputs.append( {'type': 'int', 'name': 'ANDROID_UI_START_X_%s' % j , 'description': '', 
-                                                'value' : stepsReg[i]['parameters']['start-x'], 'color': '' } )  
+                                                'value' : stepsReg[i]['parameters']['start-x'], 
+                                                'color': '', 'scope': 'local' } )  
                         if len(stepsReg[i]['parameters']['start-y']):
                             newInputs.append( {'type': 'int', 'name': 'ANDROID_UI_START_Y_%s' % j , 'description': '',  
-                                                'value' : stepsReg[i]['parameters']['start-y'], 'color': '' } )  
+                                                'value' : stepsReg[i]['parameters']['start-y'], 
+                                                'color': '', 'scope': 'local' } )  
                         if len(stepsReg[i]['parameters']['stop-x']):
                             newInputs.append( {'type': 'int', 'name': 'ANDROID_UI_STOP_X_%s' % j , 'description': '',  
-                                                'value' : stepsReg[i]['parameters']['stop-x'], 'color': '' } )  
+                                                'value' : stepsReg[i]['parameters']['stop-x'], 
+                                                'color': '', 'scope': 'local' } )  
                         if len(stepsReg[i]['parameters']['stop-y']):
                             newInputs.append( {'type': 'int', 'name': 'ANDROID_UI_STOP_Y_%s' % j , 'description': '',  
-                                                'value' : stepsReg[i]['parameters']['stop-y'], 'color': '' } )  
+                                                'value' : stepsReg[i]['parameters']['stop-y'], 
+                                                'color': '', 'scope': 'local' } )  
 
                     if stepsReg[i]['action'] == GuiSteps.ANDROID_COMMAND:
                         newInputs.append( {'type': 'str', 'name': 'ANDROID_CMD_%s' % j , 
                                             'description': stepsReg[i]['description'],
-                                            'value' : stepsReg[i]['parameters']['cmd'], 'color': '' } )
+                                            'value' : stepsReg[i]['parameters']['cmd'], 
+                                            'color': '', 'scope': 'local' } )
                                         
                     if stepsReg[i]['action'] == GuiSteps.ANDROID_SHELL:
                         newInputs.append( {'type': 'str', 'name': 'ANDROID_SH_%s' % j , 
                                             'description': stepsReg[i]['description'],
-                                            'value' : stepsReg[i]['parameters']['sh'], 'color': '' } )
+                                            'value' : stepsReg[i]['parameters']['sh'], 
+                                            'color': '', 'scope': 'local' } )
                                         
                     if stepsReg[i]['action'] in [ GuiSteps.ANDROID_RESET_APP, GuiSteps.ANDROID_STOP_APP ]:
                         newInputs.append( {'type': 'str', 'name': 'ANDROID_PKG_%s' % j , 
                                             'description': stepsReg[i]['description'],
-                                            'value' : stepsReg[i]['parameters']['pkg'], 'color': '' } )
+                                            'value' : stepsReg[i]['parameters']['pkg'], 
+                                            'color': '', 'scope': 'local' } )
                                         
                     if stepsReg[i]['action'] == GuiSteps.ANDROID_TYPE_TEXT_ELEMENT:
                         if stepsReg[i]['parameters']['from-alias']:
                             newInputs.append( {'type': 'alias', 'name': 'ANDROID_TEXT_%s' % j , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : stepsReg[i]['parameters']['new-text'], 'color': '' } )    
+                                                'value' : stepsReg[i]['parameters']['new-text'], 
+                                                'color': '', 'scope': 'local' } )    
                             if not self.checkDuplicateAlias(inputs=newInputs, alias=stepsReg[i]['parameters']['new-text']):
                                 newInputs.append( {'type': 'str', 'name': stepsReg[i]['parameters']['new-text'] , 
                                                     'description': stepsReg[i]['description'],
-                                                    'value' : '', 'color': '' } )    
+                                                    'value' : '', 'color': '', 'scope': 'local' } )    
                         else:
                             newInputs.append( {'type': 'str', 'name': 'ANDROID_TEXT_%s' % j , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : stepsReg[i]['parameters']['new-text'], 'color': '' } )             
+                                                'value' : stepsReg[i]['parameters']['new-text'], 
+                                                'color': '', 'scope': 'local' } )             
                     
                     elif stepsReg[i]['action'] == GuiSteps.ANDROID_GET_TEXT_ELEMENT:
                         if "to-cache" in stepsReg[i]['parameters']:
                             if stepsReg[i]['parameters']['to-cache']:
                                 newInputs.append( {'type': 'str', 'name': 'ANDROID_CACHE_%s' % j ,  
                                                     'description': stepsReg[i]['description'], 
-                                                    'value' : stepsReg[i]['parameters']['cache-key'], 'color': '' } )
+                                                    'value' : stepsReg[i]['parameters']['cache-key'], 
+                                                    'color': '', 'scope': 'local' } )
                 
                 # browser
                 elif stepsReg[i]["action-type"] == GuiSteps.ACTION_BROWSER:
@@ -1414,47 +1482,49 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
                         
                         # adding default step
                         newInputs.append( {'type': 'bool', 'name': 'BROWSER_USE_FIREFOX_%s' % j, 'description': '',  
-                                            'value' : isFirefox, 'color': '' } )
+                                            'value' : isFirefox, 'color': '', 'scope': 'local' } )
                         newInputs.append( {'type': 'bool', 'name': 'BROWSER_USE_IE_%s' % j, 'description': '',  
-                                            'value' : isIe, 'color': '' } )
+                                            'value' : isIe, 'color': '', 'scope': 'local' } )
                         newInputs.append( {'type': 'bool', 'name': 'BROWSER_USE_CHROME_%s' % j , 'description': '',  
-                                            'value' : isChrome, 'color': '' } )
+                                            'value' : isChrome, 'color': '', 'scope': 'local' } )
                         newInputs.append( {'type': 'bool', 'name': 'BROWSER_USE_OPERA_%s' % j , 'description': '', 
-                                            'value' : isOpera, 'color': '' } )
+                                            'value' : isOpera, 'color': '', 'scope': 'local' } )
                         newInputs.append( {'type': 'bool', 'name': 'BROWSER_USE_EDGE_%s' % j , 'description': '',  
-                                            'value' : isEdge, 'color': '' } )
+                                            'value' : isEdge, 'color': '', 'scope': 'local' } )
 
                         # adding url
                         if stepsReg[i]["parameters"]['from-alias']:
                             newInputs.append( {'type': 'alias', 'name': 'BROWSER_TEXT_%s' % j , 
                                                 'description': stepsReg[i]['description'], 
-                                                'value' : stepsReg[i]['text'], 'color': '' } )
+                                                'value' : stepsReg[i]['text'], 'color': '', 'scope': 'local' } )
                             if not self.checkDuplicateAlias(inputs=newInputs, alias=stepsReg[i]['text']):            
                                 newInputs.append( {'type': 'str', 'name': stepsReg[i]['text'] , 
                                                     'description': stepsReg[i]['description'], 
-                                                    'value' : '', 'color': '' } )
+                                                    'value' : '', 'color': '', 'scope': 'local' } )
                         else:
                             newInputs.append( {'type': 'str', 'name': 'BROWSER_TEXT_%s' % j , 
                                                 'description': stepsReg[i]['description'], 
-                                                'value' : stepsReg[i]['text'], 'color': '' } )
+                                                'value' : stepsReg[i]['text'], 'color': '', 'scope': 'local' } )
 
                         if "session-name" in stepsReg[i]["parameters"]:
                             newInputs.append( {'type': 'str', 'name': 'BROWSER_SESSION_%s' % j , 
                                                 'description': stepsReg[i]['description'], 
-                                                'value' : stepsReg[i]["parameters"]['session-name'], 'color': '' } )
+                                                'value' : stepsReg[i]["parameters"]['session-name'], 
+                                                'color': '', 'scope': 'local' } )
                         else:
                             newInputs.append( {'type': 'str', 'name': 'BROWSER_SESSION_%s' % j , 
                                                 'description': stepsReg[i]['description'], 
-                                                'value' : "default", 'color': '' } )
+                                                'value' : "default", 'color': '', 'scope': 'local' } )
 
                         if "use-gecko" in stepsReg[i]["parameters"]:
                             newInputs.append( {'type': 'bool', 'name': 'BROWSER_DRIVER_GECKO_%s' % j , 
                                                 'description': stepsReg[i]['description'], 
-                                                'value' : "%s" % stepsReg[i]["parameters"]['use-gecko'], 'color': '' } )
+                                                'value' : "%s" % stepsReg[i]["parameters"]['use-gecko'], 
+                                                'color': '', 'scope': 'local' } )
                         else:
                             newInputs.append( {'type': 'bool', 'name': 'BROWSER_DRIVER_GECKO_%s' % j , 
                                                 'description': stepsReg[i]['description'], 
-                                                'value' : "True", 'color': '' } )
+                                                'value' : "True", 'color': '', 'scope': 'local' } )
                                         
                     elif stepsReg[i]['action'] == GuiSteps.BROWSER_CLOSE:
                         pass
@@ -1490,25 +1560,29 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
                         if stepsReg[i]["parameters"]['to-cache']:
                             newInputs.append( {'type': 'str', 'name': 'BROWSER_TEXT_%s' % j , 
                                                 'description': stepsReg[i]['description'], 
-                                                'value' : stepsReg[i]['text-more'], 'color': '' } )
+                                                'value' : stepsReg[i]['text-more'], 
+                                                'color': '', 'scope': 'local' } )
                             
                     elif stepsReg[i]['action'] == GuiSteps.BROWSER_GET_SOURCE:
                         if stepsReg[i]["parameters"]['to-cache']:
                             newInputs.append( {'type': 'str', 'name': 'BROWSER_TEXT_%s' % j , 
                                                 'description': stepsReg[i]['description'], 
-                                                'value' : stepsReg[i]['text-more'], 'color': '' } )
+                                                'value' : stepsReg[i]['text-more'], 
+                                                'color': '', 'scope': 'local' } )
                             
                     elif stepsReg[i]['action'] == GuiSteps.BROWSER_GET_TITLE:
                         if stepsReg[i]["parameters"]['to-cache']:
                             newInputs.append( {'type': 'str', 'name': 'BROWSER_TEXT_%s' % j , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : stepsReg[i]['text-more'], 'color': '' } )
+                                                'value' : stepsReg[i]['text-more'], 
+                                                'color': '', 'scope': 'local' } )
                             
                     elif stepsReg[i]['action'] == GuiSteps.BROWSER_GET_TEXT_ALERT:
                         if stepsReg[i]["parameters"]['to-cache']:
                             newInputs.append( {'type': 'str', 'name': 'BROWSER_TEXT_%s' % j , 
                                                 'description': stepsReg[i]['description'], 
-                                                'value' : stepsReg[i]['text-more'], 'color': '' } )
+                                                'value' : stepsReg[i]['text-more'], 
+                                                'color': '', 'scope': 'local' } )
                             
                     elif stepsReg[i]['action'] in [ GuiSteps.BROWSER_SWITCH_TO_FRAME, GuiSteps.BROWSER_WAIT_ELEMENT, 
                                                     GuiSteps.BROWSER_HOVER_ELEMENT, GuiSteps.BROWSER_CLICK_ELEMENT, 
@@ -1519,34 +1593,40 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
                         if stepsReg[i]["parameters"]['from-el-alias']:
                             newInputs.append( {'type': 'alias', 'name': 'BROWSER_TEXT_BY_%s' % j , 
                                                 'description': stepsReg[i]['description'], 
-                                                'value' : stepsReg[i]['text'], 'color': '' } ) 
+                                                'value' : stepsReg[i]['text'], 
+                                                'color': '', 'scope': 'local' } ) 
                             if not self.checkDuplicateAlias(inputs=newInputs, alias=stepsReg[i]['text'].upper()):                                
                                 newInputs.append( {'type': 'str', 'name': stepsReg[i]['text'].upper() , 
                                                     'description': stepsReg[i]['description'], 
-                                                    'value' : '', 'color': '' } )   
+                                                    'value' : '', 'color': '', 'scope': 'local' } )   
                         else:
                             newInputs.append( {'type': 'str', 'name': 'BROWSER_TEXT_BY_%s' % j , 
                                                 'description': stepsReg[i]['description'], 
-                                                'value' : stepsReg[i]['text'], 'color': '' } )      
+                                                'value' : stepsReg[i]['text'], 
+                                                'color': '', 'scope': 'local' } )      
                                                 
                     elif stepsReg[i]['action'] in [ GuiSteps.BROWSER_GET_TEXT_ELEMENT ] : 
                         if stepsReg[i]["parameters"]['to-cache']:
                             newInputs.append( {'type': 'str', 'name': 'BROWSER_TEXT_%s' % j , 
                                                 'description': stepsReg[i]['description'],  
-                                                'value' : stepsReg[i]['text-more'], 'color': '' } )
+                                                'value' : stepsReg[i]['text-more'], 
+                                                'color': '', 'scope': 'local' } )
                                             
                         if stepsReg[i]["parameters"]['from-el-alias']:
                             newInputs.append( {'type': 'alias', 'name': 'BROWSER_TEXT_BY_%s' % j , 
                                                 'description': stepsReg[i]['description'], 
-                                                'value' : stepsReg[i]['text'], 'color': '' } ) 
+                                                'value' : stepsReg[i]['text'], 
+                                                'color': '', 'scope': 'local' } ) 
                             if not self.checkDuplicateAlias(inputs=newInputs, alias=stepsReg[i]['text'].upper()):                                
                                 newInputs.append( {'type': 'str', 'name': stepsReg[i]['text'].upper() , 
                                                     'description': stepsReg[i]['description'], 
-                                                    'value' : '', 'color': '' } )   
+                                                    'value' : '', 
+                                                    'color': '', 'scope': 'local' } )   
                         else:
                             newInputs.append( {'type': 'str', 'name': 'BROWSER_TEXT_BY_%s' % j , 
                                                 'description': stepsReg[i]['description'], 
-                                                'value' : stepsReg[i]['text'], 'color': '' } )      
+                                                'value' : stepsReg[i]['text'], 
+                                                'color': '', 'scope': 'local' } )      
 
                                                 
                     elif stepsReg[i]['action'] in [ GuiSteps.BROWSER_TYPE_TEXT, GuiSteps.BROWSER_FIND_TEXT_ELEMENT,
@@ -1555,28 +1635,31 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
                         if stepsReg[i]["parameters"]['from-alias']:
                             newInputs.append( {'type': 'alias', 'name': 'BROWSER_TEXT_%s' % j , 
                                                 'description': stepsReg[i]['description'], 
-                                                'value' : stepsReg[i]['text-more'], 'color': '' } ) 
+                                                'value' : stepsReg[i]['text-more'], 
+                                                'color': '', 'scope': 'local' } ) 
                             if not self.checkDuplicateAlias(inputs=newInputs, alias=stepsReg[i]['text-more'].upper()):                                
                                 newInputs.append( {'type': 'str', 'name': stepsReg[i]['text-more'].upper() , 
                                                     'description': stepsReg[i]['description'], 
-                                                    'value' : '', 'color': '' } )   
+                                                    'value' : '', 'color': '', 'scope': 'local' } )   
                         else:
                             newInputs.append( {'type': 'str', 'name': 'BROWSER_TEXT_%s' % j , 
                                                 'description': stepsReg[i]['description'], 
-                                                'value' : stepsReg[i]['text-more'], 'color': '' } )     
+                                                'value' : stepsReg[i]['text-more'], 
+                                                'color': '', 'scope': 'local' } )     
                                                 
                         if stepsReg[i]["parameters"]['from-el-alias']:
                             newInputs.append( {'type': 'alias', 'name': 'BROWSER_TEXT_BY_%s' % j , 
                                                 'description': stepsReg[i]['description'], 
-                                                'value' : stepsReg[i]['text'], 'color': '' } ) 
+                                                'value' : stepsReg[i]['text'], 
+                                                'color': '', 'scope': 'local' } ) 
                             if not self.checkDuplicateAlias(inputs=newInputs, alias=stepsReg[i]['text'].upper()):                                
                                 newInputs.append( {'type': 'str', 'name': stepsReg[i]['text'].upper() , 
                                                     'description': stepsReg[i]['description'], 
-                                                    'value' : '', 'color': '' } )   
+                                                    'value' : '', 'color': '', 'scope': 'local' } )   
                         else:
                             newInputs.append( {'type': 'str', 'name': 'BROWSER_TEXT_BY_%s' % j , 
                                                 'description': stepsReg[i]['description'], 
-                                                'value' : stepsReg[i]['text'], 'color': '' } )      
+                                                'value' : stepsReg[i]['text'], 'color': '', 'scope': 'local' } )      
 
                     elif stepsReg[i]['action'] in [ GuiSteps.BROWSER_FIND_TEXT_TITLE, GuiSteps.BROWSER_FIND_TEXT_GET_URL,
                                                     GuiSteps.BROWSER_FIND_TEXT_GET_SOURCE, GuiSteps.BROWSER_SWITCH_TO_WINDOW,
@@ -1584,20 +1667,23 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
                         if stepsReg[i]["parameters"]['from-alias']:
                             newInputs.append( {'type': 'alias', 'name': 'BROWSER_TEXT_%s' % j , 
                                                 'description': stepsReg[i]['description'], 
-                                                'value' : stepsReg[i]['text-more'], 'color': '' } ) 
+                                                'value' : stepsReg[i]['text-more'], 
+                                                'color': '', 'scope': 'local' } ) 
                             if not self.checkDuplicateAlias(inputs=newInputs, alias=stepsReg[i]['text-more'].upper()):                                
                                 newInputs.append( {'type': 'str', 'name': stepsReg[i]['text-more'].upper() , 
                                                     'description': stepsReg[i]['description'], 
-                                                    'value' : '', 'color': '' } )   
+                                                    'value' : '', 'color': '', 'scope': 'local' } )   
                         else:
                             newInputs.append( {'type': 'str', 'name': 'BROWSER_TEXT_%s' % j , 
                                                 'description': stepsReg[i]['description'], 
-                                                'value' : stepsReg[i]['text-more'], 'color': '' } )    
+                                                'value' : stepsReg[i]['text-more'], 
+                                                'color': '', 'scope': 'local' } )    
                                                 
                     else:
                         newInputs.append( {'type': 'str', 'name': 'BROWSER_TEXT_%s' % j , 
                                             'description': stepsReg[i]['description'],
-                                            'value' : stepsReg[i]['text'], 'color': '' } )    
+                                            'value' : stepsReg[i]['text'], 
+                                            'color': '', 'scope': 'local' } )    
                 
                 # sikuli
                 else:
@@ -1610,7 +1696,7 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
 
                     if stepsReg[i]['action'] in [ GuiSteps.MOUSE_WHEEL_UP, GuiSteps.MOUSE_WHEEL_DOWN]:
                         newInputs.append( {'type': 'int', 'name': 'WHEEL_%s' % j , 'description': '',
-                                        'value' : str(stepsReg[i]['misc']), 'color': '' } )       
+                                            'value' : str(stepsReg[i]['misc']), 'color': '', 'scope': 'local' } )       
                     elif stepsReg[i]['action'] == GuiSteps.SHORTCUT:
                         pass
                         
@@ -1618,101 +1704,112 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
                         if stepsReg[i]["parameters"]['from-alias']:
                             newInputs.append( {'type': 'alias', 'name': 'TEXT_%s' % j , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : stepsReg[i]['text'], 'color': '' } )
+                                                'value' : stepsReg[i]['text'], 'color': '', 'scope': 'local' } )
                             if not self.checkDuplicateAlias(inputs=newInputs, alias=stepsReg[i]['text']):                             
                                 newInputs.append( {'type': 'str', 'name': stepsReg[i]['text'], 
                                                     'description': stepsReg[i]['description'],
-                                                    'value' : '', 'color': '' } )
+                                                    'value' : '', 'color': '', 'scope': 'local' } )
                         else:
                             newInputs.append( {'type': 'str', 'name': 'TEXT_%s' % j , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : stepsReg[i]['text'], 'color': '' } )
+                                                'value' : stepsReg[i]['text'], 'color': '', 'scope': 'local' } )
                     elif stepsReg[i]['action'] == GuiSteps.TYPE_TEXT_PATH:
                         if stepsReg[i]["parameters"]['from-alias']:
                             newInputs.append( {'type': 'alias', 'name': 'TEXT_%s' % j ,
                                                 'description': stepsReg[i]['description'],
-                                                'value' : stepsReg[i]['text'], 'color': '' } )
+                                                'value' : stepsReg[i]['text'], 'color': '', 'scope': 'local' } )
                             if not self.checkDuplicateAlias(inputs=newInputs, alias=stepsReg[i]['text']):                      
                                 newInputs.append( {'type': 'str', 'name': stepsReg[i]['text'] , 
                                                     'description': stepsReg[i]['description'],
-                                                    'value' : '', 'color': '' } )
+                                                    'value' : '', 'color': '', 'scope': 'local' } )
                         else:
                             newInputs.append( {'type': 'str', 'name': 'TEXT_%s' % j , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : stepsReg[i]['text'], 'color': '' } )
+                                                'value' : stepsReg[i]['text'], 'color': '', 'scope': 'local' } )
                     elif stepsReg[i]['action'] == GuiSteps.TYPE_PASSWORD:
                         if stepsReg[i]["parameters"]['from-alias']:
                             newInputs.append( {'type': 'alias', 'name': 'TEXT_%s' % j , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : stepsReg[i]['text'], 'color': '' } )
+                                                'value' : stepsReg[i]['text'], 'color': '', 'scope': 'local' } )
                             if not self.checkDuplicateAlias(inputs=newInputs, alias=stepsReg[i]['text']):                  
                                 newInputs.append( {'type': 'pwd', 'name': stepsReg[i]['text'] , 
                                                     'description': stepsReg[i]['description'],
-                                                    'value' : '', 'color': '' } )
+                                                    'value' : '', 'color': '', 'scope': 'local' } )
                         else:
                             newInputs.append( {'type': 'pwd', 'name': 'TEXT_%s' % j , 
                                                 'description': stepsReg[i]['description'],
-                                                'value' : stepsReg[i]['text'], 'color': '' } )
+                                                'value' : stepsReg[i]['text'], 'color': '', 'scope': 'local' } )
                                         
                     elif stepsReg[i]['action'] == GuiSteps.TYPE_TEXT_ON:
                         newInputs.append( {'type': 'str', 'name': 'TEXT_%s' % j , 
                                             'description': '',
-                                            'value' : stepsReg[i]['text'], 'color': '' } )
+                                            'value' : stepsReg[i]['text'], 'color': '', 'scope': 'local' } )
                         newInputs.append( {'type': 'snapshot-image', 'name': 'IMG_%s' % j , 
                                             'description': stepsReg[i]['description'],
-                                            'value' : stepsReg[i]['image'], 'color': '' } )
+                                            'value' : stepsReg[i]['image'], 'color': '', 'scope': 'local' } )
                         newInputs.append( {'type': 'float', 'name': 'IMG_%s_SIMILAR' % j , 
                                             'description': '',
-                                            'value' : stepsReg[i]['option-similar'], 'color': '' } )
+                                            'value' : stepsReg[i]['option-similar'], 
+                                            'color': '', 'scope': 'local' } )
                     elif stepsReg[i]['action'] == GuiSteps.DRAG_DROP_IMAGE:
                         newInputs.append( {'type': 'int', 'name': 'DROP_Y_%s' % j , 'description': '',
-                                        'value' : stepsReg[i]['text'], 'color': '' } )
+                                        'value' : stepsReg[i]['text'], 'color': '', 'scope': 'local' } )
                         newInputs.append( {'type': 'int', 'name': 'DROP_X_%s' % j , 'description': '',
-                                        'value' : stepsReg[i]['misc'], 'color': '' } )
+                                        'value' : stepsReg[i]['misc'], 'color': '', 'scope': 'local' } )
                         newInputs.append( {'type': 'snapshot-image', 'name': 'IMG_%s' % j , 
                                             'description': stepsReg[i]['description'],
-                                            'value' : stepsReg[i]['image'], 'color': '' } )
+                                            'value' : stepsReg[i]['image'], 'color': '', 'scope': 'local' } )
                         newInputs.append( {'type': 'float', 'name': 'IMG_%s_SIMILAR' % j , 'description': '',
-                                            'value' : stepsReg[i]['option-similar'], 'color': '' } )
+                                            'value' : stepsReg[i]['option-similar'], 'color': '', 'scope': 'local' } )
                     elif stepsReg[i]['action'] in [ GuiSteps.MOUSE_CLICK_POSITION, GuiSteps.MOUSE_DOUBLE_CLICK_POSITION, 
                                                         GuiSteps.MOUSE_RIGHT_CLICK_POSITION, GuiSteps.MOUSE_MOVE_POSITION ] :
                         newInputs.append( {'type': 'int', 'name': 'TO_X_%s' % j , 'description': '',
-                                        'value' : stepsReg[i]['text'], 'color': '' } )
+                                        'value' : stepsReg[i]['text'], 'color': '', 'scope': 'local' } )
                         newInputs.append( {'type': 'int', 'name': 'TO_Y_%s' % j , 'description': '',
-                                        'value' : stepsReg[i]['misc'], 'color': '' } )
+                                        'value' : stepsReg[i]['misc'], 'color': '', 'scope': 'local' } )
                     elif stepsReg[i]['action'] in [ GuiSteps.CLICK_WORD, GuiSteps.DOUBLE_CLICK_WORD, 
                                                         GuiSteps.RIGHT_CLICK_WORD, GuiSteps.WAIT_WORD, GuiSteps.WAIT_CLICK_WORD ] :
                         if stepsReg[i]['parameters']['from-alias']:
-                            newInputs.append( {'type': 'alias', 'name': 'WORD_%s' % j , 'description': stepsReg[i]['description'],
-                                        'value' : stepsReg[i]['parameters']['location-word'], 'color': '' } )
+                            newInputs.append( {'type': 'alias', 'name': 'WORD_%s' % j , 
+                                                'description': stepsReg[i]['description'],
+                                                'value' : stepsReg[i]['parameters']['location-word'], 
+                                                'color': '', 'scope': 'local' } )
                             if not self.checkDuplicateAlias(inputs=newInputs, alias=stepsReg[i]['parameters']['location-word']):                  
                                 newInputs.append( {'type': 'str', 'name': stepsReg[i]['parameters']['location-word'] , 
                                                     'description': stepsReg[i]['description'],
-                                                    'value' : '', 'color': '' } )
+                                                    'value' : '', 'color': '', 'scope': 'local' } )
                         else:                
                             newInputs.append( {'type': 'str', 'name': 'WORD_%s' % j , 'description': '',
-                                            'value' : stepsReg[i]['parameters']['location-word'], 'color': '' } ) 
+                                            'value' : stepsReg[i]['parameters']['location-word'], 
+                                            'color': '', 'scope': 'local' } ) 
                         newInputs.append( {'type': 'int', 'name': 'TO_LOC_X_%s' % j , 'description': '',
-                                        'value' : stepsReg[i]['parameters']['location-x'], 'color': '' } )
+                                        'value' : stepsReg[i]['parameters']['location-x'], 
+                                        'color': '', 'scope': 'local' } )
                         newInputs.append( {'type': 'int', 'name': 'TO_LOC_Y_%s' % j , 'description': '',
-                                        'value' : stepsReg[i]['parameters']['location-y'], 'color': '' } )
+                                        'value' : stepsReg[i]['parameters']['location-y'], 
+                                        'color': '', 'scope': 'local'} )
                         newInputs.append( {'type': 'int', 'name': 'TO_LOC_W_%s' % j , 'description': '',
-                                        'value' : stepsReg[i]['parameters']['location-w'], 'color': '' } ) 
+                                        'value' : stepsReg[i]['parameters']['location-w'],
+                                        'color': '', 'scope': 'local' } ) 
                         newInputs.append( {'type': 'int', 'name': 'TO_LOC_H_%s' % j , 'description': '',
-                                        'value' : stepsReg[i]['parameters']['location-h'], 'color': '' } ) 
+                                        'value' : stepsReg[i]['parameters']['location-h'], 
+                                        'color': '', 'scope': 'local'} ) 
                     elif stepsReg[i]['action'] == GuiSteps.GET_TEXT_CLIPBOARD:
                         if stepsReg[i]["parameters"]['from-cache']:
                             newInputs.append( {'type': 'str', 'name': 'APP_CACHE_%s' % j , 
                                                 'description': stepsReg[i]['description'], 
-                                                'value' : stepsReg[i]['text'], 'color': '' } )  
+                                                'value' : stepsReg[i]['text'], 
+                                                'color': '', 'scope': 'local' } )  
                                                 
                     # default
                     else:
                         newInputs.append( {'type': 'snapshot-image', 'name': 'IMG_%s' % j , 
                                             'description': stepsReg[i]['description'],
-                                            'value' : stepsReg[i]['image'], 'color': '' } )
+                                            'value' : stepsReg[i]['image'], 
+                                            'color': '', 'scope': 'local' } )
                         newInputs.append( {'type': 'float', 'name': 'IMG_%s_SIMILAR' % j , 'description': '',
-                                        'value' : stepsReg[i]['option-similar'], 'color': '' } )
+                                        'value' : stepsReg[i]['option-similar'], 
+                                        'color': '', 'scope': 'local' } )
 
         # get timeout
         timeout = self.sikuliGroup.getTimeout()
@@ -1730,23 +1827,29 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
         timeoutSys = self.sshGroup.getTimeout()
         if not len(timeoutSys): timeoutSys = 20.0
         
-        newInputs.append( {'type': 'bool', 'name': 'DEBUG', 'description': '', 'value' : 'False', 'color': '' } )
+        newInputs.append( {'type': 'bool', 'name': 'DEBUG', 'description': '', 
+                           'value' : 'False', 'color': '', 'scope': 'local' } )
         
         if anythingStepDetected:
             newInputs.append( {'type': 'float', 'name': 'TIMEOUT_GUI', 'description': '', 
-                                'value' : '%s' % str(timeout), 'color': '' } )
+                                'value' : '%s' % str(timeout), 
+                                'color': '', 'scope': 'local' } )
         if browserStepDetected:
            newInputs.append( {'type': 'float', 'name': 'TIMEOUT_GUI_BROWSER', 'description': '', 
-                                'value' : '%s' % str(timeoutBrowser), 'color': '' } ) 
+                                'value' : '%s' % str(timeoutBrowser), 
+                                'color': '', 'scope': 'local' } ) 
         if androidStepDetected:
            newInputs.append( {'type': 'float', 'name': 'TIMEOUT_ANDROID', 'description': '', 
-                                'value' : '%s' % str(timeoutAndroid), 'color': '' } ) 
+                                'value' : '%s' % str(timeoutAndroid), 
+                                'color': '', 'scope': 'local' } ) 
         if frameworkStepDetected:
            newInputs.append( {'type': 'float', 'name': 'TIMEOUT_FWK', 'description': '', 
-                                'value' : '%s' % str(timeoutFramework), 'color': '' } ) 
+                                'value' : '%s' % str(timeoutFramework), 
+                                'color': '', 'scope': 'local' } ) 
         if sysStepDetected:
            newInputs.append( {'type': 'float', 'name': 'TIMEOUT_SYS', 'description': '', 
-                                'value' : '%s' % str(timeoutSys), 'color': '' } ) 
+                                'value' : '%s' % str(timeoutSys), 
+                                'color': '', 'scope': 'local' } ) 
 
         # set the agent
         agentName = self.sikuliGroup.getAgentList().currentText()
@@ -1757,16 +1860,20 @@ class WRecorderGui(QWidget, Logger.ClassLogger):
         agentTpl = []
         if anythingStepDetected:
             agentTpl.append( { 'name': '%s' % agentKeyName, 'description': '', 
-                                'value' : '%s' % str(agentName), 'type': 'sikulixserver' } )
+                                'value' : '%s' % str(agentName), 
+                                'type': 'sikulixserver' } )
         if browserStepDetected:
             agentTpl.append( { 'name': '%s' % agentBrowserKeyName, 'description': '', 
-                                'value' : '%s' % str(agentBrowserName), 'type': 'seleniumserver' } )
+                                'value' : '%s' % str(agentBrowserName), 
+                                'type': 'seleniumserver' } )
         if androidStepDetected:
             agentTpl.append( { 'name': '%s' % agentAndroidKeyName, 'description': '', 
-                                'value' : '%s' % str(agentAndroidName), 'type': 'adb' } )
+                                'value' : '%s' % str(agentAndroidName), 
+                                'type': 'adb' } )
         if sysStepDetected:
             agentTpl.append( { 'name': '%s' % agentSystemKeyName, 'description': '', 
-                                'value' : '%s' % str(agentSysName), 'type': 'ssh' } )
+                                'value' : '%s' % str(agentSysName), 
+                                'type': 'ssh' } )
             
             
         # construct all steps

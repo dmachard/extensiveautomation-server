@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<file>
+<properties><descriptions><description><value>admin</value><key>author</key></description><description><value>30/01/2016 19:22:53</value><key>creation date</key></description><description><value>Just a basic sample.</value><key>summary</key></description><description><value>None.</value><key>prerequisites</key></description><description><value><comments /></value><key>comments</key></description><description><value>myplugins</value><key>libraries</key></description><description><value>myplugins</value><key>adapters</key></description><description><value>Writing</value><key>state</key></description><description><value>CONNECTION</value><key>name</key></description><description><value>REQ_01</value><key>requirement</key></description></descriptions><inputs-parameters><parameter><color /><description /><type>bool</type><name>DEBUG</name><value>False</value><scope>local</scope></parameter><parameter><color /><description /><type>float</type><name>TIMEOUT_GUI</name><value>15.0</value><scope>local</scope></parameter></inputs-parameters><agents><agent><description /><type>sikulixserver</type><name>AGENT_GUI</name><value /></agent></agents><probes><probe><active>False</active><args /><name>probe01</name><type>default</type></probe></probes><outputs-parameters><parameter><color /><description /><type>float</type><name>TIMEOUT</name><value>1.0</value><scope>local</scope></parameter></outputs-parameters></properties>
+<testdefinition><![CDATA[
+def description(self):
+	# testcase description
+	self.setPurpose(purpose="GUI_Automation_Capture")
+
+	# steps description
+	self.step1 = self.addStep(expected="Action(s) executed with success", description="Navigation dans le menu 'Scheduler' et 'Get Started'\n- Ouverture de la fenêtre de connexion", summary="Navigation dans le menu 'Scheduler' et 'Get Started'\n- Ouverture de la fenêtre de connexion", enabled=True)
+
+def prepare(self):
+	# adapters and libraries definitions
+	self.ADP_GUI = SutAdapters.GUI.Sikuli(parent=self, agent=agent('AGENT_GUI'), debug=input('DEBUG'))
+
+	
+
+def definition(self):
+	if self.step1.isEnabled():
+		self.step1.start()
+	
+		##CAPTURE>Navigation dans le menu 'Scheduler' et 'Get Started'
+		actionId = self.ADP_GUI.typeShorcut(key=SutAdapters.GUI.KEY_ALT, modifier=None, special=None, other='s', repeat=2)
+		APP_RET1 = self.ADP_GUI.isActionAccepted(timeout=input('TIMEOUT_GUI'), actionId=actionId)
+		if APP_RET1 is None:
+			self.abort("Unable to navigation dans le menu 'scheduler' et 'get started'")
+	
+		##CAPTURE>Ouverture de la fenêtre de connexion
+		actionId = self.ADP_GUI.typeShorcut(key=SutAdapters.GUI.KEY_ENTER, modifier=None, special=None, other=None, repeat=0)
+		APP_RET2 = self.ADP_GUI.isActionAccepted(timeout=input('TIMEOUT_GUI'), actionId=actionId)
+		if APP_RET2 is None:
+			self.abort("Unable to ouverture de la fenêtre de connexion")
+	
+		self.step1.setPassed("test terminated")
+
+def cleanup(self, aborted):
+	if aborted: self.step1.setFailed(aborted)
+]]></testdefinition>
+<testdevelopment>1454178173.993759</testdevelopment>
+</file>

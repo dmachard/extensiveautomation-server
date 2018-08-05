@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -162,8 +162,7 @@ class InnoScript:
         print("InnoSetup returned errorlevel: %s" % errorlevel)
 
 # Init the class, create the script and compile-it
-print("%s/%s/" % (QtHelper.dirExec(),SRC_FROM))
-script = InnoScript( pathName= "%s/%s/" % (QtHelper.dirExec(),SRC_FROM) )
+script = InnoScript( pathName= SRC_FROM )
 script.create()
 script.compile()
 

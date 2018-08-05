@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# -------------------------------------------------------------------
+# Copyright (c) 2010-2018 Denis Machard
+# This file is part of the extensive automation project
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+# MA 02110-1301 USA
+# -------------------------------------------------------------------
+
+INSTALL_PATH=/opt/xtc/
+DATE=$(date +%Y%m%d)
+
+DB_IP=$(sed -n 's/^ip=\(.*\)/\1/p' < $INSTALL_PATH/current/settings.ini)
+DB_LOGIN=$(sed -n 's/^user-dump=\(.*\)/\1/p' < $INSTALL_PATH/current/settings.ini)
+DB_PWD=$(sed -n 's/^pwd-dump=\(.*\)/\1/p' < $INSTALL_PATH/current/settings.ini)
+DB_NAME=$(sed -n 's/^db=\(.*\)/\1/p' < $INSTALL_PATH/current/settings.ini)
+DB_PREFIX=$(sed -n 's/^table-prefix=\(.*\)/\1/p' < $INSTALL_PATH/current/settings.ini)
+
+PATH_BACKUP=$(sed -n 's/^backups-tables=\(.*\)/\1/p' < $INSTALL_PATH/current/settings.ini)
+
+MYSQLDUMP_BIN=mysqldump
+
+echo $DB_NAME
+echo $DB_PREFIX
+echo $DB_PWD
+echo $DB_LOGIN
+echo $DB_IP
+
+mysqldump -h $DB_IP -u $DB_LOGIN  --password="$DB_PWD" $DB_NAME $DB_PREFIX-projects $DB_PREFIX-relations-projects $DB_PREFIX-test-environment $DB_PREFIX-users > $INSTALL_PATH/current/$PATH_BACKUP/dump-$DB_PREFIX-tables-$DATE.sql

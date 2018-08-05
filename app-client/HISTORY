@@ -1,4 +1,28 @@
 
+18.0.0
+	Date: 11/02/2018
+	What's new
+		1. (minor) small change on the toolbar of the online assistant
+		2. (medium) new library pyinstaller used to build the client with qt5
+		3. (minor) static code analysis and cleanup, epydoc added
+		4. (minor) change default url of the website opensource project
+		5. (major) full support of qt5.9 and python3.6
+		6. (medium) new find & replace widget for python editor
+		7. (major) no more use xmlrpc api, replace by rest api
+		8. (minor) no more display database statistics in misc server explorer page
+		9. (medium) online helper: no more generate all packages button in toolbar
+		10. (medium) windows XP platform no more supported because of QT5.9 support
+		11. (medium) Default behaviour changed: no more show test properties tabulation on file opening
+	Issues Fixed
+		1. (minor) unable to print test xml verdict to pdf, missing QTextDocument import
+		2. (minor) fix some undefined variable after static code analysis
+		3. (minor) tests results archives: add protection to avoid errors on add/delete comments
+		4. (medium) fix missing find/replace feature for test data file
+		5. (minor) initialize recorder rather to avoid issue on plugins loading
+		6. (minor) fix duplicate function name in document viewer
+		7. (minor) server explorer - plugin repositories: bad tree widget reset in deletion
+		8. (minor) fix bad english usage in automation assistant
+        
 17.1.0
 	Date: 22/10/2017
 	What's new

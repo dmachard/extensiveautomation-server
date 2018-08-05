@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -27,6 +27,8 @@ Test parameters inputs/outputs module
 
 import sys
 import os
+import json
+import re
 
 # unicode = str with python3
 if sys.version_info > (3,):
@@ -41,10 +43,12 @@ try:
                             QGridLayout, QTableView, QDrag, QAbstractItemView, QFrame, QApplication, 
                             QMenu, QFileDialog, QWidget, QToolBar, QClipboard, QRegExpValidator,
                             QSyntaxHighlighter, QTextCharFormat, QBrush, QPalette, QCheckBox,
-                            QCompleter)
-    from PyQt4.QtCore import (QVariant, QAbstractTableModel, QModelIndex, Qt, QDate, QTime, QDateTime, 
-                            QAbstractListModel, QRegExp, pyqtSignal, QMimeData, QByteArray, QBuffer, 
-                            QIODevice, QFile, QSize)
+                            QCompleter, QStyleOptionButton, QStyle, QToolButton, QAction)
+    from PyQt4.QtCore import (QVariant, QAbstractTableModel, QModelIndex, Qt, 
+                                QDate, QTime, QDateTime, 
+                                QAbstractListModel, QRegExp, pyqtSignal, 
+                                QMimeData, QByteArray, QBuffer, 
+                                QIODevice, QFile, QSize)
 except ImportError:
     from PyQt5.QtGui import (QFont, QIcon, QPixmap, QImage, QColor, QDoubleValidator, 
                             QIntValidator, QDrag, QClipboard, QRegExpValidator,
@@ -52,9 +56,10 @@ except ImportError:
     from PyQt5.QtWidgets import (QItemDelegate, QLineEdit, QComboBox, QDialog, QDateEdit, QPlainTextEdit,
                                 QTimeEdit, QDateTimeEdit, QAbstractItemDelegate, QLabel, QHBoxLayout, 
                                 QTextEdit, QDialogButtonBox, QVBoxLayout, QMessageBox, QListView, 
-                                QListWidgetItem, QPushButton, QListWidget, QCheckBox,
+                                QListWidgetItem, QPushButton, QListWidget, QCheckBox, QStyle,
                                 QGridLayout, QTableView, QAbstractItemView, QFrame, QApplication, 
-                                QMenu, QFileDialog, QWidget, QToolBar, QCompleter)
+                                QMenu, QFileDialog, QWidget, QToolBar, QCompleter, QStyleOptionButton,
+                                QToolButton, QAction)
     from PyQt5.QtCore import (QVariant, QAbstractTableModel, QModelIndex, Qt, QDate, QTime, QDateTime, 
                             QAbstractListModel, QRegExp, pyqtSignal, QMimeData, QByteArray, QBuffer, 
                             QIODevice, QFile, QSize, QSortFilterProxyModel)
@@ -85,22 +90,14 @@ import pickle
 import base64
 
 COL_ID              =   0
-COL_NAME            =   1
-COL_TYPE            =   2
-COL_VALUE           =   3
-COL_DESCRIPTION     =   4
+COL_CACHE           =   1
+COL_NAME            =   2
+COL_TYPE            =   3
+COL_VALUE           =   4
+COL_DESCRIPTION     =   5
 
-HEADERS             = ( 'Id', 'Name', 'Type', 'Value', 'Description' )
-TYPES_PARAM         = [ 
-                        'str', 'text', 'custom', 'pwd', 'list', 'bool', 'hex', 'json', '' ,
-                        'none', 'alias', 'shared', 'list-shared', 'cache', '',
-                        'int', 'float', '',
-                        'dataset', 'remote-image', 'local-image', 'snapshot-image', '',
-                        'local-file', '',
-                        'date', 'time', 'date-time', '', 
-                        'self-ip', 'self-mac', 'self-eth'
-                       ]
-                       
+HEADERS             = ( 'Id', 'Cache', 'Name', 'Type', 'Value', 'Description' )
+
 try:
     xrange
 except NameError: # support python3
@@ -194,6 +191,15 @@ class ParametersTableModel(QAbstractTableModel, Logger.ClassLogger):
         """
         if index.column() == COL_ID:
             return index.row() + 1
+        elif index.column() == COL_CACHE:
+            # to keep compatibility with old test
+            if "scope" not in self.mydata[ index.row() ]:
+                self.mydata[ index.row() ]["scope"] == "local"
+                
+            if self.mydata[ index.row() ]['scope'] == "local":
+                return ""
+            else:
+                return "Yes"
         elif index.column() == COL_NAME:
             return self.mydata[ index.row() ]['name']
         elif index.column() == COL_TYPE:
@@ -243,7 +249,7 @@ class ParametersTableModel(QAbstractTableModel, Logger.ClassLogger):
                     except Exception as e:
                         return q("")
                         
-            if self.mydata[ index.row() ]['type'] in [ 'list-shared' ]:
+            if self.mydata[ index.row() ]['type'] in [ 'list-shared', 'list-global' ]:
                 if index.column() == COL_VALUE:
                     try:
                         els = value.split(",")
@@ -256,7 +262,7 @@ class ParametersTableModel(QAbstractTableModel, Logger.ClassLogger):
                     except Exception as e:
                         return q("")
                     
-            if self.mydata[ index.row() ]['type'] in [ 'shared' ]:
+            if self.mydata[ index.row() ]['type'] in [ 'shared', 'global' ]:
                 if index.column() == COL_VALUE:
                     try:
                         projectId, projectName, mainKey, secondKey = value.split(':')
@@ -331,6 +337,17 @@ class ParametersTableModel(QAbstractTableModel, Logger.ClassLogger):
                 if index.column() == COL_VALUE:
                     return q("*********")
                     
+            if self.mydata[ index.row() ]['type'] in [ 'json' ]:
+                if index.column() == COL_VALUE:
+                    return q("...")
+
+            if self.mydata[ index.row() ]['type'] in [ 'custom', 'text' ]:
+                if index.column() == COL_TYPE: # for backward compatibility
+                    return q("text")
+                    
+                if index.column() == COL_VALUE:
+                    return q("...")
+
             if self.mydata[ index.row() ]['type'] in [ 'list' ]:
                 if index.column() == COL_VALUE:
                     try:
@@ -342,7 +359,7 @@ class ParametersTableModel(QAbstractTableModel, Logger.ClassLogger):
                     except Exception as e:
                         return q("")
                     
-            if self.mydata[ index.row() ]['type'] in [ 'list-shared' ]:
+            if self.mydata[ index.row() ]['type'] in [ 'list-shared', 'list-global' ]:
                 if index.column() == COL_VALUE:
                     try:
                         els = value.split(",")
@@ -355,7 +372,7 @@ class ParametersTableModel(QAbstractTableModel, Logger.ClassLogger):
                     except Exception as e:
                         return q("")
                     
-            if self.mydata[ index.row() ]['type'] in [ 'shared' ]:
+            if self.mydata[ index.row() ]['type'] in [ 'shared', 'global' ]:
                 if index.column() == COL_VALUE:
                     try:
                         projectId, projectName, mainKey, secondKey = value.split(':')
@@ -392,7 +409,7 @@ class ParametersTableModel(QAbstractTableModel, Logger.ClassLogger):
                         value = str(value)
                 # end of fix
                 
-                limitValue = 20
+                limitValue = 40
                 if len(value) > limitValue:
                     return q( "%s [...]" % value[:limitValue] )
                 else:
@@ -480,7 +497,13 @@ class ParametersTableModel(QAbstractTableModel, Logger.ClassLogger):
             if orig_ != value:
                 dataChanged = True
                 self.mydata[ index.row() ]['value'] = ''
-        
+                
+        elif index.column() == COL_CACHE:
+            orig_ = self.mydata[ index.row() ]['scope']
+            self.mydata[ index.row() ]['scope'] = value
+            if orig_ != value:
+                dataChanged = True
+                
         elif index.column() == COL_VALUE:
             orig_ = self.mydata[ index.row() ]['value']
             self.mydata[ index.row() ]['value'] = value
@@ -682,11 +705,400 @@ class NameDelegate(QItemDelegate, Logger.ClassLogger):
         value = QtHelper.displayToValue( q(qvalue) )
         self.setValue(index, value)
 
+class CacheDelegate(QItemDelegate, Logger.ClassLogger):
+    """
+    Value delegate item
+    """
+    def __init__ (self, parent):
+        """
+        Contructs CacheDelegate item delegate
+        
+        @param parent: 
+        @type parent:
+
+        @param items_: 
+        @type items_:
+
+        @param colVal: 
+        @type colVal:
+
+        @param colDescr: 
+        @type colDescr:
+        """
+        QItemDelegate.__init__(self, parent)
+        self.owner = parent
+
+    def getValue(self, index):
+        """
+        Return value
+
+        @param index: 
+        @type index:
+
+        @return:
+        @rtype:
+        """
+        proxyIndex = index
+        if proxyIndex.isValid():
+            sourceIndex = self.owner.proxyModel.mapToSource( proxyIndex )
+            return proxyIndex.model().sourceModel().getValue(sourceIndex)
+    
+    def setValue(self, index, value):
+        """
+        Set value
+
+        @param index: 
+        @type index:
+
+        @param value: 
+        @type value:
+
+        @return:
+        @rtype:
+        """
+        proxyIndex = index
+        if proxyIndex.isValid():
+            sourceIndex = self.owner.proxyModel.mapToSource( proxyIndex )
+            proxyIndex.model().sourceModel().setValue(sourceIndex, value)
+
+    def getValueRow(self, index):
+        """
+        Returns value by row
+
+        @param index: 
+        @type index:
+
+        @return:
+        @rtype:
+        """
+        proxyIndex = index
+        if proxyIndex.isValid():
+            sourceIndex = self.owner.proxyModel.mapToSource( proxyIndex )
+            return proxyIndex.model().sourceModel().getValueRow(sourceIndex)
+
+    def createEditor(self, parent, option, index):
+        """
+        Create the editor
+
+        @param parent: 
+        @type parent:
+
+        @param option: 
+        @type option:
+
+        @param index: 
+        @type index:
+
+        @return:
+        @rtype:
+        """
+        if index.column() == COL_CACHE:
+            editor = QComboBox(parent)
+            editor.activated.connect(self.onItemActivated)
+            editor.addItems ( ['', 'Yes']  )
+
+            return editor
+        return QItemDelegate.createEditor(self, parent, option, index)
+
+    def setModelData(self, editor, model, index):
+        """
+        Accessor to set the model of data
+
+        @param editor: 
+        @type editor:
+
+        @param model: 
+        @type model:
+
+        @param index: 
+        @type index:
+        """
+        qvalue = editor.currentText()
+        if qvalue == "Yes":
+            self.setValue(index, "cache")
+        else:
+            self.setValue(index, "local")
+    
+    def onItemActivated(self, index): 
+        """
+        Close editor on index changed
+        """
+        self.commitData.emit(self.sender())
+        self.closeEditor.emit(self.sender(), QAbstractItemDelegate.NoHint)
+        
+class ComboTypeDelegate(QItemDelegate, Logger.ClassLogger):
+    """
+    Combo type delegate item
+    """
+    def __init__ (self, parent, col_ ):
+        """
+        Contructs ComboTypeDelegate item delegate
+        
+        @param parent: 
+        @type parent:
+
+        @param items_: 
+        @type items_:
+
+        @param col_: 
+        @type col_:
+        """
+        QItemDelegate.__init__(self, parent)
+        self.owner = parent
+        self.col_ = col_
+
+    def getValue(self, index):
+        """
+        Return value
+
+        @param index: 
+        @type index:
+
+        @return:
+        @rtype:
+        """
+        proxyIndex = index
+        if proxyIndex.isValid():
+            sourceIndex = self.owner.proxyModel.mapToSource( proxyIndex )
+            return proxyIndex.model().sourceModel().getValue(sourceIndex)
+
+    def setValue(self, index, value):
+        """
+        Set value
+
+        @param index: 
+        @type index:
+
+        @param value: 
+        @type value:
+
+        @return:
+        @rtype:
+        """
+        proxyIndex = index
+        if proxyIndex.isValid():
+            sourceIndex = self.owner.proxyModel.mapToSource( proxyIndex )
+            proxyIndex.model().sourceModel().setValue(sourceIndex, value)
+
+    def createEditor(self, parent, option, index):
+        """
+        Create the editor
+
+        @param parent: 
+        @type parent:
+
+        @param option: 
+        @type option:
+
+        @param index: 
+        @type index:
+
+        @return:
+        @rtype:
+        """
+        value = self.getValue(index)
+
+        if index.column() == self.col_:
+            toolButton=QToolButton(parent)
+            toolButton.setText( value )
+            toolButton.setPopupMode(QToolButton.InstantPopup) 
+        
+            menu=QMenu(toolButton)
+            
+            TYPES_PARAM  = [ 'text', 'json', 'global', '', 'bool', 'float', 'str', '',
+                             'none', 'alias', 'list-global', 'cache' ]
+            TYPES_DEPRECATED = [ 'pwd', 'list', 'int' ]
+            TYPES_FILES = [ 'dataset', 'remote-image', 'local-image', 'snapshot-image', 'local-file' ] 
+            TYPES_MISCS = [ 'hex', '', 'date', 'time', 'date-time', '', 'self-ip', 'self-mac', 'self-eth' ]
+            
+            for act in TYPES_PARAM:   
+                if len(act):
+                    action1=QAction(act, menu, checkable=False)
+                    action1.setObjectName(act)
+                    action1.triggered.connect(self.onActionTriggered)
+                    menu.addAction(action1)
+                else:
+                    menu.addSeparator()
+            
+            menu.addSeparator()
+            filesMenu = QMenu("files", toolButton)
+            for act in TYPES_FILES: 
+                if len(act):
+                    action1=QAction(act, menu, checkable=False)
+                    action1.setObjectName(act)
+                    action1.triggered.connect(self.onActionTriggered)
+                    filesMenu.addAction(action1)
+                else:
+                    filesMenu.addSeparator()
+            
+            menu.addSeparator()
+            miscsMenu = QMenu("miscs", toolButton)
+            for act in TYPES_MISCS: 
+                if len(act):
+                    action1=QAction(act, menu, checkable=False)
+                    action1.setObjectName(act)
+                    action1.triggered.connect(self.onActionTriggered)
+                    miscsMenu.addAction(action1)
+                else:
+                    miscsMenu.addSeparator()
+                    
+            menu.addSeparator()
+            deprecatedMenu = QMenu("deprecated", toolButton)
+            for act in TYPES_DEPRECATED: 
+                if len(act):
+                    action1=QAction(act, menu, checkable=False)
+                    action1.setObjectName(act)
+                    action1.triggered.connect(self.onActionTriggered)
+                    deprecatedMenu.addAction(action1)
+                else:
+                    deprecatedMenu.addSeparator()
+
+            menu.addMenu(filesMenu)
+            menu.addMenu(miscsMenu)
+            menu.addMenu(deprecatedMenu)
+
+            toolButton.setMenu(menu) 
+            return toolButton
+
+        return QItemDelegate.createEditor(self, parent, option, index)
+        
+    def onActionTriggered(self, state):
+        """
+        """
+        self.commitData.emit( self.sender().parent().parent() )
+        self.closeEditor.emit(self.sender().parent().parent(), QAbstractItemDelegate.NoHint)
+
+    def onItemActivated(self, index): 
+        """
+        Close editor on index changed
+        """
+        self.commitData.emit(self.sender())
+        self.closeEditor.emit(self.sender(), QAbstractItemDelegate.NoHint)
+        
+    def setEditorData(self, editor, index):
+        """
+        Set the data editor
+
+        @param editor: 
+        @type editor:
+
+        @param index: 
+        @type index:
+        """
+        if index.column() == self.col_:
+            pass
+        else:
+            QItemDelegate.setEditorData(self, editor, index)
+
+    def setModelData(self, editor, model, index):
+        """
+        Set the data model
+
+        @param editor: 
+        @type editor:
+
+        @param model: 
+        @type model:
+
+        @param index: 
+        @type index:
+        """
+        if self.sender() is not None:
+            qvalue = self.sender().objectName()
+            value = QtHelper.displayToValue( q(qvalue) )
+            self.setValue(index, value)
+
+class DescriptionsDelegate(QItemDelegate, Logger.ClassLogger):
+    """
+    Descriptions delegate item
+    """
+    def __init__(self, parent, col_):
+        """
+        @param value: 
+        @type value:
+
+        @param value: 
+        @type value:
+        """
+        QItemDelegate.__init__(self, parent)
+        self.owner = parent
+        self.col_ = col_
+    
+    def getValue(self, index):
+        """
+        Returns value
+
+        @param index: 
+        @type index:
+
+        @return:
+        @rtype:
+        """
+        proxyIndex = index
+        if proxyIndex.isValid():
+            sourceIndex = self.owner.proxyModel.mapToSource( proxyIndex )
+            return proxyIndex.model().sourceModel().getValue(sourceIndex)
+
+    def getValueRow(self, index):
+        """
+        Returns value by row
+
+        @param index: 
+        @type index:
+
+        @return:
+        @rtype:
+        """
+        proxyIndex = index
+        if proxyIndex.isValid():
+            sourceIndex = self.owner.proxyModel.mapToSource( proxyIndex )
+            return proxyIndex.model().sourceModel().getValueRow(sourceIndex)
+
+    def setValue(self, index, value):
+        """
+        Set value
+
+        @param index: 
+        @type index:
+
+        @param value: 
+        @type value:
+
+        @return:
+        @rtype:
+        """
+        proxyIndex = index
+        if proxyIndex.isValid():
+            sourceIndex = self.owner.proxyModel.mapToSource( proxyIndex )
+            proxyIndex.model().sourceModel().setValue(sourceIndex, value)
+
+    def createEditor(self, parent, option, index):
+        """
+        Create the editor
+
+        @param parent: 
+        @type parent:
+
+        @param option: 
+        @type option:
+
+        @param index: 
+        @type index:
+        """
+        value = self.getValue(index)
+
+        if index.column() == self.col_:
+            editorDialog = DescriptionDialog(value)
+            if editorDialog.exec_() == QDialog.Accepted:
+                argsProbe = editorDialog.getDescr()
+                sourceIndex = self.owner.proxyModel.mapToSource( index )
+                index.model().sourceModel().setData(sourceIndex,q(argsProbe))
+
 class ValueDelegate(QItemDelegate, Logger.ClassLogger):
     """
     Value delegate item
     """
-    def __init__ (self, parent, colVal, colDescr):
+    def __init__ (self, parent, colVal, colDescr, cacheViewer):
         """
         Contructs ValueDelegate item delegate
         
@@ -706,6 +1118,7 @@ class ValueDelegate(QItemDelegate, Logger.ClassLogger):
         self.owner = parent
         self.colVal = colVal
         self.colDescr = colDescr
+        self.cacheViewer = cacheViewer
 
     def getValue(self, index):
         """
@@ -781,8 +1194,13 @@ class ValueDelegate(QItemDelegate, Logger.ClassLogger):
                 editor = QLineEdit(parent)
 
             elif value['type'] == 'cache':
-                editor = QLineEdit(parent)
-
+                editor = QComboBox(parent)
+                editor.setEditable(True)
+                params = []
+                for el in self.cacheViewer.cache(): 
+                    params.append(el['name'])
+                editor.addItems ( params  )
+                
             elif value['type'] == 'pwd':
                 editor = QLineEdit(parent)
 
@@ -887,7 +1305,7 @@ class ValueDelegate(QItemDelegate, Logger.ClassLogger):
                 editor.activated.connect(self.onItemActivated)
                 editor.addItems ( ['False', 'True']  )
                 
-            elif value['type'] == 'list-shared':
+            elif value['type'] in [ 'list-shared', 'list-global' ]:
                 editorDialog = ListSharedParameter(value['value'])
                 if editorDialog.exec_() == QDialog.Accepted:
                     paramValues = editorDialog.getValues()
@@ -895,7 +1313,7 @@ class ValueDelegate(QItemDelegate, Logger.ClassLogger):
                     index.model().sourceModel().setData(sourceIndex,q(paramValues))
                 return None
                 
-            elif value['type'] == 'shared':
+            elif value['type'] in [ 'shared', 'global' ]:
                 editorDialog = SharedParameter()
                 if editorDialog.exec_() == QDialog.Accepted:
                     paramValues = editorDialog.getValues()
@@ -910,25 +1328,12 @@ class ValueDelegate(QItemDelegate, Logger.ClassLogger):
                     sourceIndex = self.owner.proxyModel.mapToSource( index )
                     index.model().sourceModel().setData(sourceIndex,q(paramValues))
                 return None
-                
-            elif value['type'] == 'text':
-                editorDialog = TextValues(value['value'])
-                if editorDialog.exec_() == QDialog.Accepted:
-                    paramText = editorDialog.getText()
-                    sourceIndex = self.owner.proxyModel.mapToSource( index )
-                    index.model().sourceModel().setData(sourceIndex,q(paramText))
-                return None
-                
-            elif value['type'] == 'json':
-                editorDialog = JsonValues(value['value'])
-                if editorDialog.exec_() == QDialog.Accepted:
-                    paramText = editorDialog.getText()
-                    sourceIndex = self.owner.proxyModel.mapToSource( index )
-                    index.model().sourceModel().setData(sourceIndex,q(paramText))
-                return None
-                
-            elif value['type'] == 'custom':
-                editorDialog = CustomValues(value['value'])
+
+            elif value['type'] in [ 'custom', 'text', 'json' ]:
+                editorDialog = CustomValues(value['value'], 
+                                            dataCache=self.cacheViewer.cache(),
+                                            dataInputs=self.owner.model.getData(),
+                                            paramType=value['type'])
                 if editorDialog.exec_() == QDialog.Accepted:
                     paramText = editorDialog.getText()
                     sourceIndex = self.owner.proxyModel.mapToSource( index )
@@ -1019,559 +1424,6 @@ class ValueDelegate(QItemDelegate, Logger.ClassLogger):
         """
         self.commitData.emit(self.sender())
         self.closeEditor.emit(self.sender(), QAbstractItemDelegate.NoHint)
-        
-class ComboTypeDelegate(QItemDelegate, Logger.ClassLogger):
-    """
-    Combo type delegate item
-    """
-    def __init__ (self, parent, items_, col_ ):
-        """
-        Contructs ComboTypeDelegate item delegate
-        
-        @param parent: 
-        @type parent:
-
-        @param items_: 
-        @type items_:
-
-        @param col_: 
-        @type col_:
-        """
-        QItemDelegate.__init__(self, parent)
-        self.owner = parent
-        self.items_ = items_
-        self.col_ = col_
-
-    def getValue(self, index):
-        """
-        Return value
-
-        @param index: 
-        @type index:
-
-        @return:
-        @rtype:
-        """
-        proxyIndex = index
-        if proxyIndex.isValid():
-            sourceIndex = self.owner.proxyModel.mapToSource( proxyIndex )
-            return proxyIndex.model().sourceModel().getValue(sourceIndex)
-
-    def setValue(self, index, value):
-        """
-        Set value
-
-        @param index: 
-        @type index:
-
-        @param value: 
-        @type value:
-
-        @return:
-        @rtype:
-        """
-        proxyIndex = index
-        if proxyIndex.isValid():
-            sourceIndex = self.owner.proxyModel.mapToSource( proxyIndex )
-            proxyIndex.model().sourceModel().setValue(sourceIndex, value)
-
-    def createEditor(self, parent, option, index):
-        """
-        Create the editor
-
-        @param parent: 
-        @type parent:
-
-        @param option: 
-        @type option:
-
-        @param index: 
-        @type index:
-
-        @return:
-        @rtype:
-        """
-        value = self.getValue(index)
-
-        if index.column() == self.col_:
-            editor = QComboBox(parent)
-            editor.activated.connect(self.onItemActivated)
-            editor.addItem (value)
-            editor.insertSeparator(1)
-            for i in xrange(len(self.items_)):
-                if len(self.items_[i]) == 0:
-                    editor.insertSeparator(i + 2)
-                else:
-                    editor.addItem (self.items_[i])
-            return editor
-
-        return QItemDelegate.createEditor(self, parent, option, index)
-        
-    def onItemActivated(self, index): 
-        """
-        Close editor on index changed
-        """
-        self.commitData.emit(self.sender())
-        self.closeEditor.emit(self.sender(), QAbstractItemDelegate.NoHint)
-        
-    def setEditorData(self, editor, index):
-        """
-        Set the data editor
-
-        @param editor: 
-        @type editor:
-
-        @param index: 
-        @type index:
-        """
-        if index.column() == self.col_:
-            if sys.version_info > (3,): # python3 support
-                value = index.data()
-            else:
-                value = str(index.data().toString())
-            i = editor.findText(value)
-            editor.setCurrentIndex (i)
-        else:
-            QItemDelegate.setEditorData(self, editor, index)
-
-    def setModelData(self, editor, model, index):
-        """
-        Set the data model
-
-        @param editor: 
-        @type editor:
-
-        @param model: 
-        @type model:
-
-        @param index: 
-        @type index:
-        """
-        qvalue = editor.currentText()
-        value = QtHelper.displayToValue( q(qvalue) )
-        self.setValue(index, value)
-
-class DescriptionsDelegate(QItemDelegate, Logger.ClassLogger):
-    """
-    Descriptions delegate item
-    """
-    def __init__(self, parent, col_):
-        """
-        @param value: 
-        @type value:
-
-        @param value: 
-        @type value:
-        """
-        QItemDelegate.__init__(self, parent)
-        self.owner = parent
-        self.col_ = col_
-    
-    def getValue(self, index):
-        """
-        Returns value
-
-        @param index: 
-        @type index:
-
-        @return:
-        @rtype:
-        """
-        proxyIndex = index
-        if proxyIndex.isValid():
-            sourceIndex = self.owner.proxyModel.mapToSource( proxyIndex )
-            return proxyIndex.model().sourceModel().getValue(sourceIndex)
-
-    def getValueRow(self, index):
-        """
-        Returns value by row
-
-        @param index: 
-        @type index:
-
-        @return:
-        @rtype:
-        """
-        proxyIndex = index
-        if proxyIndex.isValid():
-            sourceIndex = self.owner.proxyModel.mapToSource( proxyIndex )
-            return proxyIndex.model().sourceModel().getValueRow(sourceIndex)
-
-    def setValue(self, index, value):
-        """
-        Set value
-
-        @param index: 
-        @type index:
-
-        @param value: 
-        @type value:
-
-        @return:
-        @rtype:
-        """
-        proxyIndex = index
-        if proxyIndex.isValid():
-            sourceIndex = self.owner.proxyModel.mapToSource( proxyIndex )
-            proxyIndex.model().sourceModel().setValue(sourceIndex, value)
-
-    def createEditor(self, parent, option, index):
-        """
-        Create the editor
-
-        @param parent: 
-        @type parent:
-
-        @param option: 
-        @type option:
-
-        @param index: 
-        @type index:
-        """
-        value = self.getValue(index)
-
-        if index.column() == self.col_:
-            editorDialog = DescriptionDialog(value)
-            if editorDialog.exec_() == QDialog.Accepted:
-                argsProbe = editorDialog.getDescr()
-                sourceIndex = self.owner.proxyModel.mapToSource( index )
-                index.model().sourceModel().setData(sourceIndex,q(argsProbe))
-
-##################### Dialogs ######################
-class AddParameterDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
-    """
-    Add parameter dialog
-    """
-    def __init__(self, parent, paramName='PARAM', datasetView=False):
-        """
-        Dialog to add parameters
-
-        @param parent: 
-        @type parent:
-        """
-        super(AddParameterDialog, self).__init__(parent)
-        self.paramName=paramName
-        self.parent__ = parent
-        self.datasetView__ = datasetView
-        self.createDialog()
-        self.createConnections()
-
-    def createDialog (self):
-        """
-        Create qt dialog
-        """
-        self.labelName = QLabel(self.tr("Parameter Name:") )
-        self.nameEdit = QLineEdit(self.paramName)
-        nameLayout = QHBoxLayout()
-        nameLayout.addWidget( self.labelName )
-        nameLayout.addWidget( self.nameEdit )
-
-        self.labelDescr = QLabel(self.tr("Description:") )
-        self.descrEdit = QTextEdit()
-
-        self.labelType= QLabel(self.tr("Type:") )
-        self.comboType = QComboBox()
-        self.initComboType()
-        typeLayout = QHBoxLayout()
-        typeLayout.addWidget( self.labelType )
-        typeLayout.addWidget( self.comboType )
-
-        self.labelValue= QLabel(self.tr("Value:") )
-        self.valueEdit = QLineEdit()
-        self.valueLayout = QHBoxLayout()
-        self.valueLayout.addWidget( self.labelValue )
-        self.valueLayout.addWidget( self.valueEdit )
-
-        self.buttonBox = QDialogButtonBox(self)
-        self.buttonBox.setStyleSheet( """QDialogButtonBox { 
-            dialogbuttonbox-buttons-have-icons: 1;
-            dialog-ok-icon: url(:/ok.png);
-            dialog-cancel-icon: url(:/test-close-black.png);
-        }""")
-        self.buttonBox.setStandardButtons(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-
-        mainLayout = QVBoxLayout()
-        mainLayout.addLayout(nameLayout)
-        if not self.datasetView__:
-            mainLayout.addLayout(typeLayout)
-        mainLayout.addLayout(self.valueLayout)
-        mainLayout.addWidget(self.labelDescr)
-        mainLayout.addWidget(self.descrEdit)
-        mainLayout.addWidget(self.buttonBox)
-        self.setLayout(mainLayout)
-
-        self.setWindowTitle(self.tr("Test Config > Add Parameter"))
-        self.resize(350, 250)
-        self.center()
-
-    def initComboType(self):
-        """
-        Initialize the combobox of parameters type
-        """
-        for i in xrange(len(TYPES_PARAM)):
-            if len(TYPES_PARAM[i]) == 0:
-                self.comboType.insertSeparator(i + 2)
-            else:
-                self.comboType.addItem (TYPES_PARAM[i])
-
-    def createConnections (self):
-        """
-        Create pyqt connection
-        """
-        self.buttonBox.accepted.connect(self.onAdd)
-        self.buttonBox.rejected.connect(self.reject)
-        self.comboType.currentIndexChanged[str].connect(self.onTypeChanged)
-
-    def onAdd(self):
-        """
-        Called on add paramter
-        """
-        # new in v11: not accept special character on test parameter
-        try:
-            if sys.version_info > (3,): # python3 support
-                self.nameEdit.text().encode("ascii")
-        except Exception as e:
-            QMessageBox.critical(self, self.tr("Test Parameter") , self.tr("Invalid parameter name!") )
-        else:
-        # end of new
-            if sys.version_info > (3,): # python3 support
-                if unicode(self.nameEdit.text().upper()):
-                    self.accept()
-            else:
-                if unicode(self.nameEdit.text().toUpper()):
-                    self.accept()
-
-    def onTypeChanged(self, paramType):
-        """
-        Called when the type of parameters is changed
-        """
-        self.valueLayout.removeWidget(self.valueEdit)
-        self.valueEdit.hide()
-        self.valueEdit.setEnabled(True)
-
-        if paramType == 'str':
-            self.valueEdit = QLineEdit(self)
-            
-        elif paramType == 'cache':
-            self.valueEdit = QLineEdit(self)
- 
-        elif paramType == 'pwd':
-            self.valueEdit = QLineEdit(self)
-
-        elif paramType == 'none':
-            self.valueEdit = QLineEdit(self)
-            self.valueEdit.setEnabled(False)
-        
-        elif paramType == 'alias':
-            self.valueEdit = QComboBox(self)
-            params = []
-            for pr in self.parent__.model.getData() :
-                params.append(pr['name'])
-            self.valueEdit.addItems ( params  )
-        
-        elif paramType == 'float':
-            self.valueEdit = QLineEdit(self)
-            validator = QDoubleValidator(self.valueEdit)
-            validator.setNotation(QDoubleValidator.StandardNotation)
-            self.valueEdit.setValidator(validator)
-            self.valueEdit.installEventFilter(self)
-                
-        elif paramType == 'hex':
-            self.valueEdit = QLineEdit(self)
-            validator = QRegExpValidator(self.valueEdit)
-            validator.setRegExp(QRegExp("[0-9a-fA-F]+"))
-            self.valueEdit.setValidator(validator)
-            self.valueEdit.installEventFilter(self)
-            
-        elif paramType == 'int':
-            self.valueEdit = QLineEdit(self)
-            validator = QIntValidator (self.valueEdit)
-            self.valueEdit.setValidator(validator)
-            self.valueEdit.installEventFilter(self)
-        
-        elif paramType == 'dataset':
-            dataset = self.parent__.importDataset()
-            if dataset is not None:
-                self.valueEdit = QLineEdit(self)
-                self.valueEdit.setText(dataset)
-                self.valueEdit.setEnabled(False)
-            else:
-                self.valueEdit = QLineEdit(self)
-                self.valueEdit.setEnabled(False)
-
-        elif paramType == 'local-image':
-                image = self.parent__.importEmbeddedImage()
-                self.raise_()
-                self.activateWindow()
-
-                if image is not None:
-                    self.valueEdit = QLineEdit(self)
-                    if sys.version_info > (3,): # python 3 support
-                        self.valueEdit.setText( str(image,"utf8" ) )
-                    else:
-                        self.valueEdit.setText( image )
-                    self.valueEdit.setEnabled(False)
-                else:
-                    self.valueEdit = QLineEdit(self)
-                    self.valueEdit.setEnabled(False)
-                    
-        elif paramType == 'local-file':
-                anyFile = self.parent__.importEmbeddedFile()
-                self.raise_()
-                self.activateWindow()
-
-                if anyFile is not None:
-                    self.valueEdit = QLineEdit(self)
-                    self.valueEdit.setText( anyFile )
-                    self.valueEdit.setEnabled(False)
-                else:
-                    self.valueEdit = QLineEdit(self)
-                    self.valueEdit.setEnabled(False)
-                    
-        elif paramType == 'snapshot-image':
-            self.valueEdit.setEnabled(False)
-
-        elif paramType == 'remote-image':
-            image = self.parent__.importImage()
-            if image is not None:
-                self.valueEdit = QLineEdit(self)
-                self.valueEdit.setText(image)
-                self.valueEdit.setEnabled(False)
-            else:
-                self.valueEdit = QLineEdit(self)
-                self.valueEdit.setEnabled(False)
-        
-        elif paramType == 'shared':
-            editorDialog = SharedParameter()
-            if editorDialog.exec_() == QDialog.Accepted:
-                paramValues = editorDialog.getValues()
-                self.valueEdit = QLineEdit(self)
-                self.valueEdit.setText(paramValues)
-                self.valueEdit.setEnabled(False)
-            else:
-                self.valueEdit = QLineEdit(self)
-                self.valueEdit.setEnabled(False)
-
-        elif paramType == 'list-shared':
-            editorDialog = ListSharedParameter("")
-            if editorDialog.exec_() == QDialog.Accepted:
-                paramValues = editorDialog.getValues()
-                self.valueEdit = QLineEdit(self)
-                self.valueEdit.setText(paramValues)
-                self.valueEdit.setEnabled(False)
-            else:
-                self.valueEdit = QLineEdit(self)
-                self.valueEdit.setEnabled(False)
-                
-        elif paramType == 'list':
-            editorDialog = ListValues('')
-            if editorDialog.exec_() == QDialog.Accepted:
-                paramValues = editorDialog.getValues()
-                self.valueEdit = QLineEdit(self)
-                self.valueEdit.setText(paramValues)
-                self.valueEdit.setEnabled(False)
-            else:
-                self.valueEdit = QLineEdit(self)
-                self.valueEdit.setEnabled(False)
-                
-        elif paramType == 'text':
-            editorDialog = TextValues('')
-            if editorDialog.exec_() == QDialog.Accepted:
-                paramText = editorDialog.getText()
-                self.valueEdit = QLineEdit(self)
-                self.valueEdit.setText(paramText)
-                self.valueEdit.setEnabled(False)
-            else:
-                self.valueEdit = QLineEdit(self)
-                self.valueEdit.setEnabled(False)                
-                
-        elif paramType == 'json':
-            editorDialog = JsonValues('')
-            if editorDialog.exec_() == QDialog.Accepted:
-                paramText = editorDialog.getText()
-                self.valueEdit = QLineEdit(self)
-                self.valueEdit.setText(paramText)
-                self.valueEdit.setEnabled(False)
-            else:
-                self.valueEdit = QLineEdit(self)
-                self.valueEdit.setEnabled(False)
-                
-        elif paramType == 'custom':
-            editorDialog = CustomValues('')
-            if editorDialog.exec_() == QDialog.Accepted:
-                paramText = editorDialog.getText()
-                self.valueEdit = QLineEdit(self)
-                self.valueEdit.setText(paramText)
-                self.valueEdit.setEnabled(False)
-            else:
-                self.valueEdit = QLineEdit(self)
-                self.valueEdit.setEnabled(False)  
-                
-        elif paramType == 'self-ip':
-            self.valueEdit = QComboBox(self)
-            serverEths = Settings.instance().serverContext['network']
-            ips = []
-            for eth in serverEths:
-                if 'ip' in eth and 'name' in eth :
-                    ips.append( "%s (%s)" % ( eth['ip'], eth['name'] )  )
-            self.valueEdit.addItems ( ips  )
-       
-        elif paramType == 'self-mac':
-            self.valueEdit = QComboBox(self)
-            serverEths = Settings.instance().serverContext['network']
-            macs = []
-            for eth in serverEths:
-                if 'mac' in eth and 'name' in eth:
-                    macs.append( "%s (%s)" % ( eth['mac'], eth['name'] ) )
-            self.valueEdit.addItems ( macs  )
-        
-        elif paramType == 'self-eth':
-            self.valueEdit = QComboBox(self)
-            serverEths = Settings.instance().serverContext['network']
-            eths = []
-            for eth in serverEths:
-                if 'name' in eth and eth['name'] != 'all':
-                    eths.append( eth['name'] )
-            self.valueEdit.addItems ( eths  )
-        
-        elif paramType == 'bool':
-            self.valueEdit = QComboBox(self)
-            self.valueEdit.addItems ( ['False', 'True']  )
-        
-        elif paramType == 'date':
-            dateDescr = QDate.currentDate()
-            self.valueEdit = QDateEdit(dateDescr, self)
-        
-        elif paramType == 'time':
-            timeDescr = QTime.currentTime()
-            self.valueEdit = QTimeEdit(timeDescr, self)
-       
-        elif paramType == 'date-time':
-            datetimeDescr = QDateTime.currentDateTime()
-            self.valueEdit = QDateTimeEdit(datetimeDescr, self)
-        
-        else:
-            self.valueEdit = QLineEdit(self)
-        
-        self.valueLayout.addWidget(self.valueEdit)
-
-        self.valueEdit.show()
-
-    def getParameterValue(self):
-        """
-        Returns the value of the parameter
-        """
-        if type(self.valueEdit) == QComboBox:
-            qvalue = self.valueEdit.currentText()
-        else:
-            qvalue = self.valueEdit.text()
-        if sys.version_info > (3,): # python3 support
-            nameUpper = unicode(self.nameEdit.text().upper())
-        else:
-            nameUpper = unicode(self.nameEdit.text().toUpper())
-        r = {'name': nameUpper, 'type': unicode(self.comboType.currentText()),
-                'description': unicode(self.descrEdit.toPlainText()), 'value': unicode(qvalue)}
-        return r
 
 class DescriptionDialog(QtHelper.EnhancedQDialog, Logger.ClassLogger):
     """
@@ -1679,15 +1531,7 @@ class SharedListModel(QAbstractListModel):
             return QVariant(self.listdata[index.row()]["name"])
         else:
             return QVariant()
-            
-        # if not index.isValid():
-            # return q()
 
-        # if role == Qt.DisplayRole: 
-            # return q(self.listdata[index.row()]['name'])
-            
-        # return q()
-        
 class SharedListView(QListView, Logger.ClassLogger):
     """
     Shared list view
@@ -2256,10 +2100,7 @@ class SharedParameter(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         sourceIndex = self.mainList.proxyModel.mapToSource( proxyIndexes[0] )
         selectedIndex = sourceIndex.row()
         row = self.mainList.model__.getData()[selectedIndex]
-        
-        # if isinstance(row['value'], dict):
-            # self.valueLabel.setText( "%s: ..." % row['name'] )
-        # else:
+
         self.valueLabel.setText( "%s: %s" % (row['name'], row['value']) )
         
         self.secondList.clear()
@@ -2354,7 +2195,7 @@ class MyHighlighter( QSyntaxHighlighter ):
 
         # cache
         brush = QBrush( Qt.darkBlue, Qt.SolidPattern )
-        pattern = QRegExp( "\[!CACHE:[\w-]+(:[\w-]+)*:\]" )
+        pattern = QRegExp( Settings.instance().readValue( key='Editor/parameter-custom-cache' ) )
         pattern.setMinimal( True )
         caches.setForeground( brush )
         caches.setFontWeight( QFont.Bold )
@@ -2362,7 +2203,7 @@ class MyHighlighter( QSyntaxHighlighter ):
 
         # input
         brush2 = QBrush( Qt.darkCyan, Qt.SolidPattern )
-        pattern2 = QRegExp( "\[!INPUT:[\w-]+:\]" )
+        pattern2 = QRegExp( Settings.instance().readValue( key='Editor/parameter-custom-input' ) )
         pattern2.setMinimal( True )
         inputs.setForeground( brush2 )
         inputs.setFontWeight( QFont.Bold )
@@ -2371,14 +2212,14 @@ class MyHighlighter( QSyntaxHighlighter ):
         # comment
         brush3 = QBrush( Qt.red, Qt.SolidPattern )
 
-        pattern3 = QRegExp( "^#.*$" )
+        pattern3 = QRegExp( Settings.instance().readValue( key='Editor/parameter-custom-comment' )  )
         pattern3.setMinimal( True )
         comment.setForeground( brush3 )
         ruleComment = HighlightingRule( pattern3, comment )
 
         # capture
         brush4 = QBrush( Qt.darkYellow, Qt.SolidPattern )
-        pattern4 = QRegExp( "\[!CAPTURE:[\w-]+(:.*)?:\]" )
+        pattern4 = QRegExp( Settings.instance().readValue( key='Editor/parameter-custom-capture' ) )
         pattern4.setMinimal( True )
         captures.setForeground( brush4 )
         captures.setFontWeight( QFont.Bold )
@@ -2426,6 +2267,72 @@ class MyHighlighter( QSyntaxHighlighter ):
                 index = expression.indexIn(text, index + length)
         self.setCurrentBlockState( 0 )
 
+class CustomJsonHighlighter( QSyntaxHighlighter ):
+    """
+    My highlighter syntax
+    """
+    def __init__( self, parent ):
+        """
+        Constructor
+        """
+        QSyntaxHighlighter.__init__( self, parent )
+        self.parent = parent
+
+        comment = QTextCharFormat()
+        caches = QTextCharFormat()
+        inputs = QTextCharFormat()
+        json_dict = QTextCharFormat()
+        
+        self.highlightingRules = []
+
+        brush = QBrush( Qt.darkMagenta, Qt.SolidPattern )
+        pattern = QRegExp( "\{|\}|\[|\]|\".*\"" )
+        # pattern.setMinimal( True )
+        json_dict.setForeground( brush )
+        json_dict.setFontWeight( QFont.Bold )
+        ruleJsonDict = HighlightingRule( pattern, json_dict )
+        
+        # cache
+        brush = QBrush( Qt.darkBlue, Qt.SolidPattern )
+        pattern = QRegExp( Settings.instance().readValue( key='Editor/parameter-custom-cache' ) )
+        pattern.setMinimal( True )
+        caches.setForeground( brush )
+        caches.setFontWeight( QFont.Bold )
+        ruleCaches = HighlightingRule( pattern, caches )
+
+        # input
+        brush2 = QBrush( Qt.darkCyan, Qt.SolidPattern )
+        pattern2 = QRegExp( Settings.instance().readValue( key='Editor/parameter-custom-input' ) )
+        pattern2.setMinimal( True )
+        inputs.setForeground( brush2 )
+        inputs.setFontWeight( QFont.Bold )
+        ruleInputs = HighlightingRule( pattern2, inputs )
+
+        # comment
+        brush3 = QBrush( Qt.red, Qt.SolidPattern )
+        pattern3 = QRegExp( Settings.instance().readValue( key='Editor/parameter-custom-json-comment' )  )
+        pattern3.setMinimal( True )
+        comment.setForeground( brush3 )
+        ruleComment = HighlightingRule( pattern3, comment )
+
+        self.highlightingRules.append( ruleJsonDict )
+        self.highlightingRules.append( ruleComment )
+        self.highlightingRules.append( ruleCaches )
+        self.highlightingRules.append( ruleInputs )
+                
+    def highlightBlock( self, text ):
+        """
+        Highligh block
+        """
+        for rule in self.highlightingRules:
+            expression = QRegExp( rule.pattern )
+            index = expression.indexIn( text )
+            while index >= 0:
+                length = expression.matchedLength()
+                self.setFormat( index, length, rule.format )
+                index = expression.indexIn(text, index + length)
+        self.setCurrentBlockState( 0 )
+        
 class HighlightingRule():
     """
     Highlighting rule
@@ -2441,7 +2348,8 @@ class CustomValues(QtHelper.EnhancedQDialog, Logger.ClassLogger):
     """
     Custom values dialog
     """
-    def __init__(self, dataValues, parent=None):
+    def __init__(self, dataValues, dataCache, dataInputs, 
+                 paramType, parent=None):
         """
         Dialog to fill arguments for the list
 
@@ -2453,6 +2361,13 @@ class CustomValues(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         """
         super(CustomValues, self).__init__(parent)
         self.dataValues = dataValues
+        
+        # new in v19
+        self.dataCache = dataCache
+        self.dataInputs = dataInputs
+        self.paramType = paramType
+        # end of new 
+        
         self.isTextChanged = False
         self.createDialog()
         self.createConnections()
@@ -2482,15 +2397,33 @@ class CustomValues(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         
         mainLayout = QGridLayout()
 
-        self.globalText = QtHelper.LineTextWidget()
+        # new in v19
+        keys_cache = []
+        for d in self.dataCache:
+            keys_cache.append( d["name"] )
+            
+        keys_inputs = []
+        for d in self.dataInputs:
+            keys_inputs.append( d["name"] )
+        # end of new 
+        
+        self.globalText = QtHelper.LineTextWidget(completerMode=True,
+                                                  dataCache=keys_cache,
+                                                  dataInputs=keys_inputs)
         self.textEdit = self.globalText.getTextEdit()
 
-        self.rawFind = QtHelper.RawFind(parent=self, editor=self.textEdit, buttonNext=True)
+        self.rawFind = QtHelper.RawFind(parent=self, 
+                                        editor=self.textEdit, 
+                                        buttonNext=True)
         
         self.textEdit.setLineWrapMode(QTextEdit.NoWrap)
         self.textEdit.setStyleSheet("""font: 9pt "Courier";""")
         self.textEdit.setPlainText(self.dataValues)
-        highlighter = MyHighlighter( self.textEdit )
+        
+        if self.paramType == "json":
+            highlighter = CustomJsonHighlighter( self.textEdit )
+        else:
+            highlighter = MyHighlighter( self.textEdit )
 
         self.wrapCheckbox = QCheckBox("Line wrap mode")
 
@@ -2510,8 +2443,8 @@ class CustomValues(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         labelCache = QLabel("\t[!CACHE: :]")
         labelCapture = QLabel("\t[!CAPTURE: :]")
         
-        labelFromInput = QLabel("\t[!FROM:INPUT: :]")
-        labelFromCache = QLabel("\t[!FROM:CACHE: :]")
+        # labelFromInput = QLabel("\t[!FROM:INPUT: :]")
+        # labelFromCache = QLabel("\t[!FROM:CACHE: :]")
         
         labelFont = QFont()
         labelFont.setBold(True)
@@ -2519,10 +2452,10 @@ class CustomValues(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         labelCache.setFont(labelFont)
         labelCapture.setFont(labelFont)
 
-        paletteFromInput = QPalette()
-        paletteFromInput.setColor(QPalette.Foreground,Qt.darkCyan)
-        paletteFromCache = QPalette()
-        paletteFromCache.setColor(QPalette.Foreground,Qt.darkBlue)
+        # paletteFromInput = QPalette()
+        # paletteFromInput.setColor(QPalette.Foreground,Qt.darkCyan)
+        # paletteFromCache = QPalette()
+        # paletteFromCache.setColor(QPalette.Foreground,Qt.darkBlue)
         paletteInput = QPalette()
         paletteInput.setColor(QPalette.Foreground,Qt.darkCyan)
         paletteCache = QPalette()
@@ -2532,15 +2465,16 @@ class CustomValues(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         labelInput.setPalette(paletteInput)
         labelCache.setPalette(paletteCache)
         labelCapture.setPalette(paletteCapture)
-        labelFromInput.setPalette(paletteFromInput)
-        labelFromCache.setPalette(paletteFromCache)
+        # labelFromInput.setPalette(paletteFromInput)
+        # labelFromCache.setPalette(paletteFromCache)
 
         buttonLayout.addWidget( labelInput ) 
         buttonLayout.addWidget( labelCache )
-        buttonLayout.addWidget( labelCapture )
+        if self.paramType != "json":
+            buttonLayout.addWidget( labelCapture )
         buttonLayout.addWidget( QLabel("") )
-        buttonLayout.addWidget( labelFromInput )
-        buttonLayout.addWidget( labelFromCache )
+        # buttonLayout.addWidget( labelFromInput )
+        # buttonLayout.addWidget( labelFromCache )
         
         buttonLayout.addStretch(1)
 
@@ -2549,8 +2483,11 @@ class CustomValues(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         mainLayout.addLayout(buttonLayout, 1, 1)
         self.setLayout(mainLayout)
 
-        self.setWindowTitle(self.tr("Test Config > Custom Values") )
-        
+        if self.paramType != "json":
+            self.setWindowTitle(self.tr("Test Config > Text Values") )
+        else:
+            self.setWindowTitle(self.tr("Test Config > JSON Values") )
+            
         # maximize button
         self.setWindowFlags(self.windowFlags() | Qt.WindowMinMaxButtonsHint)
         
@@ -2562,7 +2499,7 @@ class CustomValues(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         """
         Create qt connections
         """
-        self.okButton.clicked.connect(self.accept)
+        self.okButton.clicked.connect(self.valid)
         self.cancelButton.clicked.connect(self.onCancel)
         self.wrapCheckbox.stateChanged.connect(self.onWrapModeChanged)
         self.textEdit.textChanged.connect(self.onTextChanged)
@@ -2572,7 +2509,7 @@ class CustomValues(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         On cancel
         """
         if self.isTextChanged:
-            reply = QMessageBox.question(self, self.tr("Custom parameter"), self.tr("Are you sure to cancel?"),
+            reply = QMessageBox.question(self, self.tr("Text Values"), self.tr("Are you sure to cancel?"),
                                             QMessageBox.Yes | QMessageBox.No )
             if reply == QMessageBox.Yes:
                 self.isTextChanged = False
@@ -2606,124 +2543,29 @@ class CustomValues(QtHelper.EnhancedQDialog, Logger.ClassLogger):
         """
         return self.textEdit.toPlainText()
         
-class JsonValues(QtHelper.EnhancedQDialog, Logger.ClassLogger):
-    """
-    Text values dialog
-    """
-    def __init__(self, dataValues, parent=None):
+    def valid(self):
         """
-        Dialog to fill arguments for the list
-
-        @param dataArgs: 
-        @type dataArgs: 
-
-        @param parent: 
-        @type parent:
         """
-        super(JsonValues, self).__init__(parent)
-        self.dataValues = dataValues
-        self.createDialog()
-        self.createConnections()
+        if self.paramType == "json":
+            # check if the json is valid
+            try:
+                custom_json = self.textEdit.toPlainText()
+                # custom_json = self.textEdit.text()
+                # remove commented line
+                custom_json = re.sub(r"#.*", "", custom_json)
+                custom_json = re.sub(r"\[!INPUT:[\w-]+(?:\:[\w-]+)*\:\]", "true", custom_json)
+                custom_json = re.sub(r"\[!CACHE:[\w-]+(?:\:[\w-]+)*\:\]", "true", custom_json)
+                parsed = json.loads(custom_json)
+                del parsed
+            except Exception as e:
+                QMessageBox.warning(self, 
+                                    self.tr("Json value"), 
+                                    self.tr("Incorrect JSON!") )
+            else:
+                self.accept()
+        else:
+            self.accept()
 
-    def createDialog (self):
-        """
-        Create qt dialog
-        """
-        self.setMinimumHeight(500)
-        self.setMinimumWidth(800)
-        
-        mainLayout = QGridLayout()
-
-        self.textEdit = QtHelper.CustomEditor(self, jsonLexer=False)
-        self.textEdit.setText(self.dataValues)
-        
-        buttonLayout = QVBoxLayout()
-
-        self.okButton = QPushButton( QIcon(":/ok.png"), self.tr("Ok"), self)
-        self.cancelButton = QPushButton( QIcon(":/test-close-black.png"), self.tr("Cancel"), self)
-
-        buttonLayout.addWidget( self.okButton )
-        buttonLayout.addWidget( self.cancelButton )
-        buttonLayout.addStretch(1)
-
-        mainLayout.addWidget(self.textEdit, 1, 0)
-        mainLayout.addLayout(buttonLayout, 1, 1)
-        self.setLayout(mainLayout)
-
-        self.setWindowTitle(self.tr("Test Config > Json Values") )
-       
-    def createConnections (self):
-        """
-        Create qt connections
-        """
-        self.okButton.clicked.connect(self.accept)
-        self.cancelButton.clicked.connect(self.reject)
-
-    def getText(self):
-        """
-        Return text
-        """
-        return self.textEdit.text()
-        
-class TextValues(QtHelper.EnhancedQDialog, Logger.ClassLogger):
-    """
-    Text values dialog
-    """
-    def __init__(self, dataValues, parent=None):
-        """
-        Dialog to fill arguments for the list
-
-        @param dataArgs: 
-        @type dataArgs: 
-
-        @param parent: 
-        @type parent:
-        """
-        super(TextValues, self).__init__(parent)
-        self.dataValues = dataValues
-        self.createDialog()
-        self.createConnections()
-
-    def createDialog (self):
-        """
-        Create qt dialog
-        """
-        self.setMinimumHeight(500)
-        self.setMinimumWidth(800)
-        
-        mainLayout = QGridLayout()
-
-        self.textEdit = QTextEdit ()
-        self.textEdit.setPlainText(self.dataValues)
-        
-        buttonLayout = QVBoxLayout()
-
-        self.okButton = QPushButton( QIcon(":/ok.png"), self.tr("Ok"), self)
-        self.cancelButton = QPushButton( QIcon(":/test-close-black.png"), self.tr("Cancel"), self)
-
-        buttonLayout.addWidget( self.okButton )
-        buttonLayout.addWidget( self.cancelButton )
-        buttonLayout.addStretch(1)
-
-        mainLayout.addWidget(self.textEdit, 1, 0)
-        mainLayout.addLayout(buttonLayout, 1, 1)
-        self.setLayout(mainLayout)
-
-        self.setWindowTitle(self.tr("Test Config > Text Values") )
-       
-    def createConnections (self):
-        """
-        Create qt connections
-        """
-        self.okButton.clicked.connect(self.accept)
-        self.cancelButton.clicked.connect(self.reject)
-
-    def getText(self):
-        """
-        Return text
-        """
-        return self.textEdit.toPlainText()
-        
 class ListValues(QtHelper.EnhancedQDialog, Logger.ClassLogger):
     """
     List values dialog
@@ -2939,7 +2781,8 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
     NameParameterUpdated = pyqtSignal(str, str) 
     DataChanged = pyqtSignal() 
     NbParameters = pyqtSignal(int)
-    def __init__(self, parent, forParamsOutput=False, forTestConfig=False):
+    def __init__(self, parent, forParamsOutput=False, 
+                 forTestConfig=False, cacheViewer=None):
         """
         Contructs ParametersTableView table view
 
@@ -2950,8 +2793,11 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
 
         self.forParamsOutput = forParamsOutput
         self.forTestConfig = forTestConfig
+        self.cacheViewer = cacheViewer
+        
         self.model = None
-        self.__mime__ = "application/x-%s-test-config-parameters" % Settings.instance().readValue( key='Common/acronym' ).lower()
+        self.__acronym = Settings.instance().readValue( key='Common/acronym' ).lower()
+        self.__mime__ = "application/x-%s-test-config-parameters" % self.__acronym
         self.datasetView = False
 
         self.cacheUndo = []
@@ -3003,8 +2849,10 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
 
                 # create mime data object
                 mime = QMimeData()
-                mime.setData('application/x-%s-parameter-item' % Settings.instance().readValue( key='Common/acronym' ).lower() , 
-                            meta )
+                
+                m = 'application/x-%s-parameter-item' % Settings.instance().readValue( key='Common/acronym' ).lower()
+                mime.setData( m,  meta )
+                
                 # start drag )
                 drag = QDrag(self)
                 drag.setMimeData(mime)    
@@ -3030,12 +2878,19 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
         self.setShowGrid(True)
         self.setGridStyle (Qt.DotLine)
 
-        self.setItemDelegateForColumn( COL_NAME, NameDelegate(self, COL_NAME) )
+        self.setItemDelegateForColumn( COL_NAME, NameDelegate(self, 
+                                                              COL_NAME) )
         # empty value is to indicate a separator
-        self.setItemDelegateForColumn( COL_TYPE, ComboTypeDelegate(self, TYPES_PARAM, COL_TYPE) )
-        self.setItemDelegateForColumn( COL_VALUE, ValueDelegate(self, COL_VALUE, COL_DESCRIPTION) )
-        self.setItemDelegateForColumn( COL_DESCRIPTION, DescriptionsDelegate(self, COL_DESCRIPTION) )
-
+        self.setItemDelegateForColumn( COL_TYPE, ComboTypeDelegate(self, COL_TYPE) )
+        self.setItemDelegateForColumn( COL_VALUE, ValueDelegate(self, 
+                                                                COL_VALUE, 
+                                                                COL_DESCRIPTION,
+                                                                cacheViewer=self.cacheViewer) )
+        self.setItemDelegateForColumn( COL_DESCRIPTION, DescriptionsDelegate(self, 
+                                                                             COL_DESCRIPTION) )
+                                                                             
+        self.setItemDelegateForColumn(COL_CACHE, CacheDelegate(self) )
+        
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -3048,9 +2903,10 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
         
         # adjust default columns
         self.setColumnWidth(COL_ID, 25)
+        self.setColumnWidth(COL_CACHE, 40)
         self.setColumnWidth(COL_NAME, 60)
         self.setColumnWidth(COL_TYPE, 50)
-        self.setColumnWidth(COL_VALUE, 50)
+        self.setColumnWidth(COL_VALUE, 150)
         self.setColumnWidth(COL_DESCRIPTION, 100)
 
     def createConnections (self):
@@ -3492,10 +3348,7 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
         """
         Add parameter
         """
-        addDialog = AddParameterDialog(parent=self, datasetView=self.datasetView)
-        if addDialog.exec_() == QDialog.Accepted:
-            parameter = addDialog.getParameterValue()
-            self.insertItem(newData=parameter)
+        self.insertItem()
 
     def insertItem(self, newData=False):
         """
@@ -3512,7 +3365,12 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
         if newData:
             tpl = newData
         else:
-            tpl =   {'name': 'PARAM', 'type': 'str', 'description': '', 'value': '', 'color': ''}
+            tpl =   { 'name': 'PARAM', 
+                      'type': 'text', 
+                      'description': '', 
+                      'value': '', 
+                      'color': '',
+                      'scope': 'local'}
         
         # name must be unique
         for it in data:
@@ -3593,7 +3451,8 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
         """
         Resize two first columns to contents
         """
-        for col in [COL_NAME, COL_TYPE, COL_VALUE]:
+        
+        for col in [COL_NAME, COL_TYPE ]:
             self.resizeColumnToContents(col)
         self.setColumnWidth(COL_DESCRIPTION, 100)
     
@@ -3750,7 +3609,8 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
 
         fileAny = QFile(_fileName)
         if not fileAny.open(QIODevice.ReadOnly):
-            QMessageBox.warning(self, self.tr("Open local file failed"), self.tr("unable to read content") )
+            QMessageBox.warning(self, self.tr("Open local file failed"), 
+                                self.tr("unable to read content") )
             return None
         else:
             fileData= fileAny.readAll()
@@ -3767,7 +3627,8 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
         """
         Import external image from local disk
         """
-        fileName = QFileDialog.getOpenFileName(self, self.tr("Import image"), "", "Images (*.%s)" % Workspace.Repositories.LocalRepository.EXTENSION_PNG )
+        fileName = QFileDialog.getOpenFileName(self, self.tr("Import image"), 
+                                                "", "Images (*.%s)" % Workspace.Repositories.LocalRepository.EXTENSION_PNG )
         # new in v18 to support qt5
         if QtHelper.IS_QT5:
             _fileName, _type = fileName
@@ -3779,17 +3640,20 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
             return None
         
         if not ( str(_fileName).endswith( Workspace.Repositories.LocalRepository.EXTENSION_PNG ) ):
-            QMessageBox.warning(self, self.tr("Open local image failed") , self.tr("Image file not supported") )
+            QMessageBox.warning(self, self.tr("Open local image failed") , 
+                                self.tr("Image file not supported") )
             return None
 
         image = QImage(_fileName)
         if image.isNull():
-            QMessageBox.warning(self, self.tr("Open local image failed") , self.tr("Image file not supported, unable to read") )
+            QMessageBox.warning(self, self.tr("Open local image failed") , 
+                                self.tr("Image file not supported, unable to read") )
             return None
 
         fileImage = QFile(_fileName)
         if not fileImage.open(QIODevice.ReadOnly):
-            QMessageBox.warning(self, self.tr("Open local image failed"), self.tr("Image file not supported, unable to read content") )
+            QMessageBox.warning(self, self.tr("Open local image failed"), 
+                                self.tr("Image file not supported, unable to read content") )
             return None
         else:
             imageData= fileImage.readAll()
@@ -3844,23 +3708,27 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
                 if RCI.instance().isAuthenticated: # no then perhaps in remo repo if connected?
                     editor = self.loadFromRemote() # load remote test config file
                 else:
-                    QMessageBox.warning(self, self.tr("Import") , self.tr("Connect to the test center first!") )
+                    QMessageBox.warning(self, self.tr("Import") , 
+                                        self.tr("Connect to the test center first!") )
         
         # import from remote repo
         elif RCI.instance().isAuthenticated: # no then perhaps in remo repo if connected?
             editor = self.loadFromRemote() # load remote dataset file
 
         else:
-            QMessageBox.warning(self, self.tr("Import") , self.tr("Connect to the test center first!") )
+            QMessageBox.warning(self, self.tr("Import") , 
+                                self.tr("Connect to the test center first!") )
         return editor
 
     def loadFromLocal(self):
         """
         Load from local repository
         """
-        editor = Workspace.Repositories.LocalRepository.SaveOpenToRepoDialog( self , "", type = Workspace.Repositories.LocalRepository.MODE_OPEN,
-                                                                                typeFile=[ Workspace.Repositories.LocalRepository.EXTENSION_TDX ]) 
-        editor.hideFiles(hideTsx=True, hideTpx=True, hideTcx=True, hideTdx=False, hideTux=True, hidePng=True)
+        editor = Workspace.Repositories.LocalRepository.SaveOpenToRepoDialog( self , "", 
+                                                                              type = Workspace.Repositories.LocalRepository.MODE_OPEN,
+                                                                               typeFile=[ Workspace.Repositories.LocalRepository.EXTENSION_TDX ]) 
+        editor.hideFiles(hideTsx=True, hideTpx=True, hideTcx=True, 
+                         hideTdx=False, hideTux=True, hidePng=True)
         if editor.exec_() == QDialog.Accepted:
             return editor.getSelection(withRepoName=True)
         else:
@@ -3917,7 +3785,8 @@ class ParametersTableView(QTableView, Logger.ClassLogger):
         """
         Load image from anywhere
         """
-        fileName = QFileDialog.getOpenFileName(self, self.tr("Import image"), "", "Images (*.%s)" % Workspace.Repositories.LocalRepository.EXTENSION_PNG )
+        fileName = QFileDialog.getOpenFileName(self, self.tr("Import image"),
+                                               "", "Images (*.%s)" % Workspace.Repositories.LocalRepository.EXTENSION_PNG )
         # new in v18 to support qt5
         if QtHelper.IS_QT5:
             _fileName, _type = fileName
@@ -3950,7 +3819,8 @@ class ParametersQWidget(QWidget, Logger.ClassLogger):
     """
     Parameters widget
     """
-    def __init__(self, parent, forParamsOutput=False, forTestConfig=False):
+    def __init__(self, parent, forParamsOutput=False, 
+                 forTestConfig=False, cacheViewer=None):
         """
         Contructs Parameters Widget
 
@@ -3960,6 +3830,7 @@ class ParametersQWidget(QWidget, Logger.ClassLogger):
         QWidget.__init__(self, parent)
         self.forParamsOutput = forParamsOutput
         self.forTestConfig = forTestConfig
+        self.cacheViewer = cacheViewer
 
         self.createWidgets()
         self.createToolbar()
@@ -4002,8 +3873,10 @@ class ParametersQWidget(QWidget, Logger.ClassLogger):
         self.dockToolbarParams = QToolBar(self)
         self.dockToolbarParams.setStyleSheet("QToolBar { border: 0px; }") # remove 3D border
 
-        self.parametersTable = ParametersTableView(self, forParamsOutput=self.forParamsOutput, 
-                                                    forTestConfig=self.forTestConfig)
+        self.parametersTable = ParametersTableView(self, 
+                                                   forParamsOutput=self.forParamsOutput, 
+                                                   forTestConfig=self.forTestConfig,
+                                                   cacheViewer=self.cacheViewer)
         self.parametersTable.setColumnHidden(COL_DESCRIPTION, 
                                     QtHelper.str2bool(Settings.instance().readValue( key = 'TestProperties/parameters-hide-description' ))
                                 )

@@ -1,18 +1,20 @@
 
-13.0.0
-	Date: 11/02/2018
+14.0.0
+	Date: 05/08/2018
 	What's new		
-		1. (minor) code cleanup after static analysis
-		2. (minor) build: python package update for selenium 3.9.0
-		3. (medium) build: selenium server updated to 3.9.0
-		4. (medium) build: chrome driver updated to 2.35
-		5. (medium) build: opera driver updated to 2.33 64b
-		6. (medium) build: gecko driver updated to 0.19.1 64b
-		7. (medium) build: edge driver updated to 5.16299
-		8. (medium) build: ie driver updated to 3.8.0
-		9. (minor) build: java JRE updated to the version 8u161 x64
-		10. (major) full support of qt5.9 and python3.6
-		11. (major) no more use xmlrpc api
-		12. (major) selenium3 agent: update command line to execute the server in debug mode
+		1. (minor) change in about page, list of contributors added
+		2. (medium) built with python to 3.6.5 and pyqt to 5.10.1
+		3. (minor) built with new psycopg2-2.7.4 and paramiko-2.4.1
+		4. (medium) new ansible agent (pull request #8)
+		5. (medium) new kafka agent (pull request #15)
+		6. (medium) new curl agent
+		7. (medium) build: selenium server updated to 3.13.0
+		8. (medium) build: chrome driver updated to 2.41
+		9. (medium) build: opera driver updated to 2.37 64b
+		10. (medium) build: gecko driver updated to 0.21.0 64b
+		11. (medium) build: edge driver updated to 5.16299
+		12. (medium) build: ie driver updated to 6.17134
+		13. (medium) build: sikuli updated with 1.1.2 version
+		14. (major) updated with the new product name
 	Issues Fixed
-		1. (minor) fix some code issues thanks to static analysis 
+		1. (medium) fix bad path for selenium2 agent binary, only on windows

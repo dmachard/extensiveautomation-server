@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<file>
+<properties><inputs-parameters><parameter><color>#DBADFF</color><value>str_decoded</value><type>str</type><name>CACHE_KEY</name><description /><scope>local</scope></parameter><parameter><color /><value>False</value><type>bool</type><name>DEBUG</name><description /><scope>local</scope></parameter><parameter><color>#DBADFF</color><value>True</value><type>bool</type><name>DECODE</name><description /><scope>local</scope></parameter><parameter><color>#DBADFF</color><value>False</value><type>bool</type><name>ENCODE</name><description /><scope>local</scope></parameter><parameter><color>#DBADFF</color><value /><type>str</type><name>STR_BASE64</name><description /><scope>local</scope></parameter><parameter><color /><value>1.0</value><type>float</type><name>TIMEOUT</name><description /><scope>local</scope></parameter><parameter><color>#DBADFF</color><value>False</value><type>bool</type><name>URLSAFE</name><description /><scope>local</scope></parameter><parameter><color /><value>True</value><type>bool</type><name>VERBOSE</name><description /><scope>local</scope></parameter></inputs-parameters><agents><agent><value>agent-dummy01</value><type>dummy</type><name>AGENT</name><description /></agent></agents><probes><probe><active>False</active><args /><name>probe01</name><type>default</type></probe></probes><outputs-parameters><parameter><color /><value>1.0</value><type>float</type><name>TIMEOUT</name><description /><scope>local</scope></parameter></outputs-parameters><descriptions><description><value>admin</value><key>author</key></description><description><value>24/12/2016 09:09:26</value><key>creation date</key></description><description><value>Just a basic sample.</value><key>summary</key></description><description><value>None.</value><key>prerequisites</key></description><description><value><comments /></value><key>comments</key></description><description><value>myplugins</value><key>libraries</key></description><description><value>myplugins</value><key>adapters</key></description><description><value>Writing</value><key>state</key></description><description><value>TESTCASE</value><key>name</key></description><description><value>REQ_01</value><key>requirement</key></description></descriptions></properties>
+<testdefinition><![CDATA[
+def description(self):
+	# testcase description
+	self.setPurpose(purpose=description('summary'))
+	self.setRequirement(requirement=description('requirement'))
+
+	# steps description
+	self.step1 = self.addStep(expected="base64 string decoded or encoded with success", 
+																			description="encode or decode with base64",
+																			summary="encode or decode with base64", enabled=True)
+def prepare(self):
+	self.LIB_BASE64 = SutLibraries.Codecs.BASE64(parent=self, name=None, debug=input('DEBUG'), shared=False)
+def definition(self):
+	# starting initial step
+	if self.step1.isEnabled():
+		self.step1.start()
+
+		if input('DECODE'):
+			pl = self.LIB_BASE64.decode(data=input('STR_BASE64'), urlsafe=input('URLSAFE'))
+		if input('ENCODE'):
+			pl = self.LIB_BASE64.encode(data=input('STR_BASE64'), urlsafe=input('URLSAFE'))
+		
+		Cache().set(name=input('CACHE_KEY'), data=pl, flag=False)
+		
+		if input('DEBUG'): 
+			self.warning("output: %s" % pl)
+			
+		self.step1.setPassed(actual="success")
+def cleanup(self, aborted):
+	if aborted: self.step1.setFailed(actual=aborted)]]></testdefinition>
+<testdevelopment>1482566966.938714</testdevelopment>
+</file>

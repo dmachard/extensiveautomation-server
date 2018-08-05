@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -405,8 +405,13 @@ class AdapterDelegate(QItemDelegate, Logger.ClassLogger):
             if not len(value['data']['obj']):
                 QMessageBox.information(self.owner, "Configuration action", "No argument for this action")
             else:
-                actionDialog = GenericConfigDialog.ActionDialog(self, self.owner.helper, value, owner=self.owner, 
-                                            variables=[], adapterMode=True ,testParams=self.owner.testParams)
+                actionDialog = GenericConfigDialog.ActionDialog(self, 
+                                                                self.owner.helper, 
+                                                                value, 
+                                                                owner=self.owner, 
+                                                                variables=[], 
+                                                                adapterMode=True,
+                                                                testParams=self.owner.testParams)
 
                 if actionDialog.exec_() == QDialog.Accepted:
                     actionParams = actionDialog.getValues()
@@ -508,10 +513,14 @@ class LibrariesTableView(QTableView):
         """
         Qt actions
         """
-        self.delAction = QtHelper.createAction(self, self.tr("&Delete"), self.deleteAction, icon = QIcon(":/libraries-del.png"),
-                                                    tip = self.tr('Delete the selected library') )
-        self.delAllAction = QtHelper.createAction(self, self.tr("&Delete All"), self.clearItems, icon = QIcon(":/test-parameter-clear.png"),
-                                                    tip = self.tr('Delete all libraries') )
+        self.delAction = QtHelper.createAction(self, self.tr("&Delete"), 
+                                               self.deleteAction, 
+                                               icon = QIcon(":/libraries-del.png"),
+                                               tip = self.tr('Delete the selected library') )
+        self.delAllAction = QtHelper.createAction(self, self.tr("&Delete All"), 
+                                                  self.clearItems, 
+                                                  icon = QIcon(":/test-parameter-clear.png"),
+                                                  tip = self.tr('Delete all libraries') )
         
         # set default actions
         self.delAction.setEnabled(False)
@@ -544,8 +553,10 @@ class LibrariesTableView(QTableView):
                 sourceIndexes.append( self.proxyModel.mapToSource( proxyIndex ) )
         
         if sourceIndexes:
-            answer = QMessageBox.question(self,  self.tr("Remove"),  self.tr("Do you want to remove the selection?"), 
-                    QMessageBox.Yes | QMessageBox.No)
+            answer = QMessageBox.question(self,  
+                                          self.tr("Remove"),
+                                          self.tr("Do you want to remove the selection?"), 
+                                          QMessageBox.Yes | QMessageBox.No)
             if answer == QMessageBox.Yes:
                 self.removeValues(sourceIndexes)
 
@@ -579,18 +590,21 @@ class LibrariesTableView(QTableView):
             
         self.setData( signal = True )
     
-    def getHelpLibraries(self):
+    def getHelpLibraries(self, generic=False):
         """
         Return the help of all libraries according to the current
         version of the test
         """
-        testDescrs = self.testDescrs.table().model.getData()
-        currentLibVersion = None
-        for descr in testDescrs:
-            if descr['key'] == 'libraries':
-                currentLibVersion = descr['value']
-                break
-        return Helper.instance().helpLibraries(name=currentLibVersion)
+        if generic:
+            return Helper.instance().helpLibraries(generic=generic)
+        else:
+            testDescrs = self.testDescrs.table().model.getData()
+            currentLibVersion = None
+            for descr in testDescrs:
+                if descr['key'] == 'libraries':
+                    currentLibVersion = descr['value']
+                    break
+            return Helper.instance().helpLibraries(name=currentLibVersion)
         
     def onPopupMenu(self, pos):
         """
@@ -603,15 +617,23 @@ class LibrariesTableView(QTableView):
         index = self.currentIndex()
         indexes = self.selectedIndexes()
 
-        libraries = self.getHelpLibraries()
+        # get defaults libraries or extra
+        libraries_default = self.getHelpLibraries()
         
-        # libraries
-        libsMenu = QMenu("Add", self)
-        if libraries is not None:
-            for sutlib in libraries:
+        # get generic libraries
+        libraries_generic = self.getHelpLibraries(generic=True)
+        
+        # main menu
+        menu_libs = QMenu("Add Libraries", self)
+        
+        # libraries generic
+        menu_libs_generic = QMenu("Generic", self)
+        menu_libs.addMenu(menu_libs_generic)
+        if libraries_generic is not None:
+            for sutlib in libraries_generic:
 
-                libMenu = QMenu(sutlib['name'], self)
-                libsMenu.addMenu(libMenu)
+                lib_menu_generic = QMenu(sutlib['name'], self)
+                menu_libs_generic.addMenu(lib_menu_generic)
                 
                 for cls in sutlib['classes']:
 
@@ -625,17 +647,53 @@ class LibrariesTableView(QTableView):
                         argsFct['function'] = "%s::%s" % (sutlib['name'],cls['name'])
                         argsFct['main-name'] = "%s" % sutlib['name']
                         argsFct['sub-name'] = "%s" % cls['name']
+                        argsFct['is-default'] = "False"
+                        argsFct['is-generic'] = "True"
                         if 'default-args' in fct:
                             self.addDefaultValues(defaultValues=fct['default-args'], currentFunction=argsFct)
                             
-                        libMenu.addAction(QtHelper.createAction(self, cls['name'], self.addLibrary, cb_arg=argsFct ))    
-            
+                        lib_menu_generic.addAction(QtHelper.createAction(self, 
+                                                                         cls['name'], 
+                                                                         self.addLibrary, 
+                                                                         cb_arg=argsFct ))   
+                                                                         
+        # libraries default
+        menu_libs_default = QMenu("Extra", self)
+        menu_libs.addMenu(menu_libs_default)
+        if libraries_default is not None:
+            for sutlib in libraries_default:
+
+                lib_menu_default = QMenu(sutlib['name'], self)
+                menu_libs_default.addMenu(lib_menu_default)
+                
+                for cls in sutlib['classes']:
+
+                    # extract __init__ function only
+                    fct = None
+                    for fct in cls['functions']:
+                        if fct['name'] == '__init__':
+                            break
+                    if fct is not None:    
+                        argsFct = self.parseDocString(docstring=fct['desc'])
+                        argsFct['function'] = "%s::%s" % (sutlib['name'],cls['name'])
+                        argsFct['main-name'] = "%s" % sutlib['name']
+                        argsFct['sub-name'] = "%s" % cls['name']
+                        argsFct['is-default'] = "True"
+                        argsFct['is-generic'] = "False"
+                        if 'default-args' in fct:
+                            self.addDefaultValues(defaultValues=fct['default-args'], currentFunction=argsFct)
+                            
+                        lib_menu_default.addAction(QtHelper.createAction(self, 
+                                                                         cls['name'], 
+                                                                         self.addLibrary, 
+                                                                         cb_arg=argsFct ))   
+                                                                         
         if not indexes:
             self.delAction.setEnabled(False)
 
             self.menu.addAction( self.delAction )
             self.menu.addSeparator()
-            self.menu.addMenu( libsMenu )
+            self.menu.addMenu( menu_libs )
             self.menu.addSeparator()
             
         else:
@@ -643,7 +701,7 @@ class LibrariesTableView(QTableView):
 
             self.menu.addAction( self.delAction )
             self.menu.addSeparator()
-            self.menu.addMenu( libsMenu )
+            self.menu.addMenu( menu_libs )
             self.menu.addSeparator()
              
         self.menu.popup( self.mapToGlobal(pos) )
@@ -750,8 +808,10 @@ class LibrariesTableView(QTableView):
         """
         Clear all items
         """
-        reply = QMessageBox.question(self, self.tr("Clear all libraries"), self.tr("Are you sure ?"),
-                        QMessageBox.Yes | QMessageBox.No )
+        reply = QMessageBox.question(self, 
+                                     self.tr("Clear all libraries"), 
+                                     self.tr("Are you sure ?"),
+                                     QMessageBox.Yes | QMessageBox.No )
         if reply == QMessageBox.Yes:
             data = self.model.getData()
             try:
@@ -825,7 +885,10 @@ class LibrariesQWidget(QWidget, Logger.ClassLogger):
         self.dockToolbar = QToolBar(self)
         self.dockToolbar.setStyleSheet("QToolBar { border: 0px; }") # remove 3D border
 
-        self.librariesTable = LibrariesTableView(self, helper=self.helper, testParams=self.testParams, testDescrs=self.testDescrs)
+        self.librariesTable = LibrariesTableView(self, 
+                                                 helper=self.helper, 
+                                                 testParams=self.testParams, 
+                                                 testDescrs=self.testDescrs)
 
         layout.addWidget(self.librariesTable)
         layout.addWidget(self.dockToolbar)

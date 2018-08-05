@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -93,8 +93,18 @@ class DataModel(GenericModel.GenericModel):
         # init file properties
         self.properties = { 'properties': {
                                     'parameters': {
-                                        'parameter': [ {'type': 'bool', 'name': 'DEBUG', 'description': '', 'value' : 'False', 'color': '' },
-                                                         {'type': 'float', 'name': 'TIMEOUT', 'description': '', 'value' : timeout, 'color': '' } ]
+                                        'parameter': [ {'type': 'bool', 
+                                                        'name': 'DEBUG', 
+                                                        'description': '', 
+                                                        'value' : 'False', 
+                                                        'color': '',  
+                                                        'scope': 'local' },
+                                                         {'type': 'float', 
+                                                         'name': 'TIMEOUT', 
+                                                         'description': '', 
+                                                         'value' : timeout, 
+                                                         'color': '',  
+                                                         'scope': 'local' } ]
                                             }
                                 }
                             }
@@ -166,6 +176,13 @@ class DataModel(GenericModel.GenericModel):
                     self.fixXML( data = properties['parameters'], key = 'parameter' )
                     if '@parameter' in properties['parameters']:
                         self.fixXML( data = properties['parameters'], key = '@parameter' )
+
+                    # BEGIN NEW in 19.0.0 : add missing scope parameters
+                    for p in properties['parameters']['parameter']:
+                        if "scope" not in p: 
+                            p["scope"] = "local"
+                            p["@scope"] = {}
+                    # END OF NEW
                 except Exception as e:
                     self.error( "TestConfig >  fix xml %s" % str(e) )
                 else:

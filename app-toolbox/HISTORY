@@ -1,4 +1,22 @@
 
+13.0.0
+	Date: 11/02/2018
+	What's new		
+		1. (minor) code cleanup after static analysis
+		2. (minor) build: python package update for selenium 3.9.0
+		3. (medium) build: selenium server updated to 3.9.0
+		4. (medium) build: chrome driver updated to 2.35
+		5. (medium) build: opera driver updated to 2.33 64b
+		6. (medium) build: gecko driver updated to 0.19.1 64b
+		7. (medium) build: edge driver updated to 5.16299
+		8. (medium) build: ie driver updated to 3.8.0
+		9. (minor) build: java JRE updated to the version 8u161 x64
+		10. (major) full support of qt5.9 and python3.6
+		11. (major) no more use xmlrpc api
+		12. (major) selenium3 agent: update command line to execute the server in debug mode
+	Issues Fixed
+		1. (minor) fix some code issues thanks to static analysis
+
 12.1.0
 	Date: 22/10/2017
 	What's new		

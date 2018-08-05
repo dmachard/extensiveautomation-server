@@ -1,0 +1,110 @@
+#!/bin/bash
+#
+# Init file for test server daemon
+#
+# chkconfig: - 70 70
+# description: test server daemon
+#
+
+# -------------------------------------------------------------------
+# Copyright (c) 2010-2018 Denis Machard
+# This file is part of the extensive automation project
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+# MA 02110-1301 USA
+# -------------------------------------------------------------------
+
+# source function library
+. /etc/rc.d/init.d/functions
+
+RETVAL=0
+name="Extensive Automation"
+prog="extensiveautomation"
+APP_PATH=
+DB_NAME=
+BIN=$APP_PATH/current/$prog
+USER_EXEC="root"
+
+start_server()
+{
+	echo -n $"Starting $name server"
+	daemon --user=$USER_EXEC $BIN start && success || failure
+	echo	
+}
+
+stop_server()
+{
+	echo -n $"Stopping $name server"
+	$BIN stop && success || failure
+	if [ -n "`pidfileofproc $BIN`" ] ; then
+	    killproc $BIN
+	fi
+	echo
+}
+
+check_db()
+{
+	echo -n $"Checking database"
+	mysqlcheck --repair $DB_NAME 1>> /dev/null 2>&1
+	success
+	echo
+}
+
+generate_pkg()
+{
+	cd $APP_PATH/current/Scripts/
+	echo -n $"Saving current adapters"
+	$APP_PATH/current/Scripts/generate-adapters.sh 1>> /dev/null 2>&1
+	success
+	echo
+	echo -n $"Saving current libraries"
+	$APP_PATH/current/Scripts/generate-libraries.sh 1>> /dev/null 2>&1
+	success
+	echo
+}
+
+case "$1" in
+	start)
+		check_db
+		generate_pkg
+        	start_server		
+		;;
+	stop)
+                generate_pkg
+		stop_server	
+		;;
+	status)
+       		$BIN status
+		;;
+	reload)
+       		$BIN reload
+		;;
+	generate)
+       		$BIN generate
+		;;
+	deploy)
+       		$BIN deploy
+		;;
+	run)
+       		$BIN run
+		;;
+	version)
+       		$BIN version
+		;;
+	*)
+		echo $"Usage: $0 {start|stop|status|reload|generate|deploy|run|version}"
+		RETVAL=1
+esac
+exit $RETVAL
