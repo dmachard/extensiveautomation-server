@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<file>
+<properties><descriptions><description><value>admin</value><key>author</key></description><description><value>22/11/2015 12:11:49</value><key>creation date</key></description><description><value>Just a basic sample.</value><key>summary</key></description><description><value>None.</value><key>prerequisites</key></description><description><value><comments /></value><key>comments</key></description><description><value>myplugins</value><key>libraries</key></description><description><value>myplugins</value><key>adapters</key></description><description><value>Writing</value><key>state</key></description><description><value>TESTCASE</value><key>name</key></description><description><value>REQ_01</value><key>requirement</key></description></descriptions><inputs-parameters><parameter><color /><description /><type>bool</type><name>DEBUG</name><value>False</value><scope>local</scope></parameter><parameter><color /><description /><type>float</type><name>TIMEOUT</name><value>1.0</value><scope>local</scope></parameter></inputs-parameters><agents><agent><description /><type>dummy</type><name>AGENT</name><value>agent-dummy01</value></agent></agents><probes><probe><active>False</active><args /><name>probe01</name><type>default</type></probe></probes><outputs-parameters><parameter><color /><description /><type>float</type><name>TIMEOUT</name><value>1.0</value><scope>local</scope></parameter></outputs-parameters></properties>
+<teststeps><steps /></teststeps>
+<testadapters><adapters /></testadapters>
+<testlibraries><libraries /></testlibraries>
+<testactions><actions><action><item-data /><item-id>1</item-id><item-type>2</item-type><item-text>Start</item-text><pos-x>2000.0</pos-x><pos-y>1750.0</pos-y></action></actions></testactions>
+<testaborted><aborted /></testaborted>
+<testdefinition><![CDATA[
+def description(self):
+	# testcase description
+	pass
+
+	# steps description
+	
+	
+
+def prepare(self):
+	# adapters and libraries definitions
+	
+	
+
+	pass
+
+def definition(self):
+	
+	pass
+
+def cleanup(self, aborted):
+	pass
+]]></testdefinition>
+<testdevelopment>1448190709.095677</testdevelopment>
+</file>

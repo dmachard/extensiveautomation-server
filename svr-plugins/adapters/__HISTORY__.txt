@@ -1,0 +1,602 @@
+
+--- Previous: 12.0.0 ---
+Date: 11/02/2018
+What's new
+	1. (minor) New curl wrapper in HTTP adapter
+	2. (minor) New dig wrapper in DNS adapter
+	3. (minor) New nmap wrapper in System adapters
+	4. (minor) System: add cp850 decoding for windows cmd response
+	5. (major) Selenium: no more check platform parameter to support selenium server 3.9.0
+	6. (major) Selenium: support w3c browser like firefox 58
+	7. (minor) New ncat wrapper in System adapters
+	8. (minor) New openssl wrapper in System adapters
+Issues fixed
+	1. none
+
+--- Previous: 11.1.0 ---
+Date: 22/10/2017
+What's new
+	1. (minor) Gui selenium: new high level function doSwitchToDefaultWindow
+	2. (medium) Tcp server: update to support agent mode
+	3. (medium) Http server: update to support agent mode
+	4. (medium) Ssh terminal: opened event splitted in two, first screen event added
+	5. (minor) Ssh terminal: no more possible to send data if not connected
+	6. (minor) Ssh client: new handleConnectionFailed on bad authentication and negotiation
+	7. (medium) Ssh terminal: new event "open error" when the authentication failed
+	8. (minor) Tcp: wait complete ssl handshake on connection
+Issues fixed
+	1. (medium) Ssl: disable SNI feature
+	2. (minor) Ssh client: disconnected status not set properly on bad authentication and negotiation
+	
+--- Previous: 11.0.0 ---
+Date: 04/06/2017
+What's new
+	1. (minor) Gui adb: new high level function to lock a device
+	2. (medium) New ldap adapter
+	3. (minor) Gui selenium: new argument to provide firefox profile on open action
+	4. (major) Gui selenium: update to support the multi sessions, new function to switch between session
+	5. (medium) Gui selenium: new function to provide a firefox profile or create a custom one
+	6. (medium) Gui selenium: new function to execute javascript on html element
+	7. (minor) Gui selenium: add support for edge browser
+	8. (minor) Terminal ssh: new parameter to fix the interval to take a snap of the screen, one second by default
+	9. (medium) Http server: rename waitRequest function to waitRequests
+	10. (major) Support new decorator function for documentation
+	11. (medium) SSLv23 activated by default, it provides the most compatibility with other ssl/tls versions.
+	12. (minor) Code cleanup to support python3
+	13. (minor) Raise exception when hping3 is missing in system
+	14. (major) System: update to support none value in response
+Issues fixed
+	1. (minor) Gui selenium: fix documentations on some functions
+	2. (minor) Gui selenium: fix error in doFindTextPageTitle, always return True
+	3. (minor) Terminal ssh: fix error 'Terminal' object has no attribute 'codec', occured only with bad init
+	4. (minor) Ssh: add protection to check the content of the agent provided
+	5. (minor) Terminal ssh: fix error 'NoneType' object has no attribute 'addLayer', occured on connect without data
+	6. (minor) Ssh: fix 'NoneType' object has no attribute 'getsockname' on agent mode
+	7. (medium) Ssl:  server name added on ssl wrap to avoid tlsv1 alert internal error
+	8. (minor) Snmp: fix adapter to support the new snmp library
+	
+--- Previous: 10.2.0 ---
+Date: 30/03/2017
+What's new
+	1. (medium) selenium - explicit wait activated by default for more robustness
+	2. (medium) selenium - new functions implemented to locate an element and check the visibility or not
+	3. (medium) selenium - accept insecure certs by default for firefox
+	4. (medium) selenium - new location accessor to find html element
+	5. (minor) ssh/terminal/sftp - update to support private key from  a path provided
+Issues fixed
+	1. none
+
+--- Previous: 10.1.0 ---
+Date: 25/02/2017
+What's new
+	1. (minor) Dummy: log events in shared mode
+	2. (minor) Tcp server: support filtering feature
+	3. (minor) Ssh terminal: improves connect and disconnect events
+	4. (minor) Rest: update on hasReceivedRestResponse function to detect http headers
+	5. (minor) Http: new hasReceivedHttpResponse and sendHttp functions
+	6. (minor) Ssh: enable keepalive by default
+	7. (medium) Http: codec updated to support response encode 
+	8. (major) New http server
+	9. (minor) Terminal: update to support no verbose mode
+	10. (minor) Ssl server: update to support TLS 1.1 and TLS 1.2
+Issues fixed
+	1. (major) SSH: fix a random issue, unable to connect throught the terminal adapter
+	2. (medium) Sikuli: unable to count image
+	3. (medium) Sikuli: bug with waitClickImage if mainImg added
+	4. (medium) Ssh: bad float provided for keepalive interval
+	5. (major) Http: fix major bad body encoding
+	6. (minor) Ssh: add missing argument in authentication_failed  and negotiation_failed templates
+	7. (minor) Selenium: unable to handle selenium response before state exists in value
+
+--- Previous: 10.0.0 ---
+Date: 30/10/2016
+What's new
+	1. Selenium: add protection to always provide http(s):// in the url to open
+	2. Selenium: update to support gecko driver, need to be use with firefox 48
+	3. Sikuli: all interact functions with the text are deprecated
+	4. Sikuli: new functions to detect word on screen
+	5. Sikuli: major change to support the new toolbox
+	6. Selenium: major change to support the new toolbox
+	7. Sikuli: new doGetClipboard and doCountWord functions
+	8. Console: update, external contribution
+	9. SSH: update to make the module more generic
+	10. New terminal adapter
+	11. HTTP: some debug messages added in codec
+	12. SSL/TCP/HTTP/SOAP/REST: update to support key and cert file on client mode
+Issues fixed
+	1. SSH: fix issue on getExpectedTemplate function
+	2. HTTP: return none template on constructTemplateRequest function and fix minor error in codec
+	3. HTTP: codec is not able to decode chunk data properly in some case
+
+--- Previous: 9.3.0 ---
+Date: 28/08/2016
+What's new
+	1. Rest: adding proxy support
+	2. Selenium: new doSwitchToWindow function
+Issues fixed
+	1. Tcp/Ssl: add some missing ssl options on init, with agent mode only 
+	2. Soap/Rest: add missing ssl arguments on adapters initializations
+	3. Sftp/Ftp: fix missing put_folder/get_folder templates
+	
+--- Previous: 9.2.0 ---
+Date: 20/06/2016
+What's new
+	1. Sikuli: improvement in clickText/doubleClickText and rightClickText functions
+	2. Sikuli: new getTextClipboard function
+	3. Rest: automatic connection on send rest request
+	4. Improvement in documentations
+	5. Code cleanup
+	6. Sftp/Ftp: new recursive functions to upload/download folders
+	7. Sftp/Ftp: new feature to save downloaded file in private area
+	8. Selenium: new functions to double click/right click on element
+	9. Rest: display request content on event logger
+	10. Plugin Ssh: log ssh error message on events
+	11. Plugin Ssh Console: new doLogin/doLogout functions
+Issues fixed
+	1. Http/Soap: fix small error, unable to use tcp accessor function
+	2. Tcp server: verbose mode is missing
+	3. Ssh Console: fix some bugs
+	4. Ssh: fix bad event on negotiation failed
+
+--- Previous: 9.1.0 ---
+Date: 29/04/2016
+What's new
+	1. Dummy: minor example to handle properly bad argument exception
+	2. Argument protection added on all adapters
+	3. Sikuli: thumbnail added on screenshot event
+	4. Selenium: support screenshot event
+	5. Database: adding missing documentions on all query functions
+	6. New NTP adapter
+	7. Command: small change to integrate user command in event
+	8. Adb: adding device info event, new function to reset and stop application
+	9. New console adapter for ssh, cli replacement
+	10. Sikuli: adding a new error message when the agent does not start properly
+	11. Sikuli: new function to click/move/double click on a specific position 
+	12. Sikuli: new functions to wheel the mouse down or up
+	13. Sikuli: new option to repeat shorcut
+	14. Sikuli: new function to send raw code to the agent
+	15. Sikuli: new debug mode
+	16. Selenium: update to handle properly error
+	17. Selenium: new repeat argument on type key function
+	18. Selenium: new functions to select
+	19. Adb: new functions to wait and click element
+	20. Command: update to run long command
+Issues fixed
+	1. Cisco Catalyst: fix again bad test template import library
+	2. Soap: fix missing layer agent on response
+	3. Soap: fix expected data on received soap response
+	4. Http: fix minor error in epydoc, update to support properly test abstract
+	5. Sikuli: return action id as string on all cases
+	6. Sikuli: fix error on doRightClickImage function, double click realized instead of right click
+	7. Android: fix error on module name TestTemplates
+	8. Fix minor error in the epydoc of the command plugin
+	9. Selenium: fix some errors, errors messages added
+
+--- Previous: 9.0.0 ---
+Date: 12/02/2016
+What's new
+	1. New feature to disable one or more adapters
+	2. Ssh/Sftp: new verbose mode, activated by default
+	3. Ssh: new argument to set terminal type, width and height
+	4. Ssh/Sftp: reduce sleep interval in wait for file/folder functions
+	5. Ssh/Sftp: support regular expression on wait for file/folder functions
+	6. Database: new verbose mode, activated by default
+	7. Selenium: error message more explicit when the session id is missing
+	8. Selenium: small change to display remote capabilities
+	9. Gui: new verbose mode, activated by default
+	10. Gui Selenium: new doClearTextElement function
+	11. Telnet: new feature to save telnet data in the private storage
+	12. Http: save content - new warning added in log to display adapter ID
+	13. Minor update on all code sources according to the new year
+	14. New adapter to support android mobile automation through Adb
+	15. Major change on all adapters to add a new agent layer in template message
+	16. Selenium: new functions to check size and the location of the element
+	17. HTTP/TCP: Support of tls1.2 and tls 1.1, only with python2.7!
+	18. HTTP/TCP: new isConnectedSsl function
+	19. Ssh/Tcp/Udp/Ethernet: no more use init/reset function in agent mode
+Issues fixed
+	1. Ssh: fix paramiko log filename
+	2. Ssh: fix bad event support from remote agent
+	3. Ssh/Sftp: fix minor errors in documentation
+	4. Selenium: Read navig ID from cache, regression from previous version
+	5. Http: fix error on onHttpProxyInitialization function - undefined variable
+	6. Soap: fix bad test operator import library
+	7. Cisco Catalyst: fix bad test template import library
+	8. Http: add missing arguments on init for backward compatibility
+	
+--- Previous: 8.0.0 ---
+Date: 22/11/2015
+What's new
+	1. File: new feature to support follow file as the tailf unix command
+	2. TCP/File: systematic reset or init agent on run
+	3. Sikuli/Selenium: systematic reset or init agent on run
+	4. Sms/Dummy: systematic reset or init agent on run
+	5. Command Linux/Windows: systematic reset or init agent on run
+	6. Ftp/Ssh/SoapUI: systematic reset or init agent on run
+	7. Tcp/Udp/Sniffer: systematic reset or init agent on run
+	8. Sikuli/Selenium: raise exception if the text is None, to support empty value from cache
+	9. Selenium: save navig id on the new cache
+	10. Database: major change to support agent
+	11. SSL: check peer certificate with ca, automatic decode of the cert
+	12. TCP/HTTP: updated to support check peer certificate on connection
+	13. HTTP: codec support properly utf8 content on body
+	14. TCP: adding protection to send utf8 data
+	15. Database: new event terminated when no more data
+	16. FTP: new wait for file/folder functions
+	17. Database: adding ssl support on postgresql adapter
+Issues fixed
+	1. Fix typo error on tcp client documentation
+	2. Sikuli: fix bad variable name ACTION_TYPE_SHORCUT
+	3. Sikuli: fix bad documentation on doTypeText function
+	4. Sikuli: fix gui template for text header
+	5. Database: fix minor error in documentation
+	6. FTP: fix minor error in documentation
+	7. SFTP: add missing documentation on waitForFile and waitForFolder
+	8. FTP: unable to use isdatasecured without checking login
+	9. TCP: add missing support of the send-error event in agent mode
+
+--- Previous: 7.0.0 ---
+Date: 18/10/2015
+What's new
+	1. SFTP: change default port to 22, doc string improved
+	2. SFTP: new wait for file or folder function
+	3. SOAPUI: support project properties
+	4. Gui Sikuli: new function to get text from image
+	5. SOAP: small improvment on sendSoap function
+	6. SOAP: new xml namespace added
+	7. SOAP: updated to support proxy
+	8. HTTP: adding digest authentication for POST request
+	9. SOAP: digest authentication added
+	10. HTTP: new feature to support basic authentication
+	11. Major change on database connecters
+	12. New adapter to support postgresql database
+	13. GeoIP adapter removed
+	14. New GlobalWeather adapter for example
+	15. GUI Sikuli: threshold of 90% added on timeout value
+	16. GUI Sikuli: new function to don't find image on screen during interval
+	17. GUI Sikuli: new typePath function
+	18. SSH: updated to support agent
+	19. SFTP: major update to support agent
+Issues fixed
+	1. Gui Sikuli: add missing documentations
+
+--- Previous: 6.2.0 ---
+Date: 14/09/2015
+What's new
+	1. Tcp/Udp: sendData updated to support automatic test generation
+	2. File: new isFile, isDirectory, isLink, checksumFile functions
+	3. File: new functions waitForFile, waitForDirectory, deleteFile/Directory
+	4. File: new functions existsFile, existsDirectory, sizeOfFile, sizeOfDirectory
+	5. File: new functions moveFile and directory and copyFile and directory
+	6. File: new functions to get the modification date of a file, list files in directory
+	7. File: new compare text files function
+	8. Selenium: timeout increased for 10s for implicit wait usage
+	9. Selenium: new high level functions to support refresh, go back and forward
+	10. Selenium: new functions to handle javascript alert, to switch to frame
+	11. Sikuli: no more save screenshot on data storage
+	12. Selenium: remote version of the browser and os are logged automatically
+	13. Selenium: new function to close/switch window
+	14. New SMS adapter, gateway to send/receive texto
+	15. Major improvement in FTP adapter, TLS support
+	16. Update SSH adapte to support sftp channel
+	17. New SFTP adapter, based on ssh adapter
+	18. Support authentication by key on SSH adapter
+Issues fixed
+	1. Gui: fix issued according special character on get text function
+	2. Cisco Catalyst: add missing documentations
+	3. Sikuli: fix error on some has received functions, bad none type used
+
+--- Previous: 6.1.0 ---
+Date: 12/07/2015
+What's new
+	1. Http: updated to support https proxy
+	2. Http: improved log message
+	3. Sikuli: adding drap/drop and mouse hover support
+	4. Sikuli: adding new high level functions
+	5. Tcp: reset agent on inactivity detected
+	6. Tcp: better support of http proxy with secure website
+	7. SIP: update default user-agent
+	8. System File: new high level functions to support test abtract
+	9. System Linux/Windows: new high level functions to support test abtract
+	10. Cisco Catalist: default bind ip changed to 0.0.0.0
+	11. Default variable no more used, will be removed on the next release
+	12. More details added on agent activation on all adapters
+Issues fixed
+	1. System Linux: adding missing documentations
+
+--- Previous: 6.0.0 ---
+Date: 28/05/2015
+What's new
+	1. Gui: agent mode warning changed to debug
+	2. SSH: remove uneeded warning message
+	3. SDP: improved detection of the ip in the sdp
+	4. SSH: New high level function to send command in ssh client
+	5. HTTP: updated to support the new abstract test file
+	6. Gui: new generic function for sikuli adapter
+	7. DB: new generic function 
+	8. Ethernet: minor update
+	9. All adapters updated to handle string and integer constant properly
+	10. No more old version	
+	11. Pinger: new high level functions
+	12. All user agent updated with the value extensive testing
+	13. Add missing reset on telnet adapter
+	14. Sikuli: new functions typeShorcut (keyboard simulator)
+	15. New cisco adapter for catalyst switch
+	16. New adapter for Selenium
+	17. New adapter for SoapUI
+	18. Sikuli: new high level function to wait an image to appear and click on it
+	19. Snmp: new constants to set snmp version
+	20. Ssh: new log file added on run for paramiko
+	21. Db: no more escape query for mysql database
+Issues fixed
+	1. Websocket: fix error on init, bad http parameters
+	2. Telnet: fix documentation error on send data function	
+	3. Fix some errors on documentations
+	4. SSH: fix minor errors on default values for init
+	5. FTP: add missing documentation on get file function	
+	6. TCP: fix bad type on ip version during encapsulation	
+	7. Gui: adding missing documentations
+	8. Sikuli: fix minor errors on documentations
+	9. Tcp: fix error on is accepted proxy function to handle properly ip version
+	10. Udp: fix error on encapsule function to handle properly ip version
+	11. Telnet: missing support proxy on has received data function
+	12. Snmp: fix error on has received trap function - bad template construction
+
+--- Previous: 5.0.0 ---
+Date: 10/01/2015
+What's new
+	1. Agent cannot not more be empty on all adapters
+	2. Gui: no more possible to pass a bad type agent (no backward compatibility)
+	3. WebSocket/UDP/Telnet/TCP: no more possible to pass a bad type agent
+	4. System/Soap/Snmp/Rtp: no more possible to pass a bad type agent
+	5. Rest/Ip/Icmp/Http: no more possible to pass a bad type agent
+	6. Ftp/Ethernet/Dummy/Arp: no more possible to pass a bad type agent
+	7. Gui: no more error when action failed
+	8. Gui: new function to get text from the screen
+	9. Http: truncate body option added to support big content response
+Issues fixed
+	1. Db: fix integer argument expected, got float on connect function
+	2. Ssh cli: fix a bad import on templates
+	3. Http: add ssl support on hasReceivedResponse function
+
+--- Previous: 4.5.0 ---
+Date: 25/10/2014
+What's new
+	1. Gui: new function to count image (Enhancement 349)
+	2. New Rest Adapter (Enhancement 462)
+	3. Soap: support ssl on has received soap response
+	4. Soap: new method argument in send soap function
+	5. New file adapter based on remote agent
+	6. New ftp adapter based on remote agent
+	7. SIP no more provided by default
+Issues fixed
+	1. Gui: fix bad type on received function
+	2. Http: 204 response not detected with keep-alive connection (Issue 473)
+	3. Soap: fix documentation on has received soap response
+
+--- Previous: 4.4.0 ---
+Date: 20/09/2014
+What's new
+	1. Ssh: some debug logs message added
+	2. Gui sikuli: new function to take a screenshot 
+	3. Tcp: reduce select timeout to 0.01 on send data
+	4. Ssh: old client renamed to cli
+	5. Ssh: new ssh v2 adapter without prompt (Enhancement 436)
+	6. Icmp: destination mac address added on ping function (Enhancement 447)
+	7. Tcp sniffer: control bits argument added on hasReceivedPacket function (Enhancement 448)
+	8. Http: updated to support websocket mode
+	9. New websocket adapter (Enhancement 360)
+	10. Http: support digest authentication (Enhancement 455)
+	11. New snmp trap receiver v1 and v2c
+	12. Http: new head, put, delete, trace requests support (Enhancement 460)
+	13. New socks version 4 and version 5 adapter
+	14. Tcp: updated to support proxy
+	15. Http, tcp and telnet: new functions to connect and disconnect tcp with timeout
+	16. Http: proxy support improved with socks4 and socks5
+	17. Tcp: reset by peer properly handled
+	18. Telnet: support proxy socks 4 and socks5
+Issues fixed
+	1. Http: flush buffer before connect/disconnect (Issue 414)
+	2. Http: bad "\ r \ n" in codec (Issue 410)
+	3. Http: response not detected when tcp not disconnected
+
+--- Previous: 4.3.0 ---
+Date: 08/08/2014
+What's new
+	1. Tcp Server: support ssl (Enhancement 362)
+	2. All adapters updated to support the new feature origin/destination (Enhancement 290)
+	3. Telnet: add shared argument
+	4. Soap: sample, new geoip adapter (Enhancement 212)
+	5. All adapters updated to support agent mode in adapter class
+	6. Sikuli: image data added on all events
+	7. License LGPL v2.1 applied on all files
+Issues fixed
+	1. Soap: fix incorrect http agent (Issue 357)
+	2. Tcp Server: fix error on documentation (Issue 361)
+	3. Http: fix missing default value on documentation (Issue 358)
+	4. Gui: missing print argument doubleClickImage and rightClickImage functions (Issue 346)
+	5. Http: strict mode on codec added (Issue 392)
+	6. System: remove command line on get process list
+
+--- Previous: 4.2.0 ---
+Date: 02/06/2014
+What's new
+	1. Remove reference to tas
+	2. HTTP/SOAP/SIP: agent name updated with XTC value
+	3. New dummy adapter
+	4. Gui: controller rename to sikuli and updated to support agent 2.0.0
+	5. New dummy agent adapter
+	6. New system adapter for linux and windows
+	7. Telnet: new option to disable sending do echo command (Enhancement 309)
+Issues fixed
+	1. Telnet: raise data only for upper layer (Issue 298)
+	2. HTTP: fix error on is accepted function, missing argument (Issue 302)
+	3. Telnet: codec, fix a bad handle of commands on end of data (Issue 318)
+	4. Telnet: codec, fix bad cmd handle when insufficient data is received (Issue 322)
+	5. Telnet: no more send two do echo
+	6. Telnet: modulo to add on commands detection (Issue 323)
+	7. Pinger: fix error on url module, problem to support ssl
+	8. Http:  charset is missing message change to debug level (Issue 327)
+	9. Http: missing documentation on sendrequest function (Issue 328)
+
+--- Previous: 4.1.0 ---
+Date: 25/04/2014
+What's new
+	1. Gui: support data received from agent (screenshot)
+	2. Gui: action id added on event templates messages
+	3. Ethernet, arp, icmp: shared adapter option added
+	4. Ip, tcp, udp, telnet: shared adapter option added
+	5. Ssl, soap, db, dns, rtp, sip: shared adapter option added
+	6. Pinger, gui, http, sip phone: shared adapter option added
+	7. Sip phone: authentication library updated
+	8. Gui: add logs on error
+	9. Telnet: options support
+	10. Gui: action function return action id
+	11. Gui: find image updated with max timeout before find image
+	12. Gui: improvment to find image on another sub part of the screen
+	13. Gui: click function improved to click on several image
+	14. Remove reference to tas acronym
+Issues fixed
+	1. Gui: simular value reduced to 0.7 (Issue 270)
+	2. SIP: fix error on get contact function
+	3. SIP: fix error on codec when several message are concatenated on the same message
+
+--- Previous: 4.0.0 ---
+Date: 23/03/2014
+What's new
+	1. New packaging mode, release notes file deprecated
+	2. TCP: generic proxy support (Enhancement 244)
+	3. HTTP: basic http proxy support (Enhancement 245)
+	4. TELNET: documentations added on init function
+	5. TCP: new server adapter
+	6. UDP: new server adapter
+	7. SSL: updated to support agent with remote socket
+	8. HTTP: updated to support agent with remote socket
+	9. TCP Client: updated to support agent with remote socket
+	10. ETHERNET: updated to support agent with remote raw socket
+	11. ARP: sniffer updated to support agent with remote raw socket
+	12. IP: sniffer updated to support agent with remote raw socket
+	13. ICMP: sniffer update to support agent with remote raw socket
+	14. UDP: sniffer updated to support agent with remote raw socket
+	15. TCP: sniffer/stack updated to support agent with remote raw socket
+	16. TELNET: updated to support agent with remote tcp socket
+	17. SOAP: updated to support agent with remote tcp socket
+	18. RTP: updated to support agent with remote udp socket
+	19. SIP/PHONE: updated to support agent with remote udp/tcp and raw socket
+	20. UDP: updated to support agent with remote tcp socket
+	21. New GUI adapter
+Issues fixed
+	1. DB adapter: No more return long value
+	2. HTTP: crash with man or octet steam application (Issue 230 & 231)
+	3. HTTP: responses from proxy not visible (Issue 243)
+	4. TELNET: incorrect variable name on init function (Issue 261)
+	5. TCP: fix error on the name of configuration key: socket family
+	6. HTTP: missing wait connect event on GET and POST functions
+	7. TCP Stack: missing sniffing/stopped wait event on start and stop
+	8. Sip Phone: fix bad timers reset on unplug
+
+--- Previous: 3.2.0 ---
+Date: 12/01/2014
+What's new
+	1. HTTP: new function to construct http template request and response from raw data
+	2. HTTP: decoder updated to support 100 continue response
+	3. New SOAP adapter
+	4. HTTP: debug logs improved on save data function
+	5. SIP: new function to construct sip template message from raw data	
+	6. New adapter DB
+	7. TELNET: new connect/disconnect functions
+	8. SSH: new expected data parameter on sendData function
+Issues fixed
+	1. SSH: remote host has changed (Issue 130)
+	2. SSH: child process not closed properly on error (Issue 136)
+
+--- Previous: 3.1.0 ---
+Date: 04/12/2013
+What's new
+	1. Ethernet: interface added on events
+	2. ICMP: new ping adapter based on sniffer
+	3. ARP: new arping adapter based on sniffer
+	4. ARP: add senderIp on whoHas function
+Issues fixed
+	1. RTP: fix a call to an incorrect library
+	2. ICMP: fix incorrect  integer/string value
+	3. ARP: fix documentation error in whoHas function
+
+--- Previous: 3.0.0 ---
+Date: 15/09/2013
+What's new
+	1. New Telnet adapter
+	2. New import to support versionning (no backward compatibility)
+	3. HTTP: minor changes in documentation
+	4. SIP: updated to use the new SDP library
+	5. RTP: updated to use the new RDP library
+Issues fixed
+	1. ARP: fix incorrect key name on padding lenght
+	2. ICMP: cannot decode the icmp timestamp, mask message: unpack str size does not match format (Issue 181)
+
+--- Previous: 2.2.0 ---
+Date: 30/01/2013
+What's new
+	1. TCP/UDP: updated to use internal socket
+	2. New sniffer Ethernet
+	3. New sniffer ARP
+	4. New sniffer IP
+	5. New sniffer ICMP
+	6. HTTP: tcp functions added on documentation
+	7. New sniffer UDP
+	8. Client SIP updated to support the UDP sniffer
+	9. New adapter DNS
+	10. New sniffer TCP
+	11. SIP Phone: onIncomingRequest function improved
+	12. Client TCP/UDP: new startRead/stopRead functions
+Issues fixed
+	1. SIP Phone: fix documentations.
+	2. SIP Phone: fix errors
+	3. HTTP: fix minors errors
+	4. HTTP: codec: fix bad exception when the charset is missing
+	5. HTTP: failed to add content-length automatically (Issue 109)
+	6. Fix bad file descriptor on socket
+	7. Tcp dns resolution failed (Issue 106)
+
+--- Previous: 2.1.0 ---
+Date: 29/09/2012
+What's new
+	1. PINGER: updated to use tas template
+	2. HTTP: content type added on the summary response
+	3. New adapter SSH
+	4. UDP: resolve hostname destination support
+	5. TCP: keep alive option support
+	6. HTTP: codec updated, field names are case-insensitive
+	7. HTTP: codec updated, support multiple identical headers in encode function
+	8. UDP: sendData function updated to return a template message
+	9. UDP: new functions: setDestination, setSource, onInactivity
+	10. TCP/UDP: new data-length header
+	11. New adapter SIP
+	12. New adapter RTP
+	13. TCP: new functions: setDestination, setSource
+	14. HTTP: download content
+Issues fixed
+	1. PINGER: fix documentations.
+	2. HTTP: codec: fix encode function when charset type is missing in the content type header
+	3. HTTP: codec: warning added when the codec fails to decode the body with charset
+	4. Issue 111: adapter TCP/UDP, incorrect pdu raised when seperator feature is enabled
+
+--- Previous: 2.0.0 ---
+Date: 10/07/2012
+What's new
+	1. Adapter HTTP modified (no backward compatibility)
+	2. New adapter TCP
+	3. New adapter UDP 	
+	4. Pinger URL updated: support body detection content
+	5. New adapter HTTP
+Issues fixed
+	1. HTTP: fix documentations
+	2. TCP/UDP: fix defaut values and documentations
+	3. TCP/UDP: fix catch of  generic  exceptions
+
+--- Previous: 1.0.0 ---
+Date: 28/03/2012
+What's new
+	1. First release (Pinger Adapter)
+Issues fixed
+	1. None

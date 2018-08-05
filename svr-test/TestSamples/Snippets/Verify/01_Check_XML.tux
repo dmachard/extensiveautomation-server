@@ -1,0 +1,595 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<file>
+<properties><descriptions><description><value>admin</value><key>author</key></description><description><value>13/05/2017 23:30:57</value><key>creation date</key></description><description><value>Just a basic sample.</value><key>summary</key></description><description><value>None.</value><key>prerequisites</key></description><description><value><comments /></value><key>comments</key></description><description><value>myplugins</value><key>libraries</key></description><description><value>myplugins</value><key>adapters</key></description><description><value>Writing</value><key>state</key></description><description><value>TESTCASE</value><key>name</key></description><description><value>REQ_01</value><key>requirement</key></description></descriptions><inputs-parameters><parameter><color /><description /><type>bool</type><name>DEBUG</name><value>False</value><scope>local</scope></parameter><parameter><color /><description /><type>float</type><name>TIMEOUT</name><value>1.0</value><scope>local</scope></parameter><parameter><color /><description /><type>bool</type><name>VERBOSE</name><value>True</value><scope>local</scope></parameter><parameter><color>#FCABBD</color><description /><type>text</type><name>XML_NAMESPACES</name><value /><scope>local</scope></parameter><parameter><color>#FCABBD</color><description /><type>text</type><name>XML_STR</name><value>&lt;NewDataSet&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Le Touquet&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Agen&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Cazaux&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Bordeaux / Merignac&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Bergerac&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Toulouse / Francazal&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Cognac&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;La Rochelle&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Poitiers&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Montlucon / Gueret&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Limoges&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Mont-De-Marsan&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Niort&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Toulouse / Blagnac&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Pau&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Biscarosse&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Tarbes / Ossun&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Brive&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Perigueux&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Dax&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Biarritz&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;St-Girons&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Albi&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Rodez&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Auch&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Suippes Range Met&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Le Puy&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Cassagnes-Begonhes&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Metz-Nancy-Lorraine&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Bastia&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Calvi&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Figari&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Ajaccio&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Solenzara&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Auxerre&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Chambery / Aix-Les-Bains&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Clermont-Ferrand&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Bourges&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Lyon / Satolas&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Macon&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Saint-Yan&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Montelimar&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Grenoble / St. Geoirs&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Vichy&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Aurillac&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Chateauroux&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Lyon / Bron&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Aix Les Milles&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Le Luc&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Cannes&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Nimes / Courbessac&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;St-Etienne Boutheon&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Istres&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Carcassonne&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Marseille / Marignane&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Nice&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Orange&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Perpignan&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Montpellier&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Beziers / Vias&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;St-Auban-Sur-Durance&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Salon&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Mende / Brenoux&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Beauvais&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Chateaudun&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Evreux&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Alencon&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;La Heve&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Abbeville&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Orleans&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Rouen&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Chartres&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Vittefleur / St. Vale&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Tours&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Saint-Quentin&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Paris / Le Bourget&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Creil Fafb&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Paris-Aeroport Charles De Gaulle&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Melun&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Toussus Le Noble&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Paris-Orly&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Villacoublay&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Paris Met Center&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Troyes&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Nevers&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Chatillon-Sur-Seine&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Cambrai&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Lille&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Charleville&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Angers&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Brest&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Cherbourg / Maupertus&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Dinard&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Lann Bihoue&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;La Roche-Sur-Yon&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Landivisiau&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Caen&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Lanveoc Poulmic&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Le Mans&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Rennes&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Lannion / Servel&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Quimper&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Nantes&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Saint-Brieuc&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Morlaix / Ploujean&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;St-Nazaire&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Besancon&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Bale-Mulhouse&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Colmar&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Dijon&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Metz / Frescaty&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;St-Dizier&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Toul / Rosieres&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Nancy / Essey&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Nancy / Ochey&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Belfort&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Reims&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Strasbourg&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Luxeuil&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Hyeres&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;St-Raphael&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Nimes / Garons&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Amberieu&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Apt / Saint Christol&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Romorantin&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Maopoopo Ile Futuna&lt;/City&gt;
+  &lt;/Table&gt;
+  &lt;Table&gt;
+    &lt;Country&gt;France&lt;/Country&gt;
+    &lt;City&gt;Hihifo Ile Wallis&lt;/City&gt;
+  &lt;/Table&gt;
+&lt;/NewDataSet&gt;</value><scope>local</scope></parameter><parameter><color>#FCABBD</color><description /><type>text</type><name>XML_XPATH</name><value>(//NewDataSet/Table)[1]/City	[!CAPTURE:CITY:]</value><scope>local</scope></parameter></inputs-parameters><agents><agent><description /><type>dummy</type><name>AGENT</name><value>agent-dummy01</value></agent></agents><probes><probe><active>False</active><args /><name>probe01</name><type>default</type></probe></probes><outputs-parameters><parameter><color /><description /><type>float</type><name>TIMEOUT</name><value>1.0</value><scope>local</scope></parameter></outputs-parameters></properties>
+<testdefinition><![CDATA[
+def description(self):
+	# testcase description
+	self.setPurpose(purpose=description('summary'))
+	self.setRequirement(requirement=description('requirement'))
+
+	# steps description
+	self.step1 = self.addStep(
+																			expected="result expected", 
+																			description="step description", 
+																			summary="step sample", 
+																			enabled=True
+																		)
+def prepare(self):
+	self.msg_decodage = []
+	self.LIB_XML = SutLibraries.Codecs.XML(parent=self, debug=False, coding='UTF-8', name=None, shared=False)
+
+def definition(self):
+	# starting initial step
+	if self.step1.isEnabled():
+		self.step1.start()
+		
+		valid = self.LIB_XML.isValid(xml=input('XML_STR'))
+		if not valid: self.abort("xml provided not valid" )
+		
+		xml_valid = True
+		n = 1
+		for line in input('XML_XPATH').splitlines():
+			if line.startswith("#"): continue 
+			xpath_expected = re.split(r'\t+', line)
+			if len(xpath_expected) != 2:
+				self.abort("bad expected body provided n°=%s value=%s, expected <xpath>\\t<regexp>" % (n,line) )
+			xpath, xvalue = xpath_expected
+	
+			xml_values = self.LIB_XML.getValues(xpath=xpath, xml=input('XML_STR'), ns={})
+			if not len(xml_values):
+				self.msg_decodage.append( "Searching '%s' with the value '%s' : KO" % (xpath, xvalue) )
+				xml_valid = False
+			else:
+				xml_values_valid = True
+				
+				# search capture regexp
+				cap = re.findall("\(\?P\<.*\>.*\)", xvalue)
+				param_input = re.findall("\[\!FROM\:INPUT\:.*\:\]", xvalue)
+				param_cache = re.findall("\[\!FROM\:CACHE\:.*\:\]", xvalue)
+				
+				if cap :
+					cache_key = xvalue.split("(?P<")[1].split(">.*)")[0]
+					if len(xml_values) == 1:
+						Cache().capture(data="%s" % xml_values[0], regexp=xvalue)
+					else:
+						Cache().set(name=cache_key, data=xml_values, flag=False)
+					self.msg_decodage.append( "Searching and capture value of '%s' : OK" % (xpath) )
+				else:
+					if param_input :
+						input_key = xvalue.split("[!FROM:INPUT:")[1].split(":]")[0]
+						xvalue = input(name=input_key)
+	
+					if param_cache :
+						cache_key = xvalue.split("[!FROM:CACHE:")[1].split(":]")[0]
+						xvalue = Cache().get(name=cache_key)
+						if xvalue is None: self.abort("the key %s does not exists in the cache" % cache_key)
+	
+					for jv in xml_values:
+						jv = str(jv)
+						reg = TestOperators.RegEx(needle=xvalue)
+						if not reg.seekIn(haystack=jv):
+							self.msg_decodage.append( "Searching '%s' with the value '%s' : KO" % (xpath, xvalue) )
+							xml_values_valid = False
+							self.msg_decodage.append( " > received value: %s" % jv.encode("utf8") )
+					if xml_values_valid:
+						self.msg_decodage.append( "Searching '%s' with the value '%s' : OK" % (xpath, xvalue) )
+					else:
+						xml_valid = False
+			n += 1
+		if xml_valid:
+			self.step1.setPassed(actual="XML is OK.<br />%s" % "<br />".join(self.msg_decodage) )
+		else:
+			self.step1.setFailed(actual="XML is KO.<br />%s" %	"<br />".join(self.msg_decodage))
+def cleanup(self, aborted):
+	if aborted: self.step1.setFailed(actual="%s. %s" % (aborted, "<br />".join(self.msg_decodage) ) )]]></testdefinition>
+<testdevelopment>1494711057.683541</testdevelopment>
+</file>

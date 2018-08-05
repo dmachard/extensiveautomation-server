@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<file>
+<properties><inputs-parameters><parameter><color /><type>bool</type><name>DEBUG</name><description /><value>False</value><scope>local</scope></parameter><parameter><color>#DBADFF</color><type>int</type><name>DURATION</name><description>Do nothing until the end of the timeout</description><value>10</value><scope>local</scope></parameter><parameter><color /><type>alias</type><name>FWK_WAIT_1</name><description>Do nothing until the end of the timeout</description><value>DURATION</value><scope>local</scope></parameter><parameter><color /><type>float</type><name>TIMEOUT_FWK</name><description /><value>30.0</value><scope>local</scope></parameter></inputs-parameters><agents><agent><description /><type>dummy</type><name>AGENT</name><value>agent-linux-dummy01</value></agent></agents><probes><probe><active>False</active><args /><name>probe01</name><type>default</type></probe></probes><outputs-parameters><parameter><color /><type>float</type><name>TIMEOUT</name><description /><value>1.0</value><scope>local</scope></parameter></outputs-parameters><descriptions><description><value>admin</value><key>author</key></description><description><value>21/08/2016 17:16:48</value><key>creation date</key></description><description><value>Just a basic sample.</value><key>summary</key></description><description><value>None.</value><key>prerequisites</key></description><description><value><comments /></value><key>comments</key></description><description><value>myplugins</value><key>libraries</key></description><description><value>myplugins</value><key>adapters</key></description><description><value>Writing</value><key>state</key></description><description><value>TESTCASE</value><key>name</key></description><description><value>REQ_01</value><key>requirement</key></description></descriptions></properties>
+<testdefinition><![CDATA[
+
+def description(self):
+	# testcase description
+	self.setPurpose(purpose="Testcase do nothing")
+
+	# steps description
+	self.step1 = self.addStep(expected="Action executed with success", description="Do nothing until the end of the timeout", summary="Do nothing until the end of the timeout", enabled=True)
+
+def prepare(self):
+	# adapters and libraries definitions
+	pass
+
+	
+
+def cleanup(self, aborted):
+	pass
+
+def definition(self):
+	##CAPTURE_FRAMEWORK>Do nothing until the end of the timeout
+	if self.step1.isEnabled():
+		self.step1.start()
+		self.wait(timeout=input('FWK_WAIT_1'))
+		self.step1.setPassed('action ok')]]></testdefinition>
+<testdevelopment>1471792608.772801</testdevelopment>
+</file>

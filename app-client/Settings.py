@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -302,6 +302,10 @@ class TestsWritingWidget(QWidget, Logger.ClassLogger):
         self.showOpeningCheckBox = QCheckBox(self.tr("Always show test properties on opening"))
         if QtHelper.str2bool(instance().readValue( key = 'TestProperties/show-on-opening' )):  
             self.showOpeningCheckBox.setChecked(True)
+        
+        self.outputsCheckBox = QCheckBox(self.tr("Outputs enabled"))
+        if QtHelper.str2bool(instance().readValue( key = 'TestProperties/outputs-enabled' )):  
+            self.outputsCheckBox.setChecked(True)
             
         optionsLayout = QVBoxLayout()
         optionsLayout.addWidget(self.inputsAsDefaultCheckBox)
@@ -309,6 +313,7 @@ class TestsWritingWidget(QWidget, Logger.ClassLogger):
         optionsLayout.addWidget(self.sortAutoCheckBox)
         optionsLayout.addWidget(self.hideDescrCheckBox)
         optionsLayout.addWidget(self.showOpeningCheckBox)
+        optionsLayout.addWidget(self.outputsCheckBox)
         propertiesGroup.setLayout(optionsLayout)
         
         # colors 
@@ -479,6 +484,7 @@ class TestsWritingWidget(QWidget, Logger.ClassLogger):
         renameAuto = False
         sortAuto = False
         defaultTab = False
+        outputsEnabled = False
         hideDescr = False
         showOpening = False
         
@@ -506,6 +512,7 @@ class TestsWritingWidget(QWidget, Logger.ClassLogger):
         if self.sortAutoCheckBox.checkState() : sortAuto = True
         if self.hideDescrCheckBox.checkState() : hideDescr = True
         if self.showOpeningCheckBox.checkState() : showOpening = True
+        if self.outputsCheckBox.checkState() :  outputsEnabled = True
         
         if self.codeWrappingCheckBox.checkState() :  codeWrapping = True
         if self.codeFoldingCheckBox.checkState() :  codeFolding = True
@@ -545,6 +552,7 @@ class TestsWritingWidget(QWidget, Logger.ClassLogger):
         instance().setValue( key = 'TestPlan/hide-run-column', value = "%s" % hideTpRunColumn )
         instance().setValue( key = 'TestPlan/open-doubleclick', value = "%s" % openDoubleClick )
         
+        instance().setValue( key = 'TestProperties/outputs-enabled', value = "%s" % outputsEnabled )
         instance().setValue( key = 'TestProperties/inputs-default-tab', value = "%s" % defaultTab )
         instance().setValue( key = 'TestProperties/parameters-rename-auto', value = "%s" % renameAuto)
         instance().setValue( key = 'TestProperties/parameters-sort-auto', value = "%s" % sortAuto)

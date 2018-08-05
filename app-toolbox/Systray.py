@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -71,33 +71,14 @@ import Core.GenericTool as GenericTool
 __AUTHOR__ = 'Denis Machard'
 # email of the main developer
 __EMAIL__ = 'd.machard@gmail.com'
-# list of testers
-__TESTERS__ = ""
-# list of contributors
-__CONTRIBUTORS__ = [ "" ]
 # project start in year
 __BEGIN__ = "2010"
 # year of the latest build
 __END__="2018"
 # date and time of the buid
-__BUILDTIME__="09/02/2018 18:13:18"
+__BUILDTIME__="29/07/2018 12:21:39"
 # Redirect stdout and stderr to log file only on production
 REDIRECT_STD=True
-
-__LICENCE__ = """This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-<br /><br />
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-Lesser General Public License for more details.
-<br /><br />
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-MA 02110-1301 USA"""
 
 import ReleaseNotes as RN
 import time
@@ -275,7 +256,6 @@ class PluginProcess(QProcess):
         datagramEncoded = base64.b64encode( bytes(datagram, "utf8")  )
         
         self.write( datagramEncoded + b"\n\n" )
-        # self.write( str(datagramEncoded, "utf8") + "\n\n" )
 
 class QListItemEnhanced(QListWidgetItem):
     """
@@ -2231,8 +2211,9 @@ class Window(QDialog):
         else:
             pass
         
-    def automaticDeployTool(self, toolType, toolName, toolPlugin, toolDescription, toolIp=None, toolPort=None, 
-                                    proxyEnable=False, proxyIp=None, proxyPort=None, ignoreDelayedStartup=False):
+    def automaticDeployTool(self, toolType, toolName, toolPlugin, toolDescription, 
+                                toolIp=None, toolPort=None,  proxyEnable=False,
+                                proxyIp=None, proxyPort=None, ignoreDelayedStartup=False):
         """
         Automatic deploy tool on boot
         """
@@ -2256,9 +2237,11 @@ class Window(QDialog):
         if toolPort is None: controllerPort=Settings.get( 'Server' ,'port')
         
         controllerProxyIp = proxyIp
-        if proxyIp is None: controllerProxyIp=Settings.get( 'Server' ,'addr-proxy-http')
+        if proxyIp is None: 
+            controllerProxyIp=Settings.get( 'Server' ,'addr-proxy-http')
         controllerProxyPort = proxyPort
-        if proxyPort is None: controllerProxyPort=Settings.get( 'Server' ,'port-proxy-http')
+        if proxyPort is None: 
+            controllerProxyPort=Settings.get( 'Server' ,'port-proxy-http')
         
         toolPage.setNetwork(
                             controllerIp=controllerIp, 
@@ -2319,7 +2302,9 @@ class Window(QDialog):
             toolIcon = QIcon(':/probe.png')
         
         # create the tab and set as current
-        self.mainTab.addTab( toolPage, toolIcon, "%s (starting)" % self.mainPage.getToolName() )
+        self.mainTab.addTab( toolPage, 
+                             toolIcon, 
+                             "%s (starting)" % self.mainPage.getToolName() )
         self.mainTab.setCurrentIndex( self.mainTab.count()-1 )
 
         toolPage.startTool()
@@ -2401,8 +2386,6 @@ class Window(QDialog):
         self.dockToolbar.addAction(self.minimizeAction)
         self.dockToolbar.addAction(self.quitAction)
         self.dockToolbar.addSeparator()
-        self.dockToolbar.addAction(self.showRnAction)
-        self.dockToolbar.addSeparator()
         self.dockToolbar.addAction(self.aboutAction)
         self.dockToolbar.addSeparator()
         self.dockToolbar.setIconSize(QSize(16, 16))
@@ -2420,9 +2403,6 @@ class Window(QDialog):
         self.mainTab = QTabWidget( )
         self.mainTab.setTabPosition(QTabWidget.North)
 
-        # self.welcomePage = WelcomePage(parent=self)
-        # self.mainTab.addTab( self.welcomePage, "Welcome" )
-        
         self.mainPage = DeployPage(parent=self)
         self.mainTab.addTab( self.mainPage, "Deploy" )
         
@@ -2448,11 +2428,22 @@ class Window(QDialog):
         """
         Create qt actions
         """
-        self.restoreAction = QAction("&Restore", self, triggered=self.showNormal)
-        self.quitAction = QAction( QIcon(':/close.png'), "&Quit", self,triggered=self.quitTools)
-        self.aboutAction = QAction( QIcon(':/about.png'), "&About", self,triggered=self.showAbout)
-        self.minimizeAction = QAction( QIcon(':/minimize.png'),"&Minimize", self,triggered=self.minimizeWindow)
-        self.showRnAction = QAction( QIcon(':/changelogs.png'),"&Change Logs", self,triggered=self.releaseNotes)
+        self.restoreAction = QAction("&Restore", self, 
+                                    triggered=self.showNormal)
+        self.quitAction = QAction( QIcon(':/close.png'), "&Quit", self,
+                                    triggered=self.quitTools)
+        self.aboutAction = QAction( QIcon(':/about.png'), "&About", self,
+                                    triggered=self.showAbout)
+        self.aboutContribsAction = QAction( self.tr("&Contributors"), self,
+                                    triggered=self.aboutContributorsPage)
+        self.minimizeAction = QAction( QIcon(':/minimize.png'),"&Minimize", self,
+                                    triggered=self.minimizeWindow)
+        self.showRnAction = QAction( QIcon(':/changelogs.png'),"&Change Logs", self,
+                                    triggered=self.releaseNotes)
+        menu = QMenu(self)
+        menu.addAction( self.aboutContribsAction )
+        menu.addAction( self.showRnAction )
+        self.aboutAction.setMenu( menu )
         
     def minimizeWindow(self):
         """
@@ -2471,6 +2462,18 @@ class Window(QDialog):
             
         # finalize
         self.onQuit()
+
+    def aboutContributorsPage(self):
+        """
+        """
+        name = Settings.instance().get( 'Common', 'name' )
+        about = []
+
+        contrib = self.readFileRessources(filename=":/CONTRIBUTORS")
+        about.append( "%s: <i>%s</i>" % (self.tr("Contributors"), contrib))
+        
+        QMessageBox.about(self, "%s - %s" % (name, self.tr("Contributors")), "<br />".join(about) )
+        
         
     def showAbout(self):
         """
@@ -2480,9 +2483,13 @@ class Window(QDialog):
         name = Settings.instance().get( 'Common', 'name' )
         
         about = [ "<b>%s %s</b>" % (name,Settings.getVersion()) ]
-        about.append( "Part of the extensive testing project  (c) %s-%s" % (__BEGIN__,__END__) )
-        about.append( "" ) 
-        about.append( "Developed and maintained by <b>%s</b>" % __AUTHOR__ ) 
+        about.append( "Part of the %s project  (c) %s-%s" % (name, __BEGIN__,__END__) )
+        about.append( "Developed and maintained by <b>%s</b>" % __AUTHOR__ )
+        about.append( "" )
+        about.append( "Contact: <a href='mailto:%s'>%s</a>" %( __EMAIL__,__EMAIL__) )
+        about.append( "Website: <a href='%s'>%s</a>" % (url,url) )
+        
+        about.append( "<hr />")
         about.append( "<i>%s python %s (%s) - Qt %s - PyQt %s on %s</i>" % ( 
                                     self.tr("Built with"), 
                                     platform.python_version(), platform.architecture()[0],
@@ -2493,13 +2500,12 @@ class Window(QDialog):
                                     self.tr("Built at: "), 
                                     __BUILDTIME__
                      ) )
-        if QtHelper.str2bool(Settings.get( 'Common','portable' )): about.append( "%s" % self.tr("Portable edition") )
-        about.append( "" )
-        about.append( "Contact: <a href='mailto:%s'>%s</a>" %( __EMAIL__,__EMAIL__) )
-        about.append( "Website: <a href='%s'>%s</a>" % (url,url) )
+        if QtHelper.str2bool(Settings.get( 'Common','portable' )): 
+            about.append( "%s" % self.tr("Portable edition") )
+        about.append( "<hr />")
 
-        about.append( "<hr />") 
-        about.append( "<i>%s</i>" % __LICENCE__ ) 
+        lic = self.readFileRessources(filename=":/TERMS")
+        about.append( "<i>%s</i>" % lic ) 
         QMessageBox.about(self, self.tr("About %s" % name ), "<br />".join(about) )
 
     def createTrayIcon(self):
@@ -2516,27 +2522,36 @@ class Window(QDialog):
         self.trayIcon.setIcon(QIcon(':toolbox.png'))        
         self.trayIcon.setToolTip( "%s (Stopped)" % Settings.get('Common', 'name') )
         
-        self.trayIcon.show()    
- 
+        self.trayIcon.show() 
+        
+    def readFileRessources(self, filename):
+        """
+        Read a file from ressources
+        """
+        ct = ''
+        try:
+            # open the file  from resources and read all
+            fh = QFile(filename)
+            fh.open(QFile.ReadOnly)
+            ct = fh.readAll()
+            
+            # convert qbytearray to str
+            if sys.version_info > (3,):
+                ct = unicode(ct, 'utf8') # to support python3 
+            else:
+                ct = unicode(ct)
+                
+            # close the file descriptor
+            fh.close()
+        except Exception as e:
+            self.error( "Unable to read the file %s from ressources: %s " % ( filename, str(e)) )
+        return ct
+        
     def releaseNotes (self):
         """
         Read the release notes
         """
-        rn = ''
-        try:
-            fh = QFile(":/releasenotes.txt")
-            fh.open(QFile.ReadOnly)
-            rn = fh.readAll()
-            
-            # convert qbytearray to str
-            if sys.version_info > (3,):
-                rn = unicode(rn, 'utf8') # to support python3 
-            else:
-                rn = unicode(rn)
-            
-            fh.close()
-        except Exception as e:
-            self.error( "Unable to read release notes: " + str(e) )
+        rn = self.readFileRessources(filename=":/releasenotes.txt")
         
         # open the dialog
         name = Settings.instance().get( 'Common', 'name' )
@@ -2594,8 +2609,11 @@ class Window(QDialog):
         thumbnailRaw =  thumbnailIo.read()
         
         # finalize generation
-        tool.plugin().onFinalizeScreenshot(request, action, actionId, adapterId, testcaseName, 
-                                           replayId, screenRaw, thumbnailRaw)
+        if tool.plugin() is not None:
+            tool.plugin().onFinalizeScreenshot(request, action, 
+                                               actionId, adapterId, 
+                                               testcaseName, replayId, 
+                                               screenRaw, thumbnailRaw)
 
     def onQuit(self):
         """

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<file>
+<properties><descriptions><description><value>admin</value><key>author</key></description><description><value>29/03/2015 21:27:17</value><key>creation date</key></description><description><value>Just a basic sample.</value><key>summary</key></description><description><value>None.</value><key>prerequisites</key></description><description><value><comments /></value><key>comments</key></description><description><value>myplugins</value><key>libraries</key></description><description><value>myplugins</value><key>adapters</key></description><description><value>Writing</value><key>state</key></description><description><value>TESTCASE</value><key>name</key></description><description><value>REQ_01</value><key>requirement</key></description></descriptions><inputs-parameters><parameter><color /><description /><type>bool</type><name>DEBUG</name><value>False</value><scope>local</scope></parameter><parameter><color /><description /><type>float</type><name>TIMEOUT</name><value>1.0</value><scope>local</scope></parameter></inputs-parameters><agents><agent><description /><type>dummy</type><name>AGENT</name><value>agent-dummy01</value></agent></agents><probes><probe><active>False</active><args /><name>probe01</name><type>default</type></probe></probes><outputs-parameters><parameter><color /><description /><type>float</type><name>TIMEOUT</name><value>1.0</value><scope>local</scope></parameter></outputs-parameters></properties>
+<teststeps><steps><step><expected><type>string</type><value>test</value></expected><description><type>string</type><value>test</value></description><summary><type>string</type><value>test</value></summary><enabled><type>boolean</type><value>True</value></enabled><thumbnail /><id>1</id></step></steps></teststeps>
+<testadapters><adapters><adapter><action>TestCase</action><data><return-value>False</return-value><obj><name>parent</name><value /><descr>parent testcase</descr><selected-type>testcase</selected-type><advanced>False</advanced><type>testcase</type></obj><obj><name>name</name><value /><descr>adapter name used with from origin/to destination (default=None)</descr><selected-type>none</selected-type><advanced>True</advanced><type>string/none</type><default-value>None</default-value></obj><obj><name>debug</name><value>False</value><descr>active debug mode (default=False)</descr><selected-type>boolean</selected-type><advanced>True</advanced><type>boolean</type><default-value>False</default-value></obj><obj><name>shared</name><value>False</value><descr>shared adapter (default=False)</descr><selected-type>boolean</selected-type><advanced>True</advanced><type>boolean</type><default-value>False</default-value></obj><function>Dummy::Adapter</function><main-name>Dummy</main-name><sub-name>Adapter</sub-name><is-default>True</is-default><is-generic>False</is-generic></data></adapter></adapters></testadapters>
+<testlibraries><libraries /></testlibraries>
+<testactions><actions><action><item-data><data><function>setPassed</function><return-value>False</return-value><action-descr>Set the result of the testcase to passed</action-descr><obj><selected-type>string</selected-type><name>actual</name><descr>result description</descr><value>well done</value><type>string</type><advanced>False</advanced></obj></data><step-id>1</step-id><action>Step</action></item-data><item-id>4</item-id><item-type>3</item-type><item-text>Step #1
+setPassed</item-text><pos-x>1991.0</pos-x><pos-y>2076.0</pos-y></action><action><item-data><data><return-value>False</return-value><function>start</function><action-descr>Begin to run the step</action-descr></data><step-id>1</step-id><action>Step</action></item-data><item-id>3</item-id><item-type>3</item-type><item-text>Step #1
+start</item-text><item-links><next-item-id>2</next-item-id><to-hotspot-id>0</to-hotspot-id><from-hotspot-id>0</from-hotspot-id></item-links><pos-x>1990.0</pos-x><pos-y>1864.0</pos-y></action><action><item-data><item-id>2</item-id><adapter-id>1</adapter-id><data><function>helloWorld</function><return-value>False</return-value><main-name>Dummy::Adapter</main-name></data><action>Adapter</action></item-data><item-id>2</item-id><item-type>4</item-type><item-text> Dummy::Adapter #1
+helloWorld</item-text><item-links><next-item-id>4</next-item-id><to-hotspot-id>2</to-hotspot-id><from-hotspot-id>2</from-hotspot-id></item-links><pos-x>1995.0</pos-x><pos-y>1952.0</pos-y></action><action><item-data /><item-id>1</item-id><item-type>2</item-type><item-text>Start</item-text><item-links><next-item-id>3</next-item-id><to-hotspot-id>2</to-hotspot-id><from-hotspot-id>0</from-hotspot-id></item-links><pos-x>2000.0</pos-x><pos-y>1750.0</pos-y></action></actions></testactions>
+<testaborted><aborted /></testaborted>
+<testdefinition><![CDATA[
+def description(self):
+	# testcase description
+	pass
+
+	# steps description
+	
+	self.STEP1 = self.addStep(expected="""test""", description="""test""", summary="""test""")
+
+def prepare(self):
+	# adapters and libraries definitions
+	
+	self.ADAPTER1 = SutAdapters.Extra.Dummy.Adapter(parent=self, name=None, debug=False, shared=False)
+
+	pass
+
+def definition(self):
+	
+	self.STEP1.start()
+	self.ADAPTER1.helloWorld()
+	self.STEP1.setPassed(actual="""well done""")
+
+def cleanup(self, aborted):
+	pass
+]]></testdefinition>
+<testdevelopment>1427657237.29</testdevelopment>
+</file>

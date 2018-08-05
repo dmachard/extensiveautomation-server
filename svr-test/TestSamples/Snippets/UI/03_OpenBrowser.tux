@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<file>
+<properties><inputs-parameters><parameter><value>True</value><type>bool</type><name>BROWSER_DRIVER_GECKO_1</name><description>Open browser and load url</description><color /><scope>local</scope></parameter><parameter><type>none</type><name>BROWSER_PROFILE_1</name><description /><value /><scope>local</scope></parameter><parameter><value>default</value><type>str</type><name>BROWSER_SESSION_1</name><description>Open browser and load url</description><color /><scope>local</scope></parameter><parameter><value>LOADING_URL</value><type>alias</type><name>BROWSER_TEXT_1</name><description>Open browser and load url</description><color /><scope>local</scope></parameter><parameter><value>False</value><type>bool</type><name>BROWSER_USE_CHROME_1</name><description /><color /><scope>local</scope></parameter><parameter><value>False</value><type>bool</type><name>BROWSER_USE_EDGE_1</name><description /><color /><scope>local</scope></parameter><parameter><value>True</value><type>bool</type><name>BROWSER_USE_FIREFOX_1</name><description /><color /><scope>local</scope></parameter><parameter><value>False</value><type>bool</type><name>BROWSER_USE_IE_1</name><description /><color /><scope>local</scope></parameter><parameter><value>False</value><type>bool</type><name>BROWSER_USE_OPERA_1</name><description /><color /><scope>local</scope></parameter><parameter><value>True</value><type>bool</type><name>DEBUG</name><description /><color /><scope>local</scope></parameter><parameter><value>https://www.extensivetesting.org</value><type>str</type><name>LOADING_URL</name><description>Open browser and load url</description><color /><scope>local</scope></parameter><parameter><value>25.0</value><type>float</type><name>TIMEOUT_GUI_BROWSER</name><description /><color /><scope>local</scope></parameter></inputs-parameters><agents><agent><value>agent.win.selenium01</value><type>seleniumserver</type><name>AGENT_GUI_BROWSER</name><description /></agent></agents><probes><probe><active>False</active><args /><name>probe01</name><type>default</type></probe></probes><outputs-parameters><parameter><value>1.0</value><type>float</type><name>TIMEOUT</name><description /><color /><scope>local</scope></parameter></outputs-parameters><descriptions><description><value>admin</value><key>author</key></description><description><value>14/05/2015 11:33:12</value><key>creation date</key></description><description><value>Just a basic sample.</value><key>summary</key></description><description><value>None.</value><key>prerequisites</key></description><description><value><comments /></value><key>comments</key></description><description><value>myplugins</value><key>libraries</key></description><description><value>myplugins</value><key>adapters</key></description><description><value>Writing</value><key>state</key></description><description><value>TESTCASE</value><key>name</key></description><description><value>REQ_01</value><key>requirement</key></description></descriptions></properties>
+<testdefinition><![CDATA[
+def description(self):
+	# testcase description
+	self.setPurpose(purpose="GUI_Automation_Capture")
+
+	# steps description
+	self.step1 = self.addStep(expected="Action(s) executed with success", 
+																			description="Open browser and load url", 
+																			summary="Open browser and load url", 
+																			enabled=True)
+
+def prepare(self):
+	# adapters and libraries definitions
+	self.ADP_GUI_BROWSER = SutAdapters.GUI.Selenium(parent=self, agent=agent('AGENT_GUI_BROWSER'), 
+																																							debug=input('DEBUG'), 
+																																							navigId=Cache().get(name='selenium-navig-id'))
+
+	
+
+def definition(self):
+	if self.step1.isEnabled():
+		self.step1.start()
+		
+		_browserProfile = None
+		if input('BROWSER_PROFILE_1') is not None:
+			_browserProfile = self.ADP_GUI_BROWSER.getFirefoxProfile(
+																																													profileDirectory="%s/%s" % (Public(self).getPath(), input('BROWSER_PROFILE_1')) 
+																																												)
+
+		##CAPTURE_BROWSER>Open browser and load url
+		BROWSER_RET1 = self.ADP_GUI_BROWSER.doOpen(timeout=input('TIMEOUT_GUI_BROWSER'), 
+																																							targetUrl=input('BROWSER_TEXT_1'), 
+																																							withFirefox=input('BROWSER_USE_FIREFOX_1'), 
+																																							withIe=input('BROWSER_USE_IE_1'), 
+																																							withChrome=input('BROWSER_USE_CHROME_1'), 
+																																							withOpera=input('BROWSER_USE_OPERA_1'), 
+																																							withEdge=input('BROWSER_USE_EDGE_1'), 
+																																							useMarionette=input('BROWSER_DRIVER_GECKO_1'), 
+																																							sessionName=input('BROWSER_SESSION_1'),
+																																							browserProfile=_browserProfile)
+		if not BROWSER_RET1:
+			self.abort("Unable to open browser and load url")
+	
+		self.step1.setPassed("test terminated")
+
+def cleanup(self, aborted):
+	if aborted: self.step1.setFailed(aborted)
+]]></testdefinition>
+<testdevelopment>1431595992.11</testdevelopment>
+</file>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<file>
+<properties><descriptions><description><value>admin</value><key>author</key></description><description><value>20/11/2016 19:29:16</value><key>creation date</key></description><description><value>Just a basic sample.</value><key>summary</key></description><description><value>None.</value><key>prerequisites</key></description><description><value><comments /></value><key>comments</key></description><description><value>myplugins</value><key>libraries</key></description><description><value>myplugins</value><key>adapters</key></description><description><value>Writing</value><key>state</key></description><description><value>TESTCASE</value><key>name</key></description><description><value>REQ_01</value><key>requirement</key></description></descriptions><inputs-parameters><parameter><color>#D4FFAF</color><description /><type>text</type><name>MESSAGES</name><value># display cache 
+[!FROM:CACHE:EXAMPLE:]
+
+# log timeout input
+[!FROM:INPUT:TIMEOUT:]</value><scope>local</scope></parameter><parameter><color>#C1EEFF</color><description /><type>text</type><name>STEP_DESCRIPTION</name><value>Reset the cache</value><scope>local</scope></parameter><parameter><color>#C1EEFF</color><description /><type>text</type><name>STEP_EXPECTED</name><value>Reset the cache</value><scope>local</scope></parameter><parameter><color>#C1EEFF</color><description /><type>text</type><name>TEST_PURPOSE</name><value>Reset the cache</value><scope>local</scope></parameter></inputs-parameters><agents><agent><description /><type>dummy</type><name>AGENT</name><value>agent-dummy01</value></agent></agents><probes><probe><active>False</active><args /><name>probe01</name><type>default</type></probe></probes><outputs-parameters><parameter><color /><description /><type>float</type><name>TIMEOUT</name><value>1.0</value><scope>local</scope></parameter></outputs-parameters></properties>
+<testdefinition><![CDATA[
+def description(self):
+	# testcase description
+	self.setPurpose(purpose=input('TEST_PURPOSE'))
+	self.setRequirement(requirement=description('requirement'))
+
+	# steps description
+	self.step1 = self.addStep(expected=input('STEP_EXPECTED'), 
+																			description=input('STEP_DESCRIPTION'), 
+																			summary=input('STEP_DESCRIPTION'), 
+																			enabled=True)
+def prepare(self):
+	pass
+def definition(self):
+	# starting initial step
+	if self.step1.isEnabled():
+		self.step1.start()
+
+		Cache().reset()
+		
+		self.step1.setPassed(actual="success")
+def cleanup(self, aborted):
+	if aborted: self.step1.setFailed(actual="%s" % aborted)]]></testdefinition>
+<testdevelopment>1479666556.293746</testdevelopment>
+</file>

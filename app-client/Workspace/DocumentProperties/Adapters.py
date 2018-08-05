@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -164,9 +164,8 @@ class DescriptionTableModel(QAbstractTableModel):
         @rtype:
         """
         if index.column() == COL_ID_ACTION:
-            #return index.row() + 1
             return "#%s" % (index.row() + 1)
-            #return self.mydata[ index.row() ]['id']
+            
         elif index.column() == COL_SUMMARY_ACTION:
             # old stype to display text
             if 'display' in self.mydata[ index.row() ]:
@@ -390,8 +389,13 @@ class AdapterDelegate(QItemDelegate, Logger.ClassLogger):
             if not len(value['data']['obj']):
                 QMessageBox.information(self.owner, "Configuration action", "No argument for this action")
             else:
-                actionDialog = GenericConfigDialog.ActionDialog(self, self.owner.helper, value, owner=self.owner, variables=[], 
-                                                    adapterMode=True,testParams=self.owner.testParams)
+                actionDialog = GenericConfigDialog.ActionDialog(self, 
+                                                                self.owner.helper, 
+                                                                value, 
+                                                                owner=self.owner, 
+                                                                variables=[], 
+                                                                adapterMode=True,
+                                                                testParams=self.owner.testParams)
 
                 if actionDialog.exec_() == QDialog.Accepted:
                     actionParams = actionDialog.getValues()
@@ -495,9 +499,11 @@ class AdaptersTableView(QTableView):
         Qt actions
         """
         self.delAction = QtHelper.createAction(self, self.tr("&Delete"), self.deleteAction, 
-                                        icon = QIcon(":/adapters-del.png"), tip = self.tr('Delete the selected adapter'))
+                                        icon = QIcon(":/adapters-del.png"), 
+                                        tip = self.tr('Delete the selected adapter'))
         self.delAllAction = QtHelper.createAction(self, self.tr("&Delete All"), self.clearItems,
-                                        icon = QIcon(":/test-parameter-clear.png"), tip = self.tr('Delete all adapters'))
+                                        icon = QIcon(":/test-parameter-clear.png"), 
+                                        tip = self.tr('Delete all adapters'))
         
         # set default actions
         self.delAction.setEnabled(False)
@@ -530,8 +536,10 @@ class AdaptersTableView(QTableView):
                 sourceIndexes.append( self.proxyModel.mapToSource( proxyIndex ) )
         
         if sourceIndexes:
-            answer = QMessageBox.question(self,  self.tr("Remove"),  self.tr("Do you want to remove the selection?"), 
-                    QMessageBox.Yes | QMessageBox.No)
+            answer = QMessageBox.question(self,  
+                                          self.tr("Remove"),  
+                                          self.tr("Do you want to remove the selection?"), 
+                                          QMessageBox.Yes | QMessageBox.No)
             if answer == QMessageBox.Yes:
                 self.removeValues(sourceIndexes)
 
@@ -561,18 +569,21 @@ class AdaptersTableView(QTableView):
         self.model.endResetModel()
         self.setData( signal = True )
     
-    def getHelpAdapters(self):
+    def getHelpAdapters(self, generic=False):
         """
         Return the help of all adapters according to the current
         version of the test
         """
-        testDescrs = self.testDescrs.table().model.getData()
-        currentAdpVersion = None
-        for descr in testDescrs:
-            if descr['key'] == 'adapters':
-                currentAdpVersion = descr['value']
-                break
-        return Helper.instance().helpAdapters(name=currentAdpVersion)
+        if generic:
+            return Helper.instance().helpAdapters(generic=generic)
+        else:
+            testDescrs = self.testDescrs.table().model.getData()
+            currentAdpVersion = None
+            for descr in testDescrs:
+                if descr['key'] == 'adapters':
+                    currentAdpVersion = descr['value']
+                    break
+            return Helper.instance().helpAdapters(name=currentAdpVersion)
         
     def onPopupMenu(self, pos):
         """
@@ -582,18 +593,26 @@ class AdaptersTableView(QTableView):
         @type pos:
         """
         self.menu = QMenu(self)
-        index = self.currentIndex()
-        indexes = self.selectedIndexes()
+        # index = self.currentIndex()
 
-        adapters = self.getHelpAdapters()
+        # get defaults adapters or extra
+        adapters_default = self.getHelpAdapters()
+
+        # get generic adapters
+        adapters_generic = self.getHelpAdapters(generic=True)
         
-        # adapters
-        adpsMenu = QMenu("Add", self)
-        if adapters is not None:
-            for adp in adapters:
+        # main menu
+        menu_adps = QMenu("Add Adapters", self)
+        
+        # adapters default
+        menu_adps_generic = QMenu("Generic", self)
+        menu_adps.addMenu(menu_adps_generic)
+        
+        if adapters_generic is not None:
+            for adp in adapters_generic:
 
-                adpMenu = QMenu(adp['name'], self)
-                adpsMenu.addMenu(adpMenu)
+                adp_menu_generic = QMenu(adp['name'], self)
+                menu_adps_generic.addMenu(adp_menu_generic)
                 
                 for cls in adp['classes']:
 
@@ -608,17 +627,57 @@ class AdaptersTableView(QTableView):
                         argsFct['function'] = "%s::%s" % (adp['name'],cls['name'])
                         argsFct['main-name'] = "%s" % adp['name']
                         argsFct['sub-name'] = "%s" % cls['name']
+                        argsFct['is-default'] = "False"
+                        argsFct['is-generic'] = "True"
                         if 'default-args' in fct:
-                            self.addDefaultValues(defaultValues=fct['default-args'], currentFunction=argsFct)
+                            self.addDefaultValues(defaultValues=fct['default-args'], 
+                                                  currentFunction=argsFct)
                         
-                        adpMenu.addAction(QtHelper.createAction(self, cls['name'], self.addAdapter, cb_arg=argsFct ))    
-            
+                        adp_menu_generic.addAction(QtHelper.createAction(self, 
+                                                                         cls['name'], 
+                                                                         self.addAdapter, 
+                                                                         cb_arg=argsFct ))  
+                        
+        # adapters default
+        menu_adps_default = QMenu("Extra", self)
+        menu_adps.addMenu(menu_adps_default)
+        if adapters_default is not None:
+            for adp in adapters_default:
+
+                adp_menu_default = QMenu(adp['name'], self)
+                menu_adps_default.addMenu(adp_menu_default)
+                
+                for cls in adp['classes']:
+
+                    # extract __init__ function only
+                    fct = None
+                    for fct in cls['functions']:
+                        if fct['name'] == '__init__':
+                            break
+                    
+                    if fct is not None:
+                        argsFct = self.parseDocString(docstring=fct['desc'])
+                        argsFct['function'] = "%s::%s" % (adp['name'],cls['name'])
+                        argsFct['main-name'] = "%s" % adp['name']
+                        argsFct['sub-name'] = "%s" % cls['name']
+                        argsFct['is-default'] = "True"
+                        argsFct['is-generic'] = "False"
+                        if 'default-args' in fct:
+                            self.addDefaultValues(defaultValues=fct['default-args'], 
+                                                  currentFunction=argsFct)
+                        
+                        adp_menu_default.addAction(QtHelper.createAction(self, 
+                                                                         cls['name'], 
+                                                                         self.addAdapter, 
+                                                                         cb_arg=argsFct ))  
+                        
+        indexes = self.selectedIndexes()
         if not indexes:
             self.delAction.setEnabled(False)
 
             self.menu.addAction( self.delAction )
             self.menu.addSeparator()
-            self.menu.addMenu( adpsMenu )
+            self.menu.addMenu( menu_adps )
             self.menu.addSeparator()
             
         else:
@@ -626,7 +685,7 @@ class AdaptersTableView(QTableView):
 
             self.menu.addAction( self.delAction )
             self.menu.addSeparator()
-            self.menu.addMenu( adpsMenu )
+            self.menu.addMenu( menu_adps )
             self.menu.addSeparator()
              
         self.menu.popup( self.mapToGlobal(pos) )
@@ -637,6 +696,10 @@ class AdaptersTableView(QTableView):
         """
         for curArg in currentFunction['obj']:
             for k,v in defaultValues:
+            
+                # ignore bad documentation
+                if "name" not in curArg: continue
+                
                 if k == curArg['name']:
                     curArg['advanced'] = "True"
                     if curArg['type'] in ['strconstant', 'intconstant']:
@@ -656,7 +719,7 @@ class AdaptersTableView(QTableView):
         val['return-value'] = "False"
 
         params = []
-        param = {}
+        param = { }
         for line in desc_splitted:
             line = line.strip() 
             if line.startswith('@param '):
@@ -820,7 +883,10 @@ class AdaptersQWidget(QWidget, Logger.ClassLogger):
         self.dockToolbar = QToolBar(self)
         self.dockToolbar.setStyleSheet("QToolBar { border: 0px; }") # remove 3D border
 
-        self.adaptersTable = AdaptersTableView(self, helper=self.helper, testParams=self.testParams, testDescrs=self.testDescrs)
+        self.adaptersTable = AdaptersTableView(self, 
+                                               helper=self.helper, 
+                                               testParams=self.testParams, 
+                                               testDescrs=self.testDescrs)
 
         layout.addWidget(self.adaptersTable)
         layout.addWidget(self.dockToolbar)

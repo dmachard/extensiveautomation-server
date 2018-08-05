@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -36,7 +36,7 @@ Settings.initialize()
 settings = Settings.instance()
 
 os.rename( 
-            "%s/dist/ExtensiveTestingClient/" % settings.dirExec, 
+            "%s/dist/ExtensiveAutomationClient/" % settings.dirExec, 
             "%s/dist/%s_%s_%s_Portable" % (settings.dirExec, settings.readValue( key = 'Common/acronym' ), 
                                          __VERSION__, platform.architecture()[0]) 
         )

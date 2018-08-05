@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -54,6 +54,7 @@ try:
     import Steps
     import Adapters
     import Libraries
+    import CacheViewer
 except ImportError as e: # support python3
     from . import Descriptions
     from . import Parameters
@@ -62,12 +63,15 @@ except ImportError as e: # support python3
     from . import Steps
     from . import Adapters
     from . import Libraries
+    from . import CacheViewer
 
 import Workspace.TestData as TestData
 import Workspace.TestConfig as TestConfig
 
 import Workspace.TestUnit as TestUnit
 import Workspace.TestSuite as TestSuite
+import Workspace.TestAbstract as TestAbstract
+import Workspace.TestPlan as TestPlan
 
 import Workspace.FileModels.TestConfig as FileModelTestConfig
 
@@ -83,10 +87,7 @@ DEFAULT_NAME = 'Noname'
 TAB_DESCRIPTION     =   0
 TAB_STEPS           =   1
 
-TAB_INPUTS          =   0
-TAB_OUTPUTS         =   1
-TAB_ADAPTERS        =   2
-TAB_LIBRARIES       =   3
+
 
 TAB_AGENTS          =   0
 TAB_PROBES          =   1
@@ -96,6 +97,10 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
     Document properties widget
     """
     RefreshLocalRepository = pyqtSignal()
+    TAB_INPUTS          =   0
+    TAB_OUTPUTS         =   1
+    TAB_ADAPTERS        =   2
+    TAB_LIBRARIES       =   3
     def __init__(self, parent=None, iRepo=None, lRepo=None, rRepo=None):
         """
         Widget document properties
@@ -110,6 +115,10 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
         """
         QWidget.__init__(self, parent)
         
+        if Settings.instance().readValue( key = 'TestProperties/outputs-enabled' ) == "False":
+            self.TAB_ADAPTERS        =   1
+            self.TAB_LIBRARIES       =   2
+            
         self.descrs = None
         self.parameters = None
         self.probes = None
@@ -140,14 +149,24 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
         |                                       |
         | ______________________________________|
         """
+        self.cacheViewer = CacheViewer.CacheViewerQWidget(self)
+        
         self.steps = Steps.StepsQWidget(self)
         self.descrs = Descriptions.DescriptionsQWidget(self)
-        self.parameters = Parameters.ParametersQWidget(self)
-        self.parametersOutput = Parameters.ParametersQWidget(self, forParamsOutput=True)
+        self.parameters = Parameters.ParametersQWidget(self, 
+                                                       cacheViewer=self.cacheViewer)
+                                                       
+        self.parametersOutput = Parameters.ParametersQWidget(self, 
+                                                             forParamsOutput=True,
+                                                             cacheViewer=self.cacheViewer)
         self.probes = Probes.ProbesQWidget(self)
         self.agents = Agents.AgentsQWidget(self)
-        self.adapters = Adapters.AdaptersQWidget(self, testParams=self, testDescrs=self.descrs)
-        self.libraries = Libraries.LibrariesQWidget(self, testParams=self, testDescrs=self.descrs)
+        self.adapters = Adapters.AdaptersQWidget(self, 
+                                                 testParams=self, 
+                                                 testDescrs=self.descrs)
+        self.libraries = Libraries.LibrariesQWidget(self, 
+                                                    testParams=self, 
+                                                    testDescrs=self.descrs)
         
         self.parametersTab = QTabWidget()
         self.parametersTab.setTabPosition(QTabWidget.North)
@@ -159,7 +178,9 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
         self.paramsTab.setStyleSheet("QTabWidget { border: 0px; }") # remove 3D border
         self.paramsTab.setTabPosition(QTabWidget.North)
         self.paramsTab.addTab(self.parameters, QIcon(":/test-input.png"), "Inputs")
-        self.paramsTab.addTab(self.parametersOutput, QIcon(":/test-output.png"), "Outputs")
+        if Settings.instance().readValue( key = 'TestProperties/outputs-enabled' ) == "True":
+            self.paramsTab.addTab(self.parametersOutput, QIcon(":/test-output.png"), "Outputs")
+
         self.paramsTab.addTab(self.adapters, QIcon(":/adapters.png"), "Adapters")
         self.paramsTab.addTab(self.libraries, QIcon(":/libraries.png"), "Libraries")
 
@@ -180,7 +201,7 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
         self.labelHelp.setFont(font)
 
         self.mainTab = QTabWidget()
-        self.mainTab.setTabPosition(QTabWidget.North)
+        self.mainTab.setTabPosition(QTabWidget.South)
         
         self.mainTab.addTab(self.parametersTab, QIcon(":/test-description.png"), "Test Design")
         self.mainTab.addTab(self.paramsTab, QIcon(":/repository.png"), "Test Data")
@@ -189,13 +210,14 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
 
         if Settings.instance().readValue( key = 'TestProperties/inputs-default-tab' ) == "True":
             self.mainTab.setCurrentIndex(1)
-            self.paramsTab.setCurrentIndex(TAB_INPUTS)
+            self.paramsTab.setCurrentIndex(self.TAB_INPUTS)
 
         layout = QVBoxLayout()
         layout.addWidget( self.title )
         layout.addWidget( self.labelHelp )
 
         layout.addWidget(self.mainTab)
+        layout.addWidget(self.cacheViewer)
         layout.setContentsMargins(0,0,0,0)
 
         self.setLayout(layout)
@@ -228,10 +250,11 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
             self.parameters.table().NameParameterUpdated.connect(self.inputNameChanged)
         self.parameters.table().NbParameters.connect(self.onUpdateInputsNumber)
         
-        self.parametersOutput.table().DataChanged.connect(self.dataChanged)
-        if Settings.instance().readValue( key = 'TestProperties/parameters-rename-auto' ) == "True":
-            self.parametersOutput.table().NameParameterUpdated.connect(self.outputNameChanged)
-        self.parametersOutput.table().NbParameters.connect(self.onUpdateOutputsNumber)
+        if Settings.instance().readValue( key = 'TestProperties/outputs-enabled' ) == "True":
+            self.parametersOutput.table().DataChanged.connect(self.dataChanged)
+            if Settings.instance().readValue( key = 'TestProperties/parameters-rename-auto' ) == "True":
+                self.parametersOutput.table().NameParameterUpdated.connect(self.outputNameChanged)
+            self.parametersOutput.table().NbParameters.connect(self.onUpdateOutputsNumber)
         
         self.probes.table().DataChanged.connect(self.dataChanged)
         self.agents.table().DataChanged.connect(self.dataChanged)
@@ -265,13 +288,13 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
         """
         On update the number of inputs in the tabulation name
         """
-        self.paramsTab.setTabText(0, "Inputs (%s)" % nbParams )
+        self.paramsTab.setTabText(self.TAB_INPUTS, "Inputs (%s)" % nbParams )
 
     def onUpdateOutputsNumber(self, nbParams):
         """
         On update the number of outputs in the tabulation name
         """
-        self.paramsTab.setTabText(1, "Outputs (%s)" % nbParams )
+        self.paramsTab.setTabText(self.TAB_OUTPUTS, "Outputs (%s)" % nbParams )
         
     def initToolbarParameters(self):
         """
@@ -294,6 +317,15 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
         Save the address to the document
         """
         self.wdoc = wdoc
+        
+        # prepare the preview of the cache
+        self.cacheViewer.clear()
+        self.cacheViewer.setEnabled(False)
+        
+        if isinstance(wdoc, TestUnit.WTestUnit) or isinstance(wdoc, TestSuite.WTestSuite) \
+                or isinstance(wdoc, TestAbstract.WTestAbstract) or isinstance(wdoc, TestPlan.WTestPlan):
+            self.cacheViewer.setEnabled(True)
+            self.cacheViewer.loadItems(wdoc = wdoc)
         
     def enableMarkUnused(self):
         """
@@ -439,7 +471,10 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
         if dialog.exec_() == QDialog.Accepted:
             fileName = dialog.getSelection()
             path, filename = self.splitFileName(fileName=fileName)
-            doc = TestConfig.WTestConfig(self,path = path, filename=filename, extension=self.rRepo.EXTENSION_TCX, remoteFile=True)
+            doc = TestConfig.WTestConfig(self,path = path, 
+                                         filename=filename, 
+                                         extension=self.rRepo.EXTENSION_TCX, 
+                                         remoteFile=True)
             if inputs:
                 doc.dataModel.properties['properties']['parameters']['parameter'] = self.parameters.table().model.getData()
             else:
@@ -463,7 +498,10 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
         Deprecated function
         """
 
-        fileName = QFileDialog.getSaveFileName(self, "Export Test Config", "", "*.%s" % self.rRepo.EXTENSION_TCX )
+        fileName = QFileDialog.getSaveFileName(self, 
+                                               "Export Test Config", 
+                                               "", 
+                                               "*.%s" % self.rRepo.EXTENSION_TCX )
         if fileName.isEmpty():
                 return
 
@@ -537,11 +575,15 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
                                              customParam=None, 
                                              actionId=UCI.ACTION_IMPORT_OUTPUTS, 
                                              destinationId=UCI.FOR_DEST_ALL)
+    
     def loadFromLocal(self, inputs=True):
         """
         Load test config from local repository
         """
-        dialog = self.lRepo.SaveOpenToRepoDialog( self , "", type = self.lRepo.MODE_OPEN, typeFile=self.lRepo.EXTENSION_TCX ) 
+        dialog = self.lRepo.SaveOpenToRepoDialog( self , 
+                                                  "", 
+                                                  type = self.lRepo.MODE_OPEN, 
+                                                  typeFile=self.lRepo.EXTENSION_TCX ) 
         dialog.hideFiles(hideTsx=True, hideTpx=True, hideTcx=False, hideTdx=True)
         if dialog.exec_() == QDialog.Accepted:
             self.loadFromAnywhere(pathFilename=dialog.getSelection(), inputs=inputs)
@@ -555,7 +597,10 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
         @type pathFilename: 
         """
         if pathFilename is None:
-            fileName = QFileDialog.getOpenFileName(self, self.tr("Import File"), "", "Tcx Config Files (*.%s)" % self.rRepo.EXTENSION_TCX )
+            fileName = QFileDialog.getOpenFileName(self, 
+                                                   self.tr("Import File"), 
+                                                   "", 
+                                                   "Tcx Config Files (*.%s)" % self.rRepo.EXTENSION_TCX )
             # new in v18 to support qt5
             if QtHelper.IS_QT5:
                 _fileName, _type = fileName
@@ -624,6 +669,20 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
                 self.currentDoc.updateStatsTestPlan()
             self.currentDoc.setModify()
 
+        # refresh cache preview for scripting test?
+        if self.currentDoc is not None: 
+        
+            if not isinstance(self.currentDoc, TestPlan.WTestPlan):
+                self.cacheViewer.clear()
+                self.cacheViewer.loadItems(wdoc = self.currentDoc)
+            else:
+                testItem = self.currentDoc.tp.currentItem()
+                if testItem is None:
+                    testItem = self.currentDoc.tp.topLevelItem(0)
+
+                testId = testItem.text(2)
+                self.cacheViewer.updateCache(testId = testId)
+                
     def clear (self):
         """
         Clear contents
@@ -640,6 +699,8 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
         self.steps.clear()
         self.adapters.clear()
         self.libraries.clear()
+        
+        self.cacheViewer.clear()
 
     def addDescriptions (self, wdoc):
         """
@@ -760,13 +821,13 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
         Disable output parameters tabulation
         """
         self.parametersOutput.clear()
-        self.paramsTab.setTabEnabled(TAB_OUTPUTS, False)
+        self.paramsTab.setTabEnabled(self.TAB_OUTPUTS, False)
 
     def enableOutputParameters(self):
         """
         Enable output parameters tabulation
         """
-        self.paramsTab.setTabEnabled(TAB_OUTPUTS, True)
+        self.paramsTab.setTabEnabled(self.TAB_OUTPUTS, True)
 
     def disableAgents(self):
         """
@@ -812,26 +873,26 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
         Disable adapters tabulation
         """
         self.adapters.clear()
-        self.paramsTab.setTabEnabled(TAB_ADAPTERS, False)
+        self.paramsTab.setTabEnabled(self.TAB_ADAPTERS, False)
 
     def enableAdapters(self):
         """
         Enable adapters tabulation
         """
-        self.paramsTab.setTabEnabled(TAB_ADAPTERS, True)
+        self.paramsTab.setTabEnabled(self.TAB_ADAPTERS, True)
 
     def disableLibraries(self):
         """
         Disable libraries tabulation
         """
         self.libraries.clear()
-        self.paramsTab.setTabEnabled(TAB_LIBRARIES, False)
+        self.paramsTab.setTabEnabled(self.TAB_LIBRARIES, False)
 
     def enableLibraries(self):
         """
         Enable libraries tabulation
         """
-        self.paramsTab.setTabEnabled(TAB_LIBRARIES, True)
+        self.paramsTab.setTabEnabled(self.TAB_LIBRARIES, True)
 
     def inputNameChanged(self, oldName, newName):
         """
@@ -867,6 +928,11 @@ class WDocumentProperties(QWidget, Logger.ClassLogger):
             else:
                 self.error('unknown file type')
 
+    def updateCache(self, properties, isRoot, testId):
+        """
+        """
+        self.cacheViewer.updateCache(testId = testId)
+        
 WDP = None # Singleton
 def instance ():
     """

@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -39,7 +39,7 @@ try:
                             QTableView, QDrag, QAbstractItemView, QFrame, QApplication, QIcon, 
                             QMenu, QMessageBox, QWidget, QToolBar)
     from PyQt4.QtCore import (QVariant, QAbstractTableModel, QModelIndex, Qt, pyqtSignal, 
-                            QMimeData, QSize)
+                              QMimeData, QSize, QByteArray)
     if sys.version_info < (3,):
         from PyQt4.QtCore import (QString)
 except ImportError:
@@ -49,7 +49,7 @@ except ImportError:
                                 QVBoxLayout, QTableView, QAbstractItemView, QFrame, QApplication, 
                                 QMenu, QMessageBox, QWidget, QToolBar)
     from PyQt5.QtCore import (QVariant, QAbstractTableModel, QModelIndex, Qt, pyqtSignal, 
-                            QMimeData, QSize)
+                              QMimeData, QSize, QByteArray)
                             
 from Libs import QtHelper, Logger
 
@@ -897,7 +897,8 @@ class AgentsTableView(QTableView, Logger.ClassLogger):
         QTableView.__init__(self, parent)
 
         self.model = None
-        self.__mime__ = "application/x-%s-test-config-agents" % Settings.instance().readValue( key='Common/acronym' ).lower()
+        self.__acronym = Settings.instance().readValue( key='Common/acronym' ).lower()
+        self.__mime__ = "application/x-%s-test-config-agents" % self.__acronym
         self.datasetView = False
         self.itemsPasted = []
         
@@ -926,14 +927,17 @@ class AgentsTableView(QTableView, Logger.ClassLogger):
                 return
         rowVal = self.model.getValueRow( indexes[0] )
         if len(rowVal) > 1 :
+            meta = QByteArray()
             if self.datasetView:
-                meta = "__%s__" % rowVal['name']
+                meta.append( "__%s__" % rowVal['name'] )
             else:
-                meta = "agent('%s')" % rowVal['name']
+                meta.append( "agent('%s')" % rowVal['name'] )
+                
             # create mime data object
             mime = QMimeData()
-            mime.setData('application/x-%s-agent-item' % Settings.instance().readValue( key='Common/acronym' ).lower() , meta )
-            # start drag )
+            mime.setData('application/x-%s-agent-item' % self.__acronym , meta )
+            
+            # start drag
             drag = QDrag(self)
             drag.setMimeData(mime) 
             
@@ -994,17 +998,23 @@ class AgentsTableView(QTableView, Logger.ClassLogger):
          * clear
         """
         self.addAction = QtHelper.createAction(self, self.tr("&Add"), self.addAgent, 
-                                        icon = QIcon(":/tc-add.png"), tip = 'Add a new agent' )
+                                        icon = QIcon(":/tc-add.png"), 
+                                        tip = 'Add a new agent' )
         self.delAction = QtHelper.createAction(self, self.tr("&Delete"), self.removeItem, 
-                                        icon = QIcon(":/tc-del.png"), tip = 'Delete the selected agent' )
+                                        icon = QIcon(":/tc-del.png"), 
+                                        tip = 'Delete the selected agent' )
         self.copyAction = QtHelper.createAction(self, self.tr("Copy"), self.copyItem, 
-                                        icon = QIcon(":/param-copy.png"),  tip = 'Copy the selected agent', shortcut='Ctrl+C' )
+                                        icon = QIcon(":/param-copy.png"),  
+                                        tip = 'Copy the selected agent', shortcut='Ctrl+C' )
         self.pasteAction = QtHelper.createAction(self, self.tr("Paste"), self.pasteItem, 
-                                        icon = QIcon(":/param-paste.png"), tip = 'Paste agent', shortcut='Ctrl+V')
+                                        icon = QIcon(":/param-paste.png"), 
+                                        tip = 'Paste agent', shortcut='Ctrl+V')
         self.undoPasteAction = QtHelper.createAction(self, self.tr("Undo"), self.undoPasteItem, 
-                                        icon = QIcon(":/test-parameter-undo.png"), tip = self.tr('Undo paste agent') )
+                                        icon = QIcon(":/test-parameter-undo.png"), 
+                                        tip = self.tr('Undo paste agent') )
         self.clearAction = QtHelper.createAction(self, self.tr("Clear"), self.clearItems, 
-                                        icon = QIcon(":/param-delete.png"), tip = 'Clear all agents' )
+                                        icon = QIcon(":/param-delete.png"), 
+                                        tip = 'Clear all agents' )
         
         # then disable all
         self.defaultActions()

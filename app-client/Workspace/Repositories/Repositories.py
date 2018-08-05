@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -125,7 +125,7 @@ class WRepositories(QWidget, Logger.ClassLogger):
         self.line.setFrameShadow(QFrame.Sunken)
   
         self.testsTab = QTabWidget()
-        self.testsTab.setTabPosition(QTabWidget.North)
+        self.testsTab.setTabPosition(QTabWidget.South)
         self.testsTab.setStyleSheet("QTabWidget { border: 0px; }") # remove 3D border
 
         # local repo
@@ -160,7 +160,7 @@ class WRepositories(QWidget, Logger.ClassLogger):
         self.testsTab.setTabEnabled( TAB_REMOTE_POS, False )
 
         self.connectorsTab = QTabWidget()
-        self.connectorsTab.setTabPosition(QTabWidget.North)
+        self.connectorsTab.setTabPosition(QTabWidget.South)
         self.connectorsTab.setStyleSheet("QTabWidget { border: 0px; }") # remove 3D border
 
         self.connectorsTab.addTab(self.adaptersRemoteRepository, QIcon(":/repository-adapters.png"), self.tr("Adapters") )

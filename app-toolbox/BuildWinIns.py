@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -32,10 +32,9 @@ import platform
 from Libs import Settings
 
 Settings.initialize()
-# settings = Settings.instance()
 
 os.rename( 
-            "%s/dist/ExtensiveTestingToolbox/" % Settings.getDirExec(), 
+            "%s/dist/ExtensiveAutomationToolbox/" % Settings.getDirExec(), 
             "%s/dist/%s_%s_%s_Portable" % (Settings.getDirExec(), 
                                            Settings.get( section = 'Common', key='acronym' ), 
                                            Settings.getVersion(), 

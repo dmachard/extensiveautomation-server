@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -819,11 +819,16 @@ class PyEditor(QsciScintilla, Logger.ClassLogger):
         Use ctrl+wheel to zoom in/out
         """
         if Qt.ControlModifier & ev.modifiers():
-            if ev.delta() > 0:
+            if QtHelper.IS_QT5:
+                delta = ev.angleDelta().y()
+            else:
+                delta = ev.delta()
+
+            if delta > 0:
                 self.zoomIn()
             else:
                 self.zoomOut()
-                
+                    
             # update margin size
             self.onLinesChanged()
         else:

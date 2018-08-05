@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -52,7 +52,7 @@ Wireshark_Bin = None
 
 VERSION_JAVA            =   "8u161"
 VERSION_SIKULIX         =   "1.1.1"
-VERSION_SELENIUM3        =   "3.9.0"
+VERSION_SELENIUM3       =   "3.9.0"
 VERSION_SELENIUM2       =   "2.53.1"
 VERSION_ADB             =   "1.0.39"
 
@@ -134,48 +134,13 @@ class InnoScript(object):
         
         d.extend( self.listdir( self.path, "") )
         
-        # for f in os.listdir(self.path):
-            # if f.startswith("cryptography-"):
-                # continue
-                
-            # if f not in [ 'certifi', 'PyQt5', 'selenium', 'imageformats', 'Bin', 'Logs', 'Tmp', 
-                            # 'Plugins', 'small_installer.bmp', self.scriptName ]:
-                # d.append( r'Source: "%s"; DestDir: "{app}\"; Flags: ignoreversion; Permissions: users-modify; Components: main' % f )
-
-        # d.extend( self.listdir( self.path, "/PyQt5/") )
-        # d.extend( self.listdir( self.path, "/selenium/") )
-        # d.extend( self.listdir( self.path, "/certifi/") )
-        
         # adding java 8
         for f in os.listdir("%s/Bin/Java8" % self.path):
             if os.path.isfile( "%s/Bin/Java8/%s" % (self.path, f) ):
                 Java8_Bin = f
-                # d.append( r'Source: "Bin/Java8/%s"; DestDir: "{app}\Bin\Java8\"; Flags: ignoreversion; Permissions: users-modify; Components: java8' % f )
         if Java8_Bin is None: raise Exception("no java8 binary")
         
-        # adding adb files
-        # for f in os.listdir("%s/Bin/Adb" % self.path):
-            # if os.path.isfile( "%s/Bin/Adb/%s" % (self.path, f) ):
-                # d.append( r'Source: "Bin/Adb/%s"; DestDir: "{app}\Bin\Adb\"; Flags: ignoreversion; Permissions: users-modify; Components: adb' % f)
 
-        # adding selenium files
-        # for f in os.listdir("%s/Bin/Selenium3" % self.path):
-            # if os.path.isfile( "%s/Bin/Selenium3/%s" % (self.path, f) ):
-                # d.append( r'Source: "Bin/Selenium3/%s"; DestDir: "{app}\Bin\Selenium3\"; Flags: ignoreversion; Permissions: users-modify; Components: selenium3' % f)
-        
-        # adding selenium2 files
-        # for f in os.listdir("%s/Bin/Selenium2" % self.path):
-            # if os.path.isfile( "%s/Bin/Selenium2/%s" % (self.path, f) ):
-                # d.append( r'Source: "Bin/Selenium2/%s"; DestDir: "{app}\Bin\Selenium2\"; Flags: ignoreversion; Permissions: users-modify; Components: selenium2' % f)
-                
-        # adding sikuli files
-        # for f in os.listdir("%s/Bin/Sikuli" % self.path):
-            # if os.path.isfile( "%s/Bin/Sikuli/%s" % (self.path, f) ):
-                # d.append( r'Source: "Bin/Sikuli/%s"; DestDir: "{app}\Bin\Sikuli\"; Flags: ignoreversion; Permissions: users-modify; Components: sikulix' % f )
-
-        # other files
-        # for f in os.listdir("%s/imageformats/" % self.path):
-            # d.append( r'Source: "imageformats/%s"; DestDir: "{app}\imageformats\"; Flags: ignoreversion; Permissions: users-modify; Components: main' % f )
         d.append( "" )
         
         d.append( r"[Tasks]" )
@@ -211,8 +176,8 @@ class InnoScript(object):
         errorlevel = os.system('"%s"' % cmd)
         print("InnoSetup returned errorlevel: %s" % errorlevel)
 
-print("%s/%s/" % (QtHelper.dirExec(),SRC_FROM))
-script = InnoScript( pathName= "%s/%s/" % (QtHelper.dirExec(),SRC_FROM) )
+# Init the class, create the script and compile-it
+script = InnoScript( pathName= SRC_FROM )
 script.create()
 script.compile()
 

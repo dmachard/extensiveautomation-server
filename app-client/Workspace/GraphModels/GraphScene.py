@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -159,8 +159,9 @@ class Arrow(QGraphicsLineItem, Logger.ClassLogger):
     check for collisions and selections. The class inherits QGraphicsLine item, 
     and draws the arrowhead and moves with the items it connects.
     """
-    def __init__(self, startItem, endItem, parent=None, scene=None, arrow_start_point = None, arrow_end_point = None, 
-                        toHotspotId=None, fromHotspotId=None):
+    def __init__(self, startItem, endItem, parent=None, scene=None, 
+                    arrow_start_point = None, arrow_end_point = None, 
+                    toHotspotId=None, fromHotspotId=None):
         """
         We set the start and end diagram items of the arrow. 
         The arrow head will be drawn where the line intersects the end item.
@@ -286,14 +287,19 @@ class Arrow(QGraphicsLineItem, Logger.ClassLogger):
 
         color = QColor(0, 0, 0)
         color.setNamedColor( COLOR_ARROW )
-        painter.setPen(QPen(color, 1))
+        painter.setPen(QPen(color, 2))
         painter.setBrush(QBrush(color))
         
-        # We then need to find the position at which to draw the arrowhead. The head should be drawn where 
-        # the line and the end item intersects. This is done by taking the line between each point in the polygon 
-        # and check if it intersects with the line of the arrow. Since the line start and end points are set to the 
-        # center of the items the arrow line should intersect one and only one of the lines of the polygon. Note that 
-        # the points in the polygon are relative to the local coordinate system of the item. We must therefore add the 
+        # We then need to find the position at which to draw the arrowhead. 
+        # The head should be drawn where 
+        # the line and the end item intersects. 
+        # This is done by taking the line between each point in the polygon 
+        # and check if it intersects with the line of the arrow. 
+        # Since the line start and end points are set to the 
+        # center of the items the arrow line should intersect one 
+        # and only one of the lines of the polygon. Note that 
+        # the points in the polygon are relative to the local coordinate 
+        # system of the item. We must therefore add the 
         # position of the end item to make the coordinates relative to the scene.
         if (self.startingPoint is None) or (self.endingPoint is None):
             p1 = myStartItem.pos()
@@ -371,10 +377,14 @@ class Arrow(QGraphicsLineItem, Logger.ClassLogger):
         if (self.myStartItem.collidesWithItem(self.myEndItem)):
             return
         
-        # We calculate the angle between the x-axis and the line of the arrow. We need to turn the arrow head to this angle 
-        # so that it follows the direction of the arrow. If the angle is negative we must turn the direction of the arrow.
-        # We can then calculate the three points of the arrow head polygon. One of the points is the end of the line, 
-        # which now is the intersection between the arrow line and the end polygon. Then we clear the arrowHead polygon 
+        # We calculate the angle between the x-axis and the line of the arrow. 
+        # We need to turn the arrow head to this angle 
+        # so that it follows the direction of the arrow. 
+        # If the angle is negative we must turn the direction of the arrow.
+        # We can then calculate the three points of the arrow head polygon. 
+        # One of the points is the end of the line, 
+        # which now is the intersection between the arrow line and the end polygon. 
+        # Then we clear the arrowHead polygon 
         # from the previous calculated arrow head and set these new points
         angle = math.acos(line.dx() / line.length())
         if line.dy() >= 0:
@@ -389,8 +399,10 @@ class Arrow(QGraphicsLineItem, Logger.ClassLogger):
         for point in [line.p1(), arrowP1, arrowP2]:
             self.arrowHead.append(point)
             
-        # If the line is selected, we draw two dotted lines that are parallel with the line of the arrow. 
-        # We do not use the default implementation, which uses boundingRect() because the QRect bounding rectangle 
+        # If the line is selected, we draw two dotted lines that are 
+        # parallel with the line of the arrow. 
+        # We do not use the default implementation, 
+        # which uses boundingRect() because the QRect bounding rectangle 
         # is considerably larger than the line.
         painter.drawLine(line)
         painter.drawPolygon(self.arrowHead)
@@ -1070,6 +1082,8 @@ class DiagramScene(QGraphicsScene):
         self.myFont = QFont()
         
         self.endItem = None
+        
+        self.drawGrid()
 
     def setMode(self, mode):
         """
@@ -1088,6 +1102,42 @@ class DiagramScene(QGraphicsScene):
         On key release event
         """
         super(DiagramScene, self).keyReleaseEvent(event)
+  
+    def drawGrid(self):
+        """
+        Draw background grid
+        """
+        self.setSceneRect( QRectF(0, 0, GRAPHIC_SCENE_SIZE, GRAPHIC_SCENE_SIZE) )
+
+        self.setItemIndexMethod(QGraphicsScene.NoIndex)
+
+        pen = QPen(QColor(0,0,100), 1, Qt.DotLine )
+
+        block_size_x = 40
+        block_size_y = 30
+        nb_blocks_x = GRAPHIC_SCENE_SIZE//block_size_x
+        nb_blocks_y = GRAPHIC_SCENE_SIZE//block_size_y
+
+        opacity = 0.2
+        for x in range(0,nb_blocks_x+1):
+            xc = x * block_size_x
+            line_x = self.addLine(xc,0,xc,GRAPHIC_SCENE_SIZE,pen)
+            line_x.setOpacity(opacity)
+
+        for y in range(0,nb_blocks_y+1):
+            yc = y * block_size_y
+            line_y = self.addLine(0,yc,GRAPHIC_SCENE_SIZE,yc,pen)
+            line_y.setOpacity(opacity) 
+          
+    def setGridVisible(self,visible=True):
+        """
+        Set the visibility of the grid
+        """
+        for line in self.items():
+            if isinstance(line, QGraphicsLineItem):
+                # ignore arrow
+                if not hasattr(line, 'arrowHead'):
+                    line.setVisible(visible)
 
     def mousePressEvent(self, mouseEvent):
         """
@@ -1207,7 +1257,6 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
         self.dockToolbarTest.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
         
         self.scene = DiagramScene(self)
-        self.scene.setSceneRect(QRectF(0, 0, GRAPHIC_SCENE_SIZE, GRAPHIC_SCENE_SIZE))
 
         self.view = QGraphicsView(self.scene)
         self.view.setRenderHint(QPainter.Antialiasing)
@@ -1229,6 +1278,12 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
         self.linePointerButton.setIcon(QIcon(":/linepointer.png"))
         self.linePointerButton.setText("Arrow")
         self.linePointerButton.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+        
+        self.gridAction = QtHelper.createAction(self, self.tr("Grid"), self.displayGrid, 
+                                                checkable=True, toggled=True, 
+                                                icon=QIcon(":/controls.png"),
+                                                tip = self.tr('Display grid') )
+        self.gridAction.setChecked(True)
         
         self.pointerTypeGroup = QButtonGroup()
         self.pointerTypeGroup.addButton(self.pointerButton, DiagramScene.MoveItem)
@@ -1253,10 +1308,10 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
         
         self.drawBox = QGroupBox("Draw")
         self.drawBox.setStyleSheet( """
-                                           QGroupBox { font: normal; border: 1px solid silver; border-radius: 2px; } 
-                                           QGroupBox { padding-bottom: 10px; background-color: #FAFAFA; } 
-                                           QGroupBox::title { subcontrol-position: bottom center;}
-                                       """ )
+                                   QGroupBox { font: normal; border: 1px solid silver; border-radius: 2px; } 
+                                   QGroupBox { padding-bottom: 10px; background-color: #FAFAFA; } 
+                                   QGroupBox::title { subcontrol-position: bottom center;}
+                               """ )
         layoutDrawBox = QHBoxLayout()
         layoutDrawBox.addWidget(self.dockToolbar)
         layoutDrawBox.setContentsMargins(0,0,0,0)
@@ -1264,10 +1319,10 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
         
         self.clipBox = QGroupBox("Clipboard")
         self.clipBox.setStyleSheet( """
-                                           QGroupBox { font: normal; border: 1px solid silver; border-radius: 2px; } 
-                                           QGroupBox { padding-bottom: 10px; background-color: #FAFAFA; } 
-                                           QGroupBox::title { subcontrol-position: bottom center;}
-                                       """)
+                                   QGroupBox { font: normal; border: 1px solid silver; border-radius: 2px; } 
+                                   QGroupBox { padding-bottom: 10px; background-color: #FAFAFA; } 
+                                   QGroupBox::title { subcontrol-position: bottom center;}
+                                   """)
         layoutClipBox = QHBoxLayout()
         layoutClipBox.addWidget(self.dockToolbarClipboard)
         layoutClipBox.setContentsMargins(0,0,0,0)
@@ -1275,10 +1330,10 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
         
         self.testBox = QGroupBox("Configure")
         self.testBox.setStyleSheet( """
-                                           QGroupBox { font: normal; border: 1px solid silver; border-radius: 2px; } 
-                                           QGroupBox { padding-bottom: 10px; background-color: #FAFAFA; } 
-                                           QGroupBox::title { subcontrol-position: bottom center;}
-                                       """ )
+                                   QGroupBox { font: normal; border: 1px solid silver; border-radius: 2px; } 
+                                   QGroupBox { padding-bottom: 10px; background-color: #FAFAFA; } 
+                                   QGroupBox::title { subcontrol-position: bottom center;}
+                               """ )
         layoutTestBox = QHBoxLayout()
         layoutTestBox.addWidget(self.dockToolbarTest)
         layoutTestBox.setContentsMargins(0,0,0,0)
@@ -1312,6 +1367,8 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
         self.dockToolbar.addSeparator()
         self.dockToolbar.addAction(self.deleteAction)
         self.dockToolbar.setIconSize(QSize(16, 16))
+        self.dockToolbar.addSeparator()
+        self.dockToolbar.addAction(self.gridAction)
         
 
         self.dockToolbarClipboard.addAction(self.copyAction)
@@ -1321,6 +1378,12 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
         self.dockToolbarTest.addAction(self.addStepAction)
         self.dockToolbarTest.setIconSize(QSize(16, 16))
         
+    def displayGrid(self, toggled):
+        """
+        Display the grid or not
+        """
+        self.scene.setGridVisible(visible=toggled)
+
     def toolbar(self):
         """
         Return toolbar
@@ -1341,7 +1404,8 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
         Create actions
         """
         self.addBreakpointAction = QtHelper.createAction(self, self.tr("&Breakpoint"), self.addBreakpoint )
-        self.deleteAction = QtHelper.createAction(self, "Delete", self.deleteItem,  icon = QIcon(":/param-delete.png"),
+        self.deleteAction = QtHelper.createAction(self, "Delete", self.deleteItem,  
+                                                    icon = QIcon(":/param-delete.png"),
                                                     tip = 'Delete item', shortcut='Delete' )
         self.copyAction = QtHelper.createAction(self, "Copy", self.copyItem,  icon = QIcon(":/param-copy.png"),
                                                     tip = 'Copy item', shortcut='Ctrl+C' )
@@ -1350,7 +1414,8 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
         self.reloadAction = QtHelper.createAction(self, "Reload Item", self.reloadItem,  icon = None,
                                                     tip = 'Reload item from original' )
                                                     
-        self.addStepAction = QtHelper.createAction(self, self.tr("&Step"), self.addDesignStep, icon = QIcon(":/step-add.png"),
+        self.addStepAction = QtHelper.createAction(self, self.tr("&Step"), self.addDesignStep, 
+                                                    icon = QIcon(":/step-add.png"),
                                                     tip = self.tr('Add a new step') )
                                                     
         self.setDefault()
@@ -1458,8 +1523,12 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
         """
         color = QColor(0, 0, 0)
         color.setNamedColor( COLOR_STARTEND )
-        self.addItem(   itemType=DiagramItem.StartEnd, itemId=self.getItemId(), itemText="Start", 
-                        itemColor=QBrush(color),  itemPos=QPointF(GRAPHIC_SCENE_SIZE/2, (GRAPHIC_SCENE_SIZE/2) - 150), itemData=''  )
+        self.addItem(   itemType=DiagramItem.StartEnd, 
+                        itemId=self.getItemId(), 
+                        itemText="Start", 
+                        itemColor=QBrush(color),  
+                        itemPos=QPointF(GRAPHIC_SCENE_SIZE/2, (GRAPHIC_SCENE_SIZE/2) - 150), 
+                        itemData=''  )
                         
     def getVariables(self):
         """
@@ -1470,9 +1539,12 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
         var2add = []
         for gItem in self.scene.items():
             if isinstance(gItem, DiagramItem):
-                if gItem.diagramType in [ DiagramItem.Action, DiagramItem.Adapter, DiagramItem.Template, DiagramItem.Library,
-                                           DiagramItem.Manipulator, DiagramItem.Validator, DiagramItem.Do, DiagramItem.Cache,
-                                           DiagramItem.Time, DiagramItem.Private, DiagramItem.Public ]:
+                if gItem.diagramType in [ DiagramItem.Action, DiagramItem.Adapter, 
+                                          DiagramItem.Template, DiagramItem.Library,
+                                          DiagramItem.Manipulator, DiagramItem.Validator, 
+                                          DiagramItem.Do, DiagramItem.Cache,
+                                          DiagramItem.Time, DiagramItem.Private, 
+                                          DiagramItem.Public ]:
                     if 'return-value' in gItem.data['item-data']['data']:
                         if gItem.data['item-data']['data']['return-value'] == 'True':
                             var2add.append( "ACTION%s" % gItem.itemId )
@@ -2298,7 +2370,8 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
         """
         # begin to clear the scene
         self.scene.clear()
-
+        self.scene.drawGrid()
+        
         # and draw all items
         maxItemId = self.itemId
         for graphicalItem in actions:
@@ -2385,6 +2458,50 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
         """
         return self.testParams.agents.table().model.getData()
         
+    def _load_menu_functions_library(self, index, library_name, libraries, menu):
+        """
+        """
+        for lib in libraries:
+            for cls in lib['classes']:
+                if "%s::%s" %(lib['name'], cls['name']) == library_name:
+                    for fct in cls['functions']:
+                        if fct['name'] == '__init__':
+                            continue
+                        argsFct = self.parseDocString(docstring=fct['desc'])
+                        argsFct['function'] = fct['name']
+                        argsFct['main-name'] = library_name
+                        if 'default-args' in fct:
+                            self.addDefaultValues(defaultValues=fct['default-args'], 
+                                                  currentFunction=argsFct)
+                        menu.addAction( QtHelper.createAction(self, 
+                                                                 fct['name'], 
+                                                                 self.addLibrary,
+                                                                 icon=QIcon(":/methods.png"), 
+                                                                 cb_arg=( (index+1), argsFct ) 
+                                                                 ) )
+                        menu.addSeparator()   
+        
+    def _load_menu_functions_adapter(self, index, adapter_name, adapters, menu, menu_more):
+        """
+        """
+        for adp in adapters:
+            for cls in adp['classes']:
+                if "%s::%s" %(adp['name'], cls['name']) == adapter_name:
+                    for fct in cls['functions']:
+                        if fct['name'] == '__init__':
+                            continue
+                        argsFct = self.parseDocString(docstring=fct['desc'])
+                        argsFct['function'] = fct['name']
+                        argsFct['main-name'] = adapter_name
+                        if 'default-args' in fct:
+                            self.addDefaultValues(defaultValues=fct['default-args'], currentFunction=argsFct)
+
+                        if re.match(r"do[A-Z]", fct['name']) :
+                            menu.addAction( QtHelper.createAction(self, fct['name'], self.addDo,
+                                                icon=QIcon(":/methods.png"), cb_arg=( (index+1), argsFct ) ) )
+                        else:
+                            menu_more.addAction( QtHelper.createAction(self, fct['name'], self.addAdapter,
+                                                icon=QIcon(":/methods.png"), cb_arg=( (index+1), argsFct ) ) )
     def onPopupMenu(self, pos):
         """
         Display menu on right click
@@ -2399,26 +2516,30 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
         libsMenu.setIcon( QIcon(":/libraries-add.png") )
         for i in xrange(len(self.__parent.libraries().model.getData())):
             currentName = self.__parent.libraries().model.getData()[i]['data']['function']
-            
-            libMenu = QMenu("%s #%s" % (currentName, (i+1)), self)
+            lib_menu = QMenu("%s #%s" % (currentName, (i+1)), self)
 
+            # search the current name of the lib in all libraries to retrieve 
+            # all associated functions
             libraries = self.__parent.getHelpLibraries()
             if libraries is not None:
-                for lib in libraries:
-                    for cls in lib['classes']:
-                        if "%s::%s" %(lib['name'], cls['name']) == currentName:
-                            for fct in cls['functions']:
-                                if fct['name'] == '__init__':
-                                    continue
-                                argsFct = self.parseDocString(docstring=fct['desc'])
-                                argsFct['function'] = fct['name']
-                                argsFct['main-name'] = currentName
-                                if 'default-args' in fct:
-                                    self.addDefaultValues(defaultValues=fct['default-args'], currentFunction=argsFct)
-                                libMenu.addAction( QtHelper.createAction(self, fct['name'], self.addLibrary,
-                                                    icon=QIcon(":/methods.png"), cb_arg=( (i+1), argsFct ) ) )
-                                libMenu.addSeparator()      
-            libsMenu.addMenu(libMenu)
+                self._load_menu_functions_library(index=i,
+                                                  library_name=currentName, 
+                                                  libraries=libraries, 
+                                                  menu=lib_menu)
+            
+            # search the lib in generic branch in case of not found before
+            # so becareful of this limitation, 
+            # the name of the lib must be different between
+            # the generic branch and extra
+            # if the same name is used then bad functions will be used in the test
+            libraries_generic = self.__parent.getHelpLibraries(generic=True)
+            if libraries_generic is not None:
+                self._load_menu_functions_library(index=i,
+                                                  library_name=currentName, 
+                                                  libraries=libraries_generic, 
+                                                  menu=lib_menu)
+                                                  
+            libsMenu.addMenu(lib_menu)
             libsMenu.addSeparator()
 
         # sub menu for adding adapter
@@ -2428,30 +2549,31 @@ class GraphAbstract(QWidget, Logger.ClassLogger):
             currentName = self.__parent.adapters().model.getData()[i]['data']['function']
             
             adpMenu = QMenu("%s #%s" % (currentName, (i+1)), self)
-
             adpMoreMenu = QMenu("More...", self)
 
+            # search the current name of the adapter in all adapters to retrieve 
+            # all associated functions
             adapters = self.__parent.getHelpAdapters()
             if adapters is not None:
-                for adp in adapters:
-                    for cls in adp['classes']:
-                        if "%s::%s" %(adp['name'], cls['name']) == currentName:
-                            for fct in cls['functions']:
-                                if fct['name'] == '__init__':
-                                    continue
-                                argsFct = self.parseDocString(docstring=fct['desc'])
-                                argsFct['function'] = fct['name']
-                                argsFct['main-name'] = currentName
-                                if 'default-args' in fct:
-                                    self.addDefaultValues(defaultValues=fct['default-args'], currentFunction=argsFct)
-
-                                if re.match(r"do[A-Z]", fct['name']) :
-                                    adpMenu.addAction( QtHelper.createAction(self, fct['name'], self.addDo,
-                                                        icon=QIcon(":/methods.png"), cb_arg=( (i+1), argsFct ) ) )
-                                else:
-                                    adpMoreMenu.addAction( QtHelper.createAction(self, fct['name'], self.addAdapter,
-                                                        icon=QIcon(":/methods.png"), cb_arg=( (i+1), argsFct ) ) )
-
+                self._load_menu_functions_adapter(index=i,
+                                                  adapter_name=currentName, 
+                                                  adapters=adapters, 
+                                                  menu=adpMenu,
+                                                  menu_more=adpMoreMenu)
+                                                  
+            # search the adapter in generic branch in case of not found before
+            # so becareful of this limitation, 
+            # the name of the adapter must be different between
+            # the generic branch and extra
+            # if the same name is used then bad functions will be used in the test
+            adapters_generic = self.__parent.getHelpAdapters(generic=True)
+            if adapters_generic is not None:
+                self._load_menu_functions_adapter(index=i,
+                                                  adapter_name=currentName, 
+                                                  adapters=adapters_generic, 
+                                                  menu=adpMenu,
+                                                  menu_more=adpMoreMenu)
+                                                  
             adpMenu.addSeparator()
             adpMenu.addMenu(adpMoreMenu)
                            

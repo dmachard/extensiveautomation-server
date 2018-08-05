@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -282,7 +282,9 @@ class WTestData(Document.WDocument):
             if not self.isModified():
                 return False
         
-        saved = self.dataModel.write( absPath='%s/%s.%s' % (self.path, self.filename, self.extension) )
+        saved = self.dataModel.write( absPath='%s/%s.%s' % (self.path, 
+                                                            self.filename, 
+                                                            self.extension) )
         if saved:
             self.setUnmodify()
             return True

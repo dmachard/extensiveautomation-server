@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -43,7 +43,7 @@ try:
     import RemoteRepository
 except ImportError: # support python3
     from . import RemoteRepository
-import UserClientInterface as UCI
+# import UserClientInterface as UCI
 import RestClientInterface as RCI
 
 class Repository(RemoteRepository.Repository):
@@ -54,7 +54,7 @@ class Repository(RemoteRepository.Repository):
         """
         Remote repository constructor
         """
-        RemoteRepository.Repository.__init__(self, parent, repoType=UCI.REPO_ADAPTERS)
+        RemoteRepository.Repository.__init__(self, parent, repoType=RCI.REPO_ADAPTERS)
 
     def addAdapters(self):
         """
@@ -92,10 +92,10 @@ class Repository(RemoteRepository.Repository):
                                     icon = QIcon(":/adapters.png"), tip = 'Create new adapter' )
         self.checkAdaptersAction = QtHelper.createAction(self, "&Check", self.checkSyntaxAdapters, 
                                     icon = QIcon(":/adapters-check.png"), tip = 'Check syntax of all adapters' )
-        self.setAsDefaultAction = QtHelper.createAction(self, "&Set as default", self.setAdapterAsDefault, 
-                                    icon = None, tip = 'Set adapter as default' )
-        self.setAsGenericAction = QtHelper.createAction(self, "&Set as generic", self.setAdapterAsGeneric, 
-                                    icon = None, tip = 'Set adapter as generic' )
+        self.setAsDefaultAction = QtHelper.createAction(self, "&Set as Extra", self.setAdapterAsDefault, 
+                                    icon = None, tip = 'Set adapter as Extra' )
+        self.setAsGenericAction = QtHelper.createAction(self, "&Set as Generic", self.setAdapterAsGeneric, 
+                                    icon = None, tip = 'Set adapter as Generic' )
                                     
     def moreDefaultActions(self):
         """
@@ -159,14 +159,16 @@ class Repository(RemoteRepository.Repository):
         """
         Set adapter as default
         """
-        pathFolder = self.itemCurrent.getPath(withFileName = False, withFolderName=True)
+        pathFolder = self.itemCurrent.getPath(withFileName = False, 
+                                              withFolderName=True)
         RCI.instance().setDefaultAdapter(packageName=pathFolder)
         
     def setAdapterAsGeneric(self):
         """
         Set adapter as generic
         """
-        pathFolder = self.itemCurrent.getPath(withFileName = False, withFolderName=True)
+        pathFolder = self.itemCurrent.getPath(withFileName = False, 
+                                              withFolderName=True)
         RCI.instance().setGenericAdapter(packageName=pathFolder)
         
     def moveRemoteFile(self, currentName, currentPath, currentExtension, newPath):
@@ -174,16 +176,19 @@ class Repository(RemoteRepository.Repository):
         Reimplemented from RemoteRepository
         Move file
         """
-        RCI.instance().moveFileAdapters(filePath=currentPath, fileName=currentName, fileExt=currentExtension, 
-                                     newPath=newPath)
+        RCI.instance().moveFileAdapters(filePath=currentPath, 
+                                        fileName=currentName, 
+                                        fileExt=currentExtension, 
+                                        newPath=newPath)
                                      
     def moveRemoteFolder(self, currentName, currentPath, newPath):
         """
         Reimplemented from RemoteRepository
         Move folder
         """
-        RCI.instance().moveFolderAdapters(folderPath=currentPath, folderName=currentName, 
-                                       newPath=newPath)
+        RCI.instance().moveFolderAdapters(folderPath=currentPath, 
+                                          folderName=currentName, 
+                                          newPath=newPath)
                                        
     def openRemoteFile (self, pathFile):
         """
@@ -236,7 +241,8 @@ class Repository(RemoteRepository.Repository):
         @param folderName: 
         @type folderName:
         """
-        RCI.instance().addFolderAdapters(folderPath=pathFolder, folderName = folderName)
+        RCI.instance().addFolderAdapters(folderPath=pathFolder, 
+                                         folderName = folderName)
         
     def refresh(self):
         """

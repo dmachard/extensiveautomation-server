@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<file>
+<properties><descriptions><description><value>admin</value><key>author</key></description><description><value>19/03/2016 18:08:41</value><key>creation date</key></description><description><value>Just a basic sample.</value><key>summary</key></description><description><value>None.</value><key>prerequisites</key></description><description><value><comments /></value><key>comments</key></description><description><value>myplugins</value><key>libraries</key></description><description><value>myplugins</value><key>adapters</key></description><description><value>Writing</value><key>state</key></description><description><value>TESTCASE</value><key>name</key></description><description><value>REQ_01</value><key>requirement</key></description></descriptions><inputs-parameters><parameter><color /><description /><type>bool</type><name>DEBUG</name><value>False</value><scope>local</scope></parameter><parameter><color /><description /><type>float</type><name>TIMEOUT</name><value>1.0</value><scope>local</scope></parameter><parameter><color /><description /><type>bool</type><name>VERBOSE</name><value>True</value><scope>local</scope></parameter></inputs-parameters><agents><agent><description /><type>dummy</type><name>AGENT</name><value>agent-dummy01</value></agent></agents><probes><probe><active>False</active><args /><name>probe01</name><type>default</type></probe></probes><outputs-parameters><parameter><color /><description /><type>float</type><name>TIMEOUT</name><value>1.0</value><scope>local</scope></parameter></outputs-parameters></properties>
+<testdefinition><![CDATA[
+def description(self):
+	# testcase description
+	self.setPurpose(purpose="Testcase sample")
+
+	# steps description
+	self.step1 = self.addStep(expected="result expected", description="step description", summary="step sample", enabled=True)
+def prepare(self):
+	self.AUTOMATE = self.findAdapter("TEST")
+	if self.AUTOMATE is None: self.abort("automate (1) not available")
+	
+	self.AUTOMATE2 = self.findAdapter("TEST2")
+	if self.AUTOMATE2 is None: self.abort("automate (2) not available")
+	
+	self.AUTOMATE.onCallback = self.onAutomate
+	self.AUTOMATE2.onCallback = self.onAutomate2
+def cleanup(self, aborted):
+	pass
+def definition(self):
+	# starting initial step
+	if self.step1.isEnabled():
+		self.step1.start()
+		Time(self).wait(timeout=10)
+		self.step1.setPassed(actual="success")
+def onAutomate(self):
+	self.warning( "event message from automate (1)" )
+#	self.AUTOMATE.setKO()
+	self.AUTOMATE.setOK()
+	
+def onAutomate2(self):
+	self.warning( "event message from automate (2)" )
+	self.AUTOMATE2.setOK()]]></testdefinition>
+<testdevelopment>1458407321.339451</testdevelopment>
+</file>

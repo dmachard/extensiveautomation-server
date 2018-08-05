@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -43,7 +43,7 @@ try:
     import RemoteRepository
 except ImportError: # support python3
     from . import RemoteRepository
-import UserClientInterface as UCI
+# import UserClientInterface as UCI
 import RestClientInterface as RCI
 
 
@@ -55,7 +55,7 @@ class Repository(RemoteRepository.Repository):
         """
         Remote repository generic constructor
         """
-        RemoteRepository.Repository.__init__(self, parent, repoType=UCI.REPO_LIBRARIES)
+        RemoteRepository.Repository.__init__(self, parent, repoType=RCI.REPO_LIBRARIES)
 
     def addLibraries(self):
         """
@@ -92,10 +92,10 @@ class Repository(RemoteRepository.Repository):
                                         icon = QIcon(":/libraries.png"), tip = 'Create new library' )
         self.checkLibrariesAction = QtHelper.createAction(self, "&Check", self.checkSyntaxLibraries, 
                                         icon = QIcon(":/libraries-check.png"), tip = 'Check syntax of all libraries' )
-        self.setAsDefaultAction = QtHelper.createAction(self, "&Set as default", self.setLibraryAsDefault, 
-                                        icon = None, tip = 'Set library as default' )
-        self.setAsGenericAction = QtHelper.createAction(self, "&Set as generic", self.setLibraryAsGeneric, 
-                                        icon = None, tip = 'Set library as generic' )
+        self.setAsDefaultAction = QtHelper.createAction(self, "&Set as Extra", self.setLibraryAsDefault, 
+                                        icon = None, tip = 'Set library as Extra' )
+        self.setAsGenericAction = QtHelper.createAction(self, "&Set as Generic", self.setLibraryAsGeneric, 
+                                        icon = None, tip = 'Set library as Generic' )
                                         
     def moreDefaultActions(self):
         """
@@ -176,7 +176,8 @@ class Repository(RemoteRepository.Repository):
         Reimplemented from RemoteRepository
         Move remote file
         """
-        RCI.instance().moveFileLibraries(filePath=currentPath, fileName=currentName, 
+        RCI.instance().moveFileLibraries(filePath=currentPath, 
+                                         fileName=currentName, 
                                          fileExt=currentExtension, 
                                          newPath=newPath)
                                      

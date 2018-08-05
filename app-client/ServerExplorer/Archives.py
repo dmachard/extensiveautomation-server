@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -1574,11 +1574,11 @@ class WArchives(QWidget, Logger.ClassLogger):
         layoutRight.addWidget(self.previewTab)
 
         style = self.style()
-        self.folderIcon = QIcon()
-        self.folderIcon.addPixmap(style.standardPixmap(QStyle.SP_DirClosedIcon), 
-                                  QIcon.Normal, QIcon.Off)
-        self.folderIcon.addPixmap(style.standardPixmap(QStyle.SP_DirOpenIcon), 
-                                  QIcon.Normal, QIcon.On)
+        self.folderIcon = QIcon(":/folder_base.png")
+        # self.folderIcon.addPixmap(style.standardPixmap(QStyle.SP_DirClosedIcon), 
+                                  # QIcon.Normal, QIcon.Off)
+        # self.folderIcon.addPixmap(style.standardPixmap(QStyle.SP_DirOpenIcon), 
+                                  # QIcon.Normal, QIcon.On)
         self.rootIcon = QIcon()       
         self.rootIcon.addPixmap( style.standardPixmap(QStyle.SP_DriveNetIcon) )
 

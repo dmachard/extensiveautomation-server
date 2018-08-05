@@ -3,7 +3,7 @@
 
 # -------------------------------------------------------------------
 # Copyright (c) 2010-2018 Denis Machard
-# This file is part of the extensive testing project
+# This file is part of the extensive automation project
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -268,15 +268,15 @@ class SeleniumServer(GenericTool.Tool):
                                                                                             Settings.get( 'Paths', 'logs' )),
                                                                                 self.toolName
                                                                                 )
-                __cmd__ += r' -Dwebdriver.ie.driver="%s\Selenium\IEDriverServer.exe" ' % (
+                __cmd__ += r' -Dwebdriver.ie.driver="%s\Selenium2\IEDriverServer.exe" ' % (
                                                                                 "%s\%s" % ( Settings.getDirExec(), 
                                                                                             Settings.get( 'Paths', 'bin' ))
                                                                                 )
-                __cmd__ += r' -Dwebdriver.chrome.driver="%s\Selenium\chromedriver.exe" ' % (
+                __cmd__ += r' -Dwebdriver.chrome.driver="%s\Selenium2\chromedriver.exe" ' % (
                                                                                 "%s\%s" % ( Settings.getDirExec(), 
                                                                                             Settings.get( 'Paths', 'bin' ))
                                                                                 )
-                __cmd__ += r' -Dwebdriver.opera.driver="%s\Selenium\operadriver.exe" ' % (
+                __cmd__ += r' -Dwebdriver.opera.driver="%s\Selenium2\operadriver.exe" ' % (
                                                                                 "%s\%s" % ( Settings.getDirExec(), 
                                                                                             Settings.get( 'Paths', 'bin' ))
                                                                                 )

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<file>
+<properties><descriptions><description><value>admin</value><key>author</key></description><description><value>14/05/2015 21:53:10</value><key>creation date</key></description><description><value>Just a basic sample.</value><key>summary</key></description><description><value>None.</value><key>prerequisites</key></description><description><value><comments /></value><key>comments</key></description><description><value>myplugins</value><key>libraries</key></description><description><value>myplugins</value><key>adapters</key></description><description><value>Writing</value><key>state</key></description><description><value>TESTCASE</value><key>name</key></description><description><value>REQ_01</value><key>requirement</key></description></descriptions><inputs-parameters><parameter><color /><description /><type>bool</type><name>DEBUG</name><value>False</value><scope>local</scope></parameter><parameter><color /><description /><type>float</type><name>TIMEOUT_GUI_BROWSER</name><value>25.0</value><scope>local</scope></parameter></inputs-parameters><agents><agent><description /><type>selenium</type><name>AGENT_GUI_BROWSER</name><value>agent.win.selenium01</value></agent></agents><probes><probe><active>False</active><args /><name>probe01</name><type>default</type></probe></probes><outputs-parameters><parameter><color /><description /><type>float</type><name>TIMEOUT</name><value>1.0</value><scope>local</scope></parameter></outputs-parameters></properties>
+<testdefinition><![CDATA[
+def description(self):
+	# testcase description
+	self.setPurpose(purpose="GUI_Automation_Capture")
+
+	# steps description
+	self.step1 = self.addStep(expected="Action executed with success", description="Close browser", summary="Close browser", enabled=True)
+
+def prepare(self):
+	# adapters and libraries definitions
+	self.ADP_GUI_BROWSER = SutAdapters.GUI.Selenium(parent=self, agent=agent('AGENT_GUI_BROWSER'), debug=input('DEBUG'), navigId=Cache().get(name='selenium-navig-id'))
+
+	
+
+def cleanup(self, aborted):
+	pass
+
+def definition(self):
+	##CAPTURE_BROWSER>Close browser
+	if self.step1.isEnabled():
+		self.step1.start()
+		BROWSER_RET1 = self.ADP_GUI_BROWSER.doClose(timeout=input('TIMEOUT_GUI_BROWSER'))
+		if not BROWSER_RET1:
+			self.step1.setFailed('Unable to close browser')
+		else:
+			self.step1.setPassed('Executing with success: close browser')
+	]]></testdefinition>
+<testdevelopment>1431633190.89</testdevelopment>
+</file>
