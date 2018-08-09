@@ -31,9 +31,8 @@
 #====================================================================
 
 PKG_NAME="ExtensiveAutomation"
-APP_PATH="$(pwd)"
+APP_PATH="$(pwd)/../"
 APP_SRC_PATH="$(pwd)/$PKG_NAME/"
-HTTPLIB2="httplib2-0.8"
 
 echo "=============================================="
 echo "=      - Cleanup the $PKG_NAME product -     ="
@@ -41,7 +40,6 @@ echo "=            Denis Machard                   ="
 echo "=       www.extensiveautomation.org          ="
 echo "=============================================="
 
-rm -rf $APP_PATH/$HTTPLIB2/
 rm -rf $APP_SRC_PATH/Libs/NetLayerLib/
 rm -rf $APP_SRC_PATH/Libs/PyXmlDict/
 rm -rf $APP_SRC_PATH/Libs/Scheduler.py

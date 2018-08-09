@@ -785,11 +785,12 @@ class AdminUsersUpdate(Handler):
         
         if user_profile['administrator']:
             def_valid = False
-            for prj in projects:
-                if int(prj)  == int(default):
-                    def_valid = True
-            if not def_valid:
-                raise HTTP_403("Access denied to this project as default")
+            if default is not None:
+                for prj in projects:
+                    if int(prj)  == int(default):
+                        def_valid = True
+                if not def_valid:
+                    raise HTTP_403("Access denied to this project as default")
                 
             success, details = UsersManager.instance().updateUserInDB(userId=userId, 
                                                                   email=email,

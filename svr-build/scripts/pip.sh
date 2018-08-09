@@ -20,15 +20,6 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-#====================================================================
-#
-#         USAGE:  ./install.sh
-#
-#   DESCRIPTION:  Install the product
-#
-#       OPTIONS:  ---
-#        AUTHOR:  Denis Machard
-#====================================================================
 
 . /etc/rc.d/init.d/functions
 
@@ -38,24 +29,15 @@ if [ ! $UID -eq 0 ]; then
     exit 1
 fi
 
-APP_NAME="ExtensiveAutomation"
-APP_PATH="$(pwd)"
-LOG_FILE="$APP_PATH/logs/install.log"
-APP_SRC_PATH="$(pwd)/$APP_NAME/"
-if [ ! -f "$APP_SRC_PATH"/VERSION ]; then
-    echo "Package version not detected, goodbye."
-    exit 1
-fi
-PRODUCT_VERSION="$(cat "$APP_SRC_PATH"/VERSION)"
-PRODUCT_SVC_NAME="$(echo $APP_NAME | sed 's/.*/\L&/')"
-PRODUCT_SVC_CTRL="xtctl"
+APP_PATH="$(pwd)/../"
+LOG_FILE="$APP_PATH/logs/install_pip.log"
 
-read -p "Are you sure you want to install the product? (yes or no) " yn 
-case $yn in 
-	[Yy]* ) ;; 
-	[Nn]* ) echo "Ok, goodbye."; exit 1;; 
-	* ) echo "Please answer yes or no. ";exit 1;; 
-esac 
+PIP_BIN="/usr/bin/pip"
 
-# install the product without ask anything
-$APP_PATH/custom.sh install
+for pkg in $APP_PATH/local_pip/*
+do
+    name=${pkg##*/}
+    echo -ne "\r\033[K* Adding $name"
+    $PIP_BIN install --no-index --find-links=file:///$APP_PATH/local_pip/ $pkg  >> "$LOG_FILE" 2>&1
+done
+echo_success; echo

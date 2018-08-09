@@ -54,7 +54,7 @@ fi
 APP_NAME="ExtensiveAutomation"
 APP_PATH="$(pwd)"
 PKG_PATH="$APP_PATH/PKG/"
-LOG_FILE="$APP_PATH/install.log"
+LOG_FILE="$APP_PATH/logs/install.log"
 APP_SRC_PATH="$(pwd)/$APP_NAME/"
 if [ ! -f "$APP_SRC_PATH"/VERSION ]; then
     echo "Package version not detected, goodbye."
@@ -63,13 +63,13 @@ fi
 PRODUCT_VERSION="$(cat $APP_SRC_PATH/VERSION)"
 PRODUCT_SVC_NAME="$(echo $APP_NAME | sed 's/.*/\L&/')"
 
-echo "======================================================="
+echo "================================================================="
 echo "=         - Uninstall of the $APP_NAME product -      ="
-echo "=                 Denis Machard                       ="
-echo "=            www.extensiveautomation.org              ="
-echo "======================================================="
+echo "=                 Denis Machard                                 ="
+echo "=            www.extensiveautomation.org                        ="
+echo "================================================================="
 
-source $APP_PATH/default.cfg
+source $APP_PATH/scripts/default.cfg
 INSTALL_PATH="$INSTALL"
 PRODUCT_SVC_CTRL=$ADMIN_SVC_CTL
 
@@ -84,7 +84,7 @@ if [[ $OS_RELEASE == 7* ]]; then
     OS_RELEASE=7
 fi
 
-if [ "$OS_NAME" != "red" -a "$OS_NAME" != "centos" ]; then
+if [ "$OS_NAME" != "red" -a "$OS_NAME" != "centos" -a "$OS_RELEASE" -lt 6  ]; then
 	echo_failure; echo
 	echo "OS unknown: $OS_NAME$OS_RELEASE" >> "$LOG_FILE"
 	exit_on_error
@@ -106,25 +106,14 @@ echo_success; echo
 # Stopping all services
 #
 #######################################
-echo -n "* Stopping the $APP_NAME server"
-if [ "$OS_RELEASE" == "7" ]; then
-	systemctl stop $PRODUCT_SVC_NAME.service 1>> "$LOG_FILE" 2>&1
-	if [ $? -ne 0 ]; then
-		echo_failure; echo
-		echo "Unable to stop the server, perhaps the server is not installed" >> $LOG_FILE
-		if [ "$FORCE_UNINSTALL" == 0 ]; then
-			exit 1
-		fi
-	fi
-else
-	service $PRODUCT_SVC_NAME stop 1>> $LOG_FILE 2>&1
-	if [ $? -ne 0 ]; then
-		echo_failure; echo
-		echo "Unable to stop the server, perhaps the server is not installed" >> $LOG_FILE
-		if [ "$FORCE_UNINSTALL" == 0 ]; then
-			exit 1
-		fi
-	fi
+echo -n "* Stopping server"
+systemctl stop $PRODUCT_SVC_NAME.service 1>> "$LOG_FILE" 2>&1
+if [ $? -ne 0 ]; then
+    echo "Unable to stop the server, perhaps the server is not installed" >> $LOG_FILE
+    if [ "$FORCE_UNINSTALL" == 0 ]; then
+        echo_failure; echo
+        exit 1
+    fi
 fi
 
 /usr/sbin/"$PRODUCT_SVC_CTRL" stop 1>> $LOG_FILE 2>&1
@@ -132,23 +121,13 @@ fi
 echo_success; echo
 
 echo -n "* Stopping $HTTPD_SERVICE_NAME"
-if [ "$OS_RELEASE" == "7" ]; then
-	systemctl stop $HTTPD_SERVICE_NAME.service 1>> "$LOG_FILE" 2>&1
-	if [ $? -ne 0 ]; then
-		echo_failure; echo
-		echo "Unable to stop $HTTPD_SERVICE_NAME" >> "$LOG_FILE"
-		exit_on_error
-	fi
-else
-	service $HTTPD_SERVICE_NAME stop 1>> "$LOG_FILE" 2>&1
-	if [ $? -ne 0 ]; then
-		echo_failure; echo
-		echo "Unable to stop $HTTPD_SERVICE_NAME" >> "$LOG_FILE"
-		exit_on_error
-	fi
-	# kill httpd, just to be sure
-	kill -9 `ps -ef | grep "$HTTPD_SERVICE_NAME" | grep -v grep | awk '{print $2}'` 1>> $LOG_FILE 2>&1
+systemctl stop $HTTPD_SERVICE_NAME.service 1>> "$LOG_FILE" 2>&1
+if [ $? -ne 0 ]; then
+    echo_failure; echo
+    echo "Unable to stop $HTTPD_SERVICE_NAME" >> "$LOG_FILE"
+    exit_on_error
 fi
+
 echo_success; echo
 
 #######################################
@@ -158,7 +137,7 @@ echo_success; echo
 #######################################
 
 # Remove the bdd
-echo -n "* Removing the $APP_NAME database"
+echo -n "* Removing database"
 cd "$INSTALL_PATH"/current/Scripts/ 1>> $LOG_FILE 2>&1
 python ./database/del-bdd.py 1>> $LOG_FILE 2>&1
 if [ $? -ne 0 ]; then
@@ -172,7 +151,7 @@ else
 fi
 
 # Remove the source
-echo -n "* Removing the $APP_NAME source"
+echo -n "* Removing source"
 rm -rf $INSTALL/$APP_NAME-$PRODUCT_VERSION 1>> $LOG_FILE 2>&1
 rm -f $INSTALL/current 1>> $LOG_FILE 2>&1
 echo_success; echo
@@ -184,56 +163,29 @@ rm -f $CRON_DAILY/$PRODUCT_SVC_NAME-tables 1>> $LOG_FILE 2>&1
 echo_success; echo
 
 # Remove the service
-echo -n "* Removing the $APP_NAME service"
-if [ "$OS_RELEASE" == "7" ]; then
-	systemctl disable $PRODUCT_SVC_NAME.service 1>> "$LOG_FILE" 2>&1
-	rm -rf $SYSTEMD/$PRODUCT_SVC_NAME.service 1>> $LOG_FILE 2>&1
-	rm -rf /usr/sbin/"$PRODUCT_SVC_NAME"ctl 1>> $LOG_FILE 2>&1
-else
-	chkconfig $PRODUCT_SVC_NAME off 345 1>> $LOG_FILE 2>&1
-	rm -f $INITD/$PRODUCT_SVC_NAME 1>> $LOG_FILE 2>&1
-	rm -rf /usr/sbin/"$PRODUCT_SVC_CTRL" 1>> $LOG_FILE 2>&1
-fi
+echo -n "* Removing service"
+systemctl disable $PRODUCT_SVC_NAME.service 1>> "$LOG_FILE" 2>&1
+rm -rf $SYSTEMD/$PRODUCT_SVC_NAME.service 1>> $LOG_FILE 2>&1
+rm -rf /usr/sbin/"$PRODUCT_SVC_NAME"ctl 1>> $LOG_FILE 2>&1
 
 # remove workaround
-if [ "$OS_RELEASE" == "7" ]; then
-    cp -rf $SYSTEMD/$HTTPD_SERVICE_NAME.service.backup $SYSTEMD/$HTTPD_SERVICE_NAME.service 1>> "$LOG_FILE" 2>&1
-    systemctl daemon-reload 1>> "$LOG_FILE" 2>&1 
-fi
+cp -rf $SYSTEMD/$HTTPD_SERVICE_NAME.service.backup $SYSTEMD/$HTTPD_SERVICE_NAME.service 1>> "$LOG_FILE" 2>&1
+systemctl daemon-reload 1>> "$LOG_FILE" 2>&1 
 echo_success; echo
-
-# Remove user
-# echo -n "* Removing $APP_NAME user"
-# userdel -r $PRODUCT_SVC_NAME 1>> $LOG_FILE 2>&1
-# echo_success; echo
 
 if [ "$CONFIG_IPTABLES" = "Yes" ]; then
 	echo -n "* Restoring iptables"
-	if [ "$OS_RELEASE" == "7" ]; then
-		systemctl stop $IPTABLE_SERVICE_NAME.service 1>> "$LOG_FILE" 2>&1
-	else
-		service iptables stop 1>> $LOG_FILE 2>&1
-	fi
+	systemctl stop $IPTABLE_SERVICE_NAME.service 1>> "$LOG_FILE" 2>&1
+
 	cp -rf $IPTABLE_CONF/iptables.backup $IPTABLE_CONF/iptables
-	if [ "$OS_RELEASE" == "7" ]; then
-		systemctl restart $IPTABLE_SERVICE_NAME.service 1>> "$LOG_FILE" 2>&1
-		if [ $? -ne 0 ]; then
-			echo_failure; echo
-			echo "Unable to unconfigure $IPTABLE_CONF/iptables" >> $LOG_FILE
-			if [ "$FORCE_UNINSTALL" == 0 ]; then
-				exit 1
-			fi
-		fi
-	else
-		service iptables restart 1>> $LOG_FILE 2>&1
-		if [ $? -ne 0 ]; then
-			echo_failure; echo
-			echo "Unable to unconfigure $IPTABLE_CONF/iptables" >> $LOG_FILE
-			if [ "$FORCE_UNINSTALL" == 0 ]; then
-				exit 1
-			fi
-		fi
-	fi
+	systemctl restart $IPTABLE_SERVICE_NAME.service 1>> "$LOG_FILE" 2>&1
+    if [ $? -ne 0 ]; then
+        echo_failure; echo
+        echo "Unable to unconfigure $IPTABLE_CONF/iptables" >> $LOG_FILE
+        if [ "$FORCE_UNINSTALL" == 0 ]; then
+            exit 1
+        fi
+    fi
 	echo_success; echo
 fi
 
@@ -270,12 +222,6 @@ if [ "$CONFIG_APACHE" = "Yes" ]; then
 		fi
 	fi
 
-	if [ "$OS_RELEASE" != "7" ]; then
-		echo -n "* Removing wstunnel module"
-		rm -rf /etc/httpd/modules/mod_proxy_wstunnel.so 1>> $LOG_FILE 2>&1
-		echo_success; echo
-	fi
-
 	echo -n "* Removing httpd configuration"
 	mv -f $HTTPD_CONF/httpd.conf.backup $HTTPD_CONF/httpd.conf 1>> $LOG_FILE 2>&1
 	mv -f $HTTPD_VS_CONF/ssl.conf.backup $HTTPD_VS_CONF/ssl.conf 1>> $LOG_FILE 2>&1
@@ -283,31 +229,18 @@ if [ "$CONFIG_APACHE" = "Yes" ]; then
 	echo_success; echo
 
 	echo -n "* Restarting $HTTPD_SERVICE_NAME"
-	if [ "$OS_RELEASE" == "7" ]; then
-		systemctl start $HTTPD_SERVICE_NAME.service 1>> "$LOG_FILE" 2>&1
-		if [ $? -ne 0 ]; then
-			echo_failure; echo
-			echo "Unable to start $HTTPD_SERVICE_NAME" >> $LOG_FILE
-			if [ "$FORCE_UNINSTALL" == 0 ]; then
-				exit 1
-			fi
-		else
-			echo_success; echo
-		fi
-	else
-		service $HTTPD_SERVICE_NAME start 1>> $LOG_FILE 2>&1
-		if [ $? -ne 0 ]; then
-			echo_failure; echo
-			echo "Unable to start $HTTPD_SERVICE_NAME" >> $LOG_FILE
-			if [ "$FORCE_UNINSTALL" == 0 ]; then
-				exit 1
-			fi
-		else
-			echo_success; echo
-		fi
-	fi
+	systemctl start $HTTPD_SERVICE_NAME.service 1>> "$LOG_FILE" 2>&1
+    if [ $? -ne 0 ]; then
+        echo_failure; echo
+        echo "Unable to start $HTTPD_SERVICE_NAME" >> $LOG_FILE
+        if [ "$FORCE_UNINSTALL" == 0 ]; then
+            exit 1
+        fi
+    else
+        echo_success; echo
+    fi
 fi
 
-echo "========================================================================="
+echo "================================================================="
 echo "- Uninstallation completed successfully!"
-echo "========================================================================="
+echo "================================================================="

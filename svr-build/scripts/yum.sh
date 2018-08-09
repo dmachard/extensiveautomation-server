@@ -20,16 +20,6 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-#====================================================================
-#
-#         USAGE:  ./install.sh
-#
-#   DESCRIPTION:  Install the product
-#
-#       OPTIONS:  ---
-#        AUTHOR:  Denis Machard
-#====================================================================
-
 . /etc/rc.d/init.d/functions
 
 # first check for root user
@@ -38,24 +28,19 @@ if [ ! $UID -eq 0 ]; then
     exit 1
 fi
 
-APP_NAME="ExtensiveAutomation"
 APP_PATH="$(pwd)"
-LOG_FILE="$APP_PATH/logs/install.log"
-APP_SRC_PATH="$(pwd)/$APP_NAME/"
-if [ ! -f "$APP_SRC_PATH"/VERSION ]; then
-    echo "Package version not detected, goodbye."
-    exit 1
-fi
-PRODUCT_VERSION="$(cat "$APP_SRC_PATH"/VERSION)"
-PRODUCT_SVC_NAME="$(echo $APP_NAME | sed 's/.*/\L&/')"
-PRODUCT_SVC_CTRL="xtctl"
+LOG_FILE="$APP_PATH/logs/install_yum.log"
 
-read -p "Are you sure you want to install the product? (yes or no) " yn 
-case $yn in 
-	[Yy]* ) ;; 
-	[Nn]* ) echo "Ok, goodbye."; exit 1;; 
-	* ) echo "Please answer yes or no. ";exit 1;; 
-esac 
+YUM_BIN="/usr/bin/yum"
 
-# install the product without ask anything
-$APP_PATH/custom.sh install
+for pkg in $(cat "$APP_PATH/local_rpms/requirements.txt")
+do
+    echo -ne "\r\033[K* Adding $pkg"
+    yum -y install $(echo $pkg | tr '\n' ' ' | tr '\r' ' ')  >> "$LOG_FILE" 2>&1
+    if [ $? -ne 0 ]; then
+        echo_failure; echo
+        echo "Unable to install package $pkg" >> "$LOG_FILE"
+        exit 1
+    fi
+done 
+echo_success; echo

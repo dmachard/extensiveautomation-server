@@ -32,9 +32,9 @@
 
 PKG_NAME="ExtensiveAutomation"
 PRODUCT_SVC_NAME="$(echo $PKG_NAME | sed 's/.*/\L&/')"
-APP_PATH="$(pwd)"
-APP_SRC_PATH="$(pwd)/$PKG_NAME/"
-LOG_FILE="$APP_PATH/install.log"
+APP_PATH="$(pwd)/../"
+APP_SRC_PATH="$(pwd)/../$PKG_NAME/"
+LOG_FILE="$APP_PATH/logs/install.log"
 
 echo "========================================"
 echo "=      Build the $PKG_NAME product     ="
@@ -86,12 +86,12 @@ perl -i -pe "s/LWF_DB_PWD.*/LWF_DB_PWD='';/g" $APP_SRC_PATH/Web/include/config.p
 dos2unix $APP_SRC_PATH/Web/include/config.php  1>> "$LOG_FILE" 2>&1
 
 echo "- add install default value"
-perl -i -pe "s/^FQDN=.*/FQDN=127.0.0.1/g" $APP_PATH/default.cfg
-perl -i -pe "s/^MYSQL_IP=.*/MYSQL_IP=127.0.0.1/g" $APP_PATH/default.cfg
-perl -i -pe "s/^EXTERNAL_IP=.*/EXTERNAL_IP=127.0.0.1/g" $APP_PATH/default.cfg
-perl -i -pe "s/^MYSQL_USER=.*/MYSQL_USER=root/g" $APP_PATH/default.cfg
-perl -i -pe "s/^MYSQL_PWD=.*/MYSQL_PWD=/g" $APP_PATH/default.cfg
-dos2unix $APP_PATH/default.cfg  1>> "$LOG_FILE" 2>&1
+perl -i -pe "s/^FQDN=.*/FQDN=127.0.0.1/g" $APP_PATH/scripts/default.cfg
+perl -i -pe "s/^MYSQL_IP=.*/MYSQL_IP=127.0.0.1/g" $APP_PATH/scripts/default.cfg
+perl -i -pe "s/^EXTERNAL_IP=.*/EXTERNAL_IP=127.0.0.1/g" $APP_PATH/scripts/default.cfg
+perl -i -pe "s/^MYSQL_USER=.*/MYSQL_USER=root/g" $APP_PATH/scripts/default.cfg
+perl -i -pe "s/^MYSQL_PWD=.*/MYSQL_PWD=/g" $APP_PATH/scripts/default.cfg
+dos2unix $APP_PATH/scripts/default.cfg  1>> "$LOG_FILE" 2>&1
 
 echo "- remove code report and analysis"
 rm -rf $APP_SRC_PATH/Scripts/code_analysis/
@@ -112,8 +112,10 @@ rm -rf $APP_SRC_PATH/Var/Run/*.pid
 rm -rf $APP_SRC_PATH/Var/Run/httpd.conf
 
 echo "- clean logs"
-rm -rf $APP_PATH/install.log
-touch $APP_PATH/install.log
+rm -rf $APP_PATH/logs/*
+touch $APP_PATH/logs/install.log
+touch $APP_PATH/logs/install_yum.log
+touch $APP_PATH/logs/install_pip.log
 rm -rf $APP_SRC_PATH/Var/Logs/*
 touch $APP_SRC_PATH/Var/Logs/output.log
 touch $APP_SRC_PATH/Var/Logs/tests.out
@@ -139,49 +141,31 @@ rm -rf $APP_SRC_PATH/Var/Backups/Tests/*
 rm -rf $APP_SRC_PATH/Var/Backups/Tables/*
 
 echo "- remove symbolic link"
-rm -rf $APP_SRC_PATH/Packages/Client/linux2/ExtensiveTestingClient_Setup.tar.gz
-rm -rf $APP_SRC_PATH/Packages/Client/win32/ExtensiveTestingClient_Setup.exe
-rm -rf $APP_SRC_PATH/Packages/Client/win32/ExtensiveTestingClient_Portable.zip
-rm -rf $APP_SRC_PATH/Packages/Agents/linux2/ExtensiveTestingToolbox_Setup.tar.gz
-rm -rf $APP_SRC_PATH/Packages/Agents/win32/ExtensiveTestingToolbox_Setup.exe
-rm -rf $APP_SRC_PATH/Packages/Agents/win32/ExtensiveTestingToolbox_Portable.zip
+rm -rf $APP_SRC_PATH/Packages/Client/linux2/*
+rm -rf $APP_SRC_PATH/Packages/Client/win32/*
+rm -rf $APP_SRC_PATH/Packages/Agents/linux2/*
+rm -rf $APP_SRC_PATH/Packages/Agents/win32/*
 
-rm -rf $APP_SRC_PATH/Packages/Client/win64/ExtensiveTestingClient_Setup.exe
-rm -rf $APP_SRC_PATH/Packages/Client/win64/ExtensiveTestingClient_Portable.zip
-rm -rf $APP_SRC_PATH/Packages/Agents/win64/ExtensiveTestingToolbox_Setup.exe
-rm -rf $APP_SRC_PATH/Packages/Agents/win64/ExtensiveTestingToolbox_Portable.zip
+rm -rf $APP_SRC_PATH/Packages/Client/win64/*
+rm -rf $APP_SRC_PATH/Packages/Agents/win64/*
 
 
-echo "- chmod on script"
-chmod +x $APP_PATH/install.sh
-dos2unix $APP_PATH/install.sh  1>> "$LOG_FILE" 2>&1
+echo "- chmod on scripts"
+chmod +x $APP_PATH/*.sh
+dos2unix $APP_PATH/*.sh  1>> "$LOG_FILE" 2>&1
 
-chmod +x $APP_PATH/uninstall.sh
-dos2unix $APP_PATH/uninstall.sh  1>> "$LOG_FILE" 2>&1
+chmod +x $APP_PATH/scripts/*.sh
+dos2unix $APP_PATH/scripts/*.sh  1>> "$LOG_FILE" 2>&1
 
-chmod +x $APP_PATH/update.sh
-dos2unix $APP_PATH/update.sh  1>> "$LOG_FILE" 2>&1
-
-chmod +x $APP_PATH/rollback.sh
-dos2unix $APP_PATH/rollback.sh  1>> "$LOG_FILE" 2>&1
-
-chmod +x $APP_PATH/cleanup.sh
-dos2unix $APP_PATH/cleanup.sh  1>> "$LOG_FILE" 2>&1
-
-chmod +x $APP_PATH/secure.sh
-dos2unix $APP_PATH/secure.sh  1>> "$LOG_FILE" 2>&1
-
-chmod +x $APP_SRC_PATH/Scripts/generate-wsdl-adapter.py
-dos2unix $APP_SRC_PATH/Scripts/generate-wsdl-adapter.py 1>> "$LOG_FILE" 2>&1
-
-chmod +x $APP_SRC_PATH/Scripts/decode-trx.py
-dos2unix $APP_SRC_PATH/Scripts/decode-trx.py 1>> "$LOG_FILE" 2>&1
+chmod +x $APP_SRC_PATH/Scripts/*.py
+dos2unix $APP_SRC_PATH/Scripts/*.py 1>> "$LOG_FILE" 2>&1
 
 chmod +x $APP_SRC_PATH/Scripts/*.sh
+dos2unix $APP_SRC_PATH/Scripts/*.sh 1>> "$LOG_FILE" 2>&1
 
 echo "- generate doc api"
 $APP_SRC_PATH/Scripts/yaml-restapi-docs.sh $APP_SRC_PATH
 
 echo "- create pkg"
-tar -czvf /tmp/$PKG_NAME-$PKG_VERSION.tar.gz ../$PKG_NAME-$PKG_VERSION/
+tar -czvf /tmp/$PKG_NAME-$PKG_VERSION.tar.gz ../../$PKG_NAME-$PKG_VERSION/
 echo "=> Result tar.gz file is located in /tmp"
