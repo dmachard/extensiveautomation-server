@@ -1,4 +1,12 @@
 
+19.0.1
+	Date: 09/08/2018
+	What's new
+		1. None
+	Issues Fixed
+		1. Fix installation process, integration of the pip command
+		2. Rest API: unable to update user with minimal parameters
+
 19.0.0
 	Date: 05/08/2018
 	What's new
@@ -61,4 +69,4 @@
 		9. (minor) test executor: fix issue #13 - getSize function missing on template message
 		10. (medium) test library: fix encoding in test operators
 		11. (minor) test creator: fix issue on capture regex
-		12. (minor) fix copyright in test report
+        12. (minor) fix copyright in test report

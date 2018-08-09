@@ -51,9 +51,8 @@ PREVIOUS_PRODUCT_SVC_NAME="$(echo $PREVIOUS_APP_NAME | sed 's/.*/\L&/')"
 
 APP_NAME="ExtensiveAutomation"
 APP_PATH="$(pwd)"
-LOG_FILE="$APP_PATH/install.log"
-PKG_PATH="$APP_PATH/PKG/"
-UPDATE_PATH="$APP_PATH/UPDATE/"
+LOG_FILE="$APP_PATH/logs/install.log"
+UPDATE_PATH="$APP_PATH/scripts/"
 APP_SRC_PATH="$(pwd)/$APP_NAME/"
 if [ ! -f "$APP_SRC_PATH"/VERSION ]; then
     echo "Package version not detected, goodbye."
@@ -69,12 +68,12 @@ echo "=          www.extensiveautomation.org                      ="
 echo "============================================================="
 
 # import default config
-source $APP_PATH/default.cfg
+source $APP_PATH/scripts/default.cfg
 PREVIOUS_PRODUCT_SVC_CTRL=$ADMIN_SVC_CTL
 
 exit_on_error()
 {
-    rm -rf "$APP_PATH"/default.cfg.tmp 1>> "$LOG_FILE" 2>&1
+    rm -rf "$APP_PATH"/scripts/default.cfg.tmp 1>> "$LOG_FILE" 2>&1
     exit 1
 }
 
@@ -93,7 +92,7 @@ if [[ $OS_RELEASE == 7* ]]; then
     OS_RELEASE=7
 fi
 
-if [ "$OS_NAME" != "red" -a "$OS_NAME" != "centos" ]; then
+if [ "$OS_NAME" != "red" -a "$OS_NAME" != "centos" -a "$OS_RELEASE" -lt 6 ]; then
 	echo_failure; echo
 	echo "OS unknown: $OS_NAME$OS_RELEASE" >> "$LOG_FILE"
 	exit_on_error
@@ -178,35 +177,35 @@ PREVIOUS_READ_DB=$(sed -n 's/^read-test-statistics=\(.*\)/\1/p' < $INSTALL/curre
 PREVIOUS_ENCRYPT_ENV_DB=$(sed -n 's/^test-environment-encrypted=\(.*\)/\1/p' < $INSTALL/current/settings.ini)
 
 
-perl -i -pe "s/DOWNLOAD_MISSING_PACKAGES=.*/DOWNLOAD_MISSING_PACKAGES=Yes/g" "$APP_PATH"/default.cfg
-perl -i -pe "s/FQDN=.*/FQDN=$PREVIOUS_FQDN/g" "$APP_PATH"/default.cfg
-perl -i -pe "s/EXTERNAL_IP=.*/EXTERNAL_IP=$PREVIOUS_EXT_IP/g" "$APP_PATH"/default.cfg
-perl -i -pe "s/MYSQL_IP=.*/MYSQL_IP=$PREVIOUS_MYSQL_IP/g" "$APP_PATH"/default.cfg
-perl -i -pe "s/MYSQL_USER=.*/MYSQL_USER=$PREVIOUS_MYSQL_LOGIN/g" "$APP_PATH"/default.cfg
-perl -i -pe "s/MYSQL_PWD=.*/MYSQL_PWD=$PREVIOUS_MYSQL_PWD/g" "$APP_PATH"/default.cfg
-perl -i -pe "s/MYSQL_SOCK=.*/MYSQL_SOCK=$(echo "$PREVIOUS_MYSQL_SOCK" | sed -e 's/[]\/()$*.^|[]/\\&/g')/g" "$APP_PATH"/default.cfg
-perl -i -pe "s/MODE_DEMO=.*/MODE_DEMO=$PREVIOUS_DEMO_MODE/g" "$APP_PATH"/default.cfg
+perl -i -pe "s/DOWNLOAD_MISSING_PACKAGES=.*/DOWNLOAD_MISSING_PACKAGES=Yes/g" "$APP_PATH"/scripts/default.cfg
+perl -i -pe "s/FQDN=.*/FQDN=$PREVIOUS_FQDN/g" "$APP_PATH"/scripts/default.cfg
+perl -i -pe "s/EXTERNAL_IP=.*/EXTERNAL_IP=$PREVIOUS_EXT_IP/g" "$APP_PATH"/scripts/default.cfg
+perl -i -pe "s/MYSQL_IP=.*/MYSQL_IP=$PREVIOUS_MYSQL_IP/g" "$APP_PATH"/scripts/default.cfg
+perl -i -pe "s/MYSQL_USER=.*/MYSQL_USER=$PREVIOUS_MYSQL_LOGIN/g" "$APP_PATH"/scripts/default.cfg
+perl -i -pe "s/MYSQL_PWD=.*/MYSQL_PWD=$PREVIOUS_MYSQL_PWD/g" "$APP_PATH"/scripts/default.cfg
+perl -i -pe "s/MYSQL_SOCK=.*/MYSQL_SOCK=$(echo "$PREVIOUS_MYSQL_SOCK" | sed -e 's/[]\/()$*.^|[]/\\&/g')/g" "$APP_PATH"/scripts/default.cfg
+perl -i -pe "s/MODE_DEMO=.*/MODE_DEMO=$PREVIOUS_DEMO_MODE/g" "$APP_PATH"/scripts/default.cfg
 
-perl -i -pe "s/DATABASE_INSERT_TEST_STATISTICS=.*/DATABASE_INSERT_TEST_STATISTICS=$PREVIOUS_INSERT_DB/g" "$APP_PATH"/default.cfg
-perl -i -pe "s/DATABASE_READ_TEST_STATISTICS=.*/DATABASE_READ_TEST_STATISTICS=$PREVIOUS_READ_DB/g" "$APP_PATH"/default.cfg
-perl -i -pe "s/DATABASE_ENCRYPT_TEST_ENV=.*/DATABASE_ENCRYPT_TEST_ENV=$PREVIOUS_ENCRYPT_ENV_DB/g" "$APP_PATH"/default.cfg
+perl -i -pe "s/DATABASE_INSERT_TEST_STATISTICS=.*/DATABASE_INSERT_TEST_STATISTICS=$PREVIOUS_INSERT_DB/g" "$APP_PATH"/scripts/default.cfg
+perl -i -pe "s/DATABASE_READ_TEST_STATISTICS=.*/DATABASE_READ_TEST_STATISTICS=$PREVIOUS_READ_DB/g" "$APP_PATH"/scripts/default.cfg
+perl -i -pe "s/DATABASE_ENCRYPT_TEST_ENV=.*/DATABASE_ENCRYPT_TEST_ENV=$PREVIOUS_ENCRYPT_ENV_DB/g" "$APP_PATH"/scripts/default.cfg
 
 if [ "${PREVIOUS_DEFAULT_ADP}" != "" ]; then
-    perl -i -pe "s/CURRENT_ADAPTERS=.*/CURRENT_ADAPTERS=$PREVIOUS_DEFAULT_ADP/g" "$APP_PATH"/default.cfg
+    perl -i -pe "s/CURRENT_ADAPTERS=.*/CURRENT_ADAPTERS=$PREVIOUS_DEFAULT_ADP/g" "$APP_PATH"/scripts/default.cfg
 fi
 if [ "${PREVIOUS_DEFAULT_LIB}" != "" ]; then
-    perl -i -pe "s/CURRENT_LIBRARIES=.*/CURRENT_LIBRARIES=$PREVIOUS_DEFAULT_LIB/g" "$APP_PATH"/default.cfg
+    perl -i -pe "s/CURRENT_LIBRARIES=.*/CURRENT_LIBRARIES=$PREVIOUS_DEFAULT_LIB/g" "$APP_PATH"/scripts/default.cfg
 fi
 if [ "${PREVIOUS_GENERIC_ADP}" != "" ]; then
-    perl -i -pe "s/GENERIC_ADAPTERS=.*/GENERIC_ADAPTERS=$PREVIOUS_GENERIC_ADP/g" "$APP_PATH"/default.cfg
+    perl -i -pe "s/GENERIC_ADAPTERS=.*/GENERIC_ADAPTERS=$PREVIOUS_GENERIC_ADP/g" "$APP_PATH"/scripts/default.cfg
 fi
 if [ "${PREVIOUS_GENERIC_LIB}" != "" ]; then
-    perl -i -pe "s/GENERIC_LIBRARIES=.*/GENERIC_LIBRARIES=$PREVIOUS_GENERIC_LIB/g" "$APP_PATH"/default.cfg
+    perl -i -pe "s/GENERIC_LIBRARIES=.*/GENERIC_LIBRARIES=$PREVIOUS_GENERIC_LIB/g" "$APP_PATH"/scripts/default.cfg
 fi
 
 
 # reload config
-source $APP_PATH/default.cfg
+source $APP_PATH/scripts/default.cfg
 
 # Stop the product server
 echo -n "* Stopping the current version $PREVIOUS_VERSION"
@@ -220,11 +219,8 @@ echo_success; echo
 
 # remove previous symbolic link, usefull when the product name changed
 rm -rf $HTTPD_VS_CONF/$PREVIOUS_PRODUCT_SVC_NAME.conf 1>> "$LOG_FILE" 2>&1
-if [ "$OS_RELEASE" == "7" ]; then
-	rm -rf $SYSTEMD/$PREVIOUS_PRODUCT_SVC_NAME.service 1>> "$LOG_FILE" 2>&1
-else
-	rm -rf $INITD/$PREVIOUS_PRODUCT_SVC_NAME 1>> "$LOG_FILE" 2>&1
-fi
+rm -rf $SYSTEMD/$PREVIOUS_PRODUCT_SVC_NAME.service 1>> "$LOG_FILE" 2>&1
+
 
 $APP_PATH/custom.sh update
 if [ $? -ne 0 ]; then
@@ -236,20 +232,11 @@ fi
 # Stop the product server
 #
 #######################################
-if [ "$OS_RELEASE" == "7" ]; then
-	systemctl stop $PRODUCT_SVC_NAME.service 1>> "$LOG_FILE" 2>&1
-	if [ $? -ne 0 ]; then
-		echo_failure; echo
-		echo "Unable to stop the server, perhaps the server is not installed" >> $LOG_FILE
-		exit_on_error
-	fi
-else
-	service $PRODUCT_SVC_NAME stop 1>> $LOG_FILE 2>&1
-	if [ $? -ne 0 ]; then
-		echo_failure; echo
-		echo "Unable to stop the server, perhaps the server is not installed" >> $LOG_FILE
-		exit_on_error
-	fi
+systemctl stop $PRODUCT_SVC_NAME.service 1>> "$LOG_FILE" 2>&1
+if [ $? -ne 0 ]; then
+    echo_failure; echo
+    echo "Unable to stop the server, perhaps the server is not installed" >> $LOG_FILE
+    exit_on_error
 fi
 
 /usr/sbin/"$ADMIN_SVC_CTL" stop 1>> $LOG_FILE 2>&1
@@ -319,38 +306,20 @@ echo_success; echo
 #
 #######################################
 echo -n "* Restarting $HTTPD_SERVICE_NAME"
-if [ "$OS_RELEASE" == "7" ]; then
-    systemctl restart $HTTPD_SERVICE_NAME.service 1>> "$LOG_FILE" 2>&1
-    if [ $? -ne 0 ]; then
-        echo_failure; echo
-        echo "Unable to restart $HTTPD_SERVICE_NAME" >> "$LOG_FILE"
-        exit_on_error
-    fi
-else
-    service $HTTPD_SERVICE_NAME restart 1>> "$LOG_FILE" 2>&1
-    if [ $? -ne 0 ]; then
-        echo_failure; echo
-        echo "Unable to restart $HTTPD_SERVICE_NAME" >> "$LOG_FILE"
-        exit_on_error
-    fi
+systemctl restart $HTTPD_SERVICE_NAME.service 1>> "$LOG_FILE" 2>&1
+if [ $? -ne 0 ]; then
+    echo_failure; echo
+    echo "Unable to restart $HTTPD_SERVICE_NAME" >> "$LOG_FILE"
+    exit_on_error
 fi
 echo_success; echo
     
 echo -n "* Starting the new version $PRODUCT_VERSION"
-if [ "$OS_RELEASE" == "7" ]; then
-	systemctl start $PRODUCT_SVC_NAME.service 1>> "$LOG_FILE" 2>&1
-	if [ $? -ne 0 ]; then
-		echo_failure; echo
-		echo "Unable to start the server" >> "$LOG_FILE"
-		exit_on_error
-	fi
-else
-	service $PRODUCT_SVC_NAME start 1>> "$LOG_FILE" 2>&1
-	if [ $? -ne 0 ]; then
-		echo_failure; echo
-		echo "Unable to start the server" >> "$LOG_FILE"
-		exit_on_error
-	fi
+systemctl start $PRODUCT_SVC_NAME.service 1>> "$LOG_FILE" 2>&1
+if [ $? -ne 0 ]; then
+    echo_failure; echo
+    echo "Unable to start the server" >> "$LOG_FILE"
+    exit_on_error
 fi
 echo_success; echo
 

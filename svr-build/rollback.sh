@@ -35,7 +35,7 @@
 
 usage(){
 	echo "Usage: $0 [previous-version]"
-	echo "Example: ./rollback.sh 6.1.0"
+	echo "Example: ./rollback.sh 18.0.0"
 	exit 1
 }
 
@@ -52,8 +52,7 @@ fi
 PREVIOUS_APP_NAME="ExtensiveTesting"
 APP_NAME="ExtensiveAutomation"
 APP_PATH="$(pwd)"
-LOG_FILE="$APP_PATH/install.log"
-PKG_PATH="$APP_PATH/PKG/"
+LOG_FILE="$APP_PATH/logs/install.log"
 APP_SRC_PATH="$(pwd)/$APP_NAME/"
 if [ ! -f "$APP_SRC_PATH"/VERSION ]; then
     echo "Package version not detected, goodbye."
@@ -71,13 +70,13 @@ echo "======================================================"
 
 
 # import default config
-source $APP_PATH/default.cfg
+source $APP_PATH/scripts/default.cfg
 
 PREVIOUS_PATH="$INSTALL/$PREVIOUS_APP_NAME-$1"
 
 exit_on_error()
 {
-    rm -rf "$APP_PATH"/default.cfg.tmp 1>> "$LOG_FILE" 2>&1
+    rm -rf "$APP_PATH"/scripts/default.cfg.tmp 1>> "$LOG_FILE" 2>&1
     exit 1
 }
 
@@ -92,7 +91,7 @@ if [[ $OS_RELEASE == 7* ]]; then
     OS_RELEASE=7
 fi
 
-if [ "$OS_NAME" != "red" -a "$OS_NAME" != "centos" ]; then
+if [ "$OS_NAME" != "red" -a "$OS_NAME" != "centos" -a "$OS_RELEASE" -lt 6 ]; then
 	echo_failure; echo
 	echo "OS unknown: $OS_NAME$OS_RELEASE" >> "$LOG_FILE"
 	exit_on_error
@@ -115,20 +114,11 @@ echo_success; echo
 #
 #######################################
 echo -n "* Stopping the $APP_NAME server"
-if [ "$OS_RELEASE" == "7" ]; then
-	systemctl stop $PRODUCT_SVC_NAME.service 1>> "$LOG_FILE" 2>&1
-	if [ $? -ne 0 ]; then
-		echo_failure; echo
-		echo "Unable to stop the server, perhaps the server is not installed" >> $LOG_FILE
-		exit_on_error
-	fi
-else
-	service $PRODUCT_SVC_NAME stop 1>> $LOG_FILE 2>&1
-	if [ $? -ne 0 ]; then
-		echo_failure; echo
-		echo "Unable to stop the server, perhaps the server is not installed" >> $LOG_FILE
-		exit_on_error
-	fi
+systemctl stop $PRODUCT_SVC_NAME.service 1>> "$LOG_FILE" 2>&1
+if [ $? -ne 0 ]; then
+    echo_failure; echo
+    echo "Unable to stop the server, perhaps the server is not installed" >> $LOG_FILE
+    exit_on_error
 fi
 echo_success; echo
 
@@ -151,20 +141,11 @@ echo_success; echo
 #
 #######################################
 echo -n "* Restarting the $PREVIOUS_APP_NAME server"
-if [ "$OS_RELEASE" == "7" ]; then
-	systemctl start $PRODUCT_SVC_NAME.service 1>> "$LOG_FILE" 2>&1
-	if [ $? -ne 0 ]; then
-		echo_failure; echo
-		echo "Unable to start the server" >> "$LOG_FILE"
-		exit_on_error
-	fi
-else
-	service $PRODUCT_SVC_NAME start 1>> "$LOG_FILE" 2>&1
-	if [ $? -ne 0 ]; then
-		echo_failure; echo
-		echo "Unable to start the server" >> "$LOG_FILE"
-		exit_on_error
-	fi
+systemctl start $PRODUCT_SVC_NAME.service 1>> "$LOG_FILE" 2>&1
+if [ $? -ne 0 ]; then
+    echo_failure; echo
+    echo "Unable to start the server" >> "$LOG_FILE"
+    exit_on_error
 fi
 echo_success; echo
 

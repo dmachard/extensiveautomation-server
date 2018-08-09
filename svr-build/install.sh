@@ -40,8 +40,7 @@ fi
 
 APP_NAME="ExtensiveAutomation"
 APP_PATH="$(pwd)"
-LOG_FILE="$APP_PATH/install.log"
-PKG_PATH="$APP_PATH/PKG/"
+LOG_FILE="$APP_PATH/logs/install.log"
 APP_SRC_PATH="$(pwd)/$APP_NAME/"
 if [ ! -f "$APP_SRC_PATH"/VERSION ]; then
     echo "Package version not detected, goodbye."
