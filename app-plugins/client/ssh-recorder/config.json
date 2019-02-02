@@ -1,3 +1,0 @@
-{
-    "plugin": { "name": "Shell-Recorder", "type": "recorder-system", "version": "3.0.0", "description": "Import ssh file" }
-}
