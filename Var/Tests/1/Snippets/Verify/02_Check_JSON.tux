@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<file>
+<properties><descriptions><description><value>admin</value><key>author</key></description><description><value>13/05/2017 23:30:57</value><key>creation date</key></description><description><value>Just a basic sample.</value><key>summary</key></description><description><value>None.</value><key>prerequisites</key></description><description><value><comments /></value><key>comments</key></description><description><value>myplugins</value><key>libraries</key></description><description><value>myplugins</value><key>adapters</key></description><description><value>Writing</value><key>state</key></description><description><value>TESTCASE</value><key>name</key></description><description><value>REQ_01</value><key>requirement</key></description></descriptions><inputs-parameters><parameter><color /><description /><type>bool</type><name>DEBUG</name><value>False</value><scope>local</scope></parameter><parameter><color>#FCABBD</color><description /><type>text</type><name>JSON_STR</name><value>{
+	"args": {}, 
+	"headers": {
+		"Connection": "close", 
+		"Host": "httpbin.org", 
+		"User-Agent": "ExtensiveTesting"
+	}, 
+	"origin": "190.117.217.129", 
+	"url": "https://httpbin.org/get"
+}</value><scope>local</scope></parameter><parameter><color>#FCABBD</color><description /><type>text</type><name>JSON_XPATH</name><value>headers.Connection	[!CAPTURE:CX:]</value><scope>local</scope></parameter><parameter><color /><description /><type>float</type><name>TIMEOUT</name><value>1.0</value><scope>local</scope></parameter><parameter><color /><description /><type>bool</type><name>VERBOSE</name><value>True</value><scope>local</scope></parameter></inputs-parameters><agents><agent><description /><type>dummy</type><name>AGENT</name><value>agent-dummy01</value></agent></agents><probes><probe><active>False</active><args /><name>probe01</name><type>default</type></probe></probes><outputs-parameters><parameter><color /><description /><type>float</type><name>TIMEOUT</name><value>1.0</value><scope>local</scope></parameter></outputs-parameters></properties>
+<testdefinition><![CDATA[
+def description(self):
+	# testcase description
+	self.setPurpose(purpose=description('summary'))
+	self.setRequirement(requirement=description('requirement'))
+
+	# steps description
+	self.step1 = self.addStep(
+																			expected="result expected", 
+																			description="step description", 
+																			summary="step sample", 
+																			enabled=True
+																		)
+def prepare(self):
+	self.msg_decodage = []
+	self.LIB_JSON = SutLibraries.DataExchange.JSON(parent=self, name=None, debug=input('DEBUG'), ignoreErrors=False, shared=False)
+
+def definition(self):
+	# starting initial step
+	if self.step1.isEnabled():
+		self.step1.start()
+
+		body_json = input('JSON_STR')
+		for inp in  inputs() :
+			if inp["name"] == "JSON_STR":
+				if inp["type"] == "text":
+					body_json = self.LIB_JSON.decode(json_str=body_json)
+					break
+
+		if body_json is None:  self.abort("json provided not valid" )
+		
+		json_valid = True
+		n = 1
+		for line in input('JSON_XPATH').splitlines():
+			if line.startswith("#"): continue 
+			jsonpath_expected = re.split(r'\t+', line)
+			if len(jsonpath_expected) != 2:
+				self.abort("bad expected body provided n°=%s value=%s, expected <jsonpath>\\t<regexp>" % (n,line) )
+			jpath, jvalue = jsonpath_expected
+	
+			jsons_values = self.LIB_JSON.getValues(jpath=jpath, json_obj=body_json)
+			if not len(jsons_values):
+				self.msg_decodage.append( "Searching '%s' with the value '%s' : KO" % (jpath, jvalue) )
+				json_valid = False
+			else:
+				json_values_valid = True
+				
+				# search capture regexp
+				cap = re.findall("\(\?P\<.*\>.*\)", jvalue)
+				param_input = re.findall("\[\!FROM\:INPUT\:.*\:\]", jvalue)
+				param_cache = re.findall("\[\!FROM\:CACHE\:.*\:\]", jvalue)
+	
+				if cap :
+					cache_key = jvalue.split("(?P<")[1].split(">.*)")[0]
+					if len(jsons_values) == 1:
+						Cache().capture(data="%s" % jsons_values[0], regexp=jvalue)
+					else:
+						Cache().set(name=cache_key, data=jsons_values, flag=False)
+					self.msg_decodage.append( "Searching and capture value of '%s' : OK" % (jpath) )
+					
+				else:
+					if param_input :
+						input_key = jvalue.split("[!FROM:INPUT:")[1].split(":]")[0]
+						jvalue = input(name=input_key)
+	
+					if param_cache :
+						cache_key = jvalue.split("[!FROM:CACHE:")[1].split(":]")[0]
+						jvalue = Cache().get(name=cache_key)
+						if jvalue is None: self.abort("the key %s does not exists in the cache" % cache_key)
+	
+					for jv in jsons_values:
+						jv = str(jv)
+						reg = TestOperators.RegEx(needle=jvalue)
+						if not reg.seekIn(haystack=jv):
+							self.msg_decodage.append( "Searching '%s' with the value '%s' : KO" % (jpath, jvalue) )
+							json_values_valid = False
+							self.msg_decodage.append( " > received value: %s" % jv.encode("utf8") )
+	
+					if json_values_valid:
+						self.msg_decodage.append( "Searching '%s' with the value '%s' : OK" % (jpath, jvalue) )
+					else:
+						json_valid = False
+						
+			n += 1
+		if json_valid:
+			self.step1.setPassed(actual="JSON is OK.<br />%s" % "<br />".join(self.msg_decodage) )
+		else:
+			self.step1.setFailed(actual="JSON is KO.<br />%s" %	"<br />".join(self.msg_decodage))
+def cleanup(self, aborted):
+	if aborted: self.step1.setFailed(actual="%s. %s" % (aborted, "<br />".join(self.msg_decodage) ) )]]></testdefinition>
+<testdevelopment>1494711057.683541</testdevelopment>
+</file>

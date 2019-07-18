@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<file>
+<properties><descriptions><description><value>admin</value><key>author</key></description><description><value>24/12/2016 09:09:26</value><key>creation date</key></description><description><value>Just a basic sample.</value><key>summary</key></description><description><value>None.</value><key>prerequisites</key></description><description><value><comments /></value><key>comments</key></description><description><value>myplugins</value><key>libraries</key></description><description><value>myplugins</value><key>adapters</key></description><description><value>Writing</value><key>state</key></description><description><value>TESTCASE</value><key>name</key></description><description><value>REQ_01</value><key>requirement</key></description></descriptions><inputs-parameters><parameter><color>#DBADFF</color><description>The result is automatically saved in the cache</description><type>str</type><name>CACHE_KEY</name><value>uuid</value><scope>local</scope></parameter></inputs-parameters><agents><agent><description /><type>dummy</type><name>AGENT</name><value>agent-dummy01</value></agent></agents><probes><probe><active>False</active><args /><name>probe01</name><type>default</type></probe></probes><outputs-parameters><parameter><color /><description /><type>float</type><name>TIMEOUT</name><value>1.0</value><scope>local</scope></parameter></outputs-parameters></properties>
+<testdefinition><![CDATA[
+def description(self):
+	# testcase description
+	self.setPurpose(purpose=description('summary'))
+	self.setRequirement(requirement=description('requirement'))
+
+	# steps description
+	self.step1 = self.addStep(expected="uuid generated", description="generate uuid",
+																			summary="generate uuid", enabled=True)
+def prepare(self):
+	self.LIB_UUID = SutAdapters.Identifiers.UUIDS(parent=self)
+def definition(self):
+	# starting initial step
+	if self.step1.isEnabled():
+		self.step1.start()
+
+		u = self.LIB_UUID.generate()
+		Cache().set(name=input('CACHE_KEY'), data=u, flag=False)
+		
+		self.warning("uuid: %s" % u)
+		self.step1.setPassed(actual="success")
+def cleanup(self, aborted):
+	if aborted: self.step1.setFailed(actual=aborted)]]></testdefinition>
+<testdevelopment>1482566966.938714</testdevelopment>
+</file>

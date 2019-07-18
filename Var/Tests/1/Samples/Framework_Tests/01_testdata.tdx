@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<file>
+<properties><descriptions><description><key>author</key><value>admin</value></description><description><key>creation date</key><value>22/11/2015 12:12:28</value></description><description><key>summary</key><value>Just a basic sample.</value></description><description><key>data mode</key><value>Raw</value></description></descriptions><inputs-parameters><parameter><color /><name>PARAM1</name><type>str</type><value>Sample</value><description /><scope>local</scope></parameter></inputs-parameters></properties>
+<testdata><![CDATA[# documentation
+a;1;administrator
+b;2;tester
+c;3;__PARAM1__
+é; densidni; dsqdsq
+
+# documentation 2
+a=2
+b=__PARAM1__]]></testdata>
+</file>

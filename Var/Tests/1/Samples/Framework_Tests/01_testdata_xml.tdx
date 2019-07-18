@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<file>
+<properties><descriptions><description><key>author</key><value>admin</value></description><description><key>creation date</key><value>22/11/2015 12:12:28</value></description><description><key>summary</key><value>Just a basic sample.</value></description><description><key>data mode</key><value>Xml</value></description></descriptions><inputs-parameters><parameter><color /><name>PARAM1</name><type>str</type><value>Sample</value><description /><scope>local</scope></parameter></inputs-parameters></properties>
+<testdata><![CDATA[<?xml version="1.0" encoding="utf-8" ?>
+<file>
+   <properties>
+      <descriptions>
+         <description>
+            <key>author</key>
+            <value>...</value>
+         </description>
+         <description>
+            <key>date</key>
+            <value>...</value>
+         </description>
+         <description>
+            <key>summary</key>
+            <value>...</value>
+         </description>
+         <description>
+            <key>prerequisites</key>
+            <value>...</value>
+         </description>
+			</descriptions> 
+		</properties>
+</file>]]></testdata>
+</file>
