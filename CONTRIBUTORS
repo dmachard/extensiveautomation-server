@@ -15,6 +15,7 @@
             <li>documentations</li>
             <li>ssh console adapter</li>
             <li>ssh plugin recorder for client</li>
+            <li>docker support</li>
         </ul>
     </li>
     <li>Thibault Lecoq

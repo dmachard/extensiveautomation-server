@@ -6,66 +6,63 @@ Introduction
 
 <a href="https://www.extensiveautomation.org/" target="_blank"><img width="100" src="https://www.extensiveautomation.org/img/logo_extensive_testing.png" alt="ExtensiveAutomation logo"></a>
 
-ExtensiveAutomation is a generic automation framework for integration, regression and end-to-end usages. The framework provided a rich and collaborative workspace environment.
+ExtensiveAutomation est un framework générique pour automatiser les tâches de tests, d'exploitation et de déploiment.
 
-Installing from source
-----------------------
 
-1. Clone this repository on your linux server
+Installation depuis les sources
+------------------------------
+
+1. Cloner le projet avec git sur votre serveur linux
 
         git clone https://github.com/ExtensiveAutomation/extensiveautomation-server.git
- 
-2. As precondition, install the libraries `pip` and `libxslt` on your system then install the additional python libraries: 
-    
-        pip install wrapt scandir pycnic lxml
-        
-3. Finally start the server
+  
+2. Installer les dépendances python suivantes. Attention, les libraries `pip` et `libxslt` doivent être disponibles sur votre système avant l'exécution de la commande suivante:
+
+        pip install wrapt scandir lxml pycnic    
+
+3. Démarrer le serveur
 
         cd extensiveautomation
         python extensiveautomation --start
 
-   REST API is running on port tcp/8081.
+   Une API REST est disponible sur le port tcp/8081.
    
-   The following users are available by default:
+   3 comptes utilisateurs sont disponibles par défaut:
     - admin
     - tester
     - monitor
     
-   The default password is `password`.
+   Le mot de passe par défaut est `password`.
    
-4. Checking if the server is running fine.
+   
+4. Vérifier le status du serveur
 
         cd extensiveautomation
         python extensiveautomation --status
         Extensive Automation is running
         
-5. Checking if the REST api working fine with curl command.
+5. Vérifier si l'api REST est disponible avec la commande curl.
 
         curl -X POST http://127.0.0.1:8081/session/login -H "Content-Type: application/json" -d '{"login": "admin", "password": "password"}'
-    
-    The swagger of the api is available in the folder `Build/swagger`:
-     - common_restapi.yaml
-     - admin_restapi.yaml
-     - tester_restapi.yaml
-
-Installing from dockerhub
+        
+Installation depuis dockerhub
 -----------------------------
 
-1. Downloading the image
+1. Téléchargement de l'image depuis docker hub
 
         docker pull extensiveautomation/extensiveautomation-server:20.0.0
 
-2. Start the container
+2. Démarrer le container
 
         docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083 --name=extensive extensiveautomation
         
         
-Installing reverse proxy
-----------------------
+Installation d'un reverse proxy
+-------------------------------
 
-If you want to use the qt application client or qt agents toolbox. You need to install a reverse proxy in front of the extensive server.
+L'installation d'un reverse proxy devant le serveur est obligatoire pour l'utilisation du client lourd et des agents. 
 
-1. Install the example provided `Build\reverseproxy\extensiveautomation_api.conf` in your apache instance. If you install the reverse proxy on a new server, don't forget to replace the 127.0.0.1 address by the ip of your extensive server.
+1. Un exemple de configuration apache est disponible dans les sources  `Build\reverseproxy\extensiveautomation_api.conf`. Si votre reverse proxy est installé sur une serveur différent du serveur extensive, alors il faut remplacer l'adresse de loopback par l'adresse de votre serveur de test.
 
         Listen 8080
 
@@ -92,24 +89,20 @@ If you want to use the qt application client or qt agents toolbox. You need to i
         </VirtualHost>
 
 
-    With this configuration in apache, the REST API is now running on the port tcp/8080 (tls).
+    L'API REST est maintenant disponible sur le port tcp/8080 en mode tls.
 
-2. Checking if the REST api working fine with curl command.
+2. Test de l'API avec le reverse proxy
 
         curl -X POST https://127.0.0.1:8080/session/login --insecure -H "Content-Type: application/json" -d '{"login": "admin", "password": "password"}'
 
 Documentations
 --------------
 
-If you want a complete documentation on usages, go to the specific documentations
-
- - For english users - http://extensiveautomation.readthedocs.io/en/latest/
-
- - Pour les utilisateurs français - http://extensiveautomation.readthedocs.io/fr/latest/
+Une documentation détaillée sur les fonctionnalités est disponible sur http://extensiveautomation.readthedocs.io/fr/latest/
  
      
-Author
+Auteur
 -------
 
-It was created by *Denis MACHARD*
+Logiciel crée par *Denis MACHARD*
  

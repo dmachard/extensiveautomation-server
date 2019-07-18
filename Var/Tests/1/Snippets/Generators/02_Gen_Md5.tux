@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<file>
+<properties><descriptions><description><value>admin</value><key>author</key></description><description><value>24/12/2016 09:09:26</value><key>creation date</key></description><description><value>Just a basic sample.</value><key>summary</key></description><description><value>None.</value><key>prerequisites</key></description><description><value><comments /></value><key>comments</key></description><description><value>myplugins</value><key>libraries</key></description><description><value>myplugins</value><key>adapters</key></description><description><value>Writing</value><key>state</key></description><description><value>TESTCASE</value><key>name</key></description><description><value>REQ_01</value><key>requirement</key></description></descriptions><inputs-parameters><parameter><name>CACHE_KEY</name><type>text</type><description /><value>result</value><color /><scope>local</scope></parameter><parameter><color>#DBADFF</color><description>Provide in this parameter the text to md5
+The result is automatically saved in the cache</description><type>text</type><name>DATA_MD5</name><value /><scope>local</scope></parameter></inputs-parameters><agents><agent><description /><type>dummy</type><name>AGENT</name><value>agent-dummy01</value></agent></agents><probes><probe><active>False</active><args /><name>probe01</name><type>default</type></probe></probes><outputs-parameters><parameter><color /><description /><type>float</type><name>TIMEOUT</name><value>1.0</value><scope>local</scope></parameter></outputs-parameters></properties>
+<testdefinition><![CDATA[
+def description(self):
+	# testcase description
+	self.setPurpose(purpose=description('summary'))
+	self.setRequirement(requirement=description('requirement'))
+
+	# steps description
+	self.step1 = self.addStep(expected="md5 generated", description="generate md5",
+																			summary="generate md5", enabled=True)
+def prepare(self):
+	self.LIB_MD5 = SutAdapters.Hashing.MD5(parent=self)
+	
+def definition(self):
+	# starting initial step
+	if self.step1.isEnabled():
+		self.step1.start()
+
+		hash = self.LIB_MD5.compute(data=input('DATA_MD5'))
+		Cache().set(name=input('CACHE_KEY'), data=hash, flag=False)
+		
+		self.warning("md5: %s" % hash)
+		self.step1.setPassed(actual="success")
+def cleanup(self, aborted):
+	if aborted: self.step1.setFailed(actual=aborted)]]></testdefinition>
+<testdevelopment>1482566966.938714</testdevelopment>
+</file>

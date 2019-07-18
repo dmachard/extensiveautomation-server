@@ -1,0 +1,1093 @@
+swagger: '2.0'
+info:
+  description: Control your test server with Extensive Automation API
+  version: 20.0.0
+  title: Swagger Common - Extensive Automation
+  contact:
+    email: d.machard@gmail.com
+  license:
+    name: LGPL 2.1
+host: 127.0.0.1
+basePath: /rest
+schemes:
+  - https
+paths:
+  /rest/administration/projects/search/by/name:
+    post:
+      tags:
+        - admin
+      summary: Search a project by name
+      description: ''
+      operationId: adminProjectsSearchByName
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ project-name ]
+            properties:
+              project-name:
+                type: string
+      responses:
+        '200':
+          description: 
+          schema :
+            properties:
+              cmd:
+                type: string
+              project:
+                type: object
+          examples:
+            application/json: |
+              {
+                "cmd": "/administration/projects/search/by/name",
+                "project: {}
+              }
+        '400':
+          description: Bad request provided
+        '500':
+          description: Server error
+  /rest/administration/users/password/update:
+    post:
+      tags:
+        - admin
+      summary: Update user password
+      description: ''
+      operationId: adminUsersPasswordUpdate
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ user-id, current-password, new-password ]
+            properties:
+              user-id:
+                type: integer
+              current-password:
+                type: string
+              new-password:
+                type: string
+      responses:
+        '200':
+          description: 
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/administration/users/password/update", 
+                "message: "password successfully updated"
+              }
+        '400':
+          description: Bad request provided
+        '404':
+          description: User not found
+        '403':
+          description: Bad current password provided
+        '500':
+          description: Server error
+  /rest/administration/users/update:
+    post:
+      tags:
+        - admin
+      summary: Update the profile of a user
+      description: ''
+      operationId: adminUsersUpdate
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ user-id ]
+            properties:
+              user-id:
+                type: integer
+              login:
+                type: string
+              password:
+                type: string
+              email:
+                type: string
+              level:
+                type: string
+              lang:
+                type: string
+              style:
+                type: string
+              notifications:
+                type: string
+              default:
+                type: integer
+              projects:
+                type: array
+                items:
+                  type: string
+      responses:
+        '200':
+          description: 
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/administration/users/update", 
+                "message: "user successfully updated"
+              }
+        '400':
+          description: Bad request provided
+        '404':
+          description: User not found
+        '500':
+          description: Server error
+  /rest/session/context:
+    get:
+      tags:
+        - session
+      summary: Context session
+      description: ''
+      operationId: sessionContext
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Session refreshed
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "context": "xxxxxxxxxxxx",
+                "cmd": "/session/context"
+              }
+        '401':
+          description: Access denied
+  /rest/session/context/all:
+    get:
+      tags:
+        - session
+      summary: get full context
+      description: ''
+      operationId: sessionContextAll
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Session refreshed
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "context": "xxxxxxxxxxxx",
+                "cmd": "/session/context"
+              }
+        '401':
+          description: Access denied
+  /rest/session/context/notify:
+    get:
+      tags:
+        - session
+      summary: Notify all users with context
+      description: ''
+      operationId: sessionContextNotify
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+      responses:
+        '200':
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "message": "success",
+                "cmd": "/session/context/notify"
+              }
+        '401':
+          description: Access denied
+  /rest/session/login:
+    post:
+      tags:
+        - session
+      summary: Authenticate client
+      description: ''
+      operationId: sessionLogin
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [login,password]
+            properties:
+              login:
+                type: string
+              password:
+                type: string
+                description: sha1 password
+              channel-id:
+                type: string
+              client-version:
+                type: string
+              client-platform:
+                type: boolean
+              client-portable:
+                type: string
+      responses:
+        '200':
+          description: Logged in
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+              expires:
+                type: integer
+              user_id:
+                type: integer
+              session_id:
+                type: string
+              project_id:
+                type: integer
+          examples:
+            application/json: |
+              {
+                "expires": 86400, 
+                "user_id": 2, 
+                "cmd": "/session/login", 
+                "session_id": "NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M", 
+                "message": "Logged in", 
+                "project_id": 1
+              }
+          headers:
+            Set-Cookie:
+              type: string
+              description: |
+                session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M;expires=Wed, 10-May-2017 06:32:57 GMT; path=/ 
+        '401':
+          description: Invalid login | Account disabled | Access not authorized | Invalid  password
+        '400':
+          description: Bad request provided
+  /rest/session/logout:
+    get:
+      tags:
+        - session
+      summary: Logout client
+      description: ''
+      operationId: sessionLogout
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Logged out | Not logged in
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "message": "logged out",
+                "cmd": "/session/logout"
+              }
+          headers:
+            Set-Cookie:
+              type: string
+              description: |
+                session_id=DELETED;expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/
+  /rest/session/refresh:
+    get:
+      tags:
+        - session
+      summary: Refresh session
+      description: ''
+      operationId: sessionRefresh
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Session refreshed
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "message": "session refreshed",
+                "cmd": "/session/refresh"
+              }
+          headers:
+            Set-Cookie:
+              type: string
+              description: |
+                session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M;expires=Wed, 10-May-2017 06:32:57 GMT; path=/ 
+        '401':
+          description: Access denied
+  /rest/system/about:
+    get:
+      tags:
+        - system
+      summary: get system about
+      description: ''
+      operationId: systemAbout
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+      responses:
+        '200':
+          schema :
+            properties:
+              cmd:
+                type: string
+              about:
+                type: object
+                properties:
+                  changelogs:
+                    type: object
+                    properties:
+                      core:
+                        type: string
+                      adapters:
+                        type: string
+                      libraries:
+                        type: string
+                      toolbox:
+                        type: string
+                  version:
+                    type: object
+                    properties:
+                      core:
+                        type: string
+                      python:
+                        type: string
+                      php:
+                        type: string
+                      database:
+                        type: string
+                      adapters:
+                        type: string
+                      libraries:
+                        type: string
+                      default-adapter:
+                        type: string
+                      default-library:
+                        type: string
+                  networking:
+                    type: string
+          examples:
+            application/json: |
+              {
+                "about": { 'rn': '...', 'version': '...', 'network': '...'},
+                "cmd": "/system/about"
+              }
+        '401':
+          description: Access denied
+  /rest/system/status:
+    get:
+      tags:
+        - system
+      summary: get system status
+      description: ''
+      operationId: systemStatus
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+      responses:
+        '200':
+          schema :
+            properties:
+              cmd:
+                type: string
+              status:
+                type: object
+                properties:
+                  start-at:
+                    type: string
+                  currrent-date:
+                    type: string
+                  uptime:
+                    type: string
+          examples:
+            application/json: |
+              {
+                "status": { 'start-at': '...', 'current-date': '...', 'uptime': '...' },
+                "cmd": "/system/status"
+              }
+        '401':
+          description: Access denied
+  /rest/tasks/cancel:
+    post:
+      tags:
+        - tasks
+      summary: Cancel one specific task according to the id
+      description: ''
+      operationId: tasksCancel
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ task-id ]
+            properties:
+              task-id:
+                type: integer
+                description: task id to cancel
+      responses:
+        '200':
+          description: Task successfully cancelled
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "message": "task successfully cancelled",
+                "cmd": "/tasks/cancel"
+              }
+        '401':
+          description: Access denied
+  /rest/tasks/cancel/selective:
+    post:
+      tags:
+        - tasks
+      summary: Cancel one or more tasks according to the id
+      description: ''
+      operationId: tasksCancelSelective
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ tasks-id ]
+            properties:
+              tasks-id:
+                type: array
+                description: list of tasks id to cancel
+                items:
+                  type: string
+      responses:
+        '200':
+          description: Tasks successfully cancelled
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "message": "tasks successfully cancelled",
+                "cmd": "/tasks/cancel/selective"
+              }
+        '401':
+          description: Access denied
+  /rest/tasks/comment:
+    post:
+      tags:
+        - tasks
+      summary: add a comment to the task
+      description: ''
+      operationId: tasksComment
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ task-id, comment, timestamp ]
+            properties:
+              task-id:
+                type: integer
+              comment:
+                type: string
+              timestamp:
+                type: string
+      responses:
+        '200':
+          description: task replayed with success
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "message": "comment added with success",
+                "cmd": "/tasks/comment"
+              }
+        '401':
+          description: Access denied
+  /rest/tasks/design:
+    post:
+      tags:
+        - tasks
+      summary: get the design as report of my task
+      description: ''
+      operationId: tasksDesign
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ task-id ]
+            properties:
+              task-id:
+                type: integer
+      responses:
+        '200':
+          description: task replayed with success
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "message": "task replayed with success",
+                "cmd": "/tasks/replay"
+              }
+        '401':
+          description: Access denied
+  /rest/tasks/history:
+    get:
+      tags:
+        - tasks
+      summary: Get my partial history tasks or all with admin level
+      description: ''
+      operationId: tasksHistory
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+      responses:
+        '200':
+          description: History tasks
+          schema :
+            properties:
+              cmd:
+                type: string
+              tasks-history:
+                type: array
+                items:
+                  type: string
+          examples:
+            application/json: |
+              {
+                "tasks-history": [],
+                "cmd": "/tasks/history"
+              }
+        '401':
+          description: Access denied
+  /rest/tasks/history/all:
+    get:
+      tags:
+        - tasks
+      summary: Get all my history tasks or all with admin level
+      description: ''
+      operationId: tasksHistoryAll
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+      responses:
+        '200':
+          description: History tasks
+          schema :
+            properties:
+              cmd:
+                type: string
+              tasks-history:
+                type: array
+                items:
+                  type: string
+          examples:
+            application/json: |
+              {
+                "tasks-history": [],
+                "cmd": "/tasks/history/all"
+              }
+        '401':
+          description: Access denied
+  /rest/tasks/kill:
+    post:
+      tags:
+        - tasks
+      summary: Kill one specific task according to the id
+      description: ''
+      operationId: tasksKill
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ task-id ]
+            properties:
+              task-id:
+                type: integer
+                description: task id to kill
+      responses:
+        '200':
+          description: Task successfully killed
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "message": "task successfully killed",
+                "cmd": "/tasks/kill"
+              }
+        '401':
+          description: Access denied
+  /rest/tasks/kill/selective:
+    post:
+      tags:
+        - tasks
+      summary: Kill one or more tasks according to the id
+      description: ''
+      operationId: tasksKillSelective
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ tasks-id ]
+            properties:
+              tasks-id:
+                type: array
+                description: list of tasks id to kill
+                items:
+                  type: string
+      responses:
+        '200':
+          description: Tasks successfully killed
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "message": "tasks successfully killed",
+                "cmd": "/tasks/kill/selective"
+              }
+        '401':
+          description: Access denied
+  /rest/tasks/replay:
+    post:
+      tags:
+        - tasks
+      summary: replay my task
+      description: ''
+      operationId: tastkReplay
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ task-id ]
+            properties:
+              task-id:
+                type: integer
+      responses:
+        '200':
+          description: task replayed with success
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "message": "task replayed with success",
+                "cmd": "/tasks/replay"
+              }
+        '401':
+          description: Access denied
+  /rest/tasks/reschedule:
+    post:
+      tags:
+        - tasks
+      summary: Reschedule a test
+      description: ''
+      operationId: tasksReschedule
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ task-id, task-enabled, schedule-at, schedule-repeat, probes-enabled, debug-enabled, notifications-enabled, logs-enabled, from-time, to-time  ]
+            properties:
+              task-id:
+                type: integer
+                description: task id to reschedule
+              schedule-id:
+                type: integer
+              schedule-type:
+                type: string
+                description: daily | hourly | weekly | every | at | in | now
+              task-enabled:
+                type: boolean
+              schedule-at:
+                type: array
+                description: [ Y,M,D,H,M,S ]
+                items:
+                  type: integer
+              schedule-repeat:
+                type: integer
+              probes-enabled:
+                type: boolean 
+              debug-enabled:
+                type: boolean 
+              notifications-enabled:
+                type: boolean 
+              logs-enabled:
+                type: boolean 
+              from-time:
+                type: array
+                description: [ Y,M,D,H,M,S ]
+                items:
+                  type: integer
+              to-time:
+                type: array 
+                description: [ Y,M,D,H,M,S ]
+                items:
+                  type: integer
+      responses:
+        '200':
+          description: task successfully rescheduled
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "message": "task successfully rescheduled",
+                "cmd": "/tasks/reschedule"
+              }
+        '401':
+          description: Access denied
+  /rest/tasks/review:
+    post:
+      tags:
+        - tasks
+      summary: get the review as report of my test
+      description: ''
+      operationId: tasksReview
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ task-id ]
+            properties:
+              task-id:
+                type: integer
+      responses:
+        '200':
+          description: task replayed with success
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "message": "task replayed with success",
+                "cmd": "/tasks/review"
+              }
+        '401':
+          description: Access denied
+  /rest/tasks/running:
+    get:
+      tags:
+        - tasks
+      summary: Get all my running tasks or all with admin level
+      description: ''
+      operationId: tasksRunning
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Running tasks
+          schema :
+            properties:
+              cmd:
+                type: string
+              tasks-running:
+                type: array
+                items:
+                  type: integer
+          examples:
+            application/json: |
+              {
+                "tasks-running": [],
+                "cmd": "/tasks/running"
+              }
+        '401':
+          description: Access denied
+  /rest/tasks/verdict:
+    post:
+      tags:
+        - tasks
+      summary: get the verdict as report of my task
+      description: ''
+      operationId: tasksVerdict
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ task-id ]
+            properties:
+              task-id:
+                type: integer
+      responses:
+        '200':
+          description: task replayed with success
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "message": "task replayed with success",
+                "cmd": "/tasks/verdict"
+              }
+        '401':
+          description: Access denied
+  /rest/tasks/waiting:
+    get:
+      tags:
+        - tasks
+      summary: Get all my waiting tasks or all with admin level
+      description: ''
+      operationId: tasksWaiting
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Waiting tasks
+          schema :
+            properties:
+              cmd:
+                type: string
+              tasks-waiting:
+                type: array
+                items:
+                  type: string
+          examples:
+            application/json: |
+              {
+                "tasks-waiting": [],
+                "cmd": "/tasks/waiting"
+              }
+        '401':
+          description: Access denied

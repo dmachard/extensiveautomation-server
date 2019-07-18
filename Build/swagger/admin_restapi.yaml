@@ -1,0 +1,1018 @@
+swagger: '2.0'
+info:
+  description: Control your test server with Extensive Automation API
+  version: 20.0.0
+  title: Swagger Admin - Extensive Automation
+  contact:
+    email: d.machard@gmail.com
+  license:
+    name: LGPL 2.1
+host: 127.0.0.1
+basePath: /rest
+schemes:
+  - https
+paths:
+  /rest/adapters/directory/remove/all:
+    post:
+      tags:
+        - adapters
+      summary: remove all directories in the adapters storage 
+      description: ''
+      operationId: adaptersDirectoryRemoveAll
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ directory-path  ]
+            properties:
+              directory-path:
+                type: string
+      responses:
+        '200':
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/adapters/directory/remove/all", 
+                "message": "all directories successfully removed"
+              }
+        '400':
+          description: Bad request provided
+        '403':
+          description: Access refused
+        '500':
+          description: Server error
+  /rest/administration/configurationg/listing:
+    get:
+      tags:
+        - admin
+      summary: Get all configuration
+      description: ''
+      operationId: adminConfigurationgListing
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+      responses:
+        '200':
+          description: 
+          schema :
+            properties:
+              cmd:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/administration/configurationg/listing"
+              }
+        '403':
+          description: Access refused
+  /rest/administration/configuration/reload:
+    get:
+      tags:
+        - admin
+      summary: Reload the configuration
+      description: ''
+      operationId: adminConfigurationReload
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+      responses:
+        '200':
+          description: 
+          schema :
+            properties:
+              cmd:
+                type: string
+              status:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/administration/configuration/reload", 
+                "status": "reloaded" 
+              }
+        '403':
+          description: Access refused
+  /rest/administration/projects/add:
+    post:
+      tags:
+        - admin
+      summary: Add a project
+      description: ''
+      operationId: adminProjectsAdd
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ project-name ]
+            properties:
+              project-name:
+                type: string
+      responses:
+        '200':
+          description: 
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/administration/projects/add", 
+                "message: "project successfully added"
+              }
+        '400':
+          description: Bad request provided
+        '403':
+          description: Project name already used
+        '500':
+          description: Server error
+  /rest/administration/projects/listing:
+    get:
+      tags:
+        - admin
+      summary: Get all projects
+      description: ''
+      operationId: adminProjectsListing
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+      responses:
+        '200':
+          description: 
+          schema :
+            properties:
+              cmd:
+                type: string
+              projects:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/administration/projects/listing", 
+                "projects: "...."
+              }
+        '400':
+          description: Bad request provided
+        '500':
+          description: Server error
+  /rest/administration/projects/remove:
+    post:
+      tags:
+        - admin
+      summary: Remove a project
+      description: ''
+      operationId: adminProjectsRemove
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ project-id ]
+            properties:
+              project-id:
+                type: integer
+      responses:
+        '200':
+          description: 
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/administration/projects/remove", 
+                "message: "project successfully removed"
+              }
+        '400':
+          description: Bad request provided
+        '403':
+          description: Deletion not authorized
+        '500':
+          description: Server error
+  /rest/administration/projects/rename:
+    post:
+      tags:
+        - admin
+      summary: Rename a project
+      description: ''
+      operationId: adminProjectsRename
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ project-name, project-id ]
+            properties:
+              project-id:
+                type: integer
+              project-name:
+                type: string
+      responses:
+        '200':
+          description: 
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/administration/projects/rename", 
+                "message: "project successfully renamed"
+              }
+        '400':
+          description: Bad request provided
+        '403':
+          description: Name already exist or rename not authorized
+        '500':
+          description: Server error
+  /rest/administration/users/add:
+    post:
+      tags:
+        - admin
+      summary: Add a new user in the server
+      description: ''
+      operationId: adminUsersAdd
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ login, password, email, level, lang, style, notifications, default, projects ]
+            properties:
+              login:
+                type: string
+              password:
+                type: string
+              email:
+                type: string
+              level:
+                type: string
+                description: administrator or monitor or tester
+              lang:
+                type: string
+                description: en or fr
+              style:
+                type: string
+                description: default
+              notifications:
+                type: string
+                description: "false;false;false;false;false;false;false;"
+              default:
+                type: integer
+                description: default project id
+              projects:
+                type: array
+                description: list of project id
+                items:
+                  type: integer
+      responses:
+        '200':
+          description: 
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/administration/users/add", 
+                "message: "user successfully added"
+              }
+        '400':
+          description: Bad request provided
+        '404':
+          description: User not found
+        '500':
+          description: Server error
+  /rest/administration/users/channel/disconnect:
+    post:
+      tags:
+        - admin
+      summary: Force channel disconnection for a user
+      description: ''
+      operationId: adminUsersChannelDisconnect
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ login ]
+            properties:
+              login:
+                type: string
+      responses:
+        '200':
+          description: 
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/administration/users/channel/disconnect", 
+                "message: "user successfully disconnected"
+              }
+        '400':
+          description: Bad request provided
+        '404':
+          description: User not found
+  /rest/administration/users/duplicate:
+    post:
+      tags:
+        - admin
+      summary: Duplicate user
+      description: ''
+      operationId: adminUsersDuplicate
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ user-id ]
+            properties:
+              user-id:
+                type: integer
+      responses:
+        '200':
+          description: 
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/administration/users/duplicate", 
+                "message: "user successfully duplicated"
+              }
+        '400':
+          description: Bad request provided
+        '404':
+          description: User not found
+        '500':
+          description: Server error
+  /rest/administration/users/listing:
+    get:
+      tags:
+        - admin
+      summary: Get all users
+      description: ''
+      operationId: adminUsersListing
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+      responses:
+        '200':
+          description: 
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/administration/users/listing"
+              }
+        '403':
+          description: Access refused
+        '500':
+          description: Server error
+  /rest/administration/users/password/reset:
+    post:
+      tags:
+        - admin
+      summary: Reset the password of a user
+      description: ''
+      operationId: adminUsersPasswordReset
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ user-id ]
+            properties:
+              user-id:
+                type: integer
+      responses:
+        '200':
+          description: 
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/administration/users/password/reset", 
+                "message: "password successfully reseted"
+              }
+        '400':
+          description: Bad request provided
+        '404':
+          description: User not found
+        '500':
+          description: Unable to reset the password
+  /rest/administration/users/profile:
+    post:
+      tags:
+        - admin
+      summary: Get the profile of a user
+      description: ''
+      operationId: adminUsersProfile
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ user-id ]
+            properties:
+              user-id:
+                type: integer
+      responses:
+        '200':
+          description: 
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/administration/users/profile"
+              }
+        '403':
+          description: Access refused
+        '404':
+          description: User not found
+        '500':
+          description: Server error
+  /rest/administration/users/remove:
+    post:
+      tags:
+        - admin
+      summary: Remove a user
+      description: ''
+      operationId: adminUsersRemove
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ user-id ]
+            properties:
+              user-id:
+                type: integer
+      responses:
+        '200':
+          description: 
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/administration/users/remove", 
+                "message: "user successfully removed"
+              }
+        '400':
+          description: Bad request provided
+        '403':
+          description: Not authorized
+        '404':
+          description: User not found
+        '500':
+          description: Unable to remove the user
+  /rest/administration/users/search:
+    post:
+      tags:
+        - admin
+      summary: Search user according to the id
+      description: ''
+      operationId: adminUsersSearch
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            properties:
+              user-id:
+                type: integer
+              login:
+                type: string
+      responses:
+        '200':
+          description: 
+          schema :
+            properties:
+              cmd:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/administration/users/search"
+              }
+        '400':
+          description: Bad request provided
+        '403':
+          description: Access refused
+        '404':
+          description: User not found
+        '500':
+          description: Server error
+  /rest/administration/users/status:
+    post:
+      tags:
+        - admin
+      summary: Set the status of the user (enabled or not)
+      description: ''
+      operationId: adminUsersStatus
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ user-id, enabled ]
+            properties:
+              user-id:
+                type: integer
+              enabled:
+                type: integer
+      responses:
+        '200':
+          description: 
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/administration/users/status", 
+                "message: "probe successfully disconnected"
+              }
+        '400':
+          description: Bad request provided
+        '404':
+          description: User not found
+        '500':
+          description: Server error
+  /rest/results/reset:
+    post:
+      tags:
+        - results
+      summary: Remove all the tests results according to the project provided
+      description: ''
+      operationId: resultsReset
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ project-id ]
+            properties:
+              project-id:
+                type: integer
+      responses:
+        '200':
+          description: image
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+              project-id:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/results/reset", 
+                "message": "xxxxxxxx"
+              }
+        '400':
+          description: Bad request provided
+        '403':
+          description: Access denied to this project
+        '500':
+          description: Server error
+  /rest/tasks/cancel/all:
+    get:
+      tags:
+        - tasks
+      summary: Cancel all waiting tasks, only with admin level
+      description: ''
+      operationId: tasksCancelAll
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Tasks successfully cancelled
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "message": "tasks successfully cancelled",
+                "cmd": "/tasks/cancel/all"
+              }
+        '403':
+          description: Access refused
+  /rest/tasks/history/clear:
+    get:
+      tags:
+        - tasks
+      summary: Reset history tasks, only with admin level
+      description: ''
+      operationId: tasksHistoryClear
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+      responses:
+        '200':
+          description: History tasks successfully reseted
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "message": "tasks successfully reseted",
+                "cmd": "/tasks/history/clear"
+              }
+        '403':
+          description: Access refused
+        '500':
+          description: Server error
+  /rest/tasks/kill/all:
+    get:
+      tags:
+        - tasks
+      summary: Kill all running tasks, only with admin level
+      description: ''
+      operationId: tasksKillAll
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+      responses:
+        '200':
+          description: Tasks successfully killed
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "message": "tasks successfully killed",
+                "cmd": "/tasks/kill/all"
+              }
+        '403':
+          description: Access refused
+  /rest/tests/directory/remove/all:
+    post:
+      tags:
+        - tests
+      summary: remove all directories in the test storage 
+      description: ''
+      operationId: testsDirectoryRemoveAll
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ project-id, directory-path  ]
+            properties:
+              project-id:
+                type: integer
+              directory-path:
+                type: string
+      responses:
+        '200':
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/tests/directory/remove/all", 
+                "message": "all directories successfully removed"
+              }
+        '400':
+          description: Bad request provided
+        '403':
+          description: Access refused
+        '500':
+          description: Server error
+  /rest/tests/snapshot/remove/all:
+    post:
+      tags:
+        - tests
+      summary: remove all snapshots according to the test provided
+      description: ''
+      operationId: testsSnapshotRemoveAll
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ project-id, test-path, test-name, test-extension ]
+            properties:
+              project-id:
+                type: integer
+              test-path:
+                type: string
+              test-name:
+                type: string
+              test-extension:
+                type: string
+      responses:
+        '200':
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/rest/tests/snapshot/remove/all", 
+                "message": "all snapshots removed"
+              }
+        '400':
+          description: Bad request provided
+        '403':
+          description: Access refused
+        '500':
+          description: Server error
+  /rest/variables/reset:
+    post:
+      tags:
+        - variables
+      summary: Reset all test variables according to the project
+      description: ''
+      operationId: variablesReset
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [project-id]
+            properties:
+              project-id:
+                type: integer
+      responses:
+        '200':
+          description: variables successfully reseted
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "message": "variables successfully reseted",
+                "cmd": "/variables/reset"
+              }
+        '400':
+          description: Bad request provided | Bad project id provided | Bad json provided in value
+        '403':
+          description: Access refused
+        '500':
+          description: Server error

@@ -1,0 +1,45 @@
+20.0.0
+	Date: 20/07/2019
+	What's new
+		1. (medium) merge build forder inside the core to be more easy to make integration of the solution
+		2. (minor) build: deletion of the cleanup script, not really useful (use build.sh instead)
+		3. (minor) activate Access-Control-Allow-Origin on reverse proxy
+		4. (major) no more mysql database usage, replaced by sqlite3
+		5. (minor) remove ifconfig command usage
+		6. (major) no more all adapters and libraries plugins embedded by defaut (performance improvement)
+		7. (major) new adapters and libraries packages version
+		8. (major) new method of user identification in rest api, only for reverse proxy mode usage
+		9. (medium) no more checking if the web server is available before to start the core server
+		10. (medium) update on tree files in server side to support docker mode
+		11. (major) new method to authenticate user and prepare to support next auth type
+		12. (medium) no more embedded third party tools plugins by default
+		13. (medum) Rest API: support CORS security
+		14. (major) clients/agents deployment from server removed
+		15. (minor) automatic default folders created in Var
+		16. (major) automatic backup of tests and adapters removed, prefer to use git/svn to do that
+		17. (major) remove sut adapters/libraries versionning, prefer to use git/svn to do that
+		18. (minor) new functions on startup script
+		19. (major) automatic installation of the product no more provided
+		20. (major) no more plugins embedded by default
+		21. (major) new command to install plugins 
+		22. (major) New majors tests snippets
+		23. (major) Threading activated on rest api
+		24. (major) Probes features removed from the product, prefer to use agent
+		25. (medium) New default users on database
+		26. (major) Somes features removed (snapshot, test statistics)
+		27. (medium) outputs feature in test file removed
+		28. (major) merge between adapters and libraries
+		29. (major) test framework: reduce cpu on received function in adapter
+		30. (minor) continue python3 support and windows platform
+		31. (major) new docker image available!!
+	Issues Fixed
+		1. (minor) python library psycopg2_binary updated to removed error in logs
+		2. (medium) fix missing catch exception when global variable is missing
+		3. (medium) installation: pip command not found on system (issue #20)
+		4. (minor) installation: disable gpg key checking for yum installation
+		5. (medium) fix issue #22 - unable to build test designs in version 19
+		6. (major) fix issue #21 - error executing test plan with REST interface
+		7. (minor) prevent sql injection in rest api (projects, variables and users parts)
+		8. (medium) rest api: return project granted in users listing method 
+		9. (major) rest api: fix error to add user from rest api, bad level
+		10 (medium) fix issue on testsuite: unable to get data from cache on test init
