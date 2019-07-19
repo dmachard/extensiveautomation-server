@@ -55,11 +55,16 @@ Installing from dockerhub
 
         docker pull extensiveautomation/extensiveautomation-server:20.0.0
 
-2. Start the container
+2. Start the container without persistance for tests data
 
         docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083 --name=extensive extensiveautomation
         
-        
+3. Now you can use the qt client or REST api to interact with the server   
+   - tcp/8081 enable to use the REST api of the server
+   - tcp/8082 is used by the qt client to have a bidirectionnal link
+   - tcp/8083 is used by agents to have a bidirectionnal link
+   
+   
 Installing reverse proxy
 ----------------------
 

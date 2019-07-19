@@ -52,11 +52,15 @@ Installation depuis dockerhub
 
         docker pull extensiveautomation/extensiveautomation-server:20.0.0
 
-2. Démarrer le container
+2. Démarrer le container sans persistance des données de tests
 
         docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083 --name=extensive extensiveautomation
-        
-        
+
+3. Vous pouvez maintenant utiliser le client lourd ou l'API REST directement pour piloter le serveur
+   - Le port tcp/8081 permet d'utiliser l'api REST du serveur
+   - Le port tcp/8082 est utilisé par le client lourd pour avoir un lien bidirectionnel de type  websocket entre le serveur et le client.
+   - Le port tcp/8083 est utilisé par les agents pour communiquer avec le serveur en mode bidirectionnel.
+   
 Installation d'un reverse proxy
 -------------------------------
 
