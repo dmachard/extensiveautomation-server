@@ -34,7 +34,11 @@ Installation depuis les sources
     
    Le mot de passe par défaut est `password`.
    
-   
+   Enfin si vous avez un parefeu d'activé, il faut autoriser les ports suivants:
+    - tcp/8081
+    - tcp/8082
+    - tcp/8083
+    
 4. Vérifier le status du serveur
 
         cd extensiveautomation
@@ -56,6 +60,12 @@ Installation depuis dockerhub
 
         docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083 --name=extensive extensiveautomation
 
+           
+   Si vous avez un parefeu d'activé, il faut autoriser les ports suivants:
+    - tcp/8081
+    - tcp/8082
+    - tcp/8083
+    
 3. Vous pouvez maintenant utiliser le client lourd ou l'API REST directement pour piloter le serveur
    - Le port tcp/8081 permet d'utiliser l'api REST du serveur
    - Le port tcp/8082 est utilisé par le client lourd pour avoir un lien bidirectionnel de type  websocket entre le serveur et le client.

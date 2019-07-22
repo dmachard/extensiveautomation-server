@@ -24,8 +24,13 @@ Installing from source
         cd extensiveautomation
         python extensiveautomation --start
 
-   REST API is running on port tcp/8081.
+   REST API is running on port tcp/8081. 
    
+   By the way, don't forget to authorize the following tcp ports if you have a firewall running on your server:
+    - tcp/8081
+    - tcp/8082
+    - tcp/8083
+    
    The following users are available by default:
     - admin
     - tester
@@ -58,7 +63,12 @@ Installing from dockerhub
 2. Start the container without persistance for tests data
 
         docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083 --name=extensive extensiveautomation
-        
+   
+   By the way, don't forget to authorize the following tcp ports if you have a firewall running on your server:
+    - tcp/8081
+    - tcp/8082
+    - tcp/8083
+    
 3. Now you can use the qt client or REST api to interact with the server   
    - tcp/8081 enable to use the REST api of the server
    - tcp/8082 is used by the qt client to have a bidirectionnal link
