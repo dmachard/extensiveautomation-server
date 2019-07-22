@@ -62,6 +62,7 @@ Installation depuis dockerhub
 
            
    Si vous avez un parefeu d'activé, il faut autoriser les ports suivants:
+   
     - tcp/8081
     - tcp/8082
     - tcp/8083

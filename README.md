@@ -64,7 +64,8 @@ Installing from dockerhub
 
         docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083 --name=extensive extensiveautomation
    
-   By the way, don't forget to authorize the following tcp ports if you have a firewall running on your server:
+   By the way, don't forget to authorize the following tcp ports 
+   if you have a firewall running on your server:
     - tcp/8081
     - tcp/8082
     - tcp/8083
