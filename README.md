@@ -86,8 +86,7 @@ Installation from dockerhub with persistant data
         │        ├── data.db
         │        ├── documentations.dat
         │        ├── __init__.py
-        │        └── tests/
-        │          └── 1/ (default tests)
+        │        ├── tests/
         │        └── templates/
 
 2. Create the main folder 

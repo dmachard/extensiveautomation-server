@@ -85,8 +85,7 @@ La persistence des données va permettre de garder la même structure de tests p
         │        ├── data.db
         │        ├── documentations.dat
         │        ├── __init__.py
-        │        └── tests/
-        │          └── 1/ (default tests)
+        │        ├── tests/
         │        └── templates/
 
 2. Créer le répertoire principal
