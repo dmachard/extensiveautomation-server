@@ -79,54 +79,54 @@ La persistence des données va permettre de garder la même structure de tests p
 
 1. Pour cela, il faut créer la structure suivante dans un répertoire spécifique: 
 
-    ├── extensiveautomation-data
-    │   ├── Dockerfile
-    │   └── var/
-    │        ├── data.db
-    │        ├── documentations.dat
-    │        ├── __init__.py
-    │        └── tests/
-    │          └── 1/ (default tests)
-    │        └── templates/
+        ├── extensiveautomation-data
+        │   ├── Dockerfile
+        │   └── var/
+        │        ├── data.db
+        │        ├── documentations.dat
+        │        ├── __init__.py
+        │        └── tests/
+        │          └── 1/ (default tests)
+        │        └── templates/
 
 2. Créer le répertoire principal
 
-    mkdir extensiveautomation-data
-    cd extensiveautomation-data
+        mkdir extensiveautomation-data
+        cd extensiveautomation-data
 
 3. Récupérer les sources du serveur pour récupérer le répertoire `Var`.
 Ce répertoire contient les données qui peuvent être modifiées par les utilisateurs.
 
-    git clone https://github.com/ExtensiveAutomation/extensiveautomation-server.git
-    cp -rf extensiveautomation-server/Var .
-    rm -rf extensiveautomation-server
+        git clone https://github.com/ExtensiveAutomation/extensiveautomation-server.git
+        cp -rf extensiveautomation-server/Var .
+        rm -rf extensiveautomation-server
     
 4. Ajouter le fichier Dockerfile pour le `data volume` basée sur une image `Alpine`.
 
 
-    FROM alpine:3.10
-
-    WORKDIR /home/extensive
-
-    COPY . /home/extensive/Var/
-
-    RUN adduser -D extensive && \
-        cd /home/extensive && \
-        chown -R extensive:extensive /home/extensive
-
-    VOLUME /home/extensive/Var
- 
-    USER extensive
-    CMD ["echo", "Data volume for ExtensiveAutomation"]
+        FROM alpine:3.10
+        
+        WORKDIR /home/extensive
+        
+        COPY . /home/extensive/Var/
+        
+        RUN adduser -D extensive && \
+            cd /home/extensive && \
+            chown -R extensive:extensive /home/extensive
+        
+        VOLUME /home/extensive/Var
+        
+        USER extensive
+        CMD ["echo", "Data volume for ExtensiveAutomation"]
 
 5. Maintenant il est pssible de construire l'image, créer le container et le démarrer.
 
-    docker build -t extensiveautomation-data .
-    docker run --name=extensive-data extensiveautomation-data
+        docker build -t extensiveautomation-data .
+        docker run --name=extensive-data extensiveautomation-data
 
 6.  Enfin démarrer le serveur en précisant le volume de données à utiliser:
 
-    docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083  --volumes-from=extensive-data --name=extensive-server extensiveautomation/extensiveautomation-server:20.0.0
+        docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083  --volumes-from=extensive-data --name=extensive-server extensiveautomation/extensiveautomation-server:20.0.0
 
 Installation d'un reverse proxy
 -------------------------------
