@@ -75,7 +75,58 @@ Installing from dockerhub
    - tcp/8082 is used by the qt client to have a bidirectionnal link
    - tcp/8083 is used by agents to have a bidirectionnal link
    
-   
+Installation from dockerhub with persistant data
+------------------------------------------------
+
+1. For this, we will use the following minimal directory structure and files in the specific container:
+
+    ├── extensiveautomation-data
+    │   ├── Dockerfile
+    │   └── var/
+    │        ├── data.db
+    │        ├── documentations.dat
+    │        ├── __init__.py
+    │        └── tests/
+    │          └── 1/ (default tests)
+    │        └── templates/
+
+2. Create the main folder 
+
+    mkdir extensiveautomation-data
+    cd extensiveautomation-data
+
+3. Copy the content of the `Var` directory in server side.
+
+    git clone https://github.com/ExtensiveAutomation/extensiveautomation-server.git
+    cp -rf extensiveautomation-server/Var .
+    rm -rf extensiveautomation-server
+    
+4. And add the Dockerfile for the data volume, basing on an `Alpine` image:
+
+    FROM alpine:3.10
+
+    WORKDIR /home/extensive
+
+    COPY . /home/extensive/Var/
+
+    RUN adduser -D extensive && \
+        cd /home/extensive && \
+        chown -R extensive:extensive /home/extensive
+
+    VOLUME /home/extensive/Var
+ 
+    USER extensive
+    CMD ["echo", "Data volume for ExtensiveAutomation"]
+
+5. Now, we have to build the image and create the container, just as any other container:
+
+    docker build -t extensiveautomation-data .
+    docker run --name=extensive-data extensiveautomation-data
+
+6. Finally start the server and indicating that it has to use the data volume:
+
+    docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083  --volumes-from=extensive-data --name=extensive-server extensiveautomation/extensiveautomation-server:20.0.0
+  
 Installing reverse proxy
 ----------------------
 
