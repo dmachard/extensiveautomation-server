@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<file>
+<properties><descriptions><description><value>admin</value><key>author</key></description><description><value>14/05/2015 10:58:46</value><key>creation date</key></description><description><value>Just a basic sample.</value><key>summary</key></description><description><value>None.</value><key>prerequisites</key></description><description><value><comments /></value><key>comments</key></description><description><value>myplugins</value><key>libraries</key></description><description><value>myplugins</value><key>adapters</key></description><description><value>Writing</value><key>state</key></description><description><value>OPEN APP</value><key>name</key></description><description><value>REQ_01</value><key>requirement</key></description></descriptions><inputs-parameters><parameter><description /><name>AGENT_GUI</name><color>#DBADFF</color><value>{"name": "agent.win.selenium01", "type": "sikulixserver"}</value><scope>local</scope><type>json</type></parameter><parameter><color>#DBADFF</color><description>Type the name of the app to open</description><type>str</type><name>APP_PATH</name><value /><scope>local</scope></parameter><parameter><color /><description /><type>bool</type><name>DEBUG</name><value>False</value><scope>local</scope></parameter><parameter><color /><description>Type the name of the app to open</description><type>alias</type><name>TEXT_2</name><value>APP_PATH</value><scope>local</scope></parameter><parameter><color /><description /><type>float</type><name>TIMEOUT_GUI</name><value>15.0</value><scope>local</scope></parameter></inputs-parameters><agents><agent><description /><type>sikuli</type><name>AGENT_GUI</name><value /></agent></agents><probes><probe><active>False</active><args /><name>probe01</name><type>default</type></probe></probes><outputs-parameters><parameter><color /><description /><type>float</type><name>TIMEOUT</name><value>1.0</value><scope>local</scope></parameter></outputs-parameters></properties>
+<testdefinition><![CDATA[
+def description(self):
+	# testcase description
+	self.setPurpose(purpose="GUI_Automation_Capture")
+
+	# steps description
+	self.step1 = self.addStep(expected="Action executed with success", description="Open run command", summary="Open run command", enabled=True)
+	self.step2 = self.addStep(expected="Action executed with success", description="Type the name of the app to open", summary="Type the name of the app to open", enabled=True)
+	self.step3 = self.addStep(expected="Action executed with success", description="Open the app", summary="Open the app", enabled=True)
+
+def prepare(self):
+	# adapters and libraries definitions
+	self.ADP_GUI = SutAdapters.GUI.Sikuli(parent=self, agent=input('AGENT_GUI'), debug=input('DEBUG'))
+
+	
+
+def definition(self):
+	##CAPTURE>Open run command
+	if self.step1.isEnabled():
+		self.step1.start()
+		actionId = self.ADP_GUI.typeShorcut(key=SutAdapters.GUI.KEY_WIN, modifier=None, special=None, other='r', repeat=0)
+		if not self.ADP_GUI.isActionAccepted(timeout=input('TIMEOUT_GUI'), actionId=actionId):
+			self.step1.setFailed("Unable to open run command")
+		else:
+			self.step1.setPassed("Executing with success: open run command")
+	
+	##CAPTURE>Type the name of the app to open
+	if self.step2.isEnabled():
+		self.step2.start()
+		actionId = self.ADP_GUI.typePath( text=input('TEXT_2'), description="Type the name of the app to open" )
+		if not self.ADP_GUI.isActionAccepted(timeout=input('TIMEOUT_GUI'), actionId=actionId):
+			self.step2.setFailed("Unable to type the name of the app to open")
+		else:
+			self.step2.setPassed("Executing with success: type the name of the app to open")
+	
+	##CAPTURE>Open the app
+	if self.step3.isEnabled():
+		self.step3.start()
+		actionId = self.ADP_GUI.typeShorcut(key=SutAdapters.GUI.KEY_ENTER, modifier=None, special=None, other=None, repeat=0)
+		if not self.ADP_GUI.isActionAccepted(timeout=input('TIMEOUT_GUI'), actionId=actionId):
+			self.step3.setFailed("Unable to open the app")
+		else:
+			self.step3.setPassed("Executing with success: open the app")
+def cleanup(self, aborted):
+	pass
+]]></testdefinition>
+<testdevelopment>1431593926.35</testdevelopment>
+</file>

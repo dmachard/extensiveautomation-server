@@ -1,0 +1,15 @@
+[Unit]
+Description=Extensive Automation Service
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/opt/ea/extensiveautomation --start
+ExecStop=/opt/ea/extensiveautomation --stop
+ExecReload=/opt/ea/extensiveautomation --reload
+RemainAfterExit=yes
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<file>
+<properties><descriptions><description><value>admin</value><key>author</key></description><description><value>14/05/2015 21:54:49</value><key>creation date</key></description><description><value>Just a basic sample.</value><key>summary</key></description><description><value>None.</value><key>prerequisites</key></description><description><value><comments /></value><key>comments</key></description><description><value>myplugins</value><key>libraries</key></description><description><value>myplugins</value><key>adapters</key></description><description><value>Writing</value><key>state</key></description><description><value>TESTCASE</value><key>name</key></description><description><value>REQ_01</value><key>requirement</key></description></descriptions><inputs-parameters><parameter><description /><name>AGENT_GUI_BROWSER</name><color>#DBADFF</color><value>{"name": "agent.win.selenium01", "type": "selenium3server"}</value><scope>local</scope><type>json</type></parameter><parameter><color /><description /><type>bool</type><name>DEBUG</name><value>False</value><scope>local</scope></parameter><parameter><color /><description /><type>float</type><name>TIMEOUT_GUI_BROWSER</name><value>25.0</value><scope>local</scope></parameter></inputs-parameters><agents><agent><description /><type>seleniumserver</type><name>AGENT_GUI_BROWSER</name><value>agent.win.selenium2</value></agent></agents><probes><probe><active>False</active><args /><name>probe01</name><type>default</type></probe></probes><outputs-parameters><parameter><color /><description /><type>float</type><name>TIMEOUT</name><value>1.0</value><scope>local</scope></parameter></outputs-parameters></properties>
+<testdefinition><![CDATA[
+def description(self):
+	# testcase description
+	self.setPurpose(purpose="GUI_Automation_Capture")
+
+	# steps description
+	self.step1 = self.addStep(expected="Action(s) executed with success", description="Maximize browser", summary="Maximize browser", enabled=True)
+
+def prepare(self):
+	# adapters and libraries definitions
+	self.ADP_GUI_BROWSER = SutAdapters.GUI.Selenium(parent=self, agent=input('AGENT_GUI_BROWSER'), debug=input('DEBUG'), navigId=Cache().get(name='selenium-navig-id'))
+
+	
+
+def definition(self):
+	if self.step1.isEnabled():
+		self.step1.start()
+	
+		##CAPTURE_BROWSER>Maximize browser
+		BROWSER_RET1 = self.ADP_GUI_BROWSER.doMaximizeWindow(timeout=input('TIMEOUT_GUI_BROWSER'))
+		if not BROWSER_RET1:
+			self.abort("Unable to maximize browser")
+	
+		self.step1.setPassed("test terminated")
+
+def cleanup(self, aborted):
+	if aborted: self.step1.setFailed(aborted)
+]]></testdefinition>
+<testdevelopment>1431633289.97</testdevelopment>
+</file>

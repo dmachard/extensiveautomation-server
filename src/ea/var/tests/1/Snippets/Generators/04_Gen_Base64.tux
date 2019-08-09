@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<file>
+<properties><inputs-parameters><parameter><name>CACHE_KEY</name><type>text</type><description /><value>result</value><color /><scope>local</scope></parameter><parameter><color>#DBADFF</color><value>True</value><type>bool</type><name>DECODE</name><description /><scope>local</scope></parameter><parameter><color>#DBADFF</color><value>False</value><type>bool</type><name>ENCODE</name><description /><scope>local</scope></parameter><parameter><color>#DBADFF</color><value>aGVsbG8=</value><type>str</type><name>STR_BASE64</name><description /><scope>local</scope></parameter><parameter><color>#DBADFF</color><value>False</value><type>bool</type><name>URLSAFE</name><description /><scope>local</scope></parameter></inputs-parameters><agents><agent><value>agent-dummy01</value><type>dummy</type><name>AGENT</name><description /></agent></agents><probes><probe><active>False</active><args /><name>probe01</name><type>default</type></probe></probes><outputs-parameters><parameter><color /><value>1.0</value><type>float</type><name>TIMEOUT</name><description /><scope>local</scope></parameter></outputs-parameters><descriptions><description><value>admin</value><key>author</key></description><description><value>24/12/2016 09:09:26</value><key>creation date</key></description><description><value>Just a basic sample.</value><key>summary</key></description><description><value>None.</value><key>prerequisites</key></description><description><value><comments /></value><key>comments</key></description><description><value>myplugins</value><key>libraries</key></description><description><value>myplugins</value><key>adapters</key></description><description><value>Writing</value><key>state</key></description><description><value>TESTCASE</value><key>name</key></description><description><value>REQ_01</value><key>requirement</key></description></descriptions></properties>
+<testdefinition><![CDATA[
+def description(self):
+	# testcase description
+	self.setPurpose(purpose=description('summary'))
+	self.setRequirement(requirement=description('requirement'))
+
+	# steps description
+	self.step1 = self.addStep(expected="base64 string decoded or encoded with success", 
+																			description="encode or decode with base64",
+																			summary="encode or decode with base64", 
+																			enabled=True)
+def prepare(self):
+	pass
+def definition(self):
+	# starting initial step
+	if self.step1.isEnabled():
+		self.step1.start()
+
+		import base64
+		
+		# decode base64 to string
+		if input('DECODE'):
+			if input('URLSAFE'):
+				ret = base64.urlsafe_b64decode( input('STR_BASE64') )
+			else:
+				ret = base64.b64decode( input('STR_BASE64') )
+
+		# encode string to base64
+		if input('ENCODE'):
+			# convert to bytes 
+			payload_ = bytes(input('STR_BASE64'), "utf8")
+			
+			if input('URLSAFE'):
+				ret = base64.urlsafe_b64encode(  payload_ )
+			else:
+				ret = base64.b64encode( payload_)
+			
+		# convert to str
+		ret = ret.decode("utf8")
+
+		# save the result in the cache
+		Cache().set(name=input('CACHE_KEY'), data=ret, flag=False)
+		
+		# log result to user
+		self.warning("output: %s" % ret)
+			
+		self.step1.setPassed(actual="success")
+def cleanup(self, aborted):
+	if aborted: self.step1.setFailed(actual=aborted)]]></testdefinition>
+<testdevelopment>1482566966.938714</testdevelopment>
+</file>

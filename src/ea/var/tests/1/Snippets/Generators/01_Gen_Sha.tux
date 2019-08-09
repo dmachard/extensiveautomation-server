@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<file>
+<properties><descriptions><description><value>admin</value><key>author</key></description><description><value>24/12/2016 09:09:26</value><key>creation date</key></description><description><value>Just a basic sample.</value><key>summary</key></description><description><value>None.</value><key>prerequisites</key></description><description><value><comments /></value><key>comments</key></description><description><value>myplugins</value><key>libraries</key></description><description><value>myplugins</value><key>adapters</key></description><description><value>Writing</value><key>state</key></description><description><value>TESTCASE</value><key>name</key></description><description><value>REQ_01</value><key>requirement</key></description></descriptions><inputs-parameters><parameter><name>CACHE_KEY</name><type>text</type><description /><value>result</value><color /><scope>local</scope></parameter><parameter><color /><description>Provide in this parameter the text to hash
+The result is automatically saved in the cache</description><type>text</type><name>DATA_HASH</name><value /><scope>local</scope></parameter><parameter><color>#DBADFF</color><description>SHA-1, SHA-256 or SHA512</description><type>str</type><name>SHA</name><value>SHA-1</value><scope>local</scope></parameter></inputs-parameters><agents><agent><description /><type>dummy</type><name>AGENT</name><value>agent-dummy01</value></agent></agents><probes><probe><active>False</active><args /><name>probe01</name><type>default</type></probe></probes><outputs-parameters><parameter><color /><description /><type>float</type><name>TIMEOUT</name><value>1.0</value><scope>local</scope></parameter></outputs-parameters></properties>
+<testdefinition><![CDATA[
+def description(self):
+	# testcase description
+	self.setPurpose(purpose=description('summary'))
+	self.setRequirement(requirement=description('requirement'))
+
+	# steps description
+	self.step1 = self.addStep(expected="hash %s generated" % input('SHA'),
+																			description="generate hash %s" % input('SHA'),
+																			summary="generate hash %s" % input('SHA'), 
+																			enabled=True)
+def prepare(self):
+	pass
+	
+def definition(self):
+	# starting initial step
+	if self.step1.isEnabled():
+		self.step1.start()
+
+		import hashlib
+			
+		if input('SHA') == "SHA-1":
+			hash =  hashlib.sha1()
+		elif input('SHA') == "SHA-256":
+			hash =  hashlib.sha256()
+		elif input('SHA') == "SHA512":
+			hash =  hashlib.sha512()
+		else:
+			self.abort("sha type not supported: %s" % input('SHA'))	
+
+		hash.update( input('DATA_HASH').encode("utf8") )
+		ret = hash.hexdigest()
+
+		Cache().set(name=input('CACHE_KEY'), data=ret, flag=False)
+		
+		self.warning("%s: %s" % (input('SHA'),ret) )
+		
+		self.step1.setPassed(actual="success")
+def cleanup(self, aborted):
+	if aborted: self.step1.setFailed(actual=aborted)]]></testdefinition>
+<testdevelopment>1482566966.938714</testdevelopment>
+</file>
