@@ -10,7 +10,7 @@
 | Github |  https://github.com/ExtensiveAutomation |   
 | Docker Hub | https://hub.docker.com/u/extensiveautomation |   
 | PyPI |  https://pypi.org/project/extensiveautomation-server/ |
-| Google Users | groups.google.com/group/extensive-automation-users |
+| Google Users | https://groups.google.com/group/extensive-automation-users |
 | Twitter | https://twitter.com/Extensive_Auto |
 | | |
 
