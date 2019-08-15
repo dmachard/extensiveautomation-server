@@ -25,7 +25,7 @@ import setuptools
 with open("src/ea/VERSION", "r") as fh:
     VERSION = fh.read()
     
-with open("README.md", "r") as fh:
+with open("README_pypi.md", "r") as fh:
     LONG_DESCRIPTION = fh.read()
  
 KEYWORDS = ('extensiveautomation automation testautomation testing')

@@ -20,7 +20,8 @@
 	* [PyPI package](#pypi-package)
 	* [Docker image](#docker-image)
 	* [Source code](#source-code)
-* [Plugins](#plugins)
+* [Testing if server running](#testing-if-server-running)
+* [Plugins](#adding-plugins)
 * [Adding ReverseProxy](#reverse-proxy)
 
 ## Introduction
@@ -39,64 +40,25 @@ The server can run on both Python 2 and Python 3, and also run on Linux and Wind
 2. Type the following command on your shell to start the server
 
         extensiveautomation --start
-        
-3. Now you can use the qt/web client or REST api to interact with the server   
-   - tcp/8081 enable to use the REST api of the server
-   - tcp/8082 is used by the qt client to have a bidirectionnal link
-   - tcp/8083 is used by agents to have a bidirectionnal link        
-   
-4. Checking if the REST api working fine with curl or postman.
 
-       curl -X POST http://127.0.0.1:8081/session/login \
-            -H "Content-Type: application/json" \
-            -d '{"login": "admin", "password": "password"}'
-    
-    The swagger of the api is available in the folder `scripts/swagger`:
-     - common_restapi.yaml
-     - admin_restapi.yaml
-     - tester_restapi.yaml
-     
-   The following users are available by default:
-    - admin
-    - tester
-    - monitor
-    
-   The default password is `password`.
-   
-### docker image
+3. Finally, check if the [server is running fine](#testing-is-server-running).
+
+### Docker image
 
 1. Downloading the image
 
-        docker pull extensiveautomation/extensiveautomation-server:20.0.0
+        docker pull extensiveautomation/extensiveautomation-server:latest
 
-2. Start the container without persistance for tests data
+2. Start the container
 
-        docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083 --name=extensive extensiveautomation
-        
-3. Now you can use the qt/web client or REST api to interact with the server   
-   - tcp/8081 enable to use the REST api of the server
-   - tcp/8082 is used by the qt client to have a bidirectionnal link
-   - tcp/8083 is used by agents to have a bidirectionnal link
+        docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083 \
+                   --name=extensive extensiveautomation
+
+   If you want to start the container with persistant tests data, go to [Docker Hub](https://hub.docker.com/r/extensiveautomation/extensiveautomation-server) page.
+
+3. Finally, check if the [server is running fine](#testing-is-server-running).
    
-4. Checking if the REST api working fine with curl or postman.
-
-       curl -X POST http://127.0.0.1:8081/session/login \
-            -H "Content-Type: application/json" \
-            -d '{"login": "admin", "password": "password"}'
-    
-    The swagger of the api is available in the folder `scripts/swagger`:
-     - common_restapi.yaml
-     - admin_restapi.yaml
-     - tester_restapi.yaml
-     
-   The following users are available by default:
-    - admin
-    - tester
-    - monitor
-    
-   The default password is `password`.
-   
- ### Source code
+### Source code
  
 1. Clone this repository on your linux server
 
@@ -112,38 +74,33 @@ The server can run on both Python 2 and Python 3, and also run on Linux and Wind
     
             pip install wrapt scandir pycnic lxml jsonpath_ng
         
-3. Finally start the server. On linux the server is running as daemon.
+3. Start the server. On linux the server is running as daemon.
 
         cd src/
         python extensiveautomation.py --start
-
-   REST API is running on port tcp/8081.
-   
-   The following users are available by default:
-    - admin
-    - tester
-    - monitor
-    
-   The default password is `password`.
-   
-4. Checking if the server is running fine.
-
-        cd src
-        python extensiveautomation.py --status
-        Extensive Automation is running
         
-5. Checking if the REST api working fine with curl command.
+4. Finally, check if the [server is running fine](#testing-is-server-running).
+
+## Testing if server running
+
+
+1. Please to take in consideration the following points:
+	
+	 - The server is running on the following tcp ports (don't forget to open these ports on your firewall):
+	    - tcp/8081: REST API
+	    - tcp/8081: Websocket tunnel for app client
+	    - tcp/8082: Websocket tunnel for agents
+	 - The `admin`, `tester` and `monitor` users are available and the default passoword is `password`. 
+	 - The `Common` project is created by default, attached to the previous users.
+	 - Swagger for the REST API is available in the `scripts/swagger` folder.
+    
+2. Checking if the REST api working fine with curl or postman.
 
        curl -X POST http://127.0.0.1:8081/session/login \
             -H "Content-Type: application/json" \
             -d '{"login": "admin", "password": "password"}'
-    
-    The swagger of the api is available in the folder `scripts/swagger`:
-     - common_restapi.yaml
-     - admin_restapi.yaml
-     - tester_restapi.yaml
 
-## Plugins
+## Adding plugins
 
 Plugins allow to interact with the system to be controlled. But by default the server is provided without plugins. So you need to install them one by one according to your needs.
 

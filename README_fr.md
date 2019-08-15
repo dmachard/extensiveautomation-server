@@ -20,7 +20,8 @@
 	* [PyPI](#pypi)
 	* [Image Docker](#docker-image)
 	* [Code source](#source-code)
-* [Plugins](#plugins)
+* [Test du serveur](#test-du-serveur)
+* [Plugins](#ajouter-des-plugins)
 * [Ajout ReverseProxy](#reverse-proxy)
 
 ## Introduction
@@ -39,28 +40,8 @@ Le serveur peut s'exécuter avec Python 2 et Python 3, ainsi que sur Windows et 
 2. Après l'installation il est possible de démarrer le serveur avec la commande suivante
 
         extensiveautomation --start
-        
-3. Vous pouvez maintenant utiliser le client lourd, l'interface web ou l'API REST directement pour piloter le serveur
-   - Le port tcp/8081 permet d'utiliser l'api REST du serveur
-   - Le port tcp/8082 est utilisé par le client lourd pour avoir un lien bidirectionnel de type  websocket entre le serveur et le client.
-   - Le port tcp/8083 est utilisé par les agents pour communiquer avec le serveur en mode bidirectionnel.
-         
-   
-4. Vérifier si l'api REST est disponible avec la commande curl ou postman.
 
-       curl -X POST http://127.0.0.1:8081/session/login \
-            -H "Content-Type: application/json" \
-            -d '{"login": "admin", "password": "password"}'
-    
-   Une API REST est disponible sur le port tcp/8081. Le swagger de l'API est disponible 
-   depuis les sources dans le répertoire `scripts/swagger`:
-     
-   3 comptes utilisateurs sont disponibles par défaut:
-    - admin
-    - tester
-    - monitor
-    
-   Le mot de passe par défaut est `password`.
+3. Enfin vérifier le [bon fonctionnement du serveur](#test-du-serveur).
 
 ### docker image
 
@@ -72,29 +53,9 @@ Le serveur peut s'exécuter avec Python 2 et Python 3, ainsi que sur Windows et 
 
         docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083 --name=extensive extensiveautomation
 
-3. Vous pouvez maintenant utiliser le client lourd, l'interface web ou l'API REST directement pour piloter le serveur
-   - Le port tcp/8081 permet d'utiliser l'api REST du serveur
-   - Le port tcp/8082 est utilisé par le client lourd pour avoir un lien bidirectionnel de type  websocket entre le serveur et le client.
-   - Le port tcp/8083 est utilisé par les agents pour communiquer avec le serveur en mode bidirectionnel.
-   
-   
-4. Vérifier si l'api REST est disponible avec la commande curl ou postman
+3. Enfin vérifier le [bon fonctionnement du serveur](#test-du-serveur).
 
-       curl -X POST http://127.0.0.1:8081/session/login \
-            -H "Content-Type: application/json" \
-            -d '{"login": "admin", "password": "password"}'
-    
-   Une API REST est disponible sur le port tcp/8081. Le swagger de l'API est disponible 
-   depuis les sources dans le répertoire `scripts/swagger`:
-
-   3 comptes utilisateurs sont disponibles par défaut:
-    - admin
-    - tester
-    - monitor
-    
-   Le mot de passe par défaut est `password`.
-
- ### Source code
+### Source code
  
 1. Cloner le projet avec git sur votre serveur linux
 
@@ -114,32 +75,29 @@ Le serveur peut s'exécuter avec Python 2 et Python 3, ainsi que sur Windows et 
 
         cd src
         python extensiveautomation.py --start
-
-   Une API REST est disponible sur le port tcp/8081. Le swagger de l'API est disponible 
-   depuis les sources dans le répertoire `scripts/swagger`:
-   
-   3 comptes utilisateurs sont disponibles par défaut:
-    - admin
-    - tester
-    - monitor
-    
-   Le mot de passe par défaut est `password`.
-   
-   
-4. Vérifier le status du serveur
-
-        cd src
-        python extensiveautomation.py --status
-        Extensive Automation is running
         
-5. Vérifier si l'api REST est disponible avec la commande curl ou postman.
+4. Enfin vérifier le [bon fonctionnement du serveur](#test-du-serveur).
+
+## Test du serveur
+
+
+1. Merci de prendre en compte aussi les points suivants:
+	
+	 - Le serveur ecoute sur les pots TCP suivants (ne pas oublier d'autoriser ces ports sur votre firewall):
+	    - tcp/8081: REST API
+	    - tcp/8081: Tunnel Websocket pour le client lourd
+	    - tcp/8082: Tunnel Websocket pour les agents
+	 - Les comptes utilisateurs `admin`, `tester` et `monitor` sont disponibles avec le mot de passe par défaut `password`. 
+	 - Le projet `Common` est crée par défaut, et est accessible par les utilisateurs précédement listés.
+	 - Le swagger de l'api REST est disponible dans le répertoire `scripts/swagger`.
+    
+2. Vérifier si l'api REST est disponible avec la commande curl ou postman.
 
        curl -X POST http://127.0.0.1:8081/session/login \
             -H "Content-Type: application/json" \
             -d '{"login": "admin", "password": "password"}'
 
-
-## Plugins
+## Ajouter des plugins
 
 Les plugins permettent au serveur d'intéragir avec le système à controller.
 Par défaut le serveur est fournit sans aucun plugin, il est donc nécessaire de les installer
