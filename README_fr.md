@@ -51,7 +51,8 @@ Le serveur peut s'exécuter avec Python 2 et Python 3, ainsi que sur Windows et 
 
 2. Démarrer le container sans persistance des données de tests
 
-        docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083 --name=extensive extensiveautomation
+        docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083 \
+                   --name=extensive-server extensiveautomation/extensiveautomation-server
 
 3. Enfin vérifier le [bon fonctionnement du serveur](#test-du-serveur).
 

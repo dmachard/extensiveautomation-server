@@ -52,7 +52,7 @@ The server can run on both Python 2 and Python 3, and also run on Linux and Wind
 2. Start the container
 
         docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083 \
-                   --name=extensive extensiveautomation
+                   --name=extensive-server extensiveautomation/extensiveautomation-server
 
    If you want to start the container with persistant tests data, go to [Docker Hub](https://hub.docker.com/r/extensiveautomation/extensiveautomation-server) page.
 
