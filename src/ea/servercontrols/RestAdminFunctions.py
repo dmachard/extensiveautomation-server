@@ -515,7 +515,7 @@ class AdminProjectsAdd(HandlerCORS):
         success, details = ProjectsManager.instance().addProjectToDB(projectName=projectName)
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
-        if success == Context.instance().CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403(details)
 
         return { "cmd": self.request.path, "message": "project successfully added", "project-id": details }
@@ -597,7 +597,7 @@ class AdminProjectsRename(HandlerCORS):
                                                                           projectId=projectId)
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
-        if success == Context.instance().CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403(details)
 
         return { "cmd": self.request.path, "message": "project successfully updated" }
@@ -806,18 +806,12 @@ class AdminUsersListing(HandlerCORS):
                 # cleanup result
                 # all these keys will be remove in future
                 if user["tester"]: user["level"] = "tester"
-                if user["leader"]: user["level"] = "monitor"
+                if user["monitor"]: user["level"] = "monitor"
                 if user["administrator"]: user["level"] = "administrator"
-                del user["developer"]
                 del user["tester"]
-                del user["leader"]
+                del user["monitor"]
                 del user["administrator"]
-                del user["system"]
-                del user["gui"]
-                del user["cli"]
-                del user["web"]
-                del user["default"]
-
+                
                 # add projects relations in user profile
                 user_projects = []
                 for relation in details_relations:

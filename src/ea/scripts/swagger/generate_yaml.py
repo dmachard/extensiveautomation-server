@@ -35,6 +35,8 @@ from ea.servercontrols import RestCommonFunctions as CommonFunctions
 from ea.servercontrols import RestTesterFunctions as TesterFunctions
 from ea.servercontrols import RestAdminFunctions as AdminFunctions
 
+SWAGGER_EMAIL = "d.machard@gmail.com"
+
 def getYamlDecorators(cls, deco="_to_yaml"):
     """
     find decorators
@@ -73,7 +75,7 @@ def findDecorators(module, deco="_to_yaml"):
 # params for public functions
 swagger = []
 swagger_version = "2.0"
-swagger_email = Settings.get( 'Server', 'contact-email')
+swagger_email = SWAGGER_EMAIL
 swagger_licence = "LGPL 2.1"
 swagger_info = [
                     ( "description", "Control your test server with %s API" % Settings.get( 'Server', 'name') ),
@@ -177,7 +179,7 @@ with open(yaml_path, "wt" ) as f:
 ##################
 swagger = []
 swagger_version = "2.0"
-swagger_email = Settings.get( 'Server', 'contact-email')
+swagger_email = SWAGGER_EMAIL
 swagger_licence = "LGPL 2.1"
 swagger_info = [
                     ( "description", "Control your test server with %s API" % Settings.get( 'Server', 'name') ),
@@ -281,7 +283,7 @@ with open(yaml_path, "wt" ) as f:
 ##################
 swagger = []
 swagger_version = "2.0"
-swagger_email = Settings.get( 'Server', 'contact-email')
+swagger_email = SWAGGER_EMAIL
 swagger_licence = "LGPL 2.1"
 swagger_info = [
                     ( "description", "Control your test server with %s API" % Settings.get( 'Server', 'name') ),

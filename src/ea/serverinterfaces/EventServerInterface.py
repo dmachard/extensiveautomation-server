@@ -164,7 +164,6 @@ class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
 
     def notifyByUserAndProject(self, body, admin=False, monitor=False, tester=False, projectId=1):
         """
-        leader = monitor
         """
         self.trace('Sending notify to admin=%s, monitor=%s, tester=%s' % ( admin,
                                                                            monitor,
@@ -177,7 +176,7 @@ class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
             # Check the type of user to notify
             if admin and connected[cur_user]['profile']['administrator']:
                 toNotify = True
-            if monitor and connected[cur_user]['profile']['leader']:
+            if monitor and connected[cur_user]['profile']['monitor']:
                 toNotify = True
             if tester and connected[cur_user]['profile']['tester']:
                 toNotify = True
@@ -221,7 +220,7 @@ class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
             # Check the type of user to notify
             if admin and connected[cur_user]['profile']['administrator']:
                 toNotify = True
-            if monitor and connected[cur_user]['profile']['leader']:
+            if monitor and connected[cur_user]['profile']['monitor']:
                 toNotify = True
             if tester and connected[cur_user]['profile']['tester']:
                 toNotify = True
@@ -265,7 +264,7 @@ class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         """
         if Settings.instance()  is not None:
             if Settings.get( 'Trace', 'debug-level') == 'VERBOSE':
-                Logger.ClassLogger.trace(self, txt="ESI - %s" % txt)
+                Logger.ClassLogger.trace(self, txt=txt)
 
 ESI = None # singleton
 def instance ():

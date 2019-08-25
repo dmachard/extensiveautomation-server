@@ -45,8 +45,6 @@ from ea.libs import ( Settings, Logger )
 from ea.libs.FileModels import TestResult as TestResult
 from ea.serverinterfaces import EventServerInterface as ESI
 
-REPO_TYPE = 4
-
 class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
     """
     Repository Archives
@@ -63,17 +61,10 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                                                             RepoManager.PNG_EXT, RepoManager.JPG_EXT ],
                                     context=context)
         self.context = context  
-        self.prefixLogs = "logs"
 
         self.cacheUuids = {}
         self.cachingUuid()
         self.trace("nb entries in testresult cache: %s" % len(self.cacheUuids) )
-        
-    def trace(self, txt):
-        """
-        Trace message
-        """
-        Logger.ClassLogger.trace(self, txt="RAR - %s" % txt)
 
     def getTree(self, b64=False, fullTree=False, project=1):
         """
@@ -97,12 +88,6 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
     def getLastEventIndex(self, pathEvents ):
         """
         Returns the last event index file
-
-        @type  pathEvents:
-        @param pathEvents:
-    
-        @return: backup index
-        @rtype: int
         """
         lastIndex = 0
         for f in os.listdir( pathEvents ):
@@ -118,15 +103,6 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
     def createTrTmp(self, trPath):
         """
         Create a temporary test result file
-
-        @type  mainPath:
-        @param mainPath:
-
-        @type  subPath:
-        @param subPath:
-
-        @type  testName:
-        @param testName:
         """
         trFileName = None
         try:
@@ -168,9 +144,6 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
         """
         Removes all archives from hard disk, 
         no way to reverse this call
-
-        @return: response code
-        @rtype: int
         """
         ret =  self.context.CODE_ERROR
         try:
@@ -187,21 +160,6 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
     def addComment(self, archiveUser, archivePath, archivePost, archiveTimestamp):
         """
         Add comment to the archive gived on argument
-
-        @type  archiveUser:
-        @param archiveUser:
-
-        @type  archivePath:
-        @param archivePath:
-
-        @type  archivePost:
-        @param archivePost:
-
-        @type  archiveTimestamp:
-        @param archiveTimestamp:
-
-        @return: 
-        @rtype: 
         """
         self.trace("add comment in test result")
         comments = False
@@ -264,12 +222,6 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
     def delComments(self, archivePath):
         """
         Delete all comment on the archive gived in argument
-
-        @type  archivePath:
-        @param archivePath:
-
-        @return: 
-        @rtype: 
         """
         self.trace("remove all comments from test result")
         try:
@@ -452,7 +404,6 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
     def getTrDescription(self, trPath):
         """
         Get the state of the test result passed on argument
-        
         """
         description = {}
         
@@ -475,7 +426,6 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
     def getTrState(self, trPath):
         """
         Get the state of the test result passed on argument
-        
         """
         state = ''
         
@@ -497,8 +447,7 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                     
     def getTrEndResult(self, trPath):
         """
-        Get the result of the test result passed on argument
-        
+        Get the result of the test result passed on argument 
         """
         result = ''
         
@@ -813,9 +762,6 @@ RepoArchivesMng = None
 def instance ():
     """
     Returns the singleton
-
-    @return:
-    @rtype:
     """
     return RepoArchivesMng
 

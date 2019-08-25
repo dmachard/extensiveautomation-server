@@ -23,6 +23,7 @@
 * [Testing if server running](#testing-if-server-running)
 * [Plugins](#adding-plugins)
 * [Adding ReverseProxy](#reverse-proxy)
+* [LDAP users authentication](#ldap-users-authentication)
 
 ## Introduction
 
@@ -35,7 +36,7 @@ The server can run on both Python 2 and Python 3, and also run on Linux and Wind
 
 1. Run the following command
 
-        pip install extensiveautomation_server
+        python -m pip install extensiveautomation_server
 
 2. Type the following command on your shell to start the server
 
@@ -52,7 +53,7 @@ The server can run on both Python 2 and Python 3, and also run on Linux and Wind
 2. Start the container
 
         docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083 \
-                   --name=extensive-server extensiveautomation/extensiveautomation-server
+                   --name=extensive extensiveautomation
 
    If you want to start the container with persistant tests data, go to [Docker Hub](https://hub.docker.com/r/extensiveautomation/extensiveautomation-server) page.
 
@@ -68,11 +69,11 @@ The server can run on both Python 2 and Python 3, and also run on Linux and Wind
    
     * Python3 environment
     
-            pip install wrapt pycnic lxml jsonpath_ng
+            python -m pip install wrapt pycnic lxml jsonpath_ng
           
     * Python2 environment, the `libxslt` library must be installed
     
-            pip install wrapt scandir pycnic lxml jsonpath_ng
+            python -m pip install wrapt scandir pycnic lxml jsonpath_ng
         
 3. Start the server. On linux the server is running as daemon.
 
@@ -151,3 +152,46 @@ If you want to install a reverse proxy, please to follow this procedure.
        curl -X POST https://127.0.0.1:8080/rest/session/login --insecure \ 
          -H "Content-Type: application/json" \
          -d '{"login": "admin", "password": "password"}'
+         
+## LDAP users authentication
+
+By default, users are authenticated locally from database (by checking hash password).
+This behavior can be modified by using a remote authentication server. In this mode, you always need to add users in the local database.
+
+Follow this procedure to enable LDAP authentication:
+
+1. Install python dependancies with the `pip` command:
+
+        python -m pip install ldap3
+
+2. Configure the `settings.ini`  file to enable ldap authentication and other stuff
+
+        [Users_Session]
+        ; enable ldap user authentication for rest api session only
+        ; 0=disable 1=enable
+        ldap-auth-enable=1
+        ; remote address of your ldap server
+        ldap-remote-addr=127.0.0.1
+        ; remote port of your ldap server
+        ldap-remote-port=389
+        ; enable ssl to communicate with the remote server
+        ; 0=disable 1=enable
+        ldap-remote-ssl=0
+        ; username form
+        ; uid=%%s,ou=People,dc=extensive,dc=local
+        ; AUTHTEST\\%%s
+        ldap-username=uid=%%s,ou=People,dc=extensive,dc=local
+        ; authentification type: bind, ntlm
+        ldap-auth-type=bind
+
+3. Restart the server
+
+        cd src/
+        python extensiveautomation.py --stop
+        python extensiveautomation.py --start
+        
+4. Check the new user authentication method
+
+       curl -X POST http://127.0.0.1:8081/session/login \
+            -H "Content-Type: application/json" \
+            -d '{"login": "admin", "password": "password"}'

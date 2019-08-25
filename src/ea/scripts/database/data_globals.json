@@ -1,0 +1,74 @@
+[
+    {
+        "name":         "DEBUG",
+        "value":        false,
+        "project-id":   1
+    },
+    {
+        "name":         "TIMEOUT",
+        "value":        1.0,
+        "project-id":   1
+    },
+    {
+        "name":         "SAMPLE_NODE",
+        "value":        {
+                            "SSH_ADMIN": {
+                                "SSH_AGENT_SUPPORT": false,
+                                "SSH_DEST_PORT": 22,
+                                "SSH_AGENT": {
+                                    "type": "ssh",
+                                    "name": "agent.ssh01"
+                                },
+                                "SSH_PRIVATE_KEY": null,
+                                "SSH_PRIVATE_KEY_PATH": null,
+                                "SSH_DEST_PWD": "<replace_me>",
+                                "SSH_DEST_LOGIN": "root",
+                                "SSH_DEST_HOST": "127.0.0.1"
+                            },
+                            "REST_API": {
+                                "HTTP_BASE_PATH": "/rest",
+                                "HTTP_DEST_PORT": 443,
+                                "HTTP_AGENT_SUPPORT": false,
+                                "HTTP_DEST_HOST": "127.0.0.1",
+                                "HTTP_AGENT": {
+                                    "type": "socket",
+                                    "name": "agent.socket01"
+                                },
+                                "HTTP_HOSTNAME": "www.extensiveautomation.org",
+                                "HTTP_DEST_SSL": true
+                            }
+                        },
+        "project-id":   1
+    },
+    {
+        "name":         "SAMPLE_DATA",
+        "value":         {
+                            "PROJECT": {
+                                "name": "auto",
+                                "name_new": "auto-updated"
+                            },
+                            "TEST": {
+                                "dir_name": "auto",
+                                "project_name": "Common",
+                                "test_path": "/Snippets/Do/01_Wait.tux"
+                            },
+                            "VARIABLE": {
+                                "variable_value": "1.0",
+                                "project_name": "Common",
+                                "variable_name": "VAR_AUTO"
+                            },
+                            "USER": {
+                                "password_new": "auto_new",
+                                "email_new": "new@world.test",
+                                "password": "",
+                                "login": "auto",
+                                "email": "hello@world.test"
+                            },
+                            "AUTH": {
+                                "login": "admin",
+                                "password": "password"
+                            }
+                        },
+        "project-id":   1
+    }
+]

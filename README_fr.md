@@ -23,6 +23,7 @@
 * [Test du serveur](#test-du-serveur)
 * [Plugins](#ajouter-des-plugins)
 * [Ajout ReverseProxy](#reverse-proxy)
+* [Authentication utilisateurs via LDAP](#authentication-utilisateurs-via-ldap)
 
 ## Introduction
 
@@ -35,7 +36,7 @@ Le serveur peut s'exécuter avec Python 2 et Python 3, ainsi que sur Windows et 
 
 1. Exécuter la commande pip pour installer le serveur
 
-        pip install extensiveautomation_server
+        python -m pip install extensiveautomation_server
 
 2. Après l'installation il est possible de démarrer le serveur avec la commande suivante
 
@@ -47,12 +48,11 @@ Le serveur peut s'exécuter avec Python 2 et Python 3, ainsi que sur Windows et 
 
 1. Téléchargement de l'image depuis docker hub
 
-        docker pull extensiveautomation/extensiveautomation-server:20.0.0
+        docker pull extensiveautomation/extensiveautomation-server:latest
 
 2. Démarrer le container sans persistance des données de tests
 
-        docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083 \
-                   --name=extensive-server extensiveautomation/extensiveautomation-server
+        docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083 --name=extensive extensiveautomation
 
 3. Enfin vérifier le [bon fonctionnement du serveur](#test-du-serveur).
 
@@ -66,11 +66,11 @@ Le serveur peut s'exécuter avec Python 2 et Python 3, ainsi que sur Windows et 
    
     * Environnement Python3
     
-            pip install wrapt pycnic lxml jsonpath_ng
+            python -m pip install wrapt pycnic lxml jsonpath_ng
           
     * Environnement Python2, il est nécessaire d'installer la librarie `libxslt` :
     
-            pip install wrapt scandir pycnic lxml jsonpath_ng
+            python -m pip install wrapt scandir pycnic lxml jsonpath_ng
         
 3. Démarrer le serveur. Sur Linux, le serveur est exécuté en tant que daemon.
 
@@ -151,5 +151,51 @@ Merci de suivre la procédure ci-dessous pour installer le RP.
 2. Test de l'API avec le reverse proxy
 
        curl -X POST https://127.0.0.1:8080/rest/session/login --insecure \
+            -H "Content-Type: application/json" \
+            -d '{"login": "admin", "password": "password"}'
+
+## Activation authentication LDAP
+
+Par défaut, les utilisateurs sont authentifiés localement au serveur (en vérifiant un hash du mot de passe).
+Ce comportement peut être modifié en utilisant un serveur d'authentification distant. 
+
+Ne pas oublier que changer la méthode d'authentication nécessitera toujours de provisionner les utilisateurs 
+dans la base locale.
+
+Vous pouvez suivre la procédure suivante pour utiliser un serveur LDAP:
+
+1. Installer la dépendance python suivante avec la commande `pip`:
+
+        python -m pip install ldap3
+
+2. Configurer le fichier de configuration `settings.ini` pour activer l'authentication ldap
+
+        [Users_Session]
+        ; enable ldap user authentication for rest api session only
+        ; 0=disable 1=enable
+        ldap-auth-enable=1
+        ; remote address of your ldap server
+        ldap-remote-addr=127.0.0.1
+        ; remote port of your ldap server
+        ldap-remote-port=389
+        ; enable ssl to communicate with the remote server
+        ; 0=disable 1=enable
+        ldap-remote-ssl=0
+        ; username form
+        ; uid=%%s,ou=People,dc=extensive,dc=local
+        ; AUTHTEST\\%%s
+        ldap-username=uid=%%s,ou=People,dc=extensive,dc=local
+        ; authentification type: bind, ntlm
+        ldap-auth-type=bind
+
+3. Redémarrer le serveur.
+
+        cd src/
+        python extensiveautomation.py --stop
+        python extensiveautomation.py --start
+
+4. Vérifier l'authentification d'un utilisateur
+
+       curl -X POST http://127.0.0.1:8081/session/login \
             -H "Content-Type: application/json" \
             -d '{"login": "admin", "password": "password"}'

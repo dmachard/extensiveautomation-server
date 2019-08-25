@@ -31,81 +31,13 @@ if sys.version_info > (3,):
     unicode = str
 
 __DESCRIPTION__ = """The library provides some functions to access to the properties of the test."""
-__HELPER__ = [
-                ('Design', ['descriptions', 'description']), 
-                ('Inputs', ['input', 'setInput', 'inputs'])
-             ]
+__HELPER__ = [ ]
 
 class TestPropertiesException(Exception): pass
-
-class Inputs(object):
-    """
-    """
-    
-    def input(self, name):
-        """
-        Get one specific test input parameter by name passed as argument.
-
-        @param name: parameter name
-        @type name: string
-
-        @return: parameter value
-        @rtype: string, list, int, boolean and more
-        """
-        pass
-    
-    def setInput(name, value):
-        """
-        Set the value of one specific test input parameter by name passed as argument.
-        Overwrite the test properties
-
-        @param name: parameter name
-        @type name: string
-
-        @param value: parameter value
-        @type name: undefined
-        """
-        pass
-        
-    def inputs(self):
-        """
-        Returns all inputs parameters.
-
-        @return: parameters
-        @rtype: list
-        """
-        return instance().getParameters()
-
-class Design(object):
-    """
-    """
-    
-    def descriptions(self):
-        """
-        Returns all descriptions parameters.
-
-        @return: descriptions as list
-        @rtype: list
-        """
-        pass
-        
-    def description(self, name):
-        """
-        Get one specific test description by name passed as argument.
-
-        @param name: parameter name
-        @type name: string
-
-        @return: parameter value
-        @rtype: string, list, int
-        """
-        pass
 
 class SelfIP(object):
     def __init__(self, ip):
         """
-        @param ip:
-        @type ip: string
         """
         self.ip = ip
 
@@ -118,8 +50,6 @@ class SelfIP(object):
 class SelfMAC(object):
     def __init__(self, mac):
         """
-        @param mac:
-        @type mac: string
         """
         self.mac = mac
 
@@ -132,9 +62,6 @@ class SelfMAC(object):
 def decodeDescription(description):
     """
     Decode description
-
-    @param agent: agent name
-    @type agent: string
     """
     if sys.version_info > (3,):
         return description['value']
@@ -330,12 +257,6 @@ def decodeShared(parameter, sharedParameters=[], projectName=None, separator=">"
 def decodeParameter(parameter, sharedParameters=[]):
     """
     Decode parameter
-
-    @param parameter: parameter name
-    @type parameter: string
-
-    @param sharedParameters: 
-    @type sharedParameters: list
     """
     if parameter['type'] == "none":
         return None
@@ -618,8 +539,6 @@ class Properties:
         
     def readListShared(self, shared):
         """
-        @return: parameter value
-        @rtype: string, list, int
         """
         return readListShared(parameter=shared , 
                               sharedParameters=self.__parametersShared)
@@ -658,12 +577,6 @@ class Descriptions:
     def get(self, name):
         """
         Get one specific test config by name passed as argument.
-
-        @param name: parameter name
-        @type name: string
-
-        @return: parameter value
-        @rtype: string, list, int
         """
         if name.lower() == 'comments':
             return ''
@@ -717,9 +630,6 @@ class Parameters:
     def input_type(self, name):
         """
         Return the type of a input parameter
-        
-        @return: parameter type
-        @rtype: string
         """
         for pr in self.__parameters:
             if pr['name'] == name:
@@ -728,12 +638,6 @@ class Parameters:
     def input(self, name):
         """
         Get one specific test config by name passed as argument.
-
-        @param name: parameter name
-        @type name: string
-
-        @return: parameter value
-        @rtype: string, list, int
         """
         for pr in self.__parameters:
             if pr['name'] == name:
@@ -761,18 +665,6 @@ class Parameters:
     def shared(self, project, name, subname=''):
         """
         Get one specific test config by name passed as argument.
-        
-        @param project: project name
-        @type project: string
-        
-        @param name: parameter name
-        @type name: string
-        
-        @param subname: sub parameter name
-        @type subname: string
-        
-        @return: parameter value
-        @rtype: string, list, int
         """
         return decodeShared(parameter="::%s:%s" % (name,subname) , 
                             sharedParameters=self.__parametersShared, 
@@ -844,33 +736,18 @@ class TestPlanParameters(object):
     def addDescriptions(self, descriptionsId, descriptions):
         """
         Add descriptions
-
-        @param descriptionsId: 
-        @type descriptionsId: 
-
-        @param descriptions: 
-        @type descriptions: 
         """
         self.__descriptions[descriptionsId] = descriptions
 
     def addRunningAgents(self, agents):
         """
-        Add running agents 
-        
-        @param agents: 
-        @type agents: 
+        Add running agents
         """
         self.__running_agents = agents
 
     def addParameters(self, parametersId, parameters):
         """
         Add parameters
-
-        @param parametersId: 
-        @type parametersId: 
-
-        @param parameters: 
-        @type parameters: 
         """
         self.__parameters[parametersId] = parameters
         
@@ -879,9 +756,6 @@ class TestPlanParameters(object):
     def addParametersShared(self, parameters):
         """
         Add parameter shared
-
-        @param parameters: 
-        @type parameters: 
         """
         self.__parametersShared = parameters
 
@@ -917,15 +791,6 @@ class TestPlanParameters(object):
     def description(self, name, tpId, tsId):
         """
         Return description
-
-        @param name: 
-        @type name: 
-
-        @param tpId: 
-        @type tpId: 
-
-        @param tsId: 
-        @type tsId: 
         """
         if name.lower() == 'comments':
             return ''
@@ -942,15 +807,6 @@ class TestPlanParameters(object):
     def parameter(self, name, tpId, tsId):
         """
         Return parameter
-
-        @param name: 
-        @type name: 
-
-        @param tpId: 
-        @type tpId: 
-
-        @param tsId: 
-        @type tsId: 
         """
         for prId, prVal in self.__parameters.items():
             if prId == tsId:
@@ -975,18 +831,6 @@ class TestPlanParameters(object):
     def setParameter(self, name, value, tpId, tsId):
         """
         Return parameter
-
-        @param name: 
-        @type name: 
-        
-        @param value: 
-        @type value: 
-        
-        @param tpId: 
-        @type tpId: 
-
-        @param tsId: 
-        @type tsId: 
         """
         paramFounded = False
         for prId, prVal in self.__parameters.items():
@@ -1001,27 +845,17 @@ class TestPlanParameters(object):
 
     def readShared(self, shared):
         """
-        @return: parameter value
-        @rtype: string, list, int
         """
         return readShared(parameter=shared , sharedParameters=self.__parametersShared)
         
     def readListShared(self, shared):
         """
-        @return: parameter value
-        @rtype: string, list, int
         """
         return readListShared(parameter=shared , sharedParameters=self.__parametersShared)
         
     def shared(self, project, name, subname=''):
         """
         Get one specific test config by name passed as argument.
-
-        @param name: parameter name
-        @type name: string
-
-        @return: parameter value
-        @rtype: string, list, int
         """
         return decodeShared(parameter="::%s:%s" % (name,subname) , 
                             sharedParameters=self.__parametersShared, 
@@ -1030,12 +864,6 @@ class TestPlanParameters(object):
     def getDescrFromMain(self, name, tpId):
         """
         Return description from main
-
-        @param name: 
-        @type name: 
-
-        @param tpId: 
-        @type tpId: 
         """
         for pr in self.__descriptions[ tpId ]:
             if pr['key'] == name:
@@ -1045,12 +873,6 @@ class TestPlanParameters(object):
     def getParamFromMain(self, name, tpId, paramType):
         """
         Return parameter from main
-
-        @param name: 
-        @type name: 
-
-        @param tpId: 
-        @type tpId: 
         """
         for pr in self.__parameters[ tpId ]:
             if pr['name'] == name:
@@ -1136,12 +958,8 @@ cache = None
 def instance():
     """
     Return the instance
-
-    @return:
-    @rtype:
     """
-    if TPL:
-        return TPL
+    if TPL: return TPL
 
 def initialize(parameters=None, 
                descriptions=None, 
@@ -1152,21 +970,6 @@ def initialize(parameters=None,
                runningProbes=[]):
     """
     Initialize the module
-
-    @param parameters:
-    @type parameters:
-
-    @param descriptions:
-    @type descriptions:
-    
-    @param parametersOut:
-    @type parametersOut:
-    
-    @param agents:
-    @type agents:
-    
-    @param parametersShared:
-    @type parametersShared:
     """
     global TPL
     if parameters is None:
@@ -1183,5 +986,4 @@ def finalize():
     Finalize the module
     """
     global TPL
-    if TPL:
-        TPL = None
+    if TPL: TPL = None

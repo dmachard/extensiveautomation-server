@@ -22,28 +22,24 @@
 # -------------------------------------------------------------------
 
 import sys
-sys.path.insert(0, '../../../' )
-
-from ea.libs import Settings
 
 from init_sqlite3 import create_sqlite3_model
+from common_bdd import delete_db
+
+from init_data import add_configs
 from init_data import add_users
 from init_data import add_projects
+from init_data import add_relations
 from init_data import add_globals
 
-# initialize settings module to read the settings.ini file
-Settings.initialize(path="./")
+# remove the current database
+delete_db()
 
-print("Initializing database...")
-
-# create database model
+# create a new one with model
 create_sqlite3_model()
 
-# add datas
-add_users()
+# populate the database with default datas
+cfg = add_configs()
 add_projects()
+add_users(auth_salt=cfg["auth-salt"])
 add_globals()
-
-# finalize the script
-Settings.finalize()
-sys.exit(0)

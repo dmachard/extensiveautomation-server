@@ -785,7 +785,7 @@ class AdminUsersUpdate(HandlerCORS):
 
         if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404(details)
-        if success == Context.instance().CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_500(details)
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
@@ -826,12 +826,6 @@ class SystemAbout(HandlerCORS):
                       properties:
                         core:
                           type: string
-                        adapters:
-                          type: string
-                        libraries:
-                          type: string
-                        toolbox:
-                          type: string
                     version:
                       type: object
                       properties:
@@ -839,24 +833,12 @@ class SystemAbout(HandlerCORS):
                           type: string
                         python:
                           type: string
-                        php:
-                          type: string
-                        database:
-                          type: string
-                        adapters:
-                          type: string
-                        libraries:
-                          type: string
-                        default-adapter:
-                          type: string
-                        default-library:
-                          type: string
                     networking:
                       type: string
             examples:
               application/json: |
                 {
-                  "about": { 'rn': '...', 'version': '...', 'network': '...'},
+                  "about": { 'rn': '...', 'core': '...', 'version': '...'},
                   "cmd": "/system/about"
                 }
           '401':
@@ -905,29 +887,17 @@ class SystemStatus(HandlerCORS):
                 cmd:
                   type: string
                 status:
-                  type: object
-                  properties:
-                    start-at:
-                      type: string
-                    currrent-date:
-                      type: string
-                    uptime:
-                      type: string
+                  type: string
             examples:
               application/json: |
                 {
-                  "status": { 'start-at': '...', 'current-date': '...', 'uptime': '...' },
+                  "status": 'OK',
                   "cmd": "/system/status"
                 }
           '401':
             description: Access denied
         """
-        user_profile = _get_user(request=self.request)
-
-        status = {}
-        status["start-at"] = Context.instance().startedAt
-
-        return { "cmd": self.request.path, "status": status }
+        return { "cmd": self.request.path, "status": "OK" }
 
 """
 Tasks handlers

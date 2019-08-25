@@ -733,9 +733,6 @@ class Adapter(threading.Thread):
     def enqueueEvent (self, event):
         """
         Enqueue event
-
-        @param event:
-        @type event:
         """
         if not self.received_running:
             self.queue.put( event )
@@ -775,15 +772,6 @@ class Adapter(threading.Thread):
     def recvFrom (self, shortMsg, dataMsg, typeMsg):
         """
         Receveid event from
-
-        @param shortMsg:
-        @type shortMsg: string
-
-        @param dataMsg:
-        @type dataMsg:
-
-        @param typeMsg:
-        @type typeMsg:
         """
         try:
             TLX.instance().log_rcv(shortMsg, 
@@ -800,15 +788,6 @@ class Adapter(threading.Thread):
     def sendTo (self, shortMsg, dataMsg, typeMsg):
         """
         Send event to
-
-        @param shortMsg:
-        @type shortMsg: string
-
-        @param dataMsg:
-        @type dataMsg:
-
-        @param typeMsg:
-        @type typeMsg:
         """
         try:
             TLX.instance().log_snd(shortMsg, 

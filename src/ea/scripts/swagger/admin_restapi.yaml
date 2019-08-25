@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   description: Control your test server with Extensive Automation API
-  version: 21.0.0
+  version: 21.1.0
   title: Swagger Admin - Extensive Automation
   contact:
     email: d.machard@gmail.com
@@ -16,7 +16,7 @@ paths:
     post:
       tags:
         - adapters
-      summary: remove all directories in the adapters storage 
+      summary: remove all directories in the adapters storage
       description: ''
       operationId: adaptersDirectoryRemoveAll
       consumes:
@@ -26,7 +26,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -48,7 +48,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/adapters/directory/remove/all", 
+                "cmd": "/adapters/directory/remove/all",
                 "message": "all directories successfully removed"
               }
         '400':
@@ -71,12 +71,12 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
       responses:
         '200':
-          description: 
+          description:
           schema :
             properties:
               cmd:
@@ -102,12 +102,12 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
       responses:
         '200':
-          description: 
+          description:
           schema :
             properties:
               cmd:
@@ -117,8 +117,8 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/administration/configuration/reload", 
-                "status": "reloaded" 
+                "cmd": "/administration/configuration/reload",
+                "status": "reloaded"
               }
         '403':
           description: Access refused
@@ -136,7 +136,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -149,7 +149,7 @@ paths:
                 type: string
       responses:
         '200':
-          description: 
+          description:
           schema :
             properties:
               cmd:
@@ -159,7 +159,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/administration/projects/add", 
+                "cmd": "/administration/projects/add",
                 "message: "project successfully added"
               }
         '400':
@@ -182,12 +182,12 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
       responses:
         '200':
-          description: 
+          description:
           schema :
             properties:
               cmd:
@@ -197,7 +197,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/administration/projects/listing", 
+                "cmd": "/administration/projects/listing",
                 "projects: "...."
               }
         '400':
@@ -218,7 +218,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -231,7 +231,7 @@ paths:
                 type: integer
       responses:
         '200':
-          description: 
+          description:
           schema :
             properties:
               cmd:
@@ -241,7 +241,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/administration/projects/remove", 
+                "cmd": "/administration/projects/remove",
                 "message: "project successfully removed"
               }
         '400':
@@ -264,7 +264,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -279,7 +279,7 @@ paths:
                 type: string
       responses:
         '200':
-          description: 
+          description:
           schema :
             properties:
               cmd:
@@ -289,7 +289,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/administration/projects/rename", 
+                "cmd": "/administration/projects/rename",
                 "message: "project successfully renamed"
               }
         '400':
@@ -312,7 +312,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -349,7 +349,7 @@ paths:
                   type: integer
       responses:
         '200':
-          description: 
+          description:
           schema :
             properties:
               cmd:
@@ -359,7 +359,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/administration/users/add", 
+                "cmd": "/administration/users/add",
                 "message: "user successfully added"
               }
         '400':
@@ -382,7 +382,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -395,7 +395,7 @@ paths:
                 type: string
       responses:
         '200':
-          description: 
+          description:
           schema :
             properties:
               cmd:
@@ -405,7 +405,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/administration/users/channel/disconnect", 
+                "cmd": "/administration/users/channel/disconnect",
                 "message: "user successfully disconnected"
               }
         '400':
@@ -426,7 +426,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -439,7 +439,7 @@ paths:
                 type: integer
       responses:
         '200':
-          description: 
+          description:
           schema :
             properties:
               cmd:
@@ -449,7 +449,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/administration/users/duplicate", 
+                "cmd": "/administration/users/duplicate",
                 "message: "user successfully duplicated"
               }
         '400':
@@ -472,12 +472,12 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
       responses:
         '200':
-          description: 
+          description:
           schema :
             properties:
               cmd:
@@ -507,7 +507,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -520,7 +520,7 @@ paths:
                 type: integer
       responses:
         '200':
-          description: 
+          description:
           schema :
             properties:
               cmd:
@@ -530,7 +530,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/administration/users/password/reset", 
+                "cmd": "/administration/users/password/reset",
                 "message: "password successfully reseted"
               }
         '400':
@@ -553,7 +553,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -566,7 +566,7 @@ paths:
                 type: integer
       responses:
         '200':
-          description: 
+          description:
           schema :
             properties:
               cmd:
@@ -598,7 +598,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -611,7 +611,7 @@ paths:
                 type: integer
       responses:
         '200':
-          description: 
+          description:
           schema :
             properties:
               cmd:
@@ -621,7 +621,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/administration/users/remove", 
+                "cmd": "/administration/users/remove",
                 "message: "user successfully removed"
               }
         '400':
@@ -646,7 +646,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -660,7 +660,7 @@ paths:
                 type: string
       responses:
         '200':
-          description: 
+          description:
           schema :
             properties:
               cmd:
@@ -692,7 +692,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -707,7 +707,7 @@ paths:
                 type: integer
       responses:
         '200':
-          description: 
+          description:
           schema :
             properties:
               cmd:
@@ -717,7 +717,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/administration/users/status", 
+                "cmd": "/administration/users/status",
                 "message: "probe successfully disconnected"
               }
         '400':
@@ -740,7 +740,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -765,7 +765,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/results/reset", 
+                "cmd": "/results/reset",
                 "message": "xxxxxxxx"
               }
         '400':
@@ -786,7 +786,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
       responses:
@@ -818,7 +818,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
       responses:
@@ -852,7 +852,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
       responses:
@@ -876,7 +876,7 @@ paths:
     post:
       tags:
         - tests
-      summary: remove all directories in the test storage 
+      summary: remove all directories in the test storage
       description: ''
       operationId: testsDirectoryRemoveAll
       consumes:
@@ -886,7 +886,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -910,7 +910,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/tests/directory/remove/all", 
+                "cmd": "/tests/directory/remove/all",
                 "message": "all directories successfully removed"
               }
         '400':
@@ -933,7 +933,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -961,7 +961,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/rest/tests/snapshot/remove/all", 
+                "cmd": "/rest/tests/snapshot/remove/all",
                 "message": "all snapshots removed"
               }
         '400':
@@ -984,7 +984,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body

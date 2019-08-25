@@ -40,13 +40,13 @@ class TestServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         @type listeningAddress:
         """
         NetLayerLib.ServerAgent.__init__(self, listeningAddress = listeningAddress, 
-                                        agentName = agentName,
-                                        keepAliveInterval= Settings.getInt('Network', 'keepalive-interval' ), 
-                                        inactivityTimeout=Settings.getInt( 'Network', 'inactivity-timeout' ),
-                                        responseTimeout=Settings.getInt( 'Network', 'response-timeout' ),
-                                        selectTimeout=Settings.get( 'Network', 'select-timeout' ),
-                                        pickleVer=Settings.getInt( 'Network', 'pickle-version' )
-                                        )
+                                agentName = agentName,
+                                keepAliveInterval= Settings.getInt('Network', 'keepalive-interval' ), 
+                                inactivityTimeout=Settings.getInt( 'Network', 'inactivity-timeout' ),
+                                responseTimeout=Settings.getInt( 'Network', 'response-timeout' ),
+                                selectTimeout=Settings.get( 'Network', 'select-timeout' ),
+                                pickleVer=Settings.getInt( 'Network', 'pickle-version' )
+                                )
         self.context = context
         
         self.__mutex__ = threading.RLock()
@@ -262,7 +262,7 @@ class TestServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         """
         if Settings.instance() is not None:
             if Settings.get( 'Trace', 'debug-level') == 'VERBOSE':
-                Logger.ClassLogger.trace(self, txt="TSI - %s" % txt)
+                Logger.ClassLogger.trace(self, txt=txt)
 
 class Interact(object):
     def __init__(self, client, tid, bodyReq, timeout=0.0):

@@ -303,9 +303,6 @@ CLI = None # singleton
 def instance ():
     """
     Returns the singleton
-
-    @return: server singleton
-    @rtype: object
     """
     return CLI
 

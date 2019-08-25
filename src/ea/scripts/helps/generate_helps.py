@@ -69,14 +69,7 @@ def generate_helps():
         pkgDesc['modules'].append( pkgDesc2['modules'][0] )
     except Exception as e:
         raise Exception("TE_OPE: %s" % e )
-        
-    try:
-        pkgDesc3 = extractTestExecutor(lib="TestPropertiesLib")
-        pkgDesc3['modules'][0]['name'] = 'TestProperties'
-        pkgDesc['modules'].append( pkgDesc3['modules'][0] )
-    except Exception as e:
-        raise Exception("TE_PRO: %s" % e )
-        
+ 
     try:
         pkgDesc4 = extractTestExecutor(lib="TestValidatorsLib")
         pkgDesc4['modules'][0]['name'] = 'TestValidators'
@@ -90,14 +83,7 @@ def generate_helps():
         pkgDesc['modules'].append( pkgDesc5['modules'][0] )
     except Exception as e:
         raise Exception("TE_TPL: %s" % e )
-        
-    try:
-        pkgDesc6 = extractTestExecutor(lib="TestManipulatorsLib")
-        pkgDesc6['modules'][0]['name'] = 'TestManipulators'
-        pkgDesc['modules'].append( pkgDesc6['modules'][0] )
-    except Exception as e:
-        raise Exception("TE_MAN: %s" % e )
-        
+
     try: 
         pkgDesc7 = extractTestExecutor(lib="TestReportingLib")
         pkgDesc7['modules'][0]['name'] = 'TestReporting'
@@ -111,13 +97,6 @@ def generate_helps():
         pkgDesc['modules'].append( pkgDesc9['modules'][0] )
     except Exception as e:
         raise Exception("TE_ADP: %s" % e )
-        
-    try: 
-        pkgDesc10 = extractTestExecutor(lib="TestLibraryLib")
-        pkgDesc10['modules'][0]['name'] = 'SutLibrary'
-        pkgDesc['modules'].append( pkgDesc10['modules'][0] )
-    except Exception as e:
-        raise Exception("TE_LIB: %s" % e )
 
     return [ pkgDesc ]
 

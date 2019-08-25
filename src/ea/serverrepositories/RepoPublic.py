@@ -22,65 +22,23 @@
 # -------------------------------------------------------------------
 
 import os
-try:
-    import scandir
-except ImportError:  # for python3 support
-    scandir=os
 
 from ea.serverrepositories import RepoManager
 from ea.libs import Settings, Logger
 
-REPO_TYPE = 6
-
 class RepoPublic(RepoManager.RepoManager, Logger.ClassLogger):
     def __init__(self):
         """
-        Repository manager for tests files
+        Repository manager for public test files
         """
         RepoManager.RepoManager.__init__(self, pathRepo='%s%s' % ( Settings.getDirExec(), 
                                                                    Settings.get( 'Paths', 'public' ) ), 
                                          extensionsSupported = [  ] )
 
-    def trace(self, txt):
-        """
-        Trace message
-        """
-        Logger.ClassLogger.trace(self, txt="RPP - %s" % txt)
-
-    def __getBasicListing(self, testPath, initialPath):
-        """
-        """
-        listing = []
-        for entry in list(scandir.scandir( testPath ) ):
-            if not entry.is_dir(follow_symlinks=False):
-                filePath = entry.path
-                listing.append( filePath.split(initialPath)[1] )
-            else:
-                listing.extend( self.__getBasicListing(testPath=entry.path, 
-                                                       initialPath=initialPath) )
-        return listing
-        
-    def getBasicListing(self):
-        """
-        """
-        listing = []
-        initialPath = "%s/" % (self.testsPath)
-        for entry in list(scandir.scandir( initialPath ) ) :
-            if not entry.is_dir(follow_symlinks=False):
-                filePath = entry.path
-                listing.append( filePath.split(initialPath)[1] )
-            else:
-                listing.extend( self.__getBasicListing(testPath=entry.path, 
-                                                       initialPath=initialPath) )
-        return listing
-
 RepoPublicMng = None
 def instance ():
     """
     Returns the singleton
-
-    @return:
-    @rtype:
     """
     return RepoPublicMng
 

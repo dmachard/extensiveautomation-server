@@ -21,86 +21,68 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-
 import sys
-sys.path.insert(0, '../../../' )
 
-from ea.libs import Settings
 from common_bdd import querySQL
 
-# initialize settings module to read the settings.ini file
-Settings.initialize(path="./")
+def create_sqlite3_model(): 
+    print("Initializing new database...")
+    print()
+    
+    querySQL( query = "CREATE TABLE `users` ( \
+`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
+`login` varchar(50) NOT NULL, \
+`password` varchar(200) NOT NULL, \
+`administrator` INT, \
+`monitor` INT, \
+`tester` INT, \
+`email` varchar(200) NOT NULL, \
+`lang` varchar(50) NOT NULL, \
+`style` varchar(50) NOT NULL, \
+`active` INT, \
+`online` INT, \
+`notifications` varchar(200) NOT NULL, \
+`defaultproject` INT, \
+`apikey_id` varchar(200), \
+`apikey_secret` varchar(200) \
+);")
 
+    querySQL( query = "CREATE TABLE `tasks-history` ( \
+`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
+`eventtype` INT not null, \
+`eventargs` VARCHAR(50), \
+`eventtime` VARCHAR(20), \
+`eventname` VARCHAR(200), \
+`eventauthor` VARCHAR(50), \
+`realruntime` VARCHAR(20), \
+`eventduration` VARCHAR(20), \
+`eventresult` VARCHAR(20), \
+`projectid` INT \
+) ;")
 
-def create_sqlite3_model():
-    querySQL( query = "")
-    querySQL( query = """
-                    CREATE TABLE IF NOT EXISTS `users` (
-                      `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                      `login` varchar(50) NOT NULL,
-                      `password` varchar(200) NOT NULL,
-                      `administrator` INT,
-                      `leader` INT,
-                      `developer` INT,
-                      `tester` INT,
-                      `system` INT,
-                      `email` varchar(200) NOT NULL,
-                      `lang` varchar(50) NOT NULL,
-                      `style` varchar(50) NOT NULL,
-                      `active` INT,
-                      `default` INT,
-                      `online` INT,
-                      `cli` INT,
-                      `gui` INT,
-                      `web` INT,
-                      `notifications` varchar(200) NOT NULL,
-                      `defaultproject` INT,
-                      `apikey_id` varchar(200),
-                      `apikey_secret` varchar(200)
-                    );
-                    """)
-    querySQL( query = """
-                    CREATE TABLE IF NOT EXISTS `tasks-history` (
-                        `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                        `eventtype` INT not null,
-                        `eventargs` VARCHAR(50),
-                        `eventtime` VARCHAR(20),
-                        `eventname` VARCHAR(200),
-                        `eventauthor` VARCHAR(50),
-                        `realruntime` VARCHAR(20),
-                        `eventduration` VARCHAR(20),
-                        `eventresult` VARCHAR(20),
-                        `projectid` INT
-                    ) ;
-                    """)
-    querySQL( query = """
-                    CREATE TABLE IF NOT EXISTS `config` (
-                        `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                        `opt` TEXT,
-                        `value` TEXT
-                    );
-                    """)
-    querySQL( query = """
-                    CREATE TABLE IF NOT EXISTS `projects` (
-                        `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                        `name` TEXT,
-                        `active` INT,
-                        `description` TEXT
-                    );
-                    """)
-    querySQL( query = """
-                    CREATE TABLE IF NOT EXISTS `relations-projects` (
-                        `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                        `user_id` INT,
-                        `project_id` INT
-                    );
-                    """)
-    querySQL( query = """
-                    CREATE TABLE IF NOT EXISTS `test-environment` (
-                        `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-                        `name` TEXT,
-                        `value` TEXT,
-                        `project_id` INT
-                    );
-                    """)
+    querySQL( query = "CREATE TABLE `config` ( \
+`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
+`opt` TEXT, \
+`value` TEXT \
+);")
+
+    querySQL( query = "CREATE TABLE `projects` ( \
+`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
+`name` TEXT, \
+`active` INT, \
+`description` TEXT \
+);")
+
+    querySQL( query = "CREATE TABLE `relations-projects` ( \
+`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
+`user_id` INT, \
+`project_id` INT \
+);")
+
+    querySQL( query = "CREATE TABLE `test-environment` ( \
+`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
+`name` TEXT, \
+`value` TEXT, \
+`project_id` INT \
+);")
                     

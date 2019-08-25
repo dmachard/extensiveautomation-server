@@ -1095,9 +1095,9 @@ def check_key_tuple(plKey, tplKey, toStr=False):
         try:
             pl_r, pl_key = check_ops_not(pl=plKey, tp=tplKey, toStr=toStr)
         except Exception as e:
-            TLX.instance().error( "ERR_TPL_014: value unknown received %s (%s) compare with the template %s (%s)\n%s" % \
+            TLX.instance().error( "ERR_TPL_014: value unknown received %s (%s) cmp with tpl %s (%s)\n%s" % \
                                 ( str(plKey), type(plKey), str(tplKey), type(tplKey), str(e) ) )
-            raise TestTemplatesException( "ERR_TPL_014: value unknown received %s (%s) compare with the template %s (%s)\n%s" % \
+            raise TestTemplatesException( "ERR_TPL_014: value unknown received %s (%s) cmp with tpl %s (%s)\n%s" % \
                                 ( str(plKey), type(plKey), str(tplKey), type(tplKey), str(e) ) )
     return pl_r, pl_key
 
@@ -1119,11 +1119,16 @@ def check_ops(pl, tp, clrOk='$g', clrKo='$r',  toStr=False):
     @type toStr:
     """
     match=True
+    
     if isinstance( tp, TestOperatorsLib.Any): # cmp any
         toDisplay = pl
         if toStr: toDisplay = tp.toStr()
         tmp_key = "%s%s" % (clrOk,toDisplay)
-    elif isinstance( tp, TestOperatorsLib.RegEx): # cmp reg ex
+        
+    elif isinstance( tp, TestOperatorsLib.RegEx) \
+            or isinstance( tp, TestOperatorsLib.Startswith) \
+            or isinstance( tp, TestOperatorsLib.Endswith) \
+            or isinstance( tp, TestOperatorsLib.Contains):
         try:
             r = tp.seekIn(haystack=pl)
         except Exception as e:
@@ -1135,55 +1140,46 @@ def check_ops(pl, tp, clrOk='$g', clrKo='$r',  toStr=False):
         else:
             tmp_key = '%s%s' % ( clrKo, toDisplay )
             match = False
-    elif isinstance( tp, TestOperatorsLib.Startswith): # cmp startswith
-        try:
-            r = tp.seekIn(haystack=pl)
-        except Exception as e:
-            return False, ''
-        toDisplay = pl
-        if toStr: toDisplay = tp.toStr()
-        if r:
-            tmp_key = '%s%s' % ( clrOk, toDisplay )
-        else:
-            tmp_key = '%s%s' % ( clrKo, toDisplay )
-            match = False
-    elif isinstance( tp, TestOperatorsLib.Endswith): # cmp endswith
-        try:
-            r = tp.seekIn(haystack=pl)
-        except Exception as e:
-            return False, ''
-        toDisplay = pl
-        if toStr: toDisplay = tp.toStr()
-        if r:
-            tmp_key = '%s%s' % ( clrOk, toDisplay )
-        else:
-            tmp_key = '%s%s' % ( clrKo, toDisplay )
-            match = False
-    elif isinstance( tp, TestOperatorsLib.Contains): # cmp contains
-        try:
-            r = tp.seekIn(haystack=pl)
-        except Exception as e:
-            return False, ''
-        toDisplay = pl
-        if toStr: toDisplay = tp.toStr()
-        if r:
-            tmp_key = '%s%s' % ( clrOk, toDisplay )
-        else:
-            tmp_key = '%s%s' % ( clrKo, toDisplay )
-            match = False
-    elif isinstance( tp, TestOperatorsLib.GreaterThan): # cmp greaterthan
-        try:
-            r = tp.comp(y=pl)
-        except Exception as e:
-            return False, ''
-        toDisplay = pl
-        if toStr: toDisplay = tp.toStr()
-        if r:
-            tmp_key = '%s%s' % ( clrOk, toDisplay )
-        else:
-            tmp_key = '%s%s' % ( clrKo, toDisplay )
-            match = False
-    elif isinstance( tp, TestOperatorsLib.NotGreaterThan): # cmp not greaterthan
+    # elif isinstance( tp, TestOperatorsLib.Startswith): # cmp startswith
+        # try:
+            # r = tp.seekIn(haystack=pl)
+        # except Exception as e:
+            # return False, ''
+        # toDisplay = pl
+        # if toStr: toDisplay = tp.toStr()
+        # if r:
+            # tmp_key = '%s%s' % ( clrOk, toDisplay )
+        # else:
+            # tmp_key = '%s%s' % ( clrKo, toDisplay )
+            # match = False
+    # elif isinstance( tp, TestOperatorsLib.Endswith): # cmp endswith
+        # try:
+            # r = tp.seekIn(haystack=pl)
+        # except Exception as e:
+            # return False, ''
+        # toDisplay = pl
+        # if toStr: toDisplay = tp.toStr()
+        # if r:
+            # tmp_key = '%s%s' % ( clrOk, toDisplay )
+        # else:
+            # tmp_key = '%s%s' % ( clrKo, toDisplay )
+            # match = False
+    # elif isinstance( tp, TestOperatorsLib.Contains): # cmp contains
+        # try:
+            # r = tp.seekIn(haystack=pl)
+        # except Exception as e:
+            # return False, ''
+        # toDisplay = pl
+        # if toStr: toDisplay = tp.toStr()
+        # if r:
+            # tmp_key = '%s%s' % ( clrOk, toDisplay )
+        # else:
+            # tmp_key = '%s%s' % ( clrKo, toDisplay )
+            # match = False
+    elif isinstance( tp, TestOperatorsLib.GreaterThan) \
+          or isinstance( tp, TestOperatorsLib.NotGreaterThan) \
+          or isinstance( tp, TestOperatorsLib.LowerThan) \
+          or isinstance( tp, TestOperatorsLib.NotLowerThan):
         try:
             r = tp.comp(y=pl)
         except Exception as e:
@@ -1195,31 +1191,45 @@ def check_ops(pl, tp, clrOk='$g', clrKo='$r',  toStr=False):
         else:
             tmp_key = '%s%s' % ( clrKo, toDisplay )
             match = False
-    elif isinstance( tp, TestOperatorsLib.LowerThan): # cmp lowerthan
-        try:
-            r = tp.comp(y=pl)
-        except Exception as e:
-            return False, ''
-        toDisplay = pl
-        if toStr: toDisplay = tp.toStr()
-        if r:
-            tmp_key = '%s%s' % ( clrOk, toDisplay )
-        else:
-            tmp_key = '%s%s' % ( clrKo, toDisplay )
-            match = False
-    elif isinstance( tp, TestOperatorsLib.NotLowerThan): # cmp not lowerthan
-        try:
-            r = tp.comp(y=pl)
-        except Exception as e:
-            return False, ''
-        toDisplay = pl
-        if toStr: toDisplay = tp.toStr()
-        if r:
-            tmp_key = '%s%s' % ( clrOk, toDisplay )
-        else:
-            tmp_key = '%s%s' % ( clrKo, toDisplay )
-            match = False
-    elif isinstance( tp, str) : # strict compare 
+    # elif isinstance( tp, TestOperatorsLib.NotGreaterThan): # cmp not greaterthan
+        # try:
+            # r = tp.comp(y=pl)
+        # except Exception as e:
+            # return False, ''
+        # toDisplay = pl
+        # if toStr: toDisplay = tp.toStr()
+        # if r:
+            # tmp_key = '%s%s' % ( clrOk, toDisplay )
+        # else:
+            # tmp_key = '%s%s' % ( clrKo, toDisplay )
+            # match = False
+    # elif isinstance( tp, TestOperatorsLib.LowerThan): # cmp lowerthan
+        # try:
+            # r = tp.comp(y=pl)
+        # except Exception as e:
+            # return False, ''
+        # toDisplay = pl
+        # if toStr: toDisplay = tp.toStr()
+        # if r:
+            # tmp_key = '%s%s' % ( clrOk, toDisplay )
+        # else:
+            # tmp_key = '%s%s' % ( clrKo, toDisplay )
+            # match = False
+    # elif isinstance( tp, TestOperatorsLib.NotLowerThan): # cmp not lowerthan
+        # try:
+            # r = tp.comp(y=pl)
+        # except Exception as e:
+            # return False, ''
+        # toDisplay = pl
+        # if toStr: toDisplay = tp.toStr()
+        # if r:
+            # tmp_key = '%s%s' % ( clrOk, toDisplay )
+        # else:
+            # tmp_key = '%s%s' % ( clrKo, toDisplay )
+            # match = False
+    elif isinstance( tp, str) \
+            or isinstance( tp, unicode) \
+            or isinstance( tp, int): # strict compare 
         toDisplay = pl
         if toStr: toDisplay = tp
         if  tp != pl:
@@ -1227,24 +1237,25 @@ def check_ops(pl, tp, clrOk='$g', clrKo='$r',  toStr=False):
             match = False
         else:
             tmp_key = '%s%s' % ( clrOk, toDisplay )
-    elif isinstance( tp, unicode) : # strict compare 
-        toDisplay = pl
-        if toStr: toDisplay = tp
-        if  tp != pl:
-            tmp_key = '%s%s' % ( clrKo, toDisplay )
-            match = False
-        else:
-            tmp_key = '%s%s' % ( clrOk, toDisplay )
-    elif isinstance( tp, int) : # strict compare 
-        toDisplay = pl
-        if toStr: toDisplay = tp
-        if  tp != pl:
-            tmp_key = '%s%s' % ( clrKo, toDisplay )
-            match = False
-        else:
-            tmp_key = '%s%s' % ( clrOk, toDisplay )
+    # elif isinstance( tp, unicode) : # strict compare 
+        # toDisplay = pl
+        # if toStr: toDisplay = tp
+        # if  tp != pl:
+            # tmp_key = '%s%s' % ( clrKo, toDisplay )
+            # match = False
+        # else:
+            # tmp_key = '%s%s' % ( clrOk, toDisplay )
+    # elif isinstance( tp, int) : # strict compare 
+        # toDisplay = pl
+        # if toStr: toDisplay = tp
+        # if  tp != pl:
+            # tmp_key = '%s%s' % ( clrKo, toDisplay )
+            # match = False
+        # else:
+            # tmp_key = '%s%s' % ( clrOk, toDisplay )
     else:
-        raise TestTemplatesException( "ERR_TPL_015: compare template: expected key type unknown: %s (%s)" % ( str(tp), type(tp)) )
+        raise TestTemplatesException( "ERR_TPL_015: cmp, key type unknown: %s (%s)" % ( str(tp), 
+                                                                                        type(tp)) )
     return match, tmp_key
 
 def check_ops_not(pl, tp, clrOk='$g', clrKo='$r',  toStr=False):
@@ -1265,7 +1276,10 @@ def check_ops_not(pl, tp, clrOk='$g', clrKo='$r',  toStr=False):
     @type toStr:
     """
     match=True
-    if isinstance( tp, TestOperatorsLib.NotStartswith): # cmp not startswith
+    if isinstance( tp, TestOperatorsLib.NotStartswith) \
+        or isinstance( tp, TestOperatorsLib.NotRegEx) \
+        or isinstance( tp, TestOperatorsLib.NotEndswith) \
+        or isinstance( tp, TestOperatorsLib.NotContains): # cmp not startswith
         try:
             r = tp.seekIn(haystack=pl)
         except Exception as e:
@@ -1277,45 +1291,45 @@ def check_ops_not(pl, tp, clrOk='$g', clrKo='$r',  toStr=False):
         else:
             tmp_key = '%s%s' % ( clrKo, toDisplay )
             match = False
-    elif isinstance( tp, TestOperatorsLib.NotRegEx): # cmp not regex
-        try:
-            r = tp.seekIn(haystack=pl)
-        except Exception as e:
-            return False, ''
-        toDisplay = pl
-        if toStr: toDisplay = tp.toStr()
-        if r:
-            tmp_key = '%s%s' % ( clrOk, toDisplay )
-        else:
-            tmp_key = '%s%s' % ( clrKo, toDisplay )
-            match = False
-    elif isinstance( tp, TestOperatorsLib.NotEndswith): # cmp not endswith
-        try:
-            r = tp.seekIn(haystack=pl)
-        except Exception as e:
-            return False, ''
-        toDisplay = pl
-        if toStr: toDisplay = tp.toStr()
-        if r:
-            tmp_key = '%s%s' % ( clrOk, toDisplay )
-        else:
-            tmp_key = '%s%s' % ( clrKo, toDisplay )
-            match = False
-    elif isinstance( tp, TestOperatorsLib.NotContains): # cmp notcontains
-        try:
-            r = tp.seekIn(haystack=pl) 
-        except Exception as e:
-            return False, ''
-        toDisplay = pl
-        if toStr: toDisplay = tp.toStr()
-        if r:
-            tmp_key = '%s%s' % ( clrOk , toDisplay )
-        else:
-            tmp_key = '%s%s' % ( clrKo, toDisplay )
-            match = False
+    # elif isinstance( tp, TestOperatorsLib.NotRegEx): # cmp not regex
+        # try:
+            # r = tp.seekIn(haystack=pl)
+        # except Exception as e:
+            # return False, ''
+        # toDisplay = pl
+        # if toStr: toDisplay = tp.toStr()
+        # if r:
+            # tmp_key = '%s%s' % ( clrOk, toDisplay )
+        # else:
+            # tmp_key = '%s%s' % ( clrKo, toDisplay )
+            # match = False
+    # elif isinstance( tp, TestOperatorsLib.NotEndswith): # cmp not endswith
+        # try:
+            # r = tp.seekIn(haystack=pl)
+        # except Exception as e:
+            # return False, ''
+        # toDisplay = pl
+        # if toStr: toDisplay = tp.toStr()
+        # if r:
+            # tmp_key = '%s%s' % ( clrOk, toDisplay )
+        # else:
+            # tmp_key = '%s%s' % ( clrKo, toDisplay )
+            # match = False
+    # elif isinstance( tp, TestOperatorsLib.NotContains): # cmp notcontains
+        # try:
+            # r = tp.seekIn(haystack=pl) 
+        # except Exception as e:
+            # return False, ''
+        # toDisplay = pl
+        # if toStr: toDisplay = tp.toStr()
+        # if r:
+            # tmp_key = '%s%s' % ( clrOk , toDisplay )
+        # else:
+            # tmp_key = '%s%s' % ( clrKo, toDisplay )
+            # match = False
     else:
-        TLX.instance().error( "ERR_TPL_016: compare template: not expected key type unknown: %s (%s)" % (str(tp), type(tp)) )
-        raise TestTemplatesException( "ERR_TPL_016: compare template: not expected key type unknown: %s (%s)" % (str(tp), type(tp)) )
+        TLX.instance().error( "ERR_TPL_016: cmp tpl - not expected key type unknown: %s (%s)" % (str(tp), type(tp)) )
+        raise TestTemplatesException( "ERR_TPL_016: cmp tpl - not expected key type unknown: %s (%s)" % (str(tp), type(tp)) )
     return match, tmp_key
 
 

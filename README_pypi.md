@@ -20,7 +20,7 @@ The server can run on both Python 2 and Python 3, and also run on Linux and Wind
 
 1. Run the following command
 
-        pip install extensiveautomation_server
+        python -m pip install extensiveautomation_server
 
 2. Type the following command on your shell to start the server
 

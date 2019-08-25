@@ -77,21 +77,12 @@ class RepoManager(Logger.ClassLogger):
         self.context = context
         self.testsPath = pathRepo
         self.extensionsSupported = extensionsSupported
-        
+ 
         self.trace("Extensions supported: %s" % extensionsSupported)
-
-    def trace(self, txt):
-        """
-        Trace message
-        """
-        Logger.ClassLogger.trace(self, txt="RMG - %s" % txt)
 
     def diskUsage(self, p, asDict=False):
         """
         Return the disk usage of a specific directory
-
-        @return:  total/used/free
-        @rtype: tuple
         """
         if platform.system() == "Windows":
             total = 0; used=0; free=0;
@@ -108,12 +99,6 @@ class RepoManager(Logger.ClassLogger):
         """
         Returns the number of free bytes
         Function used to check the space left on disk before to run a new test
-
-        @type  p:
-        @param p: string
-
-        @return:  size in bytes
-        @rtype: int
         """
         if platform.system() == "Windows":
             return "0"
@@ -188,118 +173,38 @@ class RepoManager(Logger.ClassLogger):
                 self.trace("%s created successfully." % zipName )
                 ret = self.context.CODE_OK
         return ret
-        
-    def toZip(self, file, filename, extToInclude=[ TEST_RESULT_EXT, TXT_EXT, CAP_EXT, ZIP_EXT ], 
-                    fileToExclude=[], extToExclude=[], keepTree=True):
+
+    def __getBasicListing(self, testPath, initialPath):
         """
-        Create zip
-
-        @type  file:
-        @param file: 
-
-        @type  filename:
-        @param filename: 
-
-        @type  extToInclude: extension file to include in the zip, empty list means "include all types of files"
-        @param extToInclude: list
-
-        @type  fileToExclude: file to exclude from the zip
-        @param fileToExclude: list
-
-        @type  extToExclude: extentsion file to exclude from the zip
-        @param extToExclude: list
-
-        @type  keepTree: keep the disk arboresence
-        @param keepTree: boolean
-
-        @return: response code
-        @rtype: int
         """
-        ret = self.context.CODE_ERROR
-        try:
-            zip_file = zipfile.ZipFile(filename, 'w')
-            if os.path.isfile(file):
-                zip_file.write(file)
+        listing = []
+        for entry in list(scandir.scandir( testPath ) ):
+            if not entry.is_dir(follow_symlinks=False):
+                filePath = entry.path
+                listing.append( filePath.split(initialPath)[1] )
             else:
-                self.addFolderToZip(zip_file, 
-                                    file, 
-                                    extToInclude=extToInclude, 
-                                    fileToExclude=fileToExclude, 
-                                    extToExclude=extToExclude, 
-                                    keepTree=keepTree)
-            zip_file.close()
-            ret = self.context.CODE_OK
-        except IOError as e:
-            self.trace( e )
-            return self.context.CODE_FORBIDDEN
-        except Exception as e:
-            raise Exception( "[toZip] %s" % str(e) )
-        return ret
-
-    def addFolderToZip(self, zip_file, folder, extToInclude, 
-                             fileToExclude, extToExclude, keepTree=True): 
+                listing.extend( self.__getBasicListing(testPath=entry.path, 
+                                                       initialPath=initialPath) )
+        return listing
+        
+    def getBasicListing(self, projectId=''):
         """
-        Add folder to zip
-
-        @type  zip_file:
-        @param zip_file: 
-
-        @type  folder:
-        @param folder: 
-
-        @type  extToInclude: extension file to include in the zip, empty list means "include all types of files"
-        @param extToInclude: list
-
-        @type  fileToExclude: file to exclude from the zip
-        @param fileToExclude: list
-
-        @type  extToExclude: extentsion file to exclude from the zip
-        @param extToExclude: list
-
-        @type  keepTree: keep the disk arboresence
-        @param keepTree: boolean
         """
-        try:
-            for file in os.listdir(folder):
-                full_path = os.path.join(folder, file)
-                if os.path.isfile(full_path):
-                    includeFile = False
-                    if len(extToInclude) == 0:
-                        includeFile = True
-                    for f in extToInclude:
-                        if file.endswith(f):
-                            includeFile = True
-                    if includeFile:
-                        excludeFile = False
-                        for e in extToExclude:
-                            if file.endswith(e):
-                                excludeFile=True
-                        for f in fileToExclude:
-                            if file == f:
-                                excludeFile = True
-                        if not excludeFile:
-                            if keepTree:
-                                zip_file.write(full_path)
-                            else:
-                                zip_file.write(filename=full_path, arcname=file)
-                elif os.path.isdir(full_path):
-                    self.addFolderToZip(zip_file, full_path, extToInclude, 
-                                        fileToExclude, extToExclude, keepTree)
-        except IOError as e:
-            raise IOError(e)
-        except Exception as e:
-            raise Exception( "[addFolderToZip] %s" % str(e) )
+        listing = []
+        initialPath = "%s/%s" % (self.testsPath, projectId)
+        for entry in list(scandir.scandir( initialPath ) ) :
+            if not entry.is_dir(follow_symlinks=False):
+                filePath = entry.path
+                listing.append( filePath.split(initialPath)[1] )
+            else:
+                listing.extend( self.__getBasicListing(testPath=entry.path, 
+                                                       initialPath=initialPath) )
+        return listing
 
     def getSizeRepoV2(self, folder):
         """
         Returns the size of a specific folder
         With scandir function, better perf
-
-        @type  folder: folder path
-        @param folder: string
-
-        @return: folder size
-        @rtype: int
         """
         total = 0
         try:
@@ -316,7 +221,6 @@ class RepoManager(Logger.ClassLogger):
                             supportSnapshot=False, archiveMode=False, folderIgnored=None):
         """
         New listing file with generator
-        
         """
         nbFolders = 0
         nbFiles = 0
@@ -442,18 +346,6 @@ class RepoManager(Logger.ClassLogger):
                 forceOpen=False, readOnly=False):
         """
         Returns the content of the file gived in argument
-
-        @param pathFile: 
-        @type pathFile:
-
-        @param binaryMode: 
-        @type binaryMode: boolean
-
-        @param addLock: lock support
-        @type addLock: boolean
-
-        @return: 
-        @rtype: list
         """
         # read the file
         self.trace( "get file ProjectId=%s FilePath=%s LockSupport=%s ForceOpen=%s ReadOnly=%s" % 
@@ -602,7 +494,7 @@ class RepoManager(Logger.ClassLogger):
             # overwrite the file ?
             if not overwriteFile:
                 if os.path.exists( complete_path ):
-                    return (self.context.CODE_ALLREADY_EXISTS,) + ret + (is_locked, lockedBy,)
+                    return (self.context.CODE_ALREADY_EXISTS,) + ret + (is_locked, lockedBy,)
             
             # write the file
             content_decoded = base64.b64decode(contentFile)
@@ -622,27 +514,6 @@ class RepoManager(Logger.ClassLogger):
     def unlockFile(self, pathFile, nameFile, extFile, project='', login=''):
         """
         Save data in the file passed in argument
-
-        @param pathFile: 
-        @type pathFile:
-
-        @param nameFile: 
-        @type nameFile:
-
-        @param extFile: 
-        @type extFile:
-
-        @param contentFile: 
-        @type contentFile:
-
-        @param updateFile: 
-        @type updateFile:
-
-        @param binaryMode: 
-        @type binaryMode:
-
-        @return: 
-        @rtype: list
         """
         ret = self.context.CODE_OK
         try:
@@ -678,15 +549,6 @@ class RepoManager(Logger.ClassLogger):
     def addDir(self, pathFolder, folderName, project=''):
         """
         Add directory in the repository
-
-        @param pathFolder: 
-        @type pathFolder:
-
-        @param folderName: 
-        @type folderName:
-
-        @return: respone code
-        @rtype: int
         """
         ret = self.context.CODE_ERROR
         try:
@@ -704,7 +566,7 @@ class RepoManager(Logger.ClassLogger):
             self.trace( "adding folder %s" %completepath )
             res = os.path.exists( completepath )
             if res:
-                return self.context.CODE_ALLREADY_EXISTS
+                return self.context.CODE_ALREADY_EXISTS
             else:
                 os.mkdir( completepath, 0o755 )
                 return self.context.CODE_OK
@@ -716,22 +578,16 @@ class RepoManager(Logger.ClassLogger):
     def delDir(self, pathFolder, project=''):
         """
         Delete the folder gived in argument
-
-        @param pathFolder: 
-        @type pathFolder:
-
-        @return: respone code
-        @rtype: int
         """
         ret = self.context.CODE_ERROR
         try:
             completepath = "%s/%s/%s/" % ( self.testsPath, 
                                            project, 
                                            unicode(pathFolder) )
-            
+
             # normalize the path
             completepath = os.path.normpath(completepath)
-            
+
             self.trace( "deleting folder %s" % completepath )
             res = os.path.exists( completepath )
             if not res:
@@ -750,12 +606,6 @@ class RepoManager(Logger.ClassLogger):
     def delDirAll(self, pathFolder, project=''):
         """
         Delete the folder gived in argument and all sub folders
-
-        @param pathFolder: 
-        @type pathFolder:
-
-        @return: respone code
-        @rtype: int
         """
         ret = self.context.CODE_ERROR
         try:
@@ -784,9 +634,6 @@ class RepoManager(Logger.ClassLogger):
     def emptyRepo(self, projectId=1):
         """
         Removes all files/folders on the repository
-
-        @return: respone code
-        @rtype: int
         """
         ret = self.context.CODE_ERROR
         try:
@@ -810,18 +657,6 @@ class RepoManager(Logger.ClassLogger):
     def renameDir(self, mainPath, oldPath, newPath, project=''):
         """
         Rename the folder gived in argument
-
-        @param mainPath: 
-        @type mainPath:
-
-        @param oldPath: 
-        @type oldPath:
-
-        @param newPath: 
-        @type newPath:
-
-        @return:
-        @rtype: tuple
         """
         if not len(newPath):
             self.error( "empty folder name" )
@@ -846,7 +681,7 @@ class RepoManager(Logger.ClassLogger):
             else:
                 res = os.path.exists( newpath )
                 if res:
-                    return ( self.context.CODE_ALLREADY_EXISTS, 
+                    return ( self.context.CODE_ALREADY_EXISTS, 
                              mainPath, 
                              oldPath, 
                              newPath, 
@@ -862,18 +697,6 @@ class RepoManager(Logger.ClassLogger):
                            project='', newProject='', newMainPath=''):
         """
         Duplicate the folder gived in argument
-
-        @param mainPath: 
-        @type mainPath:
-
-        @param oldPath: 
-        @type oldPath:
-
-        @param newPath: 
-        @type newPath:
-
-        @return: respone code
-        @rtype: int
         """
         ret = self.context.CODE_ERROR
         if len( "%s" % project) and not len("%s" % newProject):
@@ -899,7 +722,7 @@ class RepoManager(Logger.ClassLogger):
             else:
                 res = os.path.exists( newpath )
                 if res:
-                    return self.context.CODE_ALLREADY_EXISTS
+                    return self.context.CODE_ALREADY_EXISTS
                 else:
                     shutil.copytree( oldpath, newpath )
                     return self.context.CODE_OK
@@ -910,12 +733,6 @@ class RepoManager(Logger.ClassLogger):
     def delFile(self, pathFile, project='', supportSnapshot=False):
         """
         Delete the file gived in argument
-
-        @param pathFile: 
-        @type pathFile:
-
-        @return: respone code
-        @rtype: int
         """
         ret = self.context.CODE_ERROR
         try:
@@ -946,21 +763,6 @@ class RepoManager(Logger.ClassLogger):
                     extFilename, project='', supportSnapshot=False):
         """
         Rename the file gived in argument
-
-        @param mainPath: 
-        @type mainPath:
-
-        @param oldFilename: 
-        @type oldFilename:
-
-        @param newFilename: 
-        @type newFilename:
-
-        @param extFilename: 
-        @type extFilename:
-
-        @return: respone code
-        @rtype: int
         """
         ret = self.context.CODE_ERROR
         if not len(newFilename):
@@ -990,7 +792,7 @@ class RepoManager(Logger.ClassLogger):
             else:
                 res = os.path.exists( newpath )
                 if res:
-                    return ( self.context.CODE_ALLREADY_EXISTS, mainPath, oldFilename, 
+                    return ( self.context.CODE_ALREADY_EXISTS, mainPath, oldFilename, 
                              newFilename, extFilename, project )
                 else:
                     os.rename( oldpath, newpath )
@@ -1011,21 +813,6 @@ class RepoManager(Logger.ClassLogger):
                       project='', newProject='', newMainPath=''):
         """
         Duplicate the file gived in argument
-
-        @param mainPath: 
-        @type mainPath:
-
-        @param oldFilename: 
-        @type oldFilename:
-
-        @param newFilename: 
-        @type newFilename:
-
-        @param extFilename: 
-        @type extFilename:
-
-        @return: respone code
-        @rtype: int
         """
         ret = self.context.CODE_ERROR
         try:
@@ -1050,7 +837,7 @@ class RepoManager(Logger.ClassLogger):
             else:
                 res = os.path.exists( newpath )
                 if res:
-                    return self.context.CODE_ALLREADY_EXISTS
+                    return self.context.CODE_ALREADY_EXISTS
                 else:
                     shutil.copy( oldpath, newpath )
                     return self.context.CODE_OK
@@ -1062,21 +849,6 @@ class RepoManager(Logger.ClassLogger):
     def moveDir(self, mainPath, folderName, newPath, project='', newProject=''):
         """
         Move the file gived in argument
-
-        @param mainPath: 
-        @type mainPath:
-
-        @param fileName: 
-        @type fileName:
-
-        @param newPath: 
-        @type newPath:
-
-        @param extFilename: 
-        @type extFilename:
-
-        @return: respone code
-        @rtype: int
         """
         ret = self.context.CODE_ERROR
         if not len(folderName):
@@ -1101,7 +873,7 @@ class RepoManager(Logger.ClassLogger):
             
             # begin issue 248
             if "%s/%s" % (mainPath,unicode(folderName)) == newPath:
-                return ( self.context.CODE_ALLREADY_EXISTS, mainPath, folderName, newPath, project )
+                return ( self.context.CODE_ALREADY_EXISTS, mainPath, folderName, newPath, project )
             # end issue 248
 
             self.trace( "moving folder %s in  %s" % ( oldpath,newpath ) )
@@ -1112,7 +884,7 @@ class RepoManager(Logger.ClassLogger):
                 res = os.path.exists( newpath )
                 if res:
                     self.trace( "the destination already exists" )
-                    return ( self.context.CODE_ALLREADY_EXISTS, mainPath, folderName, newPath, project )
+                    return ( self.context.CODE_ALREADY_EXISTS, mainPath, folderName, newPath, project )
                 else:
                     # duplicate folder
                     shutil.copytree( oldpath, newpath )
@@ -1127,21 +899,6 @@ class RepoManager(Logger.ClassLogger):
                  newProject='', supportSnapshot=False):
         """
         Move the file gived in argument
-
-        @param mainPath: 
-        @type mainPath:
-
-        @param fileName: 
-        @type fileName:
-
-        @param newPath: 
-        @type newPath:
-
-        @param extFilename: 
-        @type extFilename:
-
-        @return: respone code
-        @rtype: int
         """
         ret = self.context.CODE_ERROR
         try:
@@ -1168,7 +925,7 @@ class RepoManager(Logger.ClassLogger):
                 res = os.path.exists( newpath )
                 if res:
                     self.trace( "test name already exists in the destination" )
-                    return ( self.context.CODE_ALLREADY_EXISTS, mainPath, fileName, 
+                    return ( self.context.CODE_ALREADY_EXISTS, mainPath, fileName, 
                              newPath, extFilename, project )
                 else:
                     shutil.move( oldpath, newpath )
@@ -1184,9 +941,6 @@ RepoMng = None
 def instance ():
     """
     Returns the singleton
-
-    @return:
-    @rtype:
     """
     return RepoMng
 

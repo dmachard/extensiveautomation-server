@@ -38,28 +38,19 @@ class TestClientInterface(NetLayerLib.ClientAgent):
     """
     def __init__(self, address, name):
         """
-        Constructor for the test client interface
-
-        @param address:
-        @type address:
-        
-        @param name:
-        @type name: 
+        Constructor for the test client interface 
         """
             
         self.DEBUG_MODE = TestSettings.get( 'Trace', 'level' )
 
-        NetLayerLib.ClientAgent.__init__(self, typeAgent = NetLayerLib.TYPE_AGENT_USER, 
-                                        agentName = 'TEST', startAuto = True, forceClose=False,
-                                        keepAliveInterval=TestSettings.getInt( 'Network', 
-                                                                               'keepalive-interval' ), 
-                                        inactivityTimeout=TestSettings.getInt( 'Network', 
-                                                                               'inactivity-timeout' ),
-                                        timeoutTcpConnect=TestSettings.getInt( 'Network', 
-                                                                               'tcp-connect-timeout' ),
-                                        responseTimeout=TestSettings.getInt( 'Network', 
-                                                                             'response-timeout' )
-                                     )
+        NetLayerLib.ClientAgent.__init__(self, 
+                        typeAgent = NetLayerLib.TYPE_AGENT_USER, 
+                        agentName = 'TEST', startAuto = True, forceClose=False,
+                        keepAliveInterval=TestSettings.getInt( 'Network', 'keepalive-interval' ), 
+                        inactivityTimeout=TestSettings.getInt( 'Network', 'inactivity-timeout' ),
+                        timeoutTcpConnect=TestSettings.getInt( 'Network', 'tcp-connect-timeout' ),
+                        responseTimeout=TestSettings.getInt( 'Network', 'response-timeout' )
+                     )
         _ip, _port = address
         self.setServerAddress( ip = _ip, port = _port)
         self.__test_name = name
@@ -73,9 +64,6 @@ class TestClientInterface(NetLayerLib.ClientAgent):
     def trace (self, txt):
         """
         Display txt on screen
-
-        @param txt: message
-        @type txt: string
         """ 
         if self.DEBUG_MODE == 'DEBUG':
             timestamp =  time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())) \
@@ -87,24 +75,14 @@ TCI = None
 def instance():
     """
     Return instance
-
-    @return:
-    @rtype:
     """
     return TCI
 
 def initialize( address , name):
     """
     Initiliaze
-
-    @param address:
-    @type address:
-
-    @param address:
-    @type address:
     """
     global TCI
-    #TestSettings.initialize()
     TCI = TestClientInterface(address = address, name = name)
     instance().startCA()
 
@@ -114,6 +92,4 @@ def finalize():
     """
     instance().stopCA()
     global TCI
-    if TCI:
-        TCI = None
-    #TestSettings.finalize()
+    if TCI: TCI = None

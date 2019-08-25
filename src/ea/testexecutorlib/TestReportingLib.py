@@ -29,7 +29,6 @@ __HELPER__ = [
              ]
 
 class TestCases(object):
-    
     def __init__(self):
         """
         Get all testcases as an iterator.

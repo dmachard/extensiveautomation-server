@@ -100,10 +100,13 @@ class AutomationServer(Logger.ClassLogger, daemon.Daemon):
             self.error("Unable to initialize settings: %s" % str(e))
         else:
 
+            app_name = Settings.get('Server','name')
+            app_name = app_name.replace(" ", "").lower()
+            
             # config file exist so prepare the deamon
             self.prepare(   pidfile="%s/%s/%s.pid" % (  Settings.getDirExec(),
                                                         Settings.get('Paths','run'),
-                                                        Settings.get('Server','acronym') ),
+                                                        app_name ),
                             name=Settings.get('Server','name'),
                             stdout= "%s/%s/output.log" % (  Settings.getDirExec(),
                                                             Settings.get('Paths','logs') ),
@@ -112,7 +115,7 @@ class AutomationServer(Logger.ClassLogger, daemon.Daemon):
                             stdin= "/dev/null",
                             runningfile="%s/%s/%s.running" % (  Settings.getDirExec(),
                                                                 Settings.get('Paths','run'),
-                                                                Settings.get('Server','acronym') ),
+                                                                app_name ),
                         )
 
     def initialize (self):
@@ -404,25 +407,27 @@ class AutomationServer(Logger.ClassLogger, daemon.Daemon):
         Hup handler
         """
         self.info( 'Reloading configuration...' )
-        # reload settings
+        
+        # reload settings ini
         Settings.finalize()
         Settings.initialize()
 
+        # reload config from database
+        Context.instance().readConfigDb()
+        
         # reconfigure the level of log message
         Logger.reconfigureLevel()
 
         # reload cache
         UsersManager.instance().loadCache()
 
+        
         self.info( 'Configuration reloaded!' )
 
 SERVER = None # singleton
 def instance ():
     """
     Returns the singleton
-
-    @return: server singleton
-    @rtype: object
     """
     return SERVER
 

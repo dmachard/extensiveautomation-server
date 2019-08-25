@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   description: Control your test server with Extensive Automation API
-  version: 21.0.0
+  version: 21.1.0
   title: Swagger Tester - Extensive Automation
   contact:
     email: d.machard@gmail.com
@@ -26,7 +26,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -49,7 +49,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/adapters/adapter/add", 
+                "cmd": "/adapters/adapter/add",
                 "message": "adapter added"
               }
         '400':
@@ -60,7 +60,7 @@ paths:
     post:
       tags:
         - adapters
-      summary: Add directory in the adapters storage 
+      summary: Add directory in the adapters storage
       description: ''
       operationId: adaptersDirectoryAdd
       consumes:
@@ -70,7 +70,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -94,7 +94,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/adapters/directory/add", 
+                "cmd": "/adapters/directory/add",
                 "message": "directory successfully added"
               }
         '400':
@@ -105,7 +105,7 @@ paths:
     post:
       tags:
         - adapters
-      summary: Duplicate directory in the adapters storage 
+      summary: Duplicate directory in the adapters storage
       description: ''
       operationId: adaptersDirectoryDuplicate
       consumes:
@@ -115,7 +115,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -152,7 +152,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/adapters/directory/rename", 
+                "cmd": "/adapters/directory/rename",
                 "message": "directory successfully renamed"
               }
         '400':
@@ -173,7 +173,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -208,7 +208,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/adapters/directory/move", 
+                "cmd": "/adapters/directory/move",
                 "message": "directory successfully moved"
               }
         '400':
@@ -219,7 +219,7 @@ paths:
     post:
       tags:
         - adapters
-      summary: remove directory in the adapters storage 
+      summary: remove directory in the adapters storage
       description: ''
       operationId: adaptersDirectoryRemove
       consumes:
@@ -229,7 +229,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -253,7 +253,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/adapters/directory/remove", 
+                "cmd": "/adapters/directory/remove",
                 "message": "directory successfully removed"
               }
         '400':
@@ -264,7 +264,7 @@ paths:
     post:
       tags:
         - adapters
-      summary: Rename directory in the adapters storage 
+      summary: Rename directory in the adapters storage
       description: ''
       operationId: adaptersDirectoryRename
       consumes:
@@ -274,7 +274,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -313,7 +313,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/adapters/directory/rename", 
+                "cmd": "/adapters/directory/rename",
                 "message": "directory successfully renamed"
               }
         '400':
@@ -324,7 +324,7 @@ paths:
     post:
       tags:
         - adapters
-      summary: download file from the test storage 
+      summary: download file from the test storage
       description: ''
       operationId: adaptersFileDownload
       consumes:
@@ -334,7 +334,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -358,7 +358,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/adapters/file/download", 
+                "cmd": "/adapters/file/download",
                 "file-content": "...."
               }
         '400':
@@ -369,7 +369,7 @@ paths:
     post:
       tags:
         - adapters
-      summary: Duplicate file in the adapters storage 
+      summary: Duplicate file in the adapters storage
       description: ''
       operationId: adaptersFileDuplicate
       consumes:
@@ -379,7 +379,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -420,7 +420,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/adapters/file/rename", 
+                "cmd": "/adapters/file/rename",
                 "message": "file successfully renamed"
               }
         '400':
@@ -441,7 +441,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -478,7 +478,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/adapters/file/move", 
+                "cmd": "/adapters/file/move",
                 "message": "file successfully moved"
               }
         '400':
@@ -489,7 +489,7 @@ paths:
     post:
       tags:
         - adapters
-      summary: open and lock file from the test storage 
+      summary: open and lock file from the test storage
       description: ''
       operationId: adaptersFileOpen
       consumes:
@@ -499,7 +499,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -523,7 +523,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/adapters/file/open", 
+                "cmd": "/adapters/file/open",
                 "file-content": "...."
               }
         '400':
@@ -534,7 +534,7 @@ paths:
     post:
       tags:
         - adapters
-      summary: remove file in the adapters storage 
+      summary: remove file in the adapters storage
       description: ''
       operationId: adaptersFileRemove
       consumes:
@@ -544,7 +544,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -566,7 +566,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/adapters/file/remove", 
+                "cmd": "/adapters/file/remove",
                 "message": "file successfully removed"
               }
         '400':
@@ -577,7 +577,7 @@ paths:
     post:
       tags:
         - adapters
-      summary: Rename file in the adapters storage 
+      summary: Rename file in the adapters storage
       description: ''
       operationId: adaptersFileRename
       consumes:
@@ -587,7 +587,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -628,7 +628,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/adapters/file/rename", 
+                "cmd": "/adapters/file/rename",
                 "message": "file successfully renamed"
               }
         '400':
@@ -639,7 +639,7 @@ paths:
     post:
       tags:
         - adapters
-      summary: unlock file in the adapters storage 
+      summary: unlock file in the adapters storage
       description: ''
       operationId: adaptersFileUnlock
       consumes:
@@ -649,7 +649,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -675,7 +675,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/adapters/file/unlock", 
+                "cmd": "/adapters/file/unlock",
                 "message": "file successfully unlocked"
               }
         '400':
@@ -686,7 +686,7 @@ paths:
     post:
       tags:
         - adapters
-      summary: Upload file the test storage 
+      summary: Upload file the test storage
       description: ''
       operationId: adaptersFileUpload
       consumes:
@@ -696,7 +696,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -732,7 +732,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/adapters/file/upload", 
+                "cmd": "/adapters/file/upload",
                 "code": 200
               }
         '400':
@@ -753,7 +753,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
       responses:
@@ -768,7 +768,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/adapters/listing", 
+                "cmd": "/adapters/listing",
                 "adapters-listing": "...."
               }
         '400':
@@ -789,7 +789,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -802,7 +802,7 @@ paths:
                 type: string
       responses:
         '200':
-          description: 
+          description:
           schema :
             properties:
               cmd:
@@ -812,7 +812,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/agents/disconnect", 
+                "cmd": "/agents/disconnect",
                 "message: "agent successfully disconnected"
               }
         '400':
@@ -833,7 +833,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
       responses:
@@ -850,7 +850,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/agents/running", 
+                "cmd": "/agents/running",
                 "agents-running": ...
               }
   /rest/results/comment/add:
@@ -867,7 +867,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -881,14 +881,14 @@ paths:
               project-id:
                 type: integer
               replay-id:
-                type: string 
+                type: string
               comment:
                 type: string
               timstamp:
                 type: string
       responses:
         '200':
-          description: 
+          description:
           schema :
             properties:
               cmd:
@@ -903,7 +903,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/results/download/result", 
+                "cmd": "/results/download/result",
                 "result": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV....",
                 "result-name": "....",
                 "test-id": "7dcc4836-e989-49eb-89b7-5ec1351d2ced",
@@ -932,7 +932,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -946,10 +946,10 @@ paths:
               project-id:
                 type: integer
               replay-id:
-                type: string 
+                type: string
       responses:
         '200':
-          description: 
+          description:
           schema :
             properties:
               cmd:
@@ -964,7 +964,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/results/download/result", 
+                "cmd": "/results/download/result",
                 "result": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV....",
                 "result-name": "....",
                 "test-id": "7dcc4836-e989-49eb-89b7-5ec1351d2ced",
@@ -993,7 +993,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -1023,7 +1023,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/results/download/image", 
+                "cmd": "/results/download/image",
                 "image": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV....",
                 "test-id": "7dcc4836-e989-49eb-89b7-5ec1351d2ced"
               }
@@ -1049,7 +1049,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -1092,7 +1092,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/results/download/result", 
+                "cmd": "/results/download/result",
                 "result": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV....",
                 "result-name": "....",
                 "test-id": "7dcc4836-e989-49eb-89b7-5ec1351d2ced",
@@ -1121,7 +1121,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -1156,7 +1156,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/results/download/uncomplete", 
+                "cmd": "/results/download/uncomplete",
                 "result": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV....",
                 "result-name": "....",
                 "test-id": "7dcc4836-e989-49eb-89b7-5ec1351d2ced",
@@ -1185,7 +1185,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -1211,7 +1211,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/results/follow", 
+                "cmd": "/results/follow",
                 "project-id": 25
               }
         '400':
@@ -1234,7 +1234,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -1264,7 +1264,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/results/listing/files", 
+                "cmd": "/results/listing/files",
                 "listing": [...],
                 "nb-folders": 2,
                 "nb-files":  2,
@@ -1290,7 +1290,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -1323,7 +1323,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/results/listing/id/by/datetime", 
+                "cmd": "/results/listing/id/by/datetime",
                 "listing":  [...]
               }
         '400':
@@ -1346,7 +1346,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -1374,7 +1374,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/results/remove/by/date", 
+                "cmd": "/results/remove/by/date",
                 "message": "xxxxxxx",
                 "project-id": 25
               }
@@ -1400,7 +1400,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -1428,7 +1428,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/results/remove", 
+                "cmd": "/results/remove",
                 "message": "xxxx",
                 "project-id": 25
               }
@@ -1454,7 +1454,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -1484,7 +1484,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/results/reports", 
+                "cmd": "/results/reports",
                 "test-id": "7dcc4836-e989-49eb-89b7-5ec1351d2ced",
                 "comments": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV....",
               }
@@ -1510,7 +1510,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -1540,7 +1540,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/results/reports", 
+                "cmd": "/results/reports",
                 "test-id": "7dcc4836-e989-49eb-89b7-5ec1351d2ced",
                 "design": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV....",
                 "xml-design": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV...."
@@ -1567,7 +1567,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -1597,7 +1597,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/results/reports", 
+                "cmd": "/results/reports",
                 "test-id": "7dcc4836-e989-49eb-89b7-5ec1351d2ced",
                 "events": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV...."
               }
@@ -1623,7 +1623,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -1652,7 +1652,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/results/report/reviews", 
+                "cmd": "/results/report/reviews",
                 "test-id": "7dcc4836-e989-49eb-89b7-5ec1351d2ced",
                 "basic-review": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV....",
                 "review": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV...."
@@ -1679,7 +1679,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -1709,7 +1709,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/results/reports", 
+                "cmd": "/results/reports",
                 "test-id": "7dcc4836-e989-49eb-89b7-5ec1351d2ced",
                 "verdict": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV....",
                 "xml-verdict": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV...."
@@ -1736,7 +1736,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -1766,7 +1766,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/results/reports", 
+                "cmd": "/results/reports",
                 "test-id": "7dcc4836-e989-49eb-89b7-5ec1351d2ced",
                 "basic-review": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV....",
                 "review": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV....",
@@ -1799,7 +1799,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -1830,8 +1830,8 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/results/status", 
-                "test-status": "running", 
+                "cmd": "/results/status",
+                "test-status": "running",
                 "test-id": "af0b2587-459e-42eb-a4da-e3e6fa227719",
                 "test-progress": 25
               }
@@ -1878,7 +1878,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/results/upload/file", 
+                "cmd": "/results/upload/file",
                 "message": "success"
               }
         '400':
@@ -1903,7 +1903,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -1931,7 +1931,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/results/verdict", 
+                "cmd": "/results/verdict",
                 "test-verdict": "undefined",
                 "test-id": "af0b2587-459e-42eb-a4da-e3e6fa227719"
               }
@@ -1957,7 +1957,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -1983,7 +1983,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/tests/basic/listing", 
+                "cmd": "/tests/basic/listing",
                 "listing": ["/Snippets/UI/03_OpenBrowser.tux", "/Snippets/UI/05_MaximizeBrowser.tux"],
                 "project-id": 1
               }
@@ -2007,7 +2007,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -2041,7 +2041,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/tests/check/syntax/string", 
+                "cmd": "/tests/check/syntax/string",
                 "status": True,
                 "error-msg": "...."
               }
@@ -2063,7 +2063,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -2097,7 +2097,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/tests/check/syntax/tpg", 
+                "cmd": "/tests/check/syntax/tpg",
                 "status": True,
                 "error-msg": "...."
               }
@@ -2119,7 +2119,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -2155,7 +2155,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/tests/check/design", 
+                "cmd": "/tests/check/design",
                 "status": True,
                 "error-msg": "...."
               }
@@ -2177,7 +2177,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -2213,7 +2213,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/tests/check/design/tpg", 
+                "cmd": "/tests/check/design/tpg",
                 "status": True,
                 "error-msg": "...."
               }
@@ -2225,7 +2225,7 @@ paths:
     post:
       tags:
         - tests
-      summary: Add directory in the test storage 
+      summary: Add directory in the test storage
       description: ''
       operationId: testsDirectoryAdd
       consumes:
@@ -2235,7 +2235,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -2261,7 +2261,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/tests/directory/add", 
+                "cmd": "/tests/directory/add",
                 "message": "directory successfully added"
               }
         '400':
@@ -2274,7 +2274,7 @@ paths:
     post:
       tags:
         - tests
-      summary: Duplicate directory in the test storage 
+      summary: Duplicate directory in the test storage
       description: ''
       operationId: testsDirectoryDuplicate
       consumes:
@@ -2284,7 +2284,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -2325,7 +2325,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/tests/directory/rename", 
+                "cmd": "/tests/directory/rename",
                 "message": "directory successfully renamed"
               }
         '400':
@@ -2338,7 +2338,7 @@ paths:
     post:
       tags:
         - tests
-      summary: Move directory in the test storage 
+      summary: Move directory in the test storage
       description: ''
       operationId: testsDirectoryMove
       consumes:
@@ -2348,7 +2348,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -2387,7 +2387,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/tests/directory/move", 
+                "cmd": "/tests/directory/move",
                 "message": "directory successfully moved"
               }
         '400':
@@ -2400,7 +2400,7 @@ paths:
     post:
       tags:
         - tests
-      summary: remove directory in the test storage 
+      summary: remove directory in the test storage
       description: ''
       operationId: testsDirectoryRemove
       consumes:
@@ -2410,7 +2410,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -2434,7 +2434,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/tests/directory/remove", 
+                "cmd": "/tests/directory/remove",
                 "message": "directory successfully removed"
               }
         '400':
@@ -2447,7 +2447,7 @@ paths:
     post:
       tags:
         - tests
-      summary: Rename directory in the test storage 
+      summary: Rename directory in the test storage
       description: ''
       operationId: testsDirectoryRename
       consumes:
@@ -2457,7 +2457,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -2496,7 +2496,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/tests/directory/rename", 
+                "cmd": "/tests/directory/rename",
                 "message": "directory successfully renamed"
               }
         '400':
@@ -2509,7 +2509,7 @@ paths:
     post:
       tags:
         - tests
-      summary: download file from the test storage 
+      summary: download file from the test storage
       description: ''
       operationId: testsFileDownload
       consumes:
@@ -2519,7 +2519,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -2543,7 +2543,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/tests/file/download", 
+                "cmd": "/tests/file/download",
                 "file-content": "...."
               }
         '400':
@@ -2556,7 +2556,7 @@ paths:
     post:
       tags:
         - tests
-      summary: Duplicate file in the test storage 
+      summary: Duplicate file in the test storage
       description: ''
       operationId: testsFileDuplicate
       consumes:
@@ -2566,7 +2566,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -2609,7 +2609,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/tests/file/rename", 
+                "cmd": "/tests/file/rename",
                 "message": "file successfully renamed"
               }
         '400':
@@ -2622,7 +2622,7 @@ paths:
     post:
       tags:
         - tests
-      summary: Move file in the test storage 
+      summary: Move file in the test storage
       description: ''
       operationId: testsFileMove
       consumes:
@@ -2632,7 +2632,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -2677,7 +2677,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/tests/file/move", 
+                "cmd": "/tests/file/move",
                 "message": "file successfully moved"
               }
         '400':
@@ -2690,7 +2690,7 @@ paths:
     post:
       tags:
         - tests
-      summary: open and lock file from the test storage 
+      summary: open and lock file from the test storage
       description: ''
       operationId: testsFileOpen
       consumes:
@@ -2700,7 +2700,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -2736,7 +2736,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/tests/file/open", 
+                "cmd": "/tests/file/open",
                 "file-content": "...."
               }
         '400':
@@ -2749,7 +2749,7 @@ paths:
     post:
       tags:
         - tests
-      summary: remove file in the test storage 
+      summary: remove file in the test storage
       description: ''
       operationId: testsFileRemove
       consumes:
@@ -2759,7 +2759,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -2783,7 +2783,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/tests/file/remove", 
+                "cmd": "/tests/file/remove",
                 "message": "file successfully removed"
               }
         '400':
@@ -2796,7 +2796,7 @@ paths:
     post:
       tags:
         - tests
-      summary: Rename file in the test storage 
+      summary: Rename file in the test storage
       description: ''
       operationId: testsFileRename
       consumes:
@@ -2806,7 +2806,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -2849,7 +2849,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/tests/file/rename", 
+                "cmd": "/tests/file/rename",
                 "message": "file successfully renamed"
               }
         '400':
@@ -2862,7 +2862,7 @@ paths:
     post:
       tags:
         - tests
-      summary: unlock file in the test storage 
+      summary: unlock file in the test storage
       description: ''
       operationId: testsFileUnlock
       consumes:
@@ -2872,7 +2872,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -2900,7 +2900,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/tests/file/unlock", 
+                "cmd": "/tests/file/unlock",
                 "message": "file successfully unlocked"
               }
         '400':
@@ -2913,7 +2913,7 @@ paths:
     post:
       tags:
         - tests
-      summary: Upload file the test storage 
+      summary: Upload file the test storage
       description: ''
       operationId: testsFileUpload
       consumes:
@@ -2923,7 +2923,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -2959,7 +2959,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/tests/file/upload", 
+                "cmd": "/tests/file/upload",
                 "code": 200
               }
         '400':
@@ -3029,7 +3029,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -3059,7 +3059,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/tests/listing", 
+                "cmd": "/tests/listing",
                 "listing": [],
                 "project-id": 1
               }
@@ -3083,7 +3083,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -3097,13 +3097,13 @@ paths:
               test-definition:
                 type: string
               test-execution:
-                type: string 
+                type: string
               test-properties:
-                type: object 
+                type: object
               test-extension:
-                type: string 
+                type: string
               test-path:
-                type: string 
+                type: string
               test-name:
                 type: string
               schedule-id:
@@ -3117,29 +3117,29 @@ paths:
               schedule-repeat:
                 type: integer
               probes-enabled:
-                type: boolean 
+                type: boolean
               debug-enabled:
-                type: boolean 
+                type: boolean
               notifications-enabled:
-                type: boolean 
+                type: boolean
               logs-enabled:
-                type: boolean 
+                type: boolean
               from-time:
                 type: array
                 description: '[ Y,M,D,H,M,S ]'
                 items:
                   type: integer
               to-time:
-                type: array 
+                type: array
                 description: '[ Y,M,D,H,M,S ]'
                 items:
                   type: integer
               tab-id:
                 type: integer
               step-mode:
-                type: boolean 
+                type: boolean
               breakpoint-mode:
-                type: boolean 
+                type: boolean
               background-mode:
                 type: boolean
               test-inputs:
@@ -3202,7 +3202,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -3235,7 +3235,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/tests/schedule/group", 
+                "cmd": "/tests/schedule/group",
                 "message": "success"
               }
         '400':
@@ -3258,7 +3258,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -3270,13 +3270,13 @@ paths:
               project-id:
                 type: integer
               test-execution:
-                type: string 
+                type: string
               test-properties:
-                type: object 
+                type: object
               test-extension:
-                type: string 
+                type: string
               test-path:
-                type: string 
+                type: string
               test-name:
                 type: string
               schedule-id:
@@ -3290,29 +3290,29 @@ paths:
               schedule-repeat:
                 type: integer
               probes-enabled:
-                type: boolean 
+                type: boolean
               debug-enabled:
-                type: boolean 
+                type: boolean
               notifications-enabled:
-                type: boolean 
+                type: boolean
               logs-enabled:
-                type: boolean 
+                type: boolean
               from-time:
                 type: array
                 description: '[ Y,M,D,H,M,S ]'
                 items:
                   type: integer
               to-time:
-                type: array 
+                type: array
                 description: '[ Y,M,D,H,M,S ]'
                 items:
                   type: integer
               tab-id:
                 type: integer
               step-mode:
-                type: boolean 
+                type: boolean
               breakpoint-mode:
-                type: boolean 
+                type: boolean
               background-mode:
                 type: boolean
               test-inputs:
@@ -3369,7 +3369,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -3423,7 +3423,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -3476,7 +3476,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -3514,13 +3514,13 @@ paths:
           examples:
             application/json: |
               {
-                "variables": [ 
-                               { 
-                                "project_id": 1, 
-                                "id": 1, 
-                                "value": false, 
+                "variables": [
+                               {
+                                "project_id": 1,
+                                "id": 1,
+                                "value": false,
                                 "name": "DEBUG"
-                               } 
+                               }
                             ],
                 "cmd": "/variables/listing"
               }
@@ -3544,7 +3544,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -3594,7 +3594,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -3648,9 +3648,9 @@ paths:
             application/json: |
               {
                 "variable": {
-                              "project_id": 1, 
-                              "id": 95, 
-                              "value": "1.0", 
+                              "project_id": 1,
+                              "id": 95,
+                              "value": "1.0",
                               "name": "VAR_AUTO"
                             },
                 "cmd": "/variables/search/by/id"
@@ -3677,7 +3677,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -3731,9 +3731,9 @@ paths:
             application/json: |
               {
                 "variable": {
-                              "project_id": 1, 
-                              "id": 95, 
-                              "value": "1.0", 
+                              "project_id": 1,
+                              "id": 95,
+                              "value": "1.0",
                               "name": "VAR_AUTO"
                             },
                 "cmd": "/variables/search/by/name"
@@ -3760,7 +3760,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body

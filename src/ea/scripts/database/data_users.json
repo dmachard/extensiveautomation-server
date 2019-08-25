@@ -1,0 +1,26 @@
+[
+    { 
+      "login":              "admin", 
+      "password":           "password", 
+      "email":              "admin@localhost",
+      "level":              "administrator",
+      "default-project":    1,
+      "projects":           [ 1 ]
+    },
+    { 
+      "login":              "monitor", 
+      "password":           "password", 
+      "email":              "monitor@localhost",
+      "level":              "monitor",
+      "default-project":    1,
+      "projects":           [ 1 ]
+    },
+    { 
+      "login":              "tester", 
+      "password":           "password",
+      "email":              "tester@localhost",      
+      "level":              "tester",
+      "default-project":    1,
+      "projects":           [ 1 ] 
+    }
+]

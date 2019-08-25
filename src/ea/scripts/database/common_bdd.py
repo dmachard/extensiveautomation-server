@@ -21,6 +21,7 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+import os
 import sqlite3
 import sys
 sys.path.insert(0, '../../../' )
@@ -34,7 +35,16 @@ Settings.initialize(path="./")
 db_name = "%s/%s/%s" % ( Settings.getDirExec(),
                          Settings.get( 'Paths', 'var' ),
                          Settings.get( 'Database', 'db' ))
-                                    
+
+def delete_db():
+    """
+    """
+    print("Removing current database...")
+    try:
+        os.remove(db_name)
+    except Exception:
+        pass
+  
 def querySQL ( query ):
     """
     detect dabatase type
@@ -43,15 +53,22 @@ def querySQL ( query ):
     @param query: sql query
     @type query: string
     """
-    try:
-        conn = sqlite3.connect(db_name)
-        
-        c = conn.cursor()
-        c.execute(query)
-        c.close ()
-        
-        conn.commit()
-        conn.close()
-    except Exception as e:
-        print("[query] %s - %s" % (str(e), query) )
-        sys.exit(1)
+    # connect to the db
+    conn = sqlite3.connect(db_name)
+    
+    c = conn.cursor()
+    
+    # execute the sql query
+    print(query)
+    print()
+    c.execute(query)
+    
+    # retrieve the last id
+    lastrowid = c.lastrowid
+
+    c.close ()
+    
+    conn.commit()
+    conn.close()
+    
+    return lastrowid

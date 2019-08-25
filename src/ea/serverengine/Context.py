@@ -29,7 +29,13 @@ import copy
 import hashlib
 import platform
 import uuid
-
+try:
+    LDAP_INSTALLED=True
+    import ldap3
+except ImportError:
+    LDAP_INSTALLED = False
+    
+from ea.serverengine import DbManager
 from ea.serverengine import UsersManager
 from ea.serverengine import ProjectsManager
 from ea.libs import Settings, Logger
@@ -43,8 +49,8 @@ if sys.version_info > (3,):
 
 class UserContext(Logger.ClassLogger):
     """
+    User context
     """
-
     def __init__(self, login):
         """
         Class to construct a user context
@@ -80,8 +86,8 @@ class UserContext(Logger.ClassLogger):
 
 class SessionExpireHandler(threading.Thread, Logger.ClassLogger):
     """
+    Handler to expiration of the session
     """
-
     def __init__(self):
         """
         """
@@ -140,19 +146,17 @@ class SessionExpireHandler(threading.Thread, Logger.ClassLogger):
 
 class Context(Logger.ClassLogger):
     """
+    Global context for server
     """
     CODE_ERROR = 500
     CODE_DISABLED = 405
     CODE_NOT_FOUND = 404
     CODE_LOCKED = 421
-    CODE_ALLREADY_EXISTS = 420  # error in the name, should be remove in the future
     CODE_ALREADY_EXISTS = 420
-    CODE_ALLREADY_CONNECTED = 416  # error in the name, should be remove in the future
     CODE_ALREADY_CONNECTED = 416
     CODE_FORBIDDEN = 403
     CODE_FAILED = 400
     CODE_OK = 200
-
     def __init__(self):
         """
         Construct context server
@@ -160,14 +164,34 @@ class Context(Logger.ClassLogger):
         self.__mutex__ = threading.RLock()
         self.conn_id = 0
 
-        # {    'address' : client, 'profile': ...., 'connected-at': time.time()   }
-        self.usersConnected = {}
+        # read config from database
+        self.cfg_db = {}
+        self.readConfigDb()
 
-        self.startedAt = self.formatTimestamp(timestamp=time.time())
+        # {'address' : client, 'profile': ...., 
+        # 'connected-at': time.time()   }
+        self.usersConnected = {}
 
         self.userSessions = {}
         self.handlerSesssions = SessionExpireHandler()
         self.startSessionHandler()
+
+    def readConfigDb(self):
+        """
+        """
+        self.trace("Loading config from database in memory")
+        
+        sql = """SELECT * FROM `config`"""
+        success, res = DbManager.instance().querySQL( query = sql,
+                                                      columnName=True )
+        if not success:
+            raise Exception("unable to read config from database")
+            
+        # populate cfg variable
+        for line in res:
+            self.cfg_db[line["opt"]] = line["value"]
+        
+        del res
 
     def startSessionHandler(self):
         """
@@ -194,20 +218,6 @@ class Context(Logger.ClassLogger):
         self.conn_id += 1
         ret = self.conn_id
         self.__mutex__.release()
-        return ret
-
-    def formatTimestamp(self, timestamp):
-        """
-        Returns human-readable time
-
-        @param timestamp:
-        @type timestamp:
-
-        @return: timestamp readable
-        @rtype: string
-        """
-        ret = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(timestamp)) \
-            + ".%3.3d  " % int((timestamp * 1000) % 1000)
         return ret
 
     def getUsersConnectedCopy(self):
@@ -281,29 +291,44 @@ class Context(Logger.ClassLogger):
             self.trace("%s account not active" % login)
             return (self.CODE_DISABLED, expires)
 
-        # check password, create a sha1 hash with salt: sha1( salt + sha1(password) )
-        sha0 = hashlib.sha1()
-        sha0.update(password.encode('utf8'))
-
-        sha1 = hashlib.sha1()
-        _pwd = "%s%s" % (Settings.get('Misc', 'salt'), sha0.hexdigest())
-        sha1.update(_pwd.encode('utf8'))
-
-        sha3 = hashlib.sha1()
-        _pwd2 = "%s%s" % (Settings.get('Misc', 'salt'),
-                          password.encode('utf8'))
-        sha3.update(_pwd2.encode('utf8'))
-
-        pwd_matched = False
-        if user_profile['password'] == sha1.hexdigest():
-            pwd_matched = True
-        # keep this mode only for backward compatibility
-        if user_profile['password'] == sha3.hexdigest():
-            pwd_matched = True
-
-        if not pwd_matched:
-            self.trace("incorrect password for %s account" % login)
+        # 2 methods to authenticate the user 
+        # make a hash of the password and look inside the server
+        # or communicate with a remote ldap authenticator
+        
+        if Settings.getInt( 'Users_Session', 'ldap-auth-enable') and LDAP_INSTALLED:
+            auth_success = self.doLdapAuth(login, password)
+            if not auth_success:
+                self.trace("ldap auth failed for %s account" % login)
+                return (self.CODE_FAILED, expires)
+                
+        elif Settings.getInt( 'Users_Session', 'ldap-auth-enable') and not LDAP_INSTALLED:
+            self.error("python ldap3 library is not installed on your system")
             return (self.CODE_FAILED, expires)
+            
+        else:
+            # check password, create a sha1 hash with salt: sha1( salt + sha1(password) )
+            sha0 = hashlib.sha1()
+            sha0.update(password.encode('utf8'))
+
+            sha1 = hashlib.sha1()
+            _pwd = "%s%s" % ( self.cfg_db["auth-salt"], sha0.hexdigest())
+            sha1.update(_pwd.encode('utf8'))
+
+            sha3 = hashlib.sha1()
+            _pwd2 = "%s%s" % (self.cfg_db["auth-salt"],
+                              password.encode('utf8'))
+            sha3.update(_pwd2.encode('utf8'))
+
+            pwd_matched = False
+            if user_profile['password'] == sha1.hexdigest():
+                pwd_matched = True
+            # keep this mode only for backward compatibility
+            if user_profile['password'] == sha3.hexdigest():
+                pwd_matched = True
+
+            if not pwd_matched:
+                self.trace("incorrect password for %s account" % login)
+                return (self.CODE_FAILED, expires)
 
         session_id = self.generateSessionid()
         user_profile['last_activity'] = time.time()
@@ -319,6 +344,52 @@ class Context(Logger.ClassLogger):
                    (login, session_id, expires))
         return (session_id, expires)
 
+    def doLdapAuth(self, login, password):
+        """
+        """
+        ret = False
+        
+        # get ldap settings
+        ldap_addr = Settings.get('Users_Session', 'ldap-remote-addr')
+        ldap_port = Settings.get('Users_Session', 'ldap-remote-port')
+        ldap_ssl = False
+        if Settings.getInt('Users_Session', 'ldap-remote-ssl'): 
+            ldap_ssl = True
+        ldap_username = Settings.get('Users_Session', 'ldap-username')
+        ldap_auth_type = Settings.get('Users_Session', 'ldap-auth-type')
+
+        # define the server
+        server_ldap = ldap3.Server(host=ldap_addr, 
+                                   port=int(ldap_port),
+                                   use_ssl=ldap_ssl,
+                                   get_info=ldap3.ALL)
+
+        username = ldap_username % login
+
+        # define the connection
+        if ldap_auth_type == "bind":
+            self.trace("connection to ldap with simple bind auth mode")
+            conn = ldap3.Connection(server_ldap, 
+                                    user=username, 
+                                    password=password)
+        elif ldap_auth_type == "ntlm":
+            self.trace("connection to ldap with ntlm auth mode")
+            conn = ldap3.Connection(server_ldap, 
+                                    user=username, 
+                                    password=password,
+                                    authentication=ldap3.NTLM)
+                                    
+        else:
+            self.error( "ldap auth method not supported: %s" % ldap_auth_type)
+            return ret
+            
+        # perform the Bind operation
+        self.trace("perform bind ldap operation")
+        if conn.bind(): ret = True
+        
+        return ret 
+        
+        
     def updateSession(self, sessionId):
         """
         """
@@ -340,7 +411,7 @@ class Context(Logger.ClassLogger):
         levels = []
         if userProfile['administrator']:
             levels.append( "Administrator" )
-        if userProfile['leader']:
+        if userProfile['monitor']:
             levels.append( "Monitor" )
         if userProfile['tester']:
             levels.append( "Tester" )
@@ -355,18 +426,22 @@ class Context(Logger.ClassLogger):
         """
         connStart = time.time()
         connId = self.getUniqueId()
+        
         # user = { 'address' : client, <user>:{},  'profile': <user profile> }
         self.usersConnected[user['profile']['login']] = user
         self.usersConnected[user['profile']
                             ['login']]['connected-at'] = connStart
         self.usersConnected[user['profile']['login']]['connection-id'] = connId
-        self.info("User Registered: ConnectionID=%s PrivateAddress=%s Login=%s" % (connId,
-                                                                                   user['address'],
-                                                                                   user['profile']['login']))
+        
+        self.info("User Registered: ConnID=%s Addr=%s Login=%s" % (
+                                                                  connId,
+                                                                  user['address'],
+                                                                  user['profile']['login'])
+                                                                 )
 
         # update db
-        UsersManager.instance().setOnlineStatus(
-            login=user['profile']['login'], online=True)
+        UsersManager.instance().setOnlineStatus(login=user['profile']['login'], 
+                                                online=True)
 
         return True
 
@@ -377,17 +452,17 @@ class Context(Logger.ClassLogger):
         self.info("Unregister user Login=%s" % login)
         UsersManager.instance().setOnlineStatus(login=login, online=False)
         if not login in self.usersConnected:
-            self.trace("unregister user from api, user %s not found" % login)
+            self.trace("User=%s to unregister not found" % login)
             return self.CODE_NOT_FOUND
-        else:
-            userProfile = self.usersConnected[login]
 
-            # close the network link with the client if exists
-            if userProfile['address'] in ESI.instance().clients:
-                ESI.instance().stopClient(client=userProfile['address'])
-            else:
-                user_removed = self.usersConnected.pop(login)
-                del user_removed
+        user_profile = self.usersConnected[login]
+
+        # close the network link with the client if exists
+        if user_profile['address'] in ESI.instance().clients:
+            ESI.instance().stopClient(client=user_profile['address'])
+        else:
+            user_removed = self.usersConnected.pop(login)
+            del user_removed
 
         return self.CODE_OK
 
@@ -418,79 +493,44 @@ class Context(Logger.ClassLogger):
         """
         Search the user in the connected user list by the name and return it
         Return None if the user is not found
-
-        @param user: channel-id (ip, port)
-        @type user: tuple
-
-        @return: user information
-        @rtype: dict
         """
-        found = None
         if not login in self.usersConnected:
-            self.trace('User Login=%s connected with channel? no' % str(login))
-            return found
-        else:
-            found = self.usersConnected[login]
-        return found
+            self.trace('User=%s connected with channel? no' % str(login))
+            return None
+        
+        # return the user profile 
+        return self.usersConnected[login]
 
-    def getInformations(self, user=None, b64=False):
+    def getInformations(self, user):
         """
         Returns settings on the server for the client
-
-        @return: server settings
-        @rtype: list
         """
         self.trace('construct servers information')
         ret = []
-        # platform
-        try:
-            ret.append({'version': Settings.getVersion()})
-            ret.append({'python': platform.python_version()})
-            ret.append({'start-at': "%s" % self.startedAt})
 
-            if user is not None:
-                ret.append(
-                    {'test-environment': self.getTestEnvironment(user=user)})
+        # get project and default one according to the user
+        if isinstance(user, UserContext):
+            user_projects = user.getProjects()
+            user_def_project = user.getDefault()
+        else:
+            user_projects = ProjectsManager.instance().getProjects(user=user)
+            user_def_project = ProjectsManager.instance().getDefaultProjectForUser(user=user)
 
-                if isinstance(user, UserContext):
-                    ret.append({'projects': user.getProjects()})
-                    ret.append({'default-project': user.getDefault()})
-                else:
-                    ret.append(
-                        {'projects': ProjectsManager.instance().getProjects(user=user)})
-                    ret.append(
-                        {'default-project': ProjectsManager.instance().getDefaultProjectForUser(user=user)})
-
-            for section in Settings.instance().sections():
-                for (name, value) in Settings.instance().items(section):
-                    ret.append(
-                        {"%s-%s" % (section.lower(), name.lower()): value})
-
-        except Exception as e:
-            self.error('unable to construct servers settings: %s' % str(e))
-
+        # append informations in the list to return
+        ret.append({'version': Settings.getVersion()})
+        ret.append({'python': platform.python_version()})
+        ret.append({'test-environment': self.getTestEnvironment(user=user)})
+        ret.append({'projects': user_projects})
+        ret.append({'default-project': user_def_project})
+        
         return ret
 
-    def getRn(self, pathRn, b64=False):
+    def getRn(self, pathRn):
         """
         Returns the contains of the file releasenotes.txt
-
-        @param pathRn:
-        @type pathRn:
-
-        @return: release notes
-        @rtype: string
         """
-        self.trace('opening the release note')
-        rn_ret = ''
-        try:
-            f = open('%s/releasenotes.txt' % pathRn)
-            rn_ret = f.read()
-            f.close()
-        except Exception as e:
-            self.error("Unable to read release notes: %s" % str(e))
-
-        return rn_ret
+        with open('%s/releasenotes.txt' % pathRn, 'r') as f:
+            return f.read()
 
     def getTestEnvironment(self, user, b64=False):
         """
@@ -526,31 +566,16 @@ class Context(Logger.ClassLogger):
         And notify all connected user
         """
         for user_login, user_profile in self.usersConnected.items():
-            if user_profile['profile']['administrator'] or user_profile['profile']['tester'] or \
-                    user_profile['profile']['developer']:
-                data = ('context-server', ("update", self.getInformations(user=user_login)))
-                ESI.instance().notify(body=data, toUser=user_login)
+            data = ('context-server', ("update", self.getInformations(user=user_login)))
+            ESI.instance().notify(body=data, toUser=user_login)
         return True
 
-    def trace(self, txt):
-        """
-        Trace message
-        """
-        Logger.ClassLogger.trace(self, txt="CTX - %s" % txt)
-
-
 CTX = None
-
-
 def instance():
     """
     Returns the singleton
-
-    @return: One instance of the class Context
-    @rtype: Context
     """
     return CTX
-
 
 def initialize():
     """
@@ -558,7 +583,6 @@ def initialize():
     """
     global CTX
     CTX = Context()
-
 
 def finalize():
     """

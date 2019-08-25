@@ -70,18 +70,6 @@ class TestLoggerXml(object):
                   replay_id_, task_id_, userid_, channelid_):
         """
         Constructor for the test logger xml
-
-        @param address:
-        @type address:
-
-        @param address:
-        @type address:
-
-        @param address:
-        @type address:
-
-        @param address:
-        @type address:
         """
         # colors definitions
         self.STATE=TestSettings.get( 'Event_Colors', 'state' )
@@ -253,9 +241,6 @@ class TestLoggerXml(object):
     def getBackTrace(self):
         """
         Returns the current backtrace.
-
-        @return:
-        @rtype:
         """
         backtrace = StringIO.StringIO()
         traceback.print_exc(None, backtrace)
@@ -288,9 +273,6 @@ class TestLoggerXml(object):
     def to_notif(self, value = '', testInfo={}):
         """
         To notif
-
-        @param address:
-        @type address:
         """
         self.__nbline += 1
         try:
@@ -360,7 +342,8 @@ class TestLoggerXml(object):
         @return:
         @rtype:
         """
-        return time.strftime( "%H:%M:%S", time.localtime(time.time())) + ".%4.4d" % int((time.time() * 10000) % 10000)
+        return time.strftime( "%H:%M:%S", time.localtime(time.time())) + \
+                              ".%4.4d" % int((time.time() * 10000) % 10000)
     
     ############## Global events
     def log_script_started (self, fromlevel='', tolevel='', tid='000', testInfo={}):
@@ -429,24 +412,6 @@ class TestLoggerXml(object):
                                   testInfo={}, flagEnd=False, flagBegin=False):
         """
         Log testglobal info event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param color:
-        @type color:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         tpl = { 
                 'event': 'testglobal',  
@@ -456,9 +421,9 @@ class TestLoggerXml(object):
                 'level': 'info', 
                 'color': self.INFO_TG, 
                 'color-text': self.INFO_TG_TEXT,
-                'font': font, 
-                'bold': bold, 
-                'italic': italic, 
+                # 'font': font, 
+                # 'bold': bold, 
+                # 'italic': italic, 
                 'multiline': multiline, 
                 'from-level': fromlevel, 
                 'to-level': tolevel,
@@ -474,24 +439,6 @@ class TestLoggerXml(object):
                                 multiline=False, fromlevel='', tolevel='', testInfo={}):
         """
         Log testglobal trace event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param color:
-        @type color:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         tpl = { 
                 'event': 'testglobal',  
@@ -501,9 +448,9 @@ class TestLoggerXml(object):
                 'level': 'info', 
                 'from-level': fromlevel, 
                 'to-level': tolevel,
-                'font': font, 
-                'bold': bold, 
-                'italic': italic, 
+                # 'font': font, 
+                # 'bold': bold, 
+                # 'italic': italic, 
                 'multiline': multiline
              } 
         if color is not None:
@@ -514,21 +461,6 @@ class TestLoggerXml(object):
                                     multiline=False, fromlevel='', tolevel='', testInfo={} ):
         """
         Log testglobal warning event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( { 
                         'event': 'testglobal',  
@@ -538,9 +470,9 @@ class TestLoggerXml(object):
                         'level': 'warning', 
                         'color': self.WARNING_TG, 
                         'color-text': self.WARNING_TG_TEXT,
-                        'font': font, 
-                        'bold': bold, 
-                        'italic': italic, 
+                        # 'font': font, 
+                        # 'bold': bold, 
+                        # 'italic': italic, 
                         'multiline': multiline, 
                         'from-level': fromlevel, 
                         'to-level': tolevel
@@ -550,21 +482,6 @@ class TestLoggerXml(object):
                                 multiline=False, fromlevel='', tolevel='', testInfo={} ):
         """
         Log testglobal error event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( { 
                         'event': 'testglobal',  
@@ -575,9 +492,9 @@ class TestLoggerXml(object):
                         'color': self.ERROR_TG, 
                         'color-text': 
                         self.ERROR_TG_TEXT,
-                        'font': font, 
-                        'bold': bold, 
-                        'italic': italic, 
+                        # 'font': font, 
+                        # 'bold': bold, 
+                        # 'italic': italic, 
                         'multiline': multiline, 
                         'from-level': fromlevel, 
                         'to-level': tolevel
@@ -587,27 +504,6 @@ class TestLoggerXml(object):
                                 multiline=False, fromlevel='', tolevel='', testInfo={} ):
         """
         Log internal testglobal event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param tcid:
-        @type tcid:
-
-        @param type_:
-        @type type_:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( {
                         'event': 'testglobal', 
@@ -615,11 +511,11 @@ class TestLoggerXml(object):
                         'from-component': component, 
                         'timestamp': self.get_timestamp(), 
                         'short-msg': str(message),
-                        'bold': bold, 
+                        # 'bold': bold, 
                         'color': self.INTERNAL, 
                         'color-text': self.INTERNAL_TEXT,
-                        'font': font, 
-                        'italic': italic , 
+                        # 'font': font, 
+                        # 'italic': italic , 
                         'multiline': multiline, 
                         'from-level': fromlevel, 
                         'to-level': tolevel
@@ -699,24 +595,6 @@ class TestLoggerXml(object):
                                 testInfo={}, flagEnd=False, flagBegin=False):
         """
         Log testplan info event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param color:
-        @type color:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         tpl = {
                 'event': 'testplan',  
@@ -726,9 +604,9 @@ class TestLoggerXml(object):
                 'level': 'info', 
                 'color': self.INFO_TP, 
                 'color-text': self.INFO_TP_TEXT,
-                'font': font, 
-                'bold': bold, 
-                'italic': italic, 
+                # 'font': font, 
+                # 'bold': bold, 
+                # 'italic': italic, 
                 'multiline': multiline, 
                 'from-level': fromlevel, 
                 'to-level': tolevel,
@@ -744,24 +622,6 @@ class TestLoggerXml(object):
                                 multiline=False, fromlevel='', tolevel='', testInfo={}):
         """
         Log testplan trace event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param color:
-        @type color:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         tpl = { 
                 'event': 'testplan',  
@@ -771,9 +631,9 @@ class TestLoggerXml(object):
                 'level': 'info', 
                 'from-level': fromlevel, 
                 'to-level': tolevel,
-                'font': font, 
-                'bold': bold, 
-                'italic': italic, 
+                # 'font': font, 
+                # 'bold': bold, 
+                # 'italic': italic, 
                 'multiline': multiline 
               } 
         if color is not None:
@@ -784,21 +644,6 @@ class TestLoggerXml(object):
                                 multiline=False, fromlevel='', tolevel='', testInfo={} ):
         """
         Log testplan warning event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( { 
                         'event': 'testplan',  
@@ -808,9 +653,9 @@ class TestLoggerXml(object):
                         'level': 'warning', 
                         'color': self.WARNING_TP, 
                         'color-text': self.WARNING_TP_TEXT,
-                        'font': font, 
-                        'bold': bold, 
-                        'italic': italic, 
+                        # 'font': font, 
+                        # 'bold': bold, 
+                        # 'italic': italic, 
                         'multiline': multiline, 
                         'from-level': fromlevel, 
                         'to-level': tolevel
@@ -820,21 +665,6 @@ class TestLoggerXml(object):
                             multiline=False, fromlevel='', tolevel='', testInfo={} ):
         """
         Log testplan error event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( { 
                         'event': 'testplan',  
@@ -844,9 +674,9 @@ class TestLoggerXml(object):
                         'level': 'error', 
                         'color': self.ERROR_TP, 
                         'color-text': self.ERROR_TP_TEXT,
-                        'font': font, 
-                        'bold': bold, 
-                        'italic': italic, 
+                        # 'font': font, 
+                        # 'bold': bold, 
+                        # 'italic': italic, 
                         'multiline': multiline, 
                         'from-level': fromlevel, 
                         'to-level': tolevel
@@ -856,27 +686,6 @@ class TestLoggerXml(object):
                                 multiline=False, fromlevel='', tolevel='', testInfo={} ):
         """
         Log internal warning event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param tcid:
-        @type tcid:
-
-        @param type_:
-        @type type_:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( {
                         'event': 'testplan', 
@@ -884,11 +693,11 @@ class TestLoggerXml(object):
                         'from-component': component, 
                         'timestamp': self.get_timestamp(), 
                         'short-msg': str(message),
-                        'bold': bold, 
+                        # 'bold': bold, 
                         'color': self.INTERNAL, 
                         'color-text': self.INTERNAL_TEXT,
-                        'font': font, 
-                        'italic': italic , 
+                        # 'font': font, 
+                        # 'italic': italic , 
                         'multiline': multiline, 
                         'from-level': fromlevel, 
                         'to-level': tolevel
@@ -932,24 +741,6 @@ class TestLoggerXml(object):
                                 testInfo={}, flagEnd=False, flagBegin=False):
         """
         Log testsuite info event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param color:
-        @type color:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         tpl = { 
                 'event': 'testunit',  
@@ -959,9 +750,9 @@ class TestLoggerXml(object):
                 'level': 'info', 
                 'color': self.INFO_TS, 
                 'color-text': self.INFO_TS_TEXT,
-                'font': font, 
-                'bold': bold, 
-                'italic': italic, 
+                # 'font': font, 
+                # 'bold': bold, 
+                # 'italic': italic, 
                 'multiline': multiline, 
                 'from-level': fromlevel, 
                 'to-level': tolevel,
@@ -977,24 +768,6 @@ class TestLoggerXml(object):
                                 multiline=False, fromlevel='', tolevel='', testInfo={}):
         """
         Log testsuite trace event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param color:
-        @type color:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         tpl = { 
                 'event': 'testunit',  
@@ -1004,9 +777,9 @@ class TestLoggerXml(object):
                 'level': 'info',  
                 'from-level': fromlevel, 
                 'to-level': tolevel,
-                'font': font, 
-                'bold': bold, 
-                'italic': italic, 
+                # 'font': font, 
+                # 'bold': bold, 
+                # 'italic': italic, 
                 'multiline': multiline
               } 
         if color is not None:
@@ -1017,21 +790,6 @@ class TestLoggerXml(object):
                                 multiline=False, fromlevel='', tolevel='', testInfo={} ):
         """
         Log testsuite warning event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( { 
                         'event': 'testunit',  
@@ -1041,9 +799,9 @@ class TestLoggerXml(object):
                         'level': 'warning', 
                         'color': self.WARNING_TC, 
                         'color-text': self.WARNING_TC_TEXT,
-                        'font': font, 
-                        'bold': bold, 
-                        'italic': italic, 
+                        # 'font': font, 
+                        # 'bold': bold, 
+                        # 'italic': italic, 
                         'msg-multiline': multiline, 
                         'from-level': fromlevel, 
                         'to-level': tolevel
@@ -1053,21 +811,6 @@ class TestLoggerXml(object):
                                 multiline=False, fromlevel='', tolevel='', testInfo={} ):
         """
         Log testsuite error event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( { 
                         'event': 'testunit',  
@@ -1077,9 +820,9 @@ class TestLoggerXml(object):
                         'level': 'error', 
                         'color': self.ERROR_TS, 
                         'color-text': self.ERROR_TS_TEXT,
-                        'font': font, 
-                        'bold': bold, 
-                        'italic': italic, 
+                        # 'font': font, 
+                        # 'bold': bold, 
+                        # 'italic': italic, 
                         'multiline': multiline, 
                         'from-level': fromlevel, 
                         'to-level': tolevel
@@ -1089,27 +832,6 @@ class TestLoggerXml(object):
                                 multiline=False, fromlevel='', tolevel='', testInfo={} ):
         """
         Log internal warning event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param tcid:
-        @type tcid:
-
-        @param type_:
-        @type type_:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( {
                         'event': 'testunit', 
@@ -1117,12 +839,12 @@ class TestLoggerXml(object):
                         'from-component': component, 
                         'timestamp': self.get_timestamp(), 
                         'short-msg': str(message),
-                        'bold': bold, 
+                        # 'bold': bold, 
                         'color': self.INTERNAL, 
                         'color-text': self.INTERNAL_TEXT,
-                        'font': font, 
-                        'italic': italic, 
-                        'multiline': multiline, 
+                        # 'font': font, 
+                        # 'italic': italic, 
+                        # 'multiline': multiline, 
                         'from-level': fromlevel, 
                         'to-level': tolevel
                       }, testInfo=testInfo )
@@ -1164,24 +886,6 @@ class TestLoggerXml(object):
                                 testInfo={}, flagEnd=False, flagBegin=False):
         """
         Log testsuite info event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param color:
-        @type color:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         tpl = { 
                 'event': 'testsuite',  
@@ -1191,9 +895,9 @@ class TestLoggerXml(object):
                 'level': 'info', 
                 'color': self.INFO_TS, 
                 'color-text': self.INFO_TS_TEXT,
-                'font': font, 
-                'bold': bold, 
-                'italic': italic, 
+                # 'font': font, 
+                # 'bold': bold, 
+                # 'italic': italic, 
                 'multiline': multiline, 
                 'from-level': fromlevel, 
                 'to-level': tolevel,
@@ -1209,24 +913,6 @@ class TestLoggerXml(object):
                                 multiline=False, fromlevel='', tolevel='', testInfo={}):
         """
         Log testsuite trace event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param color:
-        @type color:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         tpl = { 
                 'event': 'testsuite',  
@@ -1236,9 +922,9 @@ class TestLoggerXml(object):
                 'level': 'info', 
                 'from-level': fromlevel, 
                 'to-level': tolevel,
-                'font': font, 
-                'bold': bold, 
-                'italic': italic, 
+                # 'font': font, 
+                # 'bold': bold, 
+                # 'italic': italic, 
                 'multiline': multiline 
               } 
         if color is not None:
@@ -1249,21 +935,6 @@ class TestLoggerXml(object):
                                     multiline=False, fromlevel='', tolevel='', testInfo={} ):
         """
         Log testsuite warning event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( { 
                         'event': 'testsuite',  
@@ -1273,9 +944,9 @@ class TestLoggerXml(object):
                         'level': 'warning', 
                         'color': self.WARNING_TC, 
                         'color-text': self.WARNING_TC_TEXT,
-                        'font': font, 
-                        'bold': bold, 
-                        'italic': italic, 
+                        # 'font': font, 
+                        # 'bold': bold, 
+                        # 'italic': italic, 
                         'msg-multiline': multiline, 
                         'from-level': fromlevel, 
                         'to-level': tolevel
@@ -1285,21 +956,6 @@ class TestLoggerXml(object):
                                 multiline=False, fromlevel='', tolevel='', testInfo={} ):
         """
         Log testsuite error event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( { 
                         'event': 'testsuite',  
@@ -1309,9 +965,9 @@ class TestLoggerXml(object):
                         'level': 'error', 
                         'color': self.ERROR_TS, 
                         'color-text': self.ERROR_TS_TEXT,
-                        'font': font, 
-                        'bold': bold, 
-                        'italic': italic, 
+                        # 'font': font, 
+                        # 'bold': bold, 
+                        # 'italic': italic, 
                         'multiline': multiline, 
                         'from-level': fromlevel, 
                         'to-level': tolevel
@@ -1321,27 +977,6 @@ class TestLoggerXml(object):
                                     multiline=False, fromlevel='', tolevel='', testInfo={} ):
         """
         Log internal warning event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param tcid:
-        @type tcid:
-
-        @param type_:
-        @type type_:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( {
                         'event': 'testsuite', 
@@ -1349,11 +984,11 @@ class TestLoggerXml(object):
                         'from-component': component, 
                         'timestamp': self.get_timestamp(), 
                         'short-msg': str(message),
-                        'bold': bold, 
+                        # 'bold': bold, 
                         'color': self.INTERNAL, 
                         'color-text': self.INTERNAL_TEXT,
-                        'font': font, 
-                        'italic': italic, 
+                        # 'font': font, 
+                        # 'italic': italic, 
                         'multiline': multiline, 
                         'from-level': fromlevel, 
                         'to-level': tolevel
@@ -1363,12 +998,6 @@ class TestLoggerXml(object):
     def log_testcase_started(self, id_, name, fromlevel='', tolevel='', testInfo={} ):
         """
         Log testcase started event
-
-        @param id_:
-        @type id_:
-
-        @param name:
-        @type name:
         """
         self.to_notif({  
                             'event': EVENT_TESTCASE_STARTED, 
@@ -1383,15 +1012,6 @@ class TestLoggerXml(object):
                                 fromlevel='', tolevel='', testInfo={} ):
         """
         Log testcase stopped event
-
-        @param id_:
-        @type id_:
-
-        @param result:
-        @type result:
-
-        @param duration:
-        @type duration:
         """
         self.setResult(result)
         self.to_notif( { 
@@ -1413,33 +1033,6 @@ class TestLoggerXml(object):
                             testInfo={}, flagEnd=False, flagBegin=False ):
         """
         Log testcase info event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param tcid:
-        @type tcid:
-
-        @param address:
-        @type address:
-
-        @param address:
-        @type address:
-
-        @param address:
-        @type address:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         tpl = { 'event': 'testcase', 
                 'level': 'info', 
@@ -1449,9 +1042,9 @@ class TestLoggerXml(object):
                 'short-msg': str(message), 
                 'tc_id': tcid, 
                 'color': self.INFO_TC, 
-                'bold': bold , 
-                'font': font, 
-                'italic': italic, 
+                # 'bold': bold , 
+                # 'font': font, 
+                # 'italic': italic, 
                 'multiline': multiline, 
                 'from-level': fromlevel, 
                 'to-level': tolevel, 
@@ -1469,27 +1062,6 @@ class TestLoggerXml(object):
                                 tolevel='', testInfo={}  ):
         """
         Log testcase error event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param tcid:
-        @type tcid:
-
-        @param type_:
-        @type type_:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( {
                         'event': 'testcase', 
@@ -1502,9 +1074,9 @@ class TestLoggerXml(object):
                         'color': self.ERROR_TC, 
                         'color-text': self.ERROR_TC_TEXT, 
                         'tc_id': tcid, 
-                        'bold': bold, 
-                        'font': font, 
-                        'italic': italic, 
+                        # 'bold': bold, 
+                        # 'font': font, 
+                        # 'italic': italic, 
                         'multiline': multiline,
                         'from-level': fromlevel, 
                         'to-level': tolevel 
@@ -1516,27 +1088,6 @@ class TestLoggerXml(object):
                                     tolevel='', testInfo={}  ):
         """
         Log testcase warning event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param tcid:
-        @type tcid:
-
-        @param type_:
-        @type type_:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( {
                         'event': 'testcase', 
@@ -1546,12 +1097,12 @@ class TestLoggerXml(object):
                         'timestamp': self.get_timestamp(),
                         'short-msg': str(message), 
                         'type-msg': typeMsg,
-                        'bold': bold, 
+                        # 'bold': bold, 
                         'color': self.WARNING_TC, 
                         'color-text': self.WARNING_TC_TEXT,
                         'tc_id': tcid, 
-                        'font': font, 
-                        'italic': italic, 
+                        # 'font': font, 
+                        # 'italic': italic, 
                         'multiline': multiline,
                         'from-level': fromlevel, 
                         'to-level': tolevel 
@@ -1563,27 +1114,6 @@ class TestLoggerXml(object):
                                 tolevel='', testInfo={}  ):
         """
         Log testcase trace event 
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param tcid:
-        @type tcid:
-
-        @param type_:
-        @type type_:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( {
                         'event': 'testcase',
@@ -1593,10 +1123,10 @@ class TestLoggerXml(object):
                         'timestamp': self.get_timestamp(), 
                         'short-msg': str(message), 
                         'type-msg': typeMsg,
-                        'bold': bold, 
+                        # 'bold': bold, 
                         'tc_id': tcid, 
-                        'font': font, 
-                        'italic': italic,
+                        # 'font': font, 
+                        # 'italic': italic,
                         'multiline': multiline,
                         'from-level': fromlevel,
                         'to-level': tolevel 
@@ -1608,27 +1138,6 @@ class TestLoggerXml(object):
                                     tolevel='', testInfo={} ):
         """
         Log internal warning event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param tcid:
-        @type tcid:
-
-        @param type_:
-        @type type_:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( {
                         'event': 'testcase', 
@@ -1637,14 +1146,14 @@ class TestLoggerXml(object):
                         'type': type_,
                         'timestamp': self.get_timestamp(), 
                         'short-msg': str(message),
-                        'bold': bold, 
+                        # 'bold': bold, 
                         'color': self.INTERNAL, 
                         'color-text': self.INTERNAL_TEXT, 
                         'from-level': fromlevel, 
                         'to-level': tolevel,
                         'tc_id': tcid, 
-                        'font': font, 
-                        'italic': italic,
+                        # 'font': font, 
+                        # 'italic': italic,
                         'multiline': multiline 
         }, testInfo=testInfo )
 
@@ -1654,27 +1163,6 @@ class TestLoggerXml(object):
                         tolevel='', testInfo={} ):
         """
         Log state event
-
-        @param message:
-        @type message:
-
-        @param component:
-        @type component:
-
-        @param tcid:
-        @type tcid:
-
-        @param type_:
-        @type type_:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( {
                         'event': 'testcase',
@@ -1683,14 +1171,14 @@ class TestLoggerXml(object):
                         'type-msg': 'state',
                         'timestamp': self.get_timestamp(), 
                         'short-msg': str(message),
-                        'bold': bold, 
+                        # 'bold': bold, 
                         'color': self.STATE, 
                         'color-text': self.STATE_TEXT,
                         'from-level': fromlevel,
                         'to-level': tolevel,
                         'tc_id': tcid, 
-                        'font': font,
-                        'italic': italic,
+                        # 'font': font,
+                        # 'italic': italic,
                         'multiline': multiline 
         }, testInfo=testInfo )
 
@@ -1701,30 +1189,6 @@ class TestLoggerXml(object):
                         fromlevel='', tolevel='', testInfo={}):
         """
         Log received event
-
-        @param shortMsg:
-        @type shortMsg:
-
-        @param dataMsg:
-        @type dataMsg:
-
-        @param typeMsg:
-        @type typeMsg:
-
-        @param fromComponent:
-        @type fromComponent:
-
-        @param tcid:
-        @type tcid:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( {
                     'event': 'testcase', 
@@ -1739,9 +1203,9 @@ class TestLoggerXml(object):
                     'color-text': self.PAYLOAD_TEXT,
                     'from-level': fromlevel, 
                     'to-level': tolevel,
-                    'font': font, 
-                    'bold': bold, 
-                    'italic': italic,
+                    # 'font': font, 
+                    # 'bold': bold, 
+                    # 'italic': italic,
                     'multiline': multiline 
         }, testInfo=testInfo)
     
@@ -1750,30 +1214,6 @@ class TestLoggerXml(object):
                     multiline=False, fromlevel='', tolevel='', testInfo={}):
         """
         Log send event
-
-        @param shortMsg:
-        @type shortMsg:
-
-        @param dataMsg:
-        @type dataMsg:
-
-        @param typeMsg:
-        @type typeMsg:
-
-        @param fromComponent:
-        @type fromComponent:
-
-        @param tcid:
-        @type tcid:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( {
                         'event': 'testcase', 
@@ -1788,9 +1228,9 @@ class TestLoggerXml(object):
                         'color-text': self.PAYLOAD_TEXT, 
                         'from-level': fromlevel, 
                         'to-level': tolevel,
-                        'font': font, 
-                        'bold': bold, 
-                        'italic': italic,
+                        # 'font': font, 
+                        # 'bold': bold, 
+                        # 'italic': italic,
                         'multiline': multiline 
         }, testInfo=testInfo )
     
@@ -1800,27 +1240,6 @@ class TestLoggerXml(object):
                                 multiline=False, fromlevel='', tolevel='', testInfo={}):
         """
         Log step started event
-
-        @param fromComponent:
-        @type fromComponent:
-
-        @param dataMsg:
-        @type dataMsg:
-
-        @param tcid:
-        @type tcid:
-
-        @param expire:
-        @type expire:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         evt = {
                     'event': 'testcase', 
@@ -1835,9 +1254,9 @@ class TestLoggerXml(object):
                     'tc_id': tcid, 
                     'color': self.STEP_STARTED,
                     'color-text': self.STEP_STARTED_TEXT,
-                    'font': font,
-                    'bold': bold, 
-                    'italic': italic,
+                    # 'font': font,
+                    # 'bold': bold, 
+                    # 'italic': italic,
                     'multiline': multiline 
         }
         self.to_notif( evt, testInfo=testInfo )
@@ -1847,27 +1266,6 @@ class TestLoggerXml(object):
                                 multiline=False, fromlevel='', tolevel='', testInfo={}):
         """
         Log step failed event
-
-        @param fromComponent:
-        @type fromComponent:
-
-        @param dataMsg:
-        @type dataMsg:
-
-        @param tcid:
-        @type tcid:
-
-        @param expire:
-        @type expire:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( {
                     'event': 'testcase',
@@ -1882,9 +1280,9 @@ class TestLoggerXml(object):
                     'tc_id': tcid, 
                     'color': self.STEP_FAILED,
                     'color-text': self.STEP_FAILED_TEXT,
-                    'font': font, 
-                    'bold': bold,
-                    'italic': italic,
+                    # 'font': font, 
+                    # 'bold': bold,
+                    # 'italic': italic,
                     'multiline': multiline
         }, testInfo=testInfo )
 
@@ -1893,27 +1291,6 @@ class TestLoggerXml(object):
                                 multiline=False, fromlevel='', tolevel='', testInfo={}):
         """
         Log step passed event
-
-        @param fromComponent:
-        @type fromComponent:
-
-        @param dataMsg:
-        @type dataMsg:
-
-        @param tcid:
-        @type tcid:
-
-        @param expire:
-        @type expire:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( {
                     'event': 'testcase',
@@ -1928,9 +1305,9 @@ class TestLoggerXml(object):
                     'tc_id': tcid, 
                     'color': self.STEP_PASSED,
                     'color-text': self.STEP_PASSED_TEXT, 
-                    'font': font, 
-                    'bold': bold, 
-                    'italic': italic,
+                    # 'font': font, 
+                    # 'bold': bold, 
+                    # 'italic': italic,
                     'multiline': multiline
         }, testInfo=testInfo )
 
@@ -1940,27 +1317,6 @@ class TestLoggerXml(object):
                                 multiline=False, fromlevel='', tolevel='', testInfo={}):
         """
         Log timer started event
-
-        @param fromComponent:
-        @type fromComponent:
-
-        @param dataMsg:
-        @type dataMsg:
-
-        @param tcid:
-        @type tcid:
-
-        @param expire:
-        @type expire:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         try:
             sec = "second"
@@ -1983,9 +1339,9 @@ class TestLoggerXml(object):
                     'tc_id': tcid, 
                     'color': self.TIMER,
                     'color-text': self.TIMER_TEXT,
-                    'font': font, 
-                    'bold': bold,
-                    'italic': italic,
+                    # 'font': font, 
+                    # 'bold': bold,
+                    # 'italic': italic,
                     'multiline': multiline
         }, testInfo=testInfo )
 
@@ -1994,27 +1350,6 @@ class TestLoggerXml(object):
                                     multiline=False, fromlevel='', tolevel='', testInfo={}):
         """
         Log timer restarted event
-
-        @param fromComponent:
-        @type fromComponent:
-
-        @param dataMsg:
-        @type dataMsg:
-
-        @param tcid:
-        @type tcid:
-
-        @param expire:
-        @type expire:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         try:
             sec = "second"
@@ -2037,9 +1372,9 @@ class TestLoggerXml(object):
                     'tc_id': tcid, 
                     'color': self.TIMER,
                     'color-text': self.TIMER_TEXT,
-                    'font': font, 
-                    'bold': bold,
-                    'italic': italic ,
+                    # 'font': font, 
+                    # 'bold': bold,
+                    # 'italic': italic ,
                     'multiline': multiline
         }, testInfo=testInfo )
 
@@ -2048,21 +1383,6 @@ class TestLoggerXml(object):
                                 multiline=False, fromlevel='', tolevel='', testInfo={}):
         """
         Log timer exceeded event
-
-        @param fromComponent:
-        @type fromComponent:
-
-        @param tcid:
-        @type tcid:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( {
             'event': 'testcase', 
@@ -2077,9 +1397,9 @@ class TestLoggerXml(object):
             'color-text': self.TIMER_TEXT,
             'from-level': fromlevel,
             'to-level': tolevel,
-            'font': font,
-            'bold': bold,
-            'italic': italic,
+            # 'font': font,
+            # 'bold': bold,
+            # 'italic': italic,
             'multiline': multiline 
         }, testInfo=testInfo )
 
@@ -2088,24 +1408,6 @@ class TestLoggerXml(object):
                                 multiline=False, fromlevel='', tolevel='', testInfo={}):
         """
         Log timer stopped event
-
-        @param fromComponent:
-        @type fromComponent:
-
-        @param dataMsg:
-        @type dataMsg:
-
-        @param tcid:
-        @type tcid:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( {
             'event': 'testcase',
@@ -2120,9 +1422,9 @@ class TestLoggerXml(object):
             'color-text': self.TIMER_TEXT,
             'from-level': fromlevel,
             'to-level': tolevel,
-            'font': font,
-            'bold': bold,
-            'italic': italic,
+            # 'font': font,
+            # 'bold': bold,
+            # 'italic': italic,
             'multiline': multiline
         }, testInfo=testInfo)
 
@@ -2131,24 +1433,6 @@ class TestLoggerXml(object):
                             multiline=False, fromlevel='', tolevel='', testInfo={}):
         """
         Log timer info event
-
-        @param fromComponent:
-        @type fromComponent:
-
-        @param dataMsg:
-        @type dataMsg:
-
-        @param tcid:
-        @type tcid:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( {
             'event': 'testcase', 
@@ -2163,9 +1447,9 @@ class TestLoggerXml(object):
             'color-text': self.TIMER_TEXT, 
             'from-level': fromlevel,
             'to-level': tolevel,
-            'font': font,
-            'bold': bold, 
-            'italic': italic, 
+            # 'font': font,
+            # 'bold': bold, 
+            # 'italic': italic, 
             'multiline': multiline
         }, testInfo=testInfo)
 
@@ -2175,27 +1459,6 @@ class TestLoggerXml(object):
                                 multiline=False, fromlevel='', tolevel='', testInfo={}):
         """
         Log match started event
-
-        @param fromComponent:
-        @type fromComponent:
-
-        @param dataMsg:
-        @type dataMsg:
-
-        @param tcid:
-        @type tcid:
-
-        @param expire:
-        @type expire:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         try:
             sec = "second"
@@ -2217,9 +1480,9 @@ class TestLoggerXml(object):
                         'tc_id': tcid,
                         'color': self.MATCH,
                         'color-text': self.MATCH_TEXT,
-                        'font': font,
-                        'bold': bold,
-                        'italic': italic,
+                        # 'font': font,
+                        # 'bold': bold,
+                        # 'italic': italic,
                         'multiline': multiline,
                         'from-level': fromlevel, 
                         'to-level': tolevel
@@ -2229,21 +1492,6 @@ class TestLoggerXml(object):
                                     multiline=False, fromlevel='', tolevel='', testInfo={}):
         """
         Log match exceeded event
-
-        @param fromComponent:
-        @type fromComponent:
-
-        @param tcid:
-        @type tcid:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( {
             'event': 'testcase', 
@@ -2257,9 +1505,9 @@ class TestLoggerXml(object):
             'color-text': self.MATCH_TEXT,
             'from-level': fromlevel, 
             'to-level': tolevel,
-            'font': font, 
-            'bold': bold, 
-            'italic': italic, 
+            # 'font': font, 
+            # 'bold': bold, 
+            # 'italic': italic, 
             'multiline': multiline 
         }, testInfo=testInfo )
 
@@ -2268,24 +1516,6 @@ class TestLoggerXml(object):
                                 multiline=False, fromlevel='', tolevel='', testInfo={}):
         """
         Log match stopped event
-
-        @param fromComponent:
-        @type fromComponent:
-
-        @param dataMsg:
-        @type dataMsg:
-
-        @param tcid:
-        @type tcid:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( {
             'event': 'testcase', 
@@ -2300,9 +1530,9 @@ class TestLoggerXml(object):
             'color-text': self.MATCH_TEXT, 
             'from-level': fromlevel, 
             'to-level': tolevel,
-            'font': font,
-            'bold': bold, 
-            'italic': italic,
+            # 'font': font,
+            # 'bold': bold, 
+            # 'italic': italic,
             'multiline': multiline
         }, testInfo=testInfo)
 
@@ -2311,24 +1541,6 @@ class TestLoggerXml(object):
                                 multiline=False, fromlevel='', tolevel='', testInfo={}):
         """
         Log match info event
-
-        @param fromComponent:
-        @type fromComponent:
-
-        @param dataMsg:
-        @type dataMsg:
-
-        @param tcid:
-        @type tcid:
-
-        @param font:
-        @type font:
-
-        @param bold:
-        @type bold:
-
-        @param italic:
-        @type italic:
         """
         self.to_notif( {
             'event': 'testcase', 
@@ -2343,18 +1555,15 @@ class TestLoggerXml(object):
             'color-text': self.MISMATCH_TEXT,
             'from-level': fromlevel,
             'to-level': tolevel,
-            'font': font, 
-            'bold': bold, 
-            'italic': italic, 
+            # 'font': font, 
+            # 'bold': bold, 
+            # 'italic': italic, 
             'multiline': multiline
         }, testInfo=testInfo)
 
     def error (self, err):
         """
         Log error
-
-        @param err:
-        @type err:
         """
         timestamp = time.strftime( "%Y-%m-%d %H:%M:%S", time.localtime(time.time())) + \
                                     ".%4.4d" % int((time.time() * 10000) % 10000)
@@ -2363,9 +1572,6 @@ class TestLoggerXml(object):
     def trace (self, msg):
         """
         Trace message
-
-        @param err:
-        @type err:
         """
         timestamp = time.strftime( "%Y-%m-%d %H:%M:%S", time.localtime(time.time())) + \
                                     ".%4.4d" % int((time.time() * 10000) % 10000)
@@ -2376,12 +1582,8 @@ TestLogger = None
 def instance():
     """
     Return the instance
-
-    @return:
-    @rtype:
     """
-    if TestLogger:
-        return TestLogger
+    if TestLogger: return TestLogger
 
 def initialize( task_uuid, 
                 path, 
@@ -2396,27 +1598,6 @@ def initialize( task_uuid,
                 test_result_path="./"):
     """
     Initialize
-
-    @param path:
-    @type path:
-
-    @param name:
-    @type name:
-
-    @param user_:
-    @type user_:
-
-    @param testname_:
-    @type testname_:
-
-    @param id_:
-    @type id_:
-
-    @param replay_id_:
-    @type replay_id_:
-
-    @param task_id_:
-    @type task_id_:
     """
     # initialize settings for the test context
     TestSettings.initialize(path=test_result_path)
@@ -2433,8 +1614,7 @@ def finalize():
     Finalize
     """
     global TestLogger
-    if TestLogger:
-        TestLogger = None
+    if TestLogger: TestLogger = None
         
     TestSettings.finalize()
         

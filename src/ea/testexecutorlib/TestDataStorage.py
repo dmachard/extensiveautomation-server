@@ -40,9 +40,6 @@ class TestDataStorage:
     def __init__ (self, path, storageMode=STORAGE_MODE_MEM):
         """
         Constructor for the test data storage
-
-        @param path:
-        @type path:
         """
         self.__filename = 'storage.dat'
         self.__path = path
@@ -52,9 +49,6 @@ class TestDataStorage:
     def save_data(self, data):
         """
         Save data on the storage
-
-        @param data:
-        @type data:
         """
         validData = False
         if isinstance(data, str):
@@ -83,9 +77,6 @@ class TestDataStorage:
     def load_data(self):
         """
         Load data from the storage
-
-        @param data:
-        @type data:
         """
         if self.__storageMode == STORAGE_MODE_MEM:
             return self.__storageData
@@ -137,9 +128,6 @@ class TestDataStorage:
     def error (self, err):
         """
         Log error
-
-        @param err:
-        @type err:
         """
         sys.stderr.write( "[%s] %s\n" % ( self.__class__.__name__,err) )
 
@@ -148,17 +136,11 @@ TDS = None
 
 def instance():
     """
-    @return:
-    @rtype:
     """
-    if TDS:
-        return TDS
+    if TDS: return TDS
 
 def initialize( path):
     """
-    @param path:
-    @type path:
-
     """
     global TDS
     TDS = TestDataStorage(path = path)
@@ -167,5 +149,4 @@ def finalize():
     """
     """
     global TDS
-    if TDS:
-        TDS = None
+    if TDS: TDS = None

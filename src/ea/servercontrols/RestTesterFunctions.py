@@ -147,7 +147,7 @@ class AdaptersAdapterAdd(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         try:
             packageName = self.request.data.get("package-name")
@@ -283,7 +283,7 @@ class AdaptersFileMove(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         try:
             source = self.request.data.get("source")
@@ -321,7 +321,7 @@ class AdaptersFileMove(HandlerCORS):
                                                     )
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to move file")
-        if success == Context.instance().CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403("Move file denied")
         if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("File does not exists")
@@ -393,7 +393,7 @@ class AdaptersDirectoryMove(HandlerCORS):
         # get the user profile
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         # checking json request on post
         try:
@@ -430,7 +430,7 @@ class AdaptersDirectoryMove(HandlerCORS):
             raise HTTP_500("Unable to move directory")
         if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_500("Unable to move directory: source directory not found")
-        if success == Context.instance().CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403("Directory already exists")
 
         return { "cmd": self.request.path, "message": "directory successfully moved"}
@@ -505,7 +505,7 @@ class AdaptersFileRename(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         try:
             source = self.request.data.get("source")
@@ -537,7 +537,7 @@ class AdaptersFileRename(HandlerCORS):
                                                     )
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to rename file")
-        if success == Context.instance().CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403("Rename file denied")
         if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("File does not exists")
@@ -616,7 +616,7 @@ class AdaptersDirectoryRename(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         try:
             source = self.request.data.get("source")
@@ -644,7 +644,7 @@ class AdaptersDirectoryRename(HandlerCORS):
             raise HTTP_500("Unable to rename directory")
         if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_500("Unable to rename directory: source directory not found")
-        if success == Context.instance().CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403("Directory already exists")
 
         return { "cmd": self.request.path, "message": "directory successfully renamed",
@@ -721,7 +721,7 @@ class AdaptersFileDuplicate(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         try:
             source = self.request.data.get("source")
@@ -757,7 +757,7 @@ class AdaptersFileDuplicate(HandlerCORS):
                                                     )
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to duplicate file")
-        if success == Context.instance().CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403("Duplicate file denied")
         if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("File does not exists")
@@ -830,7 +830,7 @@ class AdaptersDirectoryDuplicate(HandlerCORS):
         """
         # get the user profile
         user_profile = _get_user(request=self.request)
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         # checking json request on post
         try:
@@ -867,7 +867,7 @@ class AdaptersDirectoryDuplicate(HandlerCORS):
             raise HTTP_500("Unable to duplicate directory")
         if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_500("Unable to duplicate directory: source directory not found")
-        if success == Context.instance().CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403("Directory already exists")
 
         return { "cmd": self.request.path, "message": "directory successfully duplicated" }
@@ -923,7 +923,7 @@ class AdaptersFileRemove(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         try:
             filePath = self.request.data.get("file-path")
@@ -1075,7 +1075,7 @@ class AdaptersDirectoryRemove(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         try:
             folderPath = self.request.data.get("directory-path")
@@ -1151,7 +1151,7 @@ class AdaptersDirectoryAdd(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         try:
             folderName = self.request.data.get("directory-name")
@@ -1170,7 +1170,7 @@ class AdaptersDirectoryAdd(HandlerCORS):
         success = RepoAdapters.instance().addDir(pathFolder=folderPath, folderName=folderName)
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to add directory")
-        if success == Context.instance().CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403("Directory already exists")
 
         return { "cmd": self.request.path, "message": "directory successfully added" }
@@ -1240,7 +1240,7 @@ class AdaptersFileUpload(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         try:
             filePath = self.request.data.get("file-path")
@@ -1679,7 +1679,7 @@ class PublicDirectoryAdd(HandlerCORS):
         success = RepoPublic.instance().addDir(pathFolder=folderPath, folderName=folderName)
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to add directory")
-        if success == Context.instance().CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403("Directory already exists")
 
         return { "cmd": self.request.path, "message": "directory successfully added" }
@@ -1771,7 +1771,7 @@ class PublicDirectoryRename(HandlerCORS):
             raise HTTP_500("Unable to rename directory")
         if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_500("Unable to rename directory: source directory not found")
-        if success == Context.instance().CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403("Directory already exists")
 
         return { "cmd": self.request.path, "message": "directory successfully renamed" }
@@ -1949,7 +1949,7 @@ class PublicImport(HandlerCORS):
                                                                contentFile=fileContent, binaryMode=True)
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to add file")
-        if success == Context.instance().CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403("File already exists")
 
         return { "cmd": self.request.path, "message": "file sucessfully imported" }
@@ -2114,7 +2114,7 @@ class PublicRename(HandlerCORS):
                                                     )
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to rename file")
-        if success == Context.instance().CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403("Rename file denied")
         if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("File does not exists")
@@ -4028,7 +4028,7 @@ class TestsFileUpload(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         try:
             projectId = self.request.data.get("project-id")
@@ -4131,7 +4131,7 @@ class TestsFileRemove(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         try:
             projectId = self.request.data.get("project-id")
@@ -4402,7 +4402,7 @@ class TestsFileRename(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         try:
             source = self.request.data.get("source")
@@ -4444,7 +4444,7 @@ class TestsFileRename(HandlerCORS):
                                                     )
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to rename file")
-        if success == Context.instance().CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403("Rename file denied")
         if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("File does not exists")
@@ -4550,7 +4550,7 @@ class TestsFileDuplicate(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         try:
             source = self.request.data.get("source")
@@ -4595,7 +4595,7 @@ class TestsFileDuplicate(HandlerCORS):
                                                     )
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to duplicate file")
-        if success == Context.instance().CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403("Duplicate file denied")
         if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("File does not exists")
@@ -4679,7 +4679,7 @@ class TestsFileMove(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         try:
             source = self.request.data.get("source")
@@ -4724,7 +4724,7 @@ class TestsFileMove(HandlerCORS):
                                                 )
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to move file")
-        if success == Context.instance().CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403("Move file denied")
         if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("File does not exists")
@@ -4803,7 +4803,7 @@ class TestsDirectoryAdd(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         try:
             projectId = self.request.data.get("project-id")
@@ -4827,7 +4827,7 @@ class TestsDirectoryAdd(HandlerCORS):
         success = RepoTests.instance().addDir(pathFolder=folderPath, folderName=folderName, project=projectId)
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to add directory")
-        if success == Context.instance().CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403("Directory already exists")
 
         return { "cmd": self.request.path, "message": "directory successfully added",
@@ -4903,7 +4903,7 @@ class TestsDirectoryRename(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         try:
             source = self.request.data.get("source")
@@ -4936,7 +4936,7 @@ class TestsDirectoryRename(HandlerCORS):
             raise HTTP_500("Unable to rename directory")
         if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_500("Unable to rename directory: source directory not found")
-        if success == Context.instance().CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403("Directory already exists")
 
         return { "cmd": self.request.path, "message": "directory successfully renamed",
@@ -5016,7 +5016,7 @@ class TestsDirectoryDuplicate(HandlerCORS):
         # get the user profile
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         # checking json request on post
         try:
@@ -5062,7 +5062,7 @@ class TestsDirectoryDuplicate(HandlerCORS):
             raise HTTP_500("Unable to duplicate directory")
         if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_500("Unable to duplicate directory: source directory not found")
-        if success == Context.instance().CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403("Directory already exists")
 
         return { "cmd": self.request.path, "message": "directory successfully duplicated",
@@ -5138,7 +5138,7 @@ class TestsDirectoryMove(HandlerCORS):
         """
         # get the user profile
         user_profile = _get_user(request=self.request)
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         # checking json request on post
         try:
@@ -5184,7 +5184,7 @@ class TestsDirectoryMove(HandlerCORS):
             raise HTTP_500("Unable to move directory")
         if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_500("Unable to move directory: source directory not found")
-        if success == Context.instance().CODE_ALLREADY_EXISTS:
+        if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403("Directory already exists")
 
         return { "cmd": self.request.path, "message": "directory successfully moved",
@@ -5245,7 +5245,7 @@ class TestsDirectoryRemove(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         try:
             projectId = self.request.data.get("project-id")
@@ -5339,7 +5339,7 @@ class VariablesAdd(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         try:
             projectId = self.request.data.get("project-id")
@@ -5435,7 +5435,7 @@ class VariablesDuplicate(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         try:
             projectId = self.request.data.get("project-id")
@@ -5522,7 +5522,7 @@ class VariablesUpdate(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         try:
             variableId = self.request.data.get("variable-id")
@@ -5615,7 +5615,7 @@ class VariablesRemove(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if user_profile['leader']: raise HTTP_403("Access refused")
+        if user_profile['monitor']: raise HTTP_403("Access refused")
 
         try:
             variableId = self.request.data.get("variable-id")

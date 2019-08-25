@@ -47,9 +47,6 @@ from ea.serverinterfaces import EventServerInterface as ESI
 from ea.serverengine import ( DbManager, 
                               ProjectsManager )
 
-REPO_TYPE = 0
-
-
 def uniqid():
     """
     Return a unique id
@@ -80,7 +77,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                                                                 RepoManager.TEST_UNIT_EXT, 
                                                                 RepoManager.PNG_EXT, 
                                                                 RepoManager.TEST_GLOBAL_EXT ],
-                                       context=context)
+                                        context=context)
                                        
         self.context=context
         self.tb_variables = 'test-environment'
@@ -108,12 +105,6 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         """
         return self.__cache_vars
         
-    def trace(self, txt):
-        """
-        Trace message
-        """
-        Logger.ClassLogger.trace(self, txt="RPT - %s" % txt)
-
     def getTree(self, b64=False, project=1):
         """
         Returns tree
@@ -121,40 +112,10 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         return self.getListingFilesV2(path="%s/%s" % (self.testsPath, str(project)), 
                                       project=project, supportSnapshot=True  )
 
-    def __getBasicListing(self, testPath, initialPath):
-        """
-        """
-        listing = []
-        for entry in list(scandir.scandir( testPath ) ):
-            if not entry.is_dir(follow_symlinks=False):
-                filePath = entry.path
-                listing.append( filePath.split(initialPath)[1] )
-            else:
-                listing.extend( self.__getBasicListing(testPath=entry.path, 
-                                                       initialPath=initialPath) )
-        return listing
-        
-    def getBasicListing(self, projectId=1):
-        """
-        """
-        listing = []
-        initialPath = "%s/%s" % (self.testsPath, projectId)
-        for entry in list(scandir.scandir( initialPath ) ) :
-            if not entry.is_dir(follow_symlinks=False):
-                filePath = entry.path
-                listing.append( filePath.split(initialPath)[1] )
-            else:
-                listing.extend( self.__getBasicListing(testPath=entry.path, 
-                                                       initialPath=initialPath) )
-        return listing
-
     def addtf2tg(self, data_):
         """
         Add remote testplan, testsuites or testunit in the testglobal
         internal function
-
-        @param data_:
-        @type data_:
         """
         ret = ( self.context.CODE_OK, "")
         alltests = []
@@ -221,14 +182,8 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                         # update/add test parameters with the main parameters of the test global
                         self.__updatetsparams( currentParam=doc.properties['properties']['inputs-parameters']['parameter'],
                                                 newParam=ts['properties']['inputs-parameters']['parameter'] )
-                        # fix in v11, properly dispatch agent keys                        
-                        # self.__updatetsparams( currentParam=doc.properties['properties']['agents']['agent'],
-                                                # newParam=ts['properties']['agents']['agent'] )
-                        # end of fix
                         ts['properties']['inputs-parameters'] = doc.properties['properties']['inputs-parameters']
-                        # fix in v11, properly dispatch agent keys
-                        # ts['properties']['agents'] = doc.properties['properties']['agents']
-                        # end of fix
+
                         
                         if fileExt == RepoManager.TEST_SUITE_EXT:
                             ts.update( { 'test-definition': doc.testdef, 
@@ -278,12 +233,6 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                                 for i in xrange(len(sortedTests)):
                                     self.__updatetsparams( currentParam=sortedTests[i]['properties']['inputs-parameters']['parameter'],
                                                          newParam=ts['properties']['inputs-parameters']['parameter'] )
-                                    # self.__updatetsparams( currentParam=sortedTests[i]['properties']['outputs-parameters']['parameter'],
-                                                         # newParam=ts['properties']['outputs-parameters']['parameter'] )
-                                    # fix in v11, properly dispatch agent keys    
-                                    # self.__updatetsparams( currentParam=sortedTests[i]['properties']['agents']['agent'],
-                                                         # newParam=ts['properties']['agents']['agent'] )
-                                    # end of fix
                                 self.trace('Read sub test plan finished')
                                 
                                 alltests.extend( sortedTests )
@@ -302,9 +251,6 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         """
         Add remote testsuites or testunit in the testplan
         Internal function
-
-        @param data_:
-        @type data_:
         """
         ret = (self.context.CODE_OK, "")
         for ts in data_:
@@ -356,20 +302,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                         #
                         self.__updatetsparams( currentParam=doc.properties['properties']['inputs-parameters']['parameter'],
                                                 newParam=ts['properties']['inputs-parameters']['parameter'] )
-                        # self.__updatetsparams( currentParam=doc.properties['properties']['outputs-parameters']['parameter'],
-                                                # newParam=ts['properties']['outputs-parameters']['parameter'] )
-                        
-                        # fix in v11, properly dispatch agent keys                        
-                        # self.__updatetsparams( currentParam=doc.properties['properties']['agents']['agent'],
-                                                # newParam=ts['properties']['agents']['agent'] )
-                        # end of fix
-                        
                         ts['properties']['inputs-parameters'] = doc.properties['properties']['inputs-parameters']
-                        # ts['properties']['outputs-parameters'] = doc.properties['properties']['outputs-parameters']
-                        
-                        # fix in v11, properly dispatch agent keys
-                        # ts['properties']['agents'] = doc.properties['properties']['agents']
-                        # end of fix
                         
                         if fileExt == RepoManager.TEST_SUITE_EXT:
                             ts.update( { 'test-definition': doc.testdef, 
@@ -407,12 +340,6 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         """
         Update current test parameters with main parameter
         Internal function
-
-        @param currentParam:
-        @type currentParam:
-
-        @param newParam:
-        @type newParam:
         """
         for i in xrange(len(currentParam)):
             for np in newParam:
@@ -427,12 +354,6 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         """
         New param to add
         Internal function
-
-        @param currentParam:
-        @type currentParam:
-
-        @param newParam:
-        @type newParam:
         """
         toAdd  = []
         for np in newParam:
@@ -535,143 +456,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
             return ret
         else:
             return ret
-    
-    def delDir(self, pathFolder, project=''):
-        """
-        Delete a folder
-        """
-        # folders reserved
-        mp = "%s/%s/" % (self.testsPath, project)
-        mp_full = os.path.normpath( "%s/%s" % (mp,unicode(pathFolder)) )
-        if mp_full == os.path.normpath( "%s/@Recycle" % (mp) ) :
-            return self.context.CODE_FORBIDDEN
-        if mp_full == os.path.normpath( "%s/@Sandbox" % (mp) ) :
-            return self.context.CODE_FORBIDDEN
-        # end of new
-        
-        return RepoManager.RepoManager.delDir(self, 
-                                              pathFolder=pathFolder, 
-                                              project=project)
 
-    def delDirAll(self, pathFolder, project=''):
-        """
-        Delete a folder and all inside
-        """
-        # folders reserved
-        mp = "%s/%s/" % (self.testsPath, project)
-        mp_full = os.path.normpath( "%s/%s" % (mp,unicode(pathFolder)) ) 
-        if mp_full == os.path.normpath( "%s/@Recycle" % (mp) ) :
-            return self.context.CODE_FORBIDDEN
-        if mp_full == os.path.normpath( "%s/@Sandbox" % (mp) ) :
-            return self.context.CODE_FORBIDDEN
-        # end of new
-         
-        return RepoManager.RepoManager.delDirAll(self, 
-                                                 pathFolder=pathFolder, 
-                                                 project=project)
-  
-    def moveDir(self, mainPath, folderName, newPath, project='', 
-                newProject='', projectsList=[], renamedBy=None):
-        """
-        Move a folder
-        """
-        # folders reserved new in v17
-        mp = "%s/%s/" % (self.testsPath, project)
-        mp_full = os.path.normpath( "%s/%s/%s" % (mp, mainPath, unicode(folderName)) )
-        if mp_full == os.path.normpath( "%s/@Recycle" % (mp) ) :
-            return (self.context.CODE_FORBIDDEN, mainPath, folderName, newPath, project)
-        if mp_full == os.path.normpath( "%s/@Sandbox" % (mp) ) :
-            return (self.context.CODE_FORBIDDEN, mainPath, folderName, newPath, project)
-        # end of new
-        
-        # execute the rename function as before
-        ret = RepoManager.RepoManager.moveDir(self, 
-                                              mainPath=mainPath, 
-                                              folderName=folderName, 
-                                              newPath=newPath, 
-                                              project=project, 
-                                              newProject=newProject)
-        return ret
-        
-    def moveFile(self, mainPath, fileName, extFilename, newPath, project='', newProject='', 
-                        supportSnapshot=False, projectsList=[], renamedBy=None):
-        """
-        Move a file
-        """
-        # execute the rename function as before
-        ret = RepoManager.RepoManager.moveFile( self, 
-                                                mainPath=mainPath, 
-                                                fileName=fileName, 
-                                                extFilename=extFilename, 
-                                                newPath=newPath, 
-                                                project=project, 
-                                                newProject=newProject, 
-                                                supportSnapshot=supportSnapshot)
-
-        return ret
-        
-    def duplicateDir(self, mainPath, oldPath, newPath, 
-                           project='', newProject='', newMainPath=''):
-        """
-        Duplicate a folder
-        """
-        # folders reserved new in v17
-        mp = "%s/%s/" % (self.testsPath, project)
-        mp_full = os.path.normpath( "%s/%s/%s" % (mp, mainPath, unicode(oldPath)) )
-        if mp_full == os.path.normpath( "%s/@Recycle" % (mp) ) :
-            return (self.context.CODE_FORBIDDEN)
-        if mp_full == os.path.normpath( "%s/@Sandbox" % (mp) ) :
-            return (self.context.CODE_FORBIDDEN)
-        # end of new
-        
-        return  RepoManager.RepoManager.duplicateDir(self, 
-                                                     mainPath=mainPath, 
-                                                     oldPath=oldPath, 
-                                                     newPath=newPath, 
-                                                     project=project, 
-                                                     newProject=newProject, 
-                                                     newMainPath=newMainPath)
-                                                     
-    def renameDir(self, mainPath, oldPath, newPath, 
-                        project='', projectsList=[], renamedBy=None):
-        """
-        Rename a folder
-        """
-        # folders reserved new in v17
-        mp = "%s/%s/" % (self.testsPath, project)
-        mp_full = os.path.normpath( "%s/%s/%s" % (mp, mainPath, unicode(oldPath)) )
-        if mp_full == os.path.normpath( "%s/@Recycle" % (mp) ) :
-            return (self.context.CODE_FORBIDDEN, mainPath, oldPath, newPath, project)
-        if mp_full == os.path.normpath( "%s/@Sandbox" % (mp) ) :
-            return (self.context.CODE_FORBIDDEN, mainPath, oldPath, newPath, project)
-        # end of new
-         
-        # execute the rename function as before
-        ret = RepoManager.RepoManager.renameDir(self, 
-                                                mainPath=mainPath, 
-                                                oldPath=oldPath, 
-                                                newPath=newPath, 
-                                                project=project)
-
-        return ret
-        
-    def renameFile(self, mainPath, oldFilename, newFilename, extFilename, project='', 
-                    supportSnapshot=False, projectsList=[], renamedBy=None):
-        """
-        Rename a file
-        New in v17
-        And save the change in the history
-        """
-        # execute the rename function as before
-        ret = RepoManager.RepoManager.renameFile(   self, mainPath=mainPath, 
-                                                    oldFilename=oldFilename, 
-                                                    newFilename=newFilename,
-                                                    extFilename=extFilename, 
-                                                    project=project, 
-                                                    supportSnapshot=supportSnapshot )
-
-        return ret
-        
     # dbr13 >>
     def getTestFileUsage(self, file_path, project_id, user_login):
         """
@@ -894,11 +679,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         
         # get all users
         sql = """SELECT id, name, project_id"""
-        if Settings.getInt( 'Database', 'test-environment-encrypted'):
-            sql += """, AES_DECRYPT(value, ?) as value""" 
-            sql_args += (Settings.get( 'Database', 'test-environment-password'),)
-        else:
-            sql += """, value"""
+        sql += """, value"""
         sql += """ FROM `%s`""" % ( self.tb_variables )
         if projectId is not None:
             projectId = str(projectId)
@@ -932,11 +713,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         
         # get all users
         sql = """SELECT id, name, project_id"""
-        if Settings.getInt( 'Database', 'test-environment-encrypted'):
-            sql += """, AES_DECRYPT(value, ?) as value"""
-            sql_args += (Settings.get( 'Database', 'test-environment-password'),)
-        else:
-            sql += """, value"""
+        sql += """, value"""
         sql += """ FROM `%s`""" % ( self.tb_variables )
         sql += """ WHERE project_id=?"""
         sql_args += (projectId,)
@@ -993,21 +770,12 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
          
         # this name is free then create project
         sql = """INSERT INTO `%s`(`name`, `value`, `project_id` )""" % self.tb_variables
-        if Settings.getInt( 'Database', 'test-environment-encrypted'):
-            sql += """VALUES(?, AES_ENCRYPT(?, ?), ?)"""
-            success, lastRowId = DbManager.instance().querySQL( query = sql, 
-                                                                insertData=True,
-                                                                arg1=variableName.upper(),
-                                                                arg2=variableValue,
-                                                                arg3=Settings.get( 'Database', 'test-environment-password'),
-                                                                arg4=projectId)
-        else:
-            sql += """VALUES(?, ?, ?)"""
-            success, lastRowId = DbManager.instance().querySQL( query = sql, 
-                                                                insertData=True,
-                                                                arg1=variableName.upper(),
-                                                                arg2=variableValue,
-                                                                arg3=projectId)
+        sql += """VALUES(?, ?, ?)"""
+        success, lastRowId = DbManager.instance().querySQL( query = sql, 
+                                                            insertData=True,
+                                                            arg1=variableName.upper(),
+                                                            arg2=variableValue,
+                                                            arg3=projectId)
         if not success: 
             self.error("unable to insert variable")
             return (self.context.CODE_ERROR, "unable to insert variable")
@@ -1081,13 +849,9 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                 json.loads(variableValue)
             except Exception:
                 return (self.context.CODE_ERROR, "bad json value provided")
-         
-            if Settings.getInt( 'Database', 'test-environment-encrypted'):
-                sql_values.append( """value=AES_ENCRYPT(?, ?)""" )
-                sql_args += (variableValue, Settings.get( 'Database', 'test-environment-password'))
-            else:
-                sql_values.append( """value=?""" )
-                sql_args += (variableValue,)
+
+            sql_values.append( """value=?""" )
+            sql_args += (variableValue,)
         if projectId is not None:
             projectId = str(projectId)
             sql_values.append( """project_id=?""" )
@@ -1185,9 +949,6 @@ RepoTestsMng = None
 def instance ():
     """
     Returns the singleton
-
-    @return:
-    @rtype:
     """
     return RepoTestsMng
 

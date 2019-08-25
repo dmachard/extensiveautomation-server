@@ -123,9 +123,6 @@ GenBaseIdMutex = threading.RLock()
 def getGroupId():
     """
     Generates a new unique ID.
-
-    @return:
-    @rtype:
     """
     global GenBaseId
     GenBaseIdMutex.acquire()
@@ -137,9 +134,6 @@ def getGroupId():
 def getBackTrace():
     """
     Returns the current backtrace.
-
-    @return:
-    @rtype:
     """
     backtrace = cStringIO.StringIO()
     traceback.print_exc(None, backtrace)
@@ -156,24 +150,6 @@ class Task(Logger.ClassLogger):
                     context=None):
         """
         Construc test class
-
-        @param testData:
-        @type testData:
-
-        @param testName:
-        @type testName:
-
-        @param testPath:
-        @type testPath:
-
-        @param testUser:
-        @type testUser:
-
-        @param testId:
-        @type testId:
-
-        @param testBackground:
-        @type testBackground:
         """
         self.ctx = context
 
@@ -183,9 +159,6 @@ class Task(Logger.ClassLogger):
         self.schedId = None
         self.testName = testName
         self.testPath = testPath
-        # if len(self.testPath):
-            # if not self.testPath.startswith("/"):
-                # self.testPath = "/%s" % self.testPath
 
         self.userName = testUser
         self.userId = testUserId
@@ -261,12 +234,6 @@ class Task(Logger.ClassLogger):
         f = open( "%s/DESCRIPTION" % self.getPath(envTmp=envTmp), 'w' )
         f.write( "%s" % json.dumps(testDescr) )
         f.close()
-
-    def trace(self, txt):
-        """
-        Trace message
-        """
-        Logger.ClassLogger.trace(self, txt="TSK - %s" % txt)
 
     def setGroupId(self, groupId):
         """
@@ -349,18 +316,12 @@ class Task(Logger.ClassLogger):
     def setEventReg(self, event):
         """
         Save the event created by the scheduler
-
-        @param event:
-        @type event:
         """
         self.eventReg = event
 
     def toTuple(self, withId=False, withGroupId=False):
         """
         Return the task as tuple
-
-        @param withId:
-        @type withId: boolean
         """
         if withId:
             if withGroupId:
@@ -393,9 +354,6 @@ class Task(Logger.ClassLogger):
     def setId(self, taskId):
         """
         Set the scheduler event id
-
-        @param taskId:
-        @type taskId:
         """
         self.schedId = taskId
 
@@ -434,12 +392,6 @@ class Task(Logger.ClassLogger):
                         runTo=( 0, 0, 0, 0, 0, 0 ) ):
         """
         Initialize the task start time
-
-        @param runAt:
-        @type runAt:
-
-        @param runType:
-        @type runType:
         """
         runAt = tuple(runAt)
         self.enabled = runEnabled
@@ -562,9 +514,7 @@ class Task(Logger.ClassLogger):
 
             self.trace( "Interval begin at: %s" % str(self.schedFrom) )
             self.trace( "Interval ending at: %s" % str(self.schedTo) )
-        # END
 
-        # BEGIN new schedulation type in 3.2.0
         elif runType == SCHED_WEEKLY:
             cur_dt = time.localtime()
             next_dt = datetime.datetime(cur_dt.tm_year, cur_dt.tm_mon,
@@ -575,7 +525,6 @@ class Task(Logger.ClassLogger):
             timestamp = time.mktime(next_dt.timetuple())
             self.schedAt = timestamp
             self.schedArgs = ( 0, 0, d, h, mn, s)
-        # END
 
         else:
             self.error('[Run Type=%s] not supported' % str(runType) )
@@ -584,9 +533,6 @@ class Task(Logger.ClassLogger):
     def isSuccessive(self):
         """
         Returns True if the task is successive, False otherwise
-
-        @return: recursive or not
-        @rtype: boolean
         """
         if self.schedType ==  SCHED_NOW_MORE:
             return True
@@ -596,9 +542,6 @@ class Task(Logger.ClassLogger):
     def isRecursive(self):
         """
         Returns True if the task is recursive, False otherwise
-
-        @return: recursive or not
-        @rtype: boolean
         """
         if self.schedType == SCHED_QUEUE or self.schedType == SCHED_QUEUE_AT:
             return False
@@ -611,9 +554,6 @@ class Task(Logger.ClassLogger):
     def isPostponed(self):
         """
         Returns True is postponed, False otherwise
-
-        @return: postponed or no
-        @rtype: boolean
         """
         if self.schedType == Scheduler.SCHED_AT or self.schedType == Scheduler.SCHED_IN :
             return True
@@ -623,12 +563,10 @@ class Task(Logger.ClassLogger):
     def completeId(self, withTestPath=False):
         """
         Returns complete identifier
-        Concatenation of variables: self.initTime, base64(self.testName) and self.userName
+        Concatenation of variables: self.initTime, 
+        base64(self.testName) and self.userName
         With the following separator: .
         Example: 123622.770.dG1wMw==.admin
-
-        @return: task id
-        @rtype: string
         """
         sep = "."
 
@@ -653,9 +591,6 @@ class Task(Logger.ClassLogger):
     def toDict (self):
         """
         To dict data type
-
-        @return:
-        @rtype: dict
         """
         ret = {}
         ret['id'] = self.schedId
@@ -691,9 +626,6 @@ class Task(Logger.ClassLogger):
     def setFINISHED (self, envTmp=False):
         """
         Called when the task is finished
-
-        @param envTmp:
-        @type envTmp: boolean
         """
         if self.state != STATE_CANCELLED:
             self.trace( 'adding finished file' )
@@ -731,12 +663,6 @@ class Task(Logger.ClassLogger):
     def setState (self, state, envTmp=False):
         """
         Set the state: INIT, WAITING, RUNNING, COMPLETE, ERROR, KILLED, CANCELLED
-
-        @param state: expected value in INIT, WAITING, RUNNING, COMPLETE, ERROR
-        @type state: string
-
-        @param envTmp:
-        @type envTmp: boolean
         """
         self.mutex.acquire()
         self.state = state
@@ -798,12 +724,6 @@ class Task(Logger.ClassLogger):
     def cancelTest(self, removeFromContext=True):
         """
         Cancel the test
-
-        @param removeFromContext:
-        @type removeFromContext: boolean
-
-        @return:
-        @rtype:
         """
         self.removeFromContext = removeFromContext
         if self.state == STATE_DISABLED:
@@ -822,9 +742,6 @@ class Task(Logger.ClassLogger):
     def getTestsPath(self):
         """
         Get the path of all tests
-
-        @return:
-        @rtype: string
         """
         testsResultPath = '%s%s' % ( Settings.getDirExec(),
                                      Settings.get( 'Paths', 'testsresults' ) )
@@ -852,9 +769,6 @@ class Task(Logger.ClassLogger):
     def getTestPath(self, withDate=True):
         """
         Get the path of the test
-
-        @return:
-        @rtype: string
         """
         if withDate:
             return  os.path.normpath("/%s/%s/%s" % ( self.projectId,
@@ -866,12 +780,6 @@ class Task(Logger.ClassLogger):
     def getPath (self, envTmp=False, fullPath=True, noDate=False):
         """
         Returns the complete path of the test
-
-        @param envTmp:
-        @type envTmp: boolean
-
-        @return:
-        @rtype: string
         """
         testsResultPath = '%s%s' % ( Settings.getDirExec(),
                                      Settings.get( 'Paths', 'testsresults' ) )
@@ -897,12 +805,6 @@ class Task(Logger.ClassLogger):
     def getDirToday(self, envTmp=False, fullPath=True):
         """
         Get the path of today directory
-
-        @param envTmp:
-        @type envTmp: boolean
-
-        @return:
-        @rtype: string
         """
         testResultPath = '%s%s' % ( Settings.getDirExec(),
                                     Settings.get( 'Paths', 'testsresults' ) )
@@ -922,12 +824,6 @@ class Task(Logger.ClassLogger):
     def getDirProject(self, envTmp=False, fullPath=True):
         """
         Get the path of project directory
-
-        @param envTmp:
-        @type envTmp: boolean
-
-        @return:
-        @rtype: string
         """
         testResultPath = '%s%s' % ( Settings.getDirExec(),
                                     Settings.get( 'Paths', 'testsresults' ) )
@@ -943,9 +839,6 @@ class Task(Logger.ClassLogger):
         """
         Called when the file to parse is invalid
         This file is saved on the tmp storage
-
-        @param te:
-        @type te:
         """
         try:
             tmpPath = '%s%s/Parsed' % ( Settings.getDirExec(),
@@ -1173,9 +1066,6 @@ class Task(Logger.ClassLogger):
         """
         Parse the test
         Return False if the syntax is wrong
-
-        @return: (parse result, syntax error)
-        @rtype: tuple of (boolean, str)
         """
         self.trace("Parse test: create all sub test executable")
         sub_tes = []
@@ -1329,11 +1219,6 @@ class Task(Logger.ClassLogger):
         """
         return os.path.dirname( os.path.normpath(self.testPath) )
 
-        #test_tmp = self.testPath.rsplit(self.testName, 1)
-        #return os.path.normpath("/%s" % test_tmp[0])
-        #return "/%s" % test_tmp[0]
-        #return test_tmp[0]
-
     def initPrepare(self):
         """
         """
@@ -1350,12 +1235,6 @@ class Task(Logger.ClassLogger):
         - Creation
         - Saving
         - Compilation
-
-        @param envTmp:
-        @type envTmp: boolean
-
-        @return:
-        @rtype: boolean
         """
         self.initPrepare()
 
@@ -1565,7 +1444,8 @@ class Task(Logger.ClassLogger):
             self.setState(state = STATE_ERROR, envTmp=envTmp)
             raise Exception( getBackTrace() )
 
-        # Notify all connected users to update archives if it is not a run in the temporary env or
+        # Notify all connected users to update archives 
+        # if it is not a run in the temporary env or
         # if it is not necessary to keep test result
         if not envTmp:
             if Settings.getInt( 'Notifications', 'archives'):
@@ -1573,8 +1453,11 @@ class Task(Logger.ClassLogger):
                     # msg ( dest, ( action, data ) )
                     m = [   {   "type": "folder", "name": time.strftime("%Y-%m-%d", time.localtime(self.prepareTime)),
                                 "project": "%s" % self.projectId,
-                                "content": [ {  "project": "%s" % self.projectId, "type": "folder", "name": self.completeId(),
-                                                    "virtual-name": self.completeId(withTestPath=True), "content": []} ] }  ]
+                                "content": [ {  "project": "%s" % self.projectId, 
+                                                "type": "folder", 
+                                                "name": self.completeId(),
+                                                "virtual-name": self.completeId(withTestPath=True), 
+                                                "content": []} ] }  ]
                     notif = {}
                     notif['archive'] = m
                     data = ( 'archive', ( None, notif) )
@@ -1754,9 +1637,6 @@ class Task(Logger.ClassLogger):
     def getFileResultPath(self):
         """
         This function is used to add a comment on a test result
-
-        @return:
-        @rtype: string
         """
         testResultPath = '%s%s' % ( Settings.getDirExec(), Settings.get( 'Paths', 'testsresults' ) )
         testResultPath = os.path.normpath(testResultPath)
@@ -1766,7 +1646,8 @@ class Task(Logger.ClassLogger):
                                   self.completeId() )
         dirTask = os.path.normpath(dirTask)
 
-        # Search the file on the disk because the number of current comment can
+        # Search the file on the disk because 
+        # the number of current comment can
         # be different that the value known by the user
         trxFile = 'undefined'
         for f in os.listdir( os.path.normpath("%s/%s" % (testResultPath,dirTask)) ):
@@ -1814,7 +1695,8 @@ class Task(Logger.ClassLogger):
         f2.close()
 
         # get final result
-        # this file "VERDICT" is created by the test library throught
+        # this file "VERDICT" is created 
+        # by the test library throught
         # the function "log_script_stopped"
         verdict = 'UNDEFINED'
         path_verdict = "%s/%s/%s/%s/" % ( testResultPath,
@@ -1832,9 +1714,7 @@ class Task(Logger.ClassLogger):
             os.remove( os.path.normpath("%s/VERDICT_%s" % (path_verdict,verdict)) )
         except Exception as e:
             pass
-        # end of fix
 
-        # new in v12.2
         try:
             f = open( os.path.normpath("%s/RESULT" % path_verdict), 'w' )
             f.write( verdict )
@@ -1877,7 +1757,7 @@ class Task(Logger.ClassLogger):
 
         if Settings.getInt( 'Notifications', 'archives'):
             if self.noKeepTr and self.verdict != 'PASS':
-                self.trace('no keep test result option activated: notify the test result because the result if different of pass')
+                self.trace('no keep test result activated: notify because the result is not pass')
                 # msg ( dest, ( action, data ) )
                 m = [   {   "type": "folder",
                             "project": "%s" % self.projectId,
@@ -1898,7 +1778,7 @@ class Task(Logger.ClassLogger):
                                                       projectId="%s" % self.projectId)
 
             if self.noKeepTr and self.verdict == 'PASS':
-                self.trace('no keep test result option activated: do not notify the user because the result is pass')
+                self.trace('no keep test result activated: do not notify because the result is pass')
             else:
                 size_ = os.path.getsize( filenameTrx )
                 notif = {}
@@ -1948,9 +1828,6 @@ class Task(Logger.ClassLogger):
             - Test Name
             - Test Id
             - Replay Id
-
-        @return: final state
-        @rtype: string
         """
         # this run is a replay is greater than zero, then the test is already ready
         if self.replayId > 0:
@@ -2054,6 +1931,10 @@ class Task(Logger.ClassLogger):
     def notifResultMail(self):
         """
         """
+        if platform.system() == "Windows":
+            self.trace('Emails notifications not supported on Windows')
+            return
+            
         if not Settings.getInt( 'Notifications', 'emails'):
             self.trace('Emails notifications disabled')
             return
@@ -2071,31 +1952,31 @@ class Task(Logger.ClassLogger):
             notifs_bool = [ eval(x.title()) for x in notifications[:-1] ]
 
             if self.state == STATE_COMPLETE and notifs_bool[3]:
-                self.trace( 'task state [%s]: notification user option activated, mail to sent' % self.state )
+                self.trace( 'task state [%s]: user notify enabled, mail to sent' % self.state )
                 self.sendMail(userTo=user_profile['email'])
             elif self.state == STATE_ERROR and notifs_bool[4]:
-                self.trace( 'task state [%s]: notification user option activated, mail to sent' % self.state )
+                self.trace( 'task state [%s]: user notify enabled, mail to sent' % self.state )
                 self.sendMail(userTo=user_profile['email'])
             elif self.state == STATE_KILLED and notifs_bool[5]:
-                self.trace( 'task state [%s]: notification user option activated, mail to sent' % self.state )
+                self.trace( 'task state [%s]: user notify enabled, mail to sent' % self.state )
                 self.sendMail(userTo=user_profile['email'])
             elif self.state == STATE_CANCELLED and notifs_bool[6]:
-                self.trace( 'task state [%s]: notification user option activated, mail to sent' % self.state )
+                self.trace( 'task state [%s]: user notify enabled, mail to sent' % self.state )
                 self.sendMail(userTo=user_profile['email'])
             else:
-                self.trace( 'task state: notification on this state not authorized: %s' % self.state )
+                self.trace( 'task state: notify on this state denied: %s' % self.state )
 
             if self.verdict == "PASS" and notifs_bool[0]:
-                self.trace( 'test verdict [%s]: notification user option activated, mail to sent' % self.verdict )
+                self.trace( 'test verdict [%s]: user notify enabled, mail to sent' % self.verdict )
                 self.sendMail(userTo=user_profile['email'])
             elif self.verdict == "FAIL" and notifs_bool[1]:
-                self.trace( 'test verdict [%s]: notification user option activated, mail to sent' % self.verdict )
+                self.trace( 'test verdict [%s]: user notify enabled, mail to sent' % self.verdict )
                 self.sendMail(userTo=user_profile['email'])
             elif self.verdict == "UNDEFINED" and notifs_bool[2]:
-                self.trace( 'test verdict [%s]: notification user option activated, mail to sent' % self.verdict )
+                self.trace( 'test verdict [%s]: user notify enabled, mail to sent' % self.verdict )
                 self.sendMail(userTo=user_profile['email'])
             else:
-                self.trace( 'test verdict: notification with this verdict not authorized: %s' % self.verdict )
+                self.trace( 'test verdict: notify with this verdict denied: %s' % self.verdict )
 
     def sendMail(self, userTo):
         """
@@ -2109,7 +1990,7 @@ class Task(Logger.ClassLogger):
         # end of new
 
         mailBody = self.getTestReport(basicReport=basicReport)
-        appAcronym = Settings.get( 'Server', 'acronym')
+        appAcronym = Settings.get( 'Server', 'name')
         subject = "[%s] %s %s: %s" % (appAcronym.upper(),
                                       self.testType,
                                       self.verdict,
@@ -2124,12 +2005,6 @@ class Task(Logger.ClassLogger):
     def killTest(self, removeFromContext=True):
         """
         Kill the test
-
-        @param removeFromContext:
-        @type removeFromContext: boolean
-
-        @return:
-        @rtype: boolean
         """
         self.removeFromContext = removeFromContext
 
@@ -2165,12 +2040,6 @@ class Task(Logger.ClassLogger):
     def handleSignal(self, sig):
         """
         Handle unix signal
-
-        @param sig:
-        @type sig:
-
-        @return:
-        @rtype: boolean
         """
         success = True
         if sig == SIGNAL_KILL and self.tpid is not None:
@@ -2224,18 +2093,9 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
         except IOError:
             pass
 
-    def trace(self, txt):
-        """
-        Trace message
-        """
-        Logger.ClassLogger.trace(self, txt="TKM - %s" % txt)
-
     def getEnqueued(self, b64=False):
         """
         Returns all enqueued task
-
-        @return: all enqueued events from the database
-        @rtype: dict
         """
         enqueuedTasks = {}
         for (grpId, grpTests) in self.enqueuedTasks.items():
@@ -2309,8 +2169,11 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
 
         # try to run tasks in simultaneous ?
         if simultaneous:
-            self.runTasksInSimultaneous(tests=tests, groupId=groupId, userName=userName,
-                                        runAt=runAt, queueAt=queueAt)
+            self.runTasksInSimultaneous(tests=tests, 
+                                        groupId=groupId, 
+                                        userName=userName,
+                                        runAt=runAt, 
+                                        queueAt=queueAt)
         else:
 
             self.enqueuedTasks[ (groupId, userName) ] = tests
@@ -2326,8 +2189,11 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
                 self.enqueuedTasks[ (groupId, userName) ] = tests
 
             # register the first test
-            self.runQueueTask(tst=tst, groupId=groupId, userName=userName,
-                              runAt=runAt, queueAt=queueAt)
+            self.runQueueTask(tst=tst, 
+                              groupId=groupId, 
+                              userName=userName,
+                              runAt=runAt, 
+                              queueAt=queueAt)
 
         return True
 
@@ -2422,8 +2288,7 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
         try:
             sendmail_location = Settings.get( 'Bin', 'sendmail')
             p = os.popen("%s -t" % sendmail_location, "w")
-            email_dest = "%s@%s.com" % ( Settings.get( 'Server', 'acronym'),
-                                         Settings.get( 'Server', 'acronym') )
+            email_dest = "noreply@%s" % ( Settings.get( 'Server', 'name').replace(" ", "") )
             p.write("From: %s\n" % email_dest)
             p.write("To: %s\n" % to)
             p.write("Subject: %s\n" % subject.encode('utf-8'))
@@ -2464,9 +2329,6 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
     def addToHistory(self, task):
         """
         Called when the script is stopped
-
-        @type  task:
-        @param task:
         """
         ret = None
         try:
@@ -2555,9 +2417,6 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
     def readBackup(self, backupFile):
         """
         Read backup from the var storage
-
-        @type  backupFile:
-        @param backupFile:
         """
         self.trace( 'reading backup %s' % backupFile )
         rlt = None
@@ -2576,12 +2435,6 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
     def backupTask(self, task):
         """
         Backup the task to the var storage
-
-        @type  task:
-        @param task:
-
-        @return:
-        @rtype: boolean
         """
         self.trace( 'backuping task %s' % task.getId() )
         try:
@@ -2611,12 +2464,6 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
     def deleteBackup(self, task):
         """
         Delete backup from the var storage
-
-        @type  task:
-        @param task:
-
-        @return:
-        @rtype: boolean
         """
         self.trace( 'deleting backup task %s' % task.getId() )
         try:
@@ -2625,36 +2472,31 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
             backup_name = os.path.normpath( backup_name )
             os.remove( backup_name )
         except Exception as e:
-            self.error( 'unable to delete the backup of the the task %s: %s' % (task.getId(), str(e)) )
+            self.error( 'unable to delete the task backup %s: %s' % (task.getId(), str(e)) )
             return False
         return True
 
     def getHistory(self, Full=False, b64=False, user=None):
         """
         Get the task history from database
-
-        @return: all history from the database
-        @rtype: list
         """
         historyTasks = []
-        # new in v10, return only running task according to the user
+        
         if user is not None:
             if isinstance(user, self.ctx.UserContext):
                 prjs = user.getProjects()
             else:
                 prjs = ProjectsManager.instance().getProjects(user=user)
-        # end of new in v10
 
         sql = """SELECT `id`, `eventtype`, `eventargs`, `eventtime`, `eventname`, `eventauthor`,"""
         sql += """ `realruntime`, `eventduration`, `eventresult`, `projectid` FROM `%s` """ % self.TN_HISTORY
-        # new in v10, return only history task according to the user
+        
         if user is not None:
             sql += " WHERE "
             sqlMore = []
             for prj in prjs:
                 sqlMore.append( "`projectid`=%s" % int(prj['project_id']) )
             sql += " OR " .join(sqlMore)
-        # end of new in v10
 
         ret, rows = DbManager.instance().querySQL( query = sql)
         if ret:
@@ -2674,9 +2516,6 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
     def getWaiting(self, b64=False, user=None):
         """
         Returns all waiting task
-
-        @return: all waiting events from the database
-        @rtype: list
         """
         waitingTasks = []
         # new in v10, return only running task according to the user
@@ -2704,9 +2543,6 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
     def getRunning(self, b64=False, user=None):
         """
         Returns all running tasks
-
-        @return: all running tasks
-        @rtype: list
         """
         runningTasks = []
         # new in v10, return only running task according to the user
@@ -2734,12 +2570,6 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
     def getTask (self, taskId):
         """
         Returns the task corresponding to the id passed as argument, otherwise None
-
-        @param taskId:
-        @type taskId:
-
-        @return:
-        @rtype:
         """
         #ret = None
         for task in self.tasks:
@@ -2750,12 +2580,6 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
     def getTaskBy(self, taskId, userName=None):
         """
         Returns the task corresponding to the id passed as argument, otherwise None
-
-        @param taskId:
-        @type taskId:
-
-        @return:
-        @rtype:
         """
         ret = self.ctx.instance().CODE_NOT_FOUND
         for task in self.tasks:
@@ -2775,9 +2599,6 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
     def executeTask (self, task, needPrepare=True):
         """
         Execute the task gived on argument
-
-        @param task:
-        @type task:
         """
         self.info("Starting test %s" % task.getId() )
         testThread = threading.Thread(target = lambda: task.run(needPrepare=needPrepare))
@@ -2786,12 +2607,6 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
     def replayTask (self, tid, userName=None):
         """
         Replay the task
-
-        @param tid:
-        @type tid:
-
-        @return:
-        @rtype: boolean
         """
         self.trace( "replaying task" )
         task = self.getTask( taskId = tid )
@@ -2831,39 +2646,6 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
                     runFrom, runTo):
         """
         Reload a specific task
-
-        @param testData:
-        @type testData:
-
-        @param testName:
-        @type testName:
-
-        @param testPath:
-        @type testPath:
-
-        @param testUser:
-        @type testUser:
-
-        @param testId:
-        @type testId:
-
-        @param testBackground:
-        @type testBackground:
-
-        @param runAt:
-        @type runAt:
-
-        @param runType:
-        @type runType:
-
-        @param runNb:
-        @type runNb:
-
-        @param runEnabled:
-        @type runEnabled:
-
-        @return:
-        @rtype:
         """
         self.trace( "reloading task" )
         toReload=True
@@ -2938,55 +2720,26 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
         - Change the task's state from INIT to WAITING
         - Register the task in the scheduler
         - Save the task in the list and notify all connected users
-
-        @param testData:
-        @type testData:
-
-        @param testName:
-        @type testName:
-
-        @param testPath:
-        @type testPath:
-
-        @param testUser:
-        @type testUser:
-
-        @param testId:
-        @type testId:
-
-        @param testBackground:
-        @type testBackground:
-
-        @param runAt:
-        @type runAt:
-
-        @param runType:
-        @type runType:
-
-        @return:
-        @rtype:
         """
         self.mutex.acquire()
-        self.trace( "Scheduling task" )
-
-        self.trace( "Registering task [Run-Type=%s] [Run-At=%s] [Run-Nb=%s] [TestName=%s] [TestUser=%s]" % (runType,
-                                                                                                            runAt,
-                                                                                                            runNb,
-                                                                                                            testName,
-                                                                                                            testUser) )
-        self.trace( "Registering task. [InBackground=%s] [Run-Enabled=%s] [Debug=%s] " % (testBackground,
-                                                                                           runEnabled,
-                                                                                           debugActivated) )
-        self.trace( "Registering task. [Probes-Disabled=%s] [Notif-Disabled=%s]" % ( withoutProbes,
-                                                                                   withoutNotif) )
-        self.trace( "Registering task.. [NoKeepTr=%s] [UserId=%s] [ProjectId=%s] [Run-From=%s]" % ( noKeepTr,
-                                                                                                    testUserId,
-                                                                                                    testProjectId,
-                                                                                                    runFrom) )
-        self.trace( "Registering task... [Run-To=%s] [StepByStep=%s] [Breakpoint=%s] [ChannelId=%s]" % (runTo,
-                                                                                                        stepByStep,
-                                                                                                        breakpoint,
-                                                                                                        channelId) )
+        
+        self.trace( "Register task [Type=%s] [At=%s] [Nb=%s] [Name=%s] [User=%s]" % (runType,
+                                                                                     runAt, 
+                                                                                     runNb, 
+                                                                                     testName,
+                                                                                     testUser) )
+        self.trace( "Register task. [Back=%s] [Enabled=%s] [Debug=%s] " % (testBackground,
+                                                                           runEnabled,
+                                                                           debugActivated) )
+        self.trace( "Register task. [Notif=%s]" % ( withoutNotif) )
+        self.trace( "Register task.. [NoKeepTr=%s] [UserId=%s] [PID=%s] [Run-From=%s]" % (noKeepTr,
+                                                                                          testUserId,
+                                                                                          testProjectId,
+                                                                                          runFrom) )
+        self.trace( "Register task... [Run-To=%s] [Step=%s] [Break=%s] [ChannId=%s]" % (runTo,
+                                                                                        stepByStep,
+                                                                                        breakpoint,
+                                                                                        channelId) )
 
         task = Task( testData=testData,
                      testName=testName,
@@ -3150,12 +2903,6 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
     def killTask(self, taskId, userName=None):
         """
         Kill a specific running task
-
-        @param taskId:
-        @type taskId:
-
-        @return:
-        @rtype:
         """
         self.trace( "killing task %s" % taskId )
         success = self.ctx.instance().CODE_ERROR
@@ -3181,9 +2928,6 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
     def killAllTasks(self):
         """
         Kill all running tasks
-
-        @return:
-        @rtype:
         """
         self.trace( "killing all tasks" )
         success = True
@@ -3204,9 +2948,6 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
     def cancelTask(self, taskId, userName=None):
         """
         Cancel a specific waiting task
-
-        @return:
-        @rtype:
         """
         self.trace( "cancelling task %s" % taskId )
         success = self.ctx.instance().CODE_ERROR
@@ -3239,9 +2980,6 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
     def cancelAllTasks(self):
         """
         Cancel all waiting tasks
-
-        @return:
-        @rtype:
         """
         self.trace( "cancelling all tasks" )
         success = True
@@ -3290,9 +3028,6 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
     def onTaskFinished(self, task):
         """
         Called when a task is finished
-
-        @param task:
-        @type task:
         """
         self.trace( "Re-scheduling task %s..." % task.getId() )
 
@@ -3457,15 +3192,6 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
                           schedTo=(0,0,0,0,0,0) ):
         """
         Compute the next timestamp
-
-        @param schedType:
-        @type schedType:
-
-        @param shedAt:
-        @type shedAt:
-
-        @return:
-        @rtype:
         """
         self.trace( 'Computing the next run time')
         _, _, _, h, mn, s = schedArgs
@@ -3484,12 +3210,6 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
     def getTimeToTuple(self, timestamp):
         """
         Convert a timestamp to tuple
-
-        @param timestamp:
-        @type timestamp:
-
-        @return: time as tuple ( year, month, day, hour, minute, second )
-        @rtype: tuple of int
         """
         dt = datetime.datetime.fromtimestamp( timestamp )
         return ( dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second )
@@ -3497,9 +3217,6 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
     def removeTask(self, task):
         """
         Remove the task from the context
-
-        @param task:
-        @type task:
         """
         self.trace( 'removing task %s' % task.getId() )
         try:
@@ -3513,15 +3230,6 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
                     schedFrom=(0,0,0,0,0,0), schedTo=(0,0,0,0,0,0), userName=None ):
         """
         Update a specific task, change the start time
-
-        @param taskId:
-        @type taskId:
-
-        @param schedType:
-        @type schedType:
-
-        @param shedAt:
-        @type shedAt:
         """
         self.trace( "update task %s" % taskId )
         success = self.ctx.instance().CODE_ERROR
@@ -3650,9 +3358,6 @@ TaskMngr = None
 def instance ():
     """
     Returns the singleton
-
-    @return:
-    @rtype:
     """
     return TaskMngr
 

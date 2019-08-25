@@ -78,7 +78,6 @@ from ea.testexecutorlib import TestValidatorsLib as TestValidators
 from ea.testexecutorlib import TestExecutorLib as TestExecutorLib
 from ea.testexecutorlib import TestTemplatesLib as TestTemplates
 from ea.testexecutorlib import TestAdapterLib as TestAdapter
-from ea.testexecutorlib import TestManipulatorsLib as TestManipulators
 from ea.testexecutorlib import TestReportingLib as TestReporting
 from ea.testexecutorlib import TestLibraryLib as TestLibrary
 
@@ -272,7 +271,7 @@ def loadImages(parameters, user=''):
                     pr['value'] = ''
                 else:
                     projectId = 0
-                    allPrjs = ProjectsManager.instance().getProjects(user=user, b64=False)
+                    allPrjs = ProjectsManager.instance().getProjects(user=user)
                     for p in allPrjs:
                         if p['name'] == projectName:
                             projectId = p['project_id']
@@ -321,7 +320,7 @@ def loadDataset(parameters, inputs=True, user=''):
                     pr['value'] = ''
                 else:
                     projectId = 0
-                    allPrjs = ProjectsManager.instance().getProjects(user=user, b64=False)
+                    allPrjs = ProjectsManager.instance().getProjects(user=user)
                     for p in allPrjs:
                         if p['name'] == projectName:
                             projectId = p['project_id']

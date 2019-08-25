@@ -30,15 +30,10 @@ class AgentsManager(Logger.ClassLogger):
         Construct Probes Manager
         """
         self.context = context
-        self.configsFile = None
-        self.__pids__ = {}
 
     def getRunning (self, b64=False):
         """
         Returns all registered agent
-
-        @return: all registered agent
-        @rtype: list
         """
         self.trace("get running agents" )
         ret = ASI.instance().getAgents()
@@ -52,49 +47,15 @@ class AgentsManager(Logger.ClassLogger):
         if not name in ASI.instance().agentsRegistered:
             self.trace( "disconnect agent, agent %s not found" % name )
             return self.context.CODE_NOT_FOUND
-        # else:
+
         agentProfile =  ASI.instance().agentsRegistered[name]
         ASI.instance().stopClient(client=agentProfile['address'] )
         return self.context.CODE_OK
-
-    def stopAgent(self, aname):
-        """
-        Stop the agent gived in argument
-
-        @type  aname:
-        @param aname:
-
-        @return:
-        @rtype:
-        """
-        self.trace( "stop agent %s" % aname )
-        ret = False
-        try:
-            client = ASI.instance().getAgent( aname=aname )
-            if client is None:
-                self.trace( "agent %s not found" % aname )
-                ret = False
-            else:
-                self.trace( "agent %s found" % aname )
-                ASI.instance().stopClient( client = client['address'] )
-                ret = True
-        except Exception as e:
-            self.error( "unable to stop agent: %s" % e )
-        return ret
-
-    def trace(self, txt):
-        """
-        Trace message
-        """
-        Logger.ClassLogger.trace(self, txt="ATM - %s" % txt)
 
 AM = None
 def instance ():
     """
     Returns the singleton
-
-    @return: One instance of the class Context
-    @rtype: Context
     """
     return AM
 

@@ -47,8 +47,9 @@ class ProjectsManager(Logger.ClassLogger):
         self.loadCache()
 
         # Initialize the repository
-        self.info( 'Deploying default common project and reserved folders...' )
-        self.createDefaultCommon()
+        self.info( 'Deploying folders projects and reserved folders...' )
+        
+        self.createDirProjects()
         self.addReservedFolders()
 
     def loadCache(self):
@@ -75,6 +76,7 @@ class ProjectsManager(Logger.ClassLogger):
         Add reserved folders (recycle and sandbox)
         """
         self.trace("adding reserved folders")
+        
         code, prjsList = self.getProjectsFromDB()
         if code != self.context.CODE_OK:
             return
@@ -86,21 +88,20 @@ class ProjectsManager(Logger.ClassLogger):
             except Exception:
                 pass
 
-    def createDefaultCommon(self):
+    def createDirProjects(self):
         """
-        Create default common project
         """
-        self.trace( 'creating the default common project' )
-        res = os.path.exists( "%s/%s" % (self.repoTests,DEFAULT_PRJ_ID) )
-        if res:
-            self.trace( 'default project already exist' )
-        else:
-            try:
-                os.mkdir( "%s/%s" % (self.repoTests, DEFAULT_PRJ_ID) )
-            except Exception as e:
-                self.error( "unable to create the default project: %s" % str(e) )
+        self.trace("creating projects folders if missing")
+        
+        code, projects_list = self.getProjectsFromDB()
+        if code != self.context.CODE_OK:
+            return
+        
+        for prj in projects_list:
+            if not os.path.exists( "%s/%s" % (self.repoTests,prj["id"]) ) :
+                os.mkdir( "%s/%s" % (self.repoTests, prj["id"]) )
 
-    def getProjects(self, user, b64=True):
+    def getProjects(self, user):
         """
         Return projects
         """
@@ -254,7 +255,7 @@ class ProjectsManager(Logger.ClassLogger):
         if not success:
             self.error( "unable to read project's table" )
             return (self.context.CODE_ERROR, "unable to read project's table")
-        if len(dbRows): return (self.context.CODE_ALLREADY_EXISTS, "this name already exists")
+        if len(dbRows): return (self.context.CODE_ALREADY_EXISTS, "this name already exists")
 
         # insert in db
         sql = """INSERT INTO `%s`(`name`, `active` ) VALUES(?, '1')""" % (self.tb_projects)
@@ -306,7 +307,7 @@ class ProjectsManager(Logger.ClassLogger):
         if not success:
             self.error( "unable to read project's table" )
             return (self.context.CODE_ERROR, "unable to read project's table")
-        if len(dbRows): return (self.context.CODE_ALLREADY_EXISTS, "this name already exists")
+        if len(dbRows): return (self.context.CODE_ALREADY_EXISTS, "this name already exists")
 
         # update in db
         sql = """UPDATE `%s` SET name=? WHERE id=?""" % ( self.tb_projects )
@@ -407,19 +408,10 @@ class ProjectsManager(Logger.ClassLogger):
 
         return (self.context.CODE_OK, dbRows )
 
-    def trace(self, txt):
-        """
-        Trace message
-        """
-        Logger.ClassLogger.trace(self, txt="PJM - %s" % txt)
-
 PM = None
 def instance ():
     """
     Returns the singleton
-
-    @return: One instance of the class ProjectsManager
-    @rtype: Context
     """
     return PM
 

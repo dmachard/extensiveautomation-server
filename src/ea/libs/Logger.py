@@ -58,9 +58,6 @@ class ClassLogger(object):
     def info (self, txt):
         """
         Display message in the screen
-
-        @param txt: message
-        @type txt: string
         """
         if instance() is None: return
         
@@ -72,24 +69,19 @@ class ClassLogger(object):
     def trace (self, txt):
         """
         Display message in the screen
-
-        @param txt: message
-        @type txt: string
         """
         if instance() is None: return
         
         if __debug__:
             if sys.version_info > (3,):
-                instance().debug( txt )
+                instance().debug( "%s > %s" % (self.__class__.__name__, txt) )
             else:
-                instance().debug(  unicode(txt).encode('utf-8')  )
+                instance().debug( "%s > %s" % (self.__class__.__name__, 
+                                               unicode(txt).encode('utf-8') )  )
 
     def error (self, err):
         """
         Log error 
-
-        @param err:
-        @type err:
         """
         if instance() is None: return
         
@@ -102,36 +94,16 @@ class ClassLogger(object):
                                                 caller(), 
                                                 unicode(err).encode('utf-8') ) )
         
-    def fatal (self, err):
-        """
-        Log fatal 
-
-        @param err:
-        @type err:
-        """
-        if instance() is None: return
-        
-        if sys.version_info > (3,):
-            instance().error( "%s" % err )
-        else:
-            instance().error( "%s" % unicode(err).encode('utf-8') )
-        
 LG = None # Singleton
 def instance ():
     """
     Returns Singleton
-
-    @return:
-    @rtype:
     """
     return LG
 
 def info (txt):
     """
     Log info message
-
-    @param txt:
-    @type: txt: string
     """
     global LG
     LG.info( txt )
@@ -139,9 +111,6 @@ def info (txt):
 def error (txt):
     """
     Log error message
-
-    @param txt:
-    @type: txt: string
     """
     global LG
     LG.error( txt )
@@ -149,29 +118,15 @@ def error (txt):
 def debug (txt):
     """
     Log debug message
-
-    @param txt:
-    @type: txt: string
     """
     global LG
     LG.debug( txt )
 
 
-def initialize (logPathFile=None, level="INFO", size="5", nbFiles="10", noSettings=False ):
+def initialize (logPathFile=None, level="INFO", size="5", 
+                nbFiles="10", noSettings=False ):
     """
     Initialize
-
-    @param logPathFile: complete path of the log file
-    @type: logPathFile: string
-
-    @param level: INFO | ERROR | DEBUG
-    @type: level: string
-
-    @param size: file size in megabytes
-    @type: size: string
-
-    @param nbFiles: number of log files
-    @type: nbFiles: string
     """
     global LG
     if not noSettings:

@@ -60,85 +60,85 @@ def _to_yaml_tags(wrapped, instance, args, kwargs):
     """
     return wrapped(*args, **kwargs)
 
-"""
-Swagger object definitions
-"""
-class SwaggerDefinitions(object):
-    """
-    """
+# """
+# Swagger object definitions
+# """
+# class SwaggerDefinitions(object):
+    # """
+    # """
     #@_to_yaml_defs
-    def ResponseGeneric(self):
-        """
-        type: object
-        properties:
-          cmd:
-            type: string
-          message:
-            type: string
-        """
-        pass
+    # def ResponseGeneric(self):
+        # """
+        # type: object
+        # properties:
+          # cmd:
+            # type: string
+          # message:
+            # type: string
+        # """
+        # pass
 
-"""
-Swagger tags
-"""
-class SwaggerTags(object):
-    """
-    """
-    @_to_yaml_tags
-    def session(self):
-        """
-        Everything about your session
-        """
-        pass
-    @_to_yaml_tags
-    def variables(self):
-        """
-        Everything to manage projects variables
-        """
-        pass
-    @_to_yaml_tags
-    def tests(self):
-        """
-        Everything to manage your tests
-        """
-        pass
-    @_to_yaml_tags
-    def tasks(self):
-        """
-        Everything to manage your tasks
-        """
-        pass
-    @_to_yaml_tags
-    def public(self):
-        """
-        Everything to manage your tasks
-        """
-        pass
-    @_to_yaml_tags
-    def results(self):
-        """
-        Everything to manage your test results
-        """
-        pass
-    @_to_yaml_tags
-    def reports(self):
-        """
-        Everything to get your test reports
-        """
-        pass
+# """
+# Swagger tags
+# """
+# class SwaggerTags(object):
+    # """
+    # """
+    # @_to_yaml_tags
+    # def session(self):
+        # """
+        # Everything about your session
+        # """
+        # pass
+    # @_to_yaml_tags
+    # def variables(self):
+        # """
+        # Everything to manage projects variables
+        # """
+        # pass
+    # @_to_yaml_tags
+    # def tests(self):
+        # """
+        # Everything to manage your tests
+        # """
+        # pass
+    # @_to_yaml_tags
+    # def tasks(self):
+        # """
+        # Everything to manage your tasks
+        # """
+        # pass
+    # @_to_yaml_tags
+    # def public(self):
+        # """
+        # Everything to manage your tasks
+        # """
+        # pass
+    # @_to_yaml_tags
+    # def results(self):
+        # """
+        # Everything to manage your test results
+        # """
+        # pass
+    # @_to_yaml_tags
+    # def reports(self):
+        # """
+        # Everything to get your test reports
+        # """
+        # pass
 
 
 """
 Logger
 """
-class _NoLoggingWSGIRequestHandler(WSGIRequestHandler, Logger.ClassLogger):
+class WSGIRequestHandlerLogging(WSGIRequestHandler, Logger.ClassLogger):
     """
     """
     def log_message(self, format, *args):
         """
         """
         try:
-            self.trace( "RSI - %s %s %s" % args )
+            self.trace( "%s %s %s" % args )
         except:
             print(args)
 
@@ -319,7 +319,7 @@ class _RestServerInterface(Logger.ClassLogger, threading.Thread):
         self.httpd = make_server( host=listeningAddress[0],
                                   port=listeningAddress[1],
                                   app=_WebServices,
-                                  handler_class=_NoLoggingWSGIRequestHandler
+                                  handler_class=WSGIRequestHandlerLogging
                                   )
 
     def run(self):

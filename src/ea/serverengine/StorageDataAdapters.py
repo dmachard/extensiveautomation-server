@@ -53,12 +53,6 @@ class StorageDataAdapters(RepoManager.RepoManager, Logger.ClassLogger):
     def initSubStorage(self, dirProject, dirToday, dirTest):
         """
         Initialize the sub storage folders  YYYY-MM-DD/testid
-
-        @param dirToday: date YYYY-MM-DD
-        @type dirToday: string
-
-        @param dirTest:
-        @type dirTest: string
         """
         # create temp main dir
         mainDir = "%s/%s" % (self.adpDataPath, dirProject)
@@ -94,13 +88,6 @@ class StorageDataAdapters(RepoManager.RepoManager, Logger.ClassLogger):
     def removeSubStorage(self, dirToday, dirTest, projectId=0):
         """
         Remove the sub storage folder, just the testid
-
-        @param dirToday: date YYYY-MM-DD
-        @type dirToday: string
-
-        @param dirTest:
-        @type dirTest: string
-
         """
         mainDir = "%s/%s/%s" % (self.adpDataPath, projectId, dirToday)
         testDir = "%s/%s" % (mainDir, dirTest)
@@ -127,18 +114,6 @@ class StorageDataAdapters(RepoManager.RepoManager, Logger.ClassLogger):
                   replayId, projectId=0, virtualName = ""):
         """
         Zip data by adapters and notify users in just one zip
-
-        @param dirToday: date YYYY-MM-DD
-        @type dirToday: string
-
-        @param dirTest:
-        @type dirTest: string
-
-        @param destPathZip:
-        @type destPathZip: string
-
-        @param replayId:
-        @type replayId: string
         """
         self.trace("Starting to zip all adapters logs")
         ret = False
@@ -153,16 +128,26 @@ class StorageDataAdapters(RepoManager.RepoManager, Logger.ClassLogger):
             fileName = "%s_%s_%s" % (self.prefixAdaptersAll, tp , replayId)
 
             # zip the folder
-            zipped = self.zipFolder(folderPath=testDir, zipName="%s.zip" % fileName, zipPath=destPathZip)
+            zipped = self.zipFolder(folderPath=testDir, 
+                                    zipName="%s.zip" % fileName, 
+                                    zipPath=destPathZip)
 
             if zipped == self.context.CODE_OK:
                 # notify users
                 if Settings.getInt( 'Notifications', 'archives'):
                     size_ = os.path.getsize( "%s/%s.zip" % (destPathZip, fileName) )
                     notif = {}
-                    m = [   {   "type": "folder", "name": dirToday, "project": "%s" % projectId,
-                        "content": [ {  "type": "folder", "name": dirTest, "project": "%s" % projectId, "virtual-name": virtualName,
-                        "content": [ {"type": "file", "name": "%s.zip" % fileName, 'size': str(size_), "project": "%s" % projectId } ]} ] }  ]
+                    m = [   {   "type": "folder", 
+                                "name": dirToday, 
+                                "project": "%s" % projectId,
+                                "content": [ {  "type": "folder", 
+                                                "name": dirTest, 
+                                                "project": "%s" % projectId,
+                                                "virtual-name": virtualName,
+                                "content": [ {"type": "file", 
+                                              "name": "%s.zip" % fileName, 
+                                              'size': str(size_), 
+                                              "project": "%s" % projectId } ]} ] }  ]
                     notif['archive'] = m
                     data = ( 'archive', ( None, notif) )
                     ESI.instance().notifyByUserTypes(body = data,
@@ -181,9 +166,6 @@ SDAMng = None
 def instance ():
     """
     Returns the singleton
-
-    @return:
-    @rtype:
     """
     return SDAMng
 

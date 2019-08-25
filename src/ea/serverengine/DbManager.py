@@ -39,19 +39,6 @@ def caller():
     return  ">>".join(ret)
 
 class DbManager(Logger.ClassLogger):
-    # def __init__(self):
-        # """
-        # Class Db Manager
-        # Mysql is only supported
-        # """
-        # pass
-
-    def trace(self, txt):
-        """
-        Trace message
-        """
-        Logger.ClassLogger.trace(self, txt="DBM - %s" % (txt) )
-
     def querySQL(self, query, insertData=False, columnName=False,
                      debugCaller=False,  args=(),
                      arg1=None, arg2=None, arg3=None,
@@ -128,9 +115,6 @@ DBM = None
 def instance ():
     """
     Returns the singleton
-
-    @return: One instance of the class Context
-    @rtype: Context
     """
     return DBM
 

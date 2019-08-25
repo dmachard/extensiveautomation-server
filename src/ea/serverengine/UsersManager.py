@@ -102,7 +102,7 @@ class UsersManager(Logger.ClassLogger):
         sql_args += (login,)
         success, _ = DbManager.instance().querySQL( query =sql, args=sql_args  )
         if not success:
-            self.error("unable to update online user field for user=%s with value=%s" % (login, online) )
+            self.error("unable to update online status user=%s value=%s" % (login, online) )
 
         # new in v19, refresh the users cache
         self.loadCache()
@@ -155,13 +155,13 @@ class UsersManager(Logger.ClassLogger):
 
         # prepare the sql query
         sql = """INSERT INTO `%s`(`login`, `password`, `administrator`, """  % self.tb_users
-        sql += """`leader`, `tester`, `developer`, `system`, `email`, `lang`, """
-        sql += """`style`, `active`, `default`, `online`, `notifications`, """
-        sql += """`defaultproject`, `cli`, `gui`, `web`, `apikey_id`, `apikey_secret`)"""
+        sql += """`monitor`, `tester`, `email`, `lang`, """
+        sql += """`style`, `active`, `online`, `notifications`, """
+        sql += """`defaultproject`, `apikey_id`, `apikey_secret`)"""
         sql += """ VALUES(?, ?, ?, """
-        sql += """?, ?, '0', '0', ?, ?,"""
-        sql += """?, '1', '0', '0', ?, """
-        sql += """?, '1', '1', '1', ?, ?)"""
+        sql += """?, ?, ?, ?,"""
+        sql += """?, '1', '0', ?, """
+        sql += """?, ?, ?)"""
         success, lastRowId = DbManager.instance().querySQL( query = sql,
                                                             insertData=True,
                                                             arg1=login,
@@ -213,11 +213,6 @@ class UsersManager(Logger.ClassLogger):
 
         # init some shortcut
         userId = str(userId)
-
-        # not possible to delete default usrs
-        if int(userId) <= 3:
-            self.error("delete default users is not authorized")
-            return (self.context.CODE_ERROR, "delete default users is not authorized")
 
         # find user by id
         sql = """SELECT * FROM `%s` WHERE  id=?""" % ( self.tb_users )
@@ -280,7 +275,7 @@ class UsersManager(Logger.ClassLogger):
                 self.error( "unable to search user login" )
                 return (self.context.CODE_ERROR, "unable to read user id")
             if len(res):
-                return (self.context.CODE_ALLREADY_EXISTS, "This login already exist")
+                return (self.context.CODE_ALREADY_EXISTS, "This login already exist")
             else:
                 sql_values.append( """login=?""" )
                 sql_args += (login,)
@@ -302,23 +297,19 @@ class UsersManager(Logger.ClassLogger):
             sql_args += (default,)
 
         # access level
-        # the level can not modified for default users (system, admin, monitor and tester)
-        if level is not None and int(userId) > 3:
+        if level is not None:
             if level == "administrator":
                 sql_values.append( """administrator='1'""")
-                sql_values.append( """leader='0'""")
+                sql_values.append( """monitor='0'""")
                 sql_values.append( """tester='0'""")
-                sql_values.append( """developer='0'""")
             elif level == "monitor":
                 sql_values.append( """administrator='0'""")
-                sql_values.append( """leader='1'""")
+                sql_values.append( """monitor='1'""")
                 sql_values.append( """tester='0'""")
-                sql_values.append( """developer='0'""")
             else:
                 sql_values.append( """administrator='0'""")
-                sql_values.append( """leader='0'""")
+                sql_values.append( """monitor='0'""")
                 sql_values.append( """tester='1'""")
-                sql_values.append( """developer='1'""")
 
         # update
         if len(sql_values):
@@ -385,11 +376,11 @@ class UsersManager(Logger.ClassLogger):
         newLogin = "%s-COPY#%s" % (user['login'], uniqid())
         level = "tester"
         if user['administrator']:
-            level = "admin"
-        if user['leader']:
+            level = "administrator"
+        if user['monitor']:
             level = "monitor"
         if user['tester']:
-            level = "level"
+            level = "tester"
         return self.addUserToDB(login=newLogin,
                                 password='',
                                 email=user['email'],
@@ -511,8 +502,6 @@ class UsersManager(Logger.ClassLogger):
         sha1_cur.update( curPwd.encode("utf8") )
 
         sha1_cur2 = hashlib.sha1()
-        # sha1_cur2.update( "%s%s" % ( Settings.get( 'Misc', 'salt'), sha1_cur.hexdigest()  )  )
-
         pwd1_salt2 = "%s%s" % ( Settings.get( 'Misc', 'salt'), sha1_cur.hexdigest() )
         if sys.version_info < (3,):
             sha1_cur2.update( pwd1_salt2  )
@@ -528,7 +517,6 @@ class UsersManager(Logger.ClassLogger):
         sha1_new.update( newPwd.encode("utf8") )
 
         sha1_new2 = hashlib.sha1()
-        # sha1_new2.update( "%s%s" % ( Settings.get( 'Misc', 'salt'), sha1_new.hexdigest()  )  )
         pwd_salt2 = "%s%s" % ( Settings.get( 'Misc', 'salt'), sha1_new.hexdigest() )
         if sys.version_info < (3,):
             sha1_new2.update( pwd_salt2  )
@@ -618,7 +606,7 @@ class UsersManager(Logger.ClassLogger):
 
         # add level to profile
         if user_profile["administrator"]: new_profile["level"] = "Administrator"
-        if user_profile["leader"]: new_profile["level"] = "Monitor"
+        if user_profile["monitor"]: new_profile["level"] = "Monitor"
         if user_profile["tester"]: new_profile["level"] = "Tester"
 
         # add some general infos
@@ -666,20 +654,10 @@ class UsersManager(Logger.ClassLogger):
 
         return (self.context.CODE_OK, new_profile)
 
-    def trace(self, txt):
-        """
-        Trace message
-        """
-        Logger.ClassLogger.trace(self, txt="USM - %s" % txt)
-
-
 UM = None
 def instance ():
     """
     Returns the singleton
-
-    @return: One instance of the class users manager
-    @rtype: UsersManager
     """
     return UM
 

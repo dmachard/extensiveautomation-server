@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   description: Control your test server with Extensive Automation API
-  version: 21.0.0
+  version: 21.1.0
   title: Swagger Common - Extensive Automation
   contact:
     email: d.machard@gmail.com
@@ -26,7 +26,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -39,7 +39,7 @@ paths:
                 type: string
       responses:
         '200':
-          description: 
+          description:
           schema :
             properties:
               cmd:
@@ -70,7 +70,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -87,7 +87,7 @@ paths:
                 type: string
       responses:
         '200':
-          description: 
+          description:
           schema :
             properties:
               cmd:
@@ -97,7 +97,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/administration/users/password/update", 
+                "cmd": "/administration/users/password/update",
                 "message: "password successfully updated"
               }
         '400':
@@ -122,7 +122,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -155,7 +155,7 @@ paths:
                   type: string
       responses:
         '200':
-          description: 
+          description:
           schema :
             properties:
               cmd:
@@ -165,7 +165,7 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/administration/users/update", 
+                "cmd": "/administration/users/update",
                 "message: "user successfully updated"
               }
         '400':
@@ -186,7 +186,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
       responses:
@@ -218,7 +218,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
       responses:
@@ -250,7 +250,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
       responses:
@@ -320,18 +320,18 @@ paths:
           examples:
             application/json: |
               {
-                "expires": 86400, 
-                "user_id": 2, 
-                "cmd": "/session/login", 
-                "session_id": "NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M", 
-                "message": "Logged in", 
+                "expires": 86400,
+                "user_id": 2,
+                "cmd": "/session/login",
+                "session_id": "NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M",
+                "message": "Logged in",
                 "project_id": 1
               }
           headers:
             Set-Cookie:
               type: string
               description: |
-                session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M;expires=Wed, 10-May-2017 06:32:57 GMT; path=/ 
+                session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M;expires=Wed, 10-May-2017 06:32:57 GMT; path=/
         '401':
           description: Invalid login | Account disabled | Access not authorized | Invalid  password
         '400':
@@ -348,7 +348,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
       responses:
@@ -383,7 +383,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
       responses:
@@ -405,7 +405,7 @@ paths:
             Set-Cookie:
               type: string
               description: |
-                session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M;expires=Wed, 10-May-2017 06:32:57 GMT; path=/ 
+                session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M;expires=Wed, 10-May-2017 06:32:57 GMT; path=/
         '401':
           description: Access denied
   /rest/system/about:
@@ -420,7 +420,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
       responses:
@@ -437,12 +437,6 @@ paths:
                     properties:
                       core:
                         type: string
-                      adapters:
-                        type: string
-                      libraries:
-                        type: string
-                      toolbox:
-                        type: string
                   version:
                     type: object
                     properties:
@@ -450,24 +444,12 @@ paths:
                         type: string
                       python:
                         type: string
-                      php:
-                        type: string
-                      database:
-                        type: string
-                      adapters:
-                        type: string
-                      libraries:
-                        type: string
-                      default-adapter:
-                        type: string
-                      default-library:
-                        type: string
                   networking:
                     type: string
           examples:
             application/json: |
               {
-                "about": { 'rn': '...', 'version': '...', 'network': '...'},
+                "about": { 'rn': '...', 'core': '...', 'version': '...'},
                 "cmd": "/system/about"
               }
         '401':
@@ -484,7 +466,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
       responses:
@@ -494,18 +476,11 @@ paths:
               cmd:
                 type: string
               status:
-                type: object
-                properties:
-                  start-at:
-                    type: string
-                  currrent-date:
-                    type: string
-                  uptime:
-                    type: string
+                type: string
           examples:
             application/json: |
               {
-                "status": { 'start-at': '...', 'current-date': '...', 'uptime': '...' },
+                "status": 'OK',
                 "cmd": "/system/status"
               }
         '401':
@@ -522,7 +497,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -563,7 +538,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -606,7 +581,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -650,7 +625,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -690,7 +665,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
       responses:
@@ -724,7 +699,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
       responses:
@@ -758,7 +733,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -799,7 +774,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -842,7 +817,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -882,7 +857,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -909,20 +884,20 @@ paths:
               schedule-repeat:
                 type: integer
               probes-enabled:
-                type: boolean 
+                type: boolean
               debug-enabled:
-                type: boolean 
+                type: boolean
               notifications-enabled:
-                type: boolean 
+                type: boolean
               logs-enabled:
-                type: boolean 
+                type: boolean
               from-time:
                 type: array
                 description: [ Y,M,D,H,M,S ]
                 items:
                   type: integer
               to-time:
-                type: array 
+                type: array
                 description: [ Y,M,D,H,M,S ]
                 items:
                   type: integer
@@ -955,7 +930,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -995,7 +970,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
       responses:
@@ -1029,7 +1004,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
         - name: body
@@ -1069,7 +1044,7 @@ paths:
       parameters:
         - name: Cookie
           in: header
-          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M 
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
           required: true
           type: string
       responses:

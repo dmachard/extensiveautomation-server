@@ -263,7 +263,7 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         """
         if Settings.instance()  is not None:
             if Settings.get( 'Trace', 'debug-level') == 'VERBOSE':
-                Logger.ClassLogger.trace(self, txt="ASI - %s" % txt)
+                Logger.ClassLogger.trace(self, txt=txt)
 
 ASI = None
 def instance ():

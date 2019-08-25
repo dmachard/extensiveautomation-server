@@ -28,26 +28,11 @@ import os
 from ea.libs import Settings, Logger
 
 class HelperManager(Logger.ClassLogger):
-    def __init__ (self):
-        """
-        Documentation is generated with the start of the server in save in a file
-        """
-        pass
-
-    def trace(self, txt):
-        """
-        Trace message
-        """
-        Logger.ClassLogger.trace(self, txt="HMG - %s" % txt)
-
     def getHelps(self):
         """
         Returns the documentation cache
-
-        @return:
-        @rtype:
         """
-        self.trace("Helper manager - get helps" )
+        self.trace("get helps" )
         ret = ''
         try:
             complete_path = '%s/%s/documentations.dat' % ( Settings.getDirExec(),
@@ -68,9 +53,6 @@ HM = None # singleton
 def instance ():
     """
     Returns the singleton
-
-    @return:
-    @rtype:
     """
     return HM
 
