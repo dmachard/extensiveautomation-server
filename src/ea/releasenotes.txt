@@ -14,4 +14,4 @@
 		10. (major) Support remote ldap simple bind and ntlm authentication for user session 
 		11. (minor) Test library: test manipulator feature removed
 	Issues Fixed
-		None
+		1 (minor) fix error in setup file, readme missing 
