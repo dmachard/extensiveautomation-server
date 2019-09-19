@@ -1,0 +1,21 @@
+name: PyPI Upload
+
+on: [release]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install twine
+    - name: Build the pypi package
+      run: |
+        # build 
+        python setup.py sdist
+    - name: Upload to pypi
+      run: |
+        # upload 
+        twine upload dist/* -u ${{ secrets.PYPI_LOGIN }} -p ${{ secrets.PYPI_PASSWORD }}
