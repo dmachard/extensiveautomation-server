@@ -21,35 +21,39 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-import os
-
 from ea.serverrepositories import RepoManager
 from ea.libs import Settings, Logger
+
 
 class RepoPublic(RepoManager.RepoManager, Logger.ClassLogger):
     def __init__(self):
         """
         Repository manager for public test files
         """
-        RepoManager.RepoManager.__init__(self, pathRepo='%s%s' % ( Settings.getDirExec(), 
-                                                                   Settings.get( 'Paths', 'public' ) ), 
-                                         extensionsSupported = [  ] )
+        RepoManager.RepoManager.__init__(self, pathRepo='%s%s' % (Settings.getDirExec(),
+                                                                  Settings.get('Paths', 'public')),
+                                         extensionsSupported=[])
+
 
 RepoPublicMng = None
-def instance ():
+
+
+def instance():
     """
     Returns the singleton
     """
     return RepoPublicMng
 
-def initialize ():
+
+def initialize():
     """
     Instance creation
     """
     global RepoPublicMng
     RepoPublicMng = RepoPublic()
 
-def finalize ():
+
+def finalize():
     """
     Destruction of the singleton
     """

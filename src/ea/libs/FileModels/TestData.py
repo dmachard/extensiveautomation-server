@@ -25,6 +25,9 @@
 Test data module
 """
 
+from ea.libs.FileModels import GenericModel
+from ea.libs.PyXmlDict import Dict2Xml as PyDictXml
+from ea.libs.PyXmlDict import Xml2Dict as PyXmlDict
 import sys
 import datetime
 import re
@@ -33,11 +36,10 @@ import re
 if sys.version_info > (3,):
     unicode = str
 
-from ea.libs.PyXmlDict import Xml2Dict as PyXmlDict
-from ea.libs.PyXmlDict import Dict2Xml as PyDictXml
-from ea.libs.FileModels import GenericModel
 
-r = re.compile( u"[^\x09\x0A\x0D\x20-\x7E\x85\xA0-\xFF\u0100-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD]")
+r = re.compile(
+    u"[^\x09\x0A\x0D\x20-\x7E\x85\xA0-\xFF\u0100-\uD7FF\uE000-\uFDCF\uFDE0-\uFFFD]")
+
 
 def removeInvalidXML(string):
     """
@@ -48,9 +50,11 @@ def removeInvalidXML(string):
         return empty string
         """
         return ""
-    return re.sub(r,replacer,string)
-  
+    return re.sub(r, replacer, string)
+
+
 DEFAULT_MODE = 'Raw'
+
 
 def bytes2str(val):
     """
@@ -61,13 +65,15 @@ def bytes2str(val):
     else:
         return val
 
+
 class DataModel(GenericModel.GenericModel):
     """
     Data model for test data
     """
-    def __init__ (self, userName='unknown', testData=''):
+
+    def __init__(self, userName='unknown', testData=''):
         """
-        This class describes the model of one script document, 
+        This class describes the model of one script document,
         and provides a xml <=> python encoder
         The following xml :
         <?xml version="1.0" encoding="utf-8" ?>
@@ -102,58 +108,69 @@ class DataModel(GenericModel.GenericModel):
         GenericModel.GenericModel.__init__(self)
 
         today = datetime.datetime.today()
-        self.dateToday = today.strftime("%d/%m/%Y %H:%M:%S")  
+        self.dateToday = today.strftime("%d/%m/%Y %H:%M:%S")
         self.currentUser = userName
 
         # init xml codec
-        self.codecX2D = PyXmlDict.Xml2Dict( )
-        self.codecD2X = PyDictXml.Dict2Xml( coding = None )
+        self.codecX2D = PyXmlDict.Xml2Dict()
+        self.codecD2X = PyDictXml.Dict2Xml(coding=None)
 
         # files properties
-        self.properties = { 'properties': {
-                                    'descriptions': {
-                                        'description': [ 
-                                                { 'key': 'author', 'value': self.currentUser },
-                                                { 'key': 'creation date', 'value':  self.dateToday },
-                                                { 'key': 'summary', 'value': 'Just a basic sample.' },
-                                                { 'key': 'data mode', 'value': DEFAULT_MODE }
-                                               ]
-                                      },
-                                    'inputs-parameters': {
-                                        'parameter': [ {'type': 'str', 'name': 'PARAM1', 
-                                                        'description': '', 'value' : 'Sample', 
-                                                        'color': '',  'scope': 'local' } ]
-                                            }
-                                }
-                            }
-
+        self.properties = {'properties': {
+            'descriptions': {
+                'description': [
+                    {'key': 'author', 'value': self.currentUser},
+                    {'key': 'creation date', 'value': self.dateToday},
+                    {'key': 'summary',
+                     'value': 'Just a basic sample.'},
+                    {'key': 'data mode',
+                     'value': DEFAULT_MODE}
+                ]
+            },
+            'inputs-parameters': {
+                'parameter': [{'type': 'str', 'name': 'PARAM1',
+                               'description': '', 'value': 'Sample',
+                               'color': '', 'scope': 'local'}]
+            }
+        }
+        }
 
         self.testdata = testData
-            
-    def toXml (self):
+
+    def toXml(self):
         """
         Python data to xml
-        
-        @return: 
+
+        @return:
         @rtype:
         """
         try:
-            self.fixPyXML( data = self.properties['properties']['inputs-parameters'], key = 'parameter' )
+            self.fixPyXML(
+                data=self.properties['properties']['inputs-parameters'],
+                key='parameter')
 
-            xmlDataList = [ '<?xml version="1.0" encoding="utf-8" ?>' ]
+            xmlDataList = ['<?xml version="1.0" encoding="utf-8" ?>']
             xmlDataList.append('<file>')
-            if sys.version_info > (3,): # python3 support
-                xmlDataList.append( bytes2str(self.codecD2X.parseDict( dico = self.properties )) )
+            if sys.version_info > (3,):  # python3 support
+                xmlDataList.append(
+                    bytes2str(
+                        self.codecD2X.parseDict(
+                            dico=self.properties)))
             else:
-                xmlDataList.append( self.codecD2X.parseDict( dico = self.properties ) )
-            xmlDataList.append('<testdata><![CDATA[%s]]></testdata>' % unicode(self.testdata) )
+                xmlDataList.append(
+                    self.codecD2X.parseDict(
+                        dico=self.properties))
+            xmlDataList.append(
+                '<testdata><![CDATA[%s]]></testdata>' %
+                unicode(
+                    self.testdata))
             xmlDataList.append('</file>')
             ret = '\n'.join(xmlDataList)
 
             # remove all invalid xml data
             ret = removeInvalidXML(ret)
         except Exception as e:
-            self.error( "TestData > To Xml %s" % str(e) ) 
+            self.error("TestData > To Xml %s" % str(e))
             ret = None
         return ret
 
@@ -172,8 +189,8 @@ class DataModel(GenericModel.GenericModel):
         """
         for descr in self.properties['properties']['descriptions']['description']:
             descr['key'] = descr['key'].decode("utf-8")
-                
-            if isinstance( descr['value'], dict):
+
+            if isinstance(descr['value'], dict):
                 pass
             else:
                 descr['value'] = descr['value'].decode("utf-8")
@@ -195,9 +212,9 @@ class DataModel(GenericModel.GenericModel):
         # decode content
         try:
             # Extract xml from the file data
-            ret = self.codecX2D.parseXml( xml = decompressedData )
+            ret = self.codecX2D.parseXml(xml=decompressedData)
         except Exception as e:
-            self.error( "TestData > Parse Xml %s" % str(e) )
+            self.error("TestData > Parse Xml %s" % str(e))
         else:
             try:
                 if sys.version_info > (3,):  # python3 support
@@ -208,12 +225,14 @@ class DataModel(GenericModel.GenericModel):
                     self.testdata = ret['file']['testdata'].decode("utf-8")
 
                 # Extract all properties
-                if not 'properties' in ret['file']: # new in 5.0.0
+                if 'properties' not in ret['file']:  # new in 5.0.0
                     ret['file']['properties'] = self.properties['properties']
-                
+
                 properties = ret['file']['properties']
             except Exception as e:
-                self.error( "TestData > extract properties, testdata %s" % str(e) )
+                self.error(
+                    "TestData > extract properties, testdata %s" %
+                    str(e))
             else:
                 try:
                     # BEGIN NEW in 5.1.0
@@ -224,12 +243,15 @@ class DataModel(GenericModel.GenericModel):
                         for kv in properties['descriptions']['description']:
                             i += 1
                             if kv['key'] == 'date':
-                                creationDate = kv['value']; creationDateIndex=i;
+                                creationDate = kv['value']
+                                creationDateIndex = i
                         if creationDate is not None:
-                            properties['descriptions']['description'].pop(creationDateIndex)
-                            properties['descriptions']['description'].append( {'key': 'creation date', 'value': creationDate } ) 
+                            properties['descriptions']['description'].pop(
+                                creationDateIndex)
+                            properties['descriptions']['description'].append(
+                                {'key': 'creation date', 'value': creationDate})
                     # END NEW in 5.1.0
-                    
+
                     # BEGIN NEW in 8.0.0
                     if 'descriptions' in properties:
                         dataMode = False
@@ -237,37 +259,50 @@ class DataModel(GenericModel.GenericModel):
                             if kv['key'] == 'data mode':
                                 dataMode = True
                         if not dataMode:
-                            properties['descriptions']['description'].append( {'key': 'data mode', 'value': DEFAULT_MODE } )
+                            properties['descriptions']['description'].append(
+                                {'key': 'data mode', 'value': DEFAULT_MODE})
                     # END NEW in 8.0.0
 
                 except Exception as e:
-                    self.error( "TestData > fix backward compatibility %s" % str(e) )
+                    self.error(
+                        "TestData > fix backward compatibility %s" %
+                        str(e))
                 else:
                     try:
-                        # BEGIN NEW in 5.1.0 : replace parameters by intput-parameters in the model file, to keep the compatibility
-                        if not 'inputs-parameters' in properties:
+                        # BEGIN NEW in 5.1.0 : replace parameters by
+                        # intput-parameters in the model file, to keep the
+                        # compatibility
+                        if 'inputs-parameters' not in properties:
                             properties['inputs-parameters'] = properties['parameters']
-                            properties.pop( 'parameters' )
+                            properties.pop('parameters')
                         # END NEW in 5.1.0
 
-                        self.fixXML( data = properties['inputs-parameters'], key = 'parameter' )
+                        self.fixXML(
+                            data=properties['inputs-parameters'],
+                            key='parameter')
                         if '@parameter' in properties['inputs-parameters']:
-                            self.fixXML( data = properties['inputs-parameters'], key = '@parameter' )
-                            
-                        self.fixXML( data = properties['descriptions'], key = 'description' )
+                            self.fixXML(
+                                data=properties['inputs-parameters'],
+                                key='@parameter')
+
+                        self.fixXML(
+                            data=properties['descriptions'],
+                            key='description')
                         if '@description' in properties['descriptions']:
-                            self.fixXML( data = properties['descriptions'], key = '@description' )
+                            self.fixXML(
+                                data=properties['descriptions'],
+                                key='@description')
 
                     except Exception as e:
-                        self.error( "TestData >  fix xml %s" % str(e) )
+                        self.error("TestData >  fix xml %s" % str(e))
                     else:
                         try:
-                            self.properties = { 'properties':  properties}
-                            if sys.version_info < (3,): # python3 support
+                            self.properties = {'properties': properties}
+                            if sys.version_info < (3,):  # python3 support
                                 self.fixDescriptionstoUTF8()
                                 self.fixParameterstoUTF8()
                         except Exception as e:
-                            self.error( "TestData >  fix utf8 %s" % str(e) )
+                            self.error("TestData >  fix utf8 %s" % str(e))
                         else:
                             decodedStatus = True
         return decodedStatus

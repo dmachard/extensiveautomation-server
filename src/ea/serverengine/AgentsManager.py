@@ -24,6 +24,7 @@
 from ea.libs import Logger
 from ea.serverinterfaces import AgentServerInterface as ASI
 
+
 class AgentsManager(Logger.ClassLogger):
     def __init__(self, context):
         """
@@ -31,11 +32,11 @@ class AgentsManager(Logger.ClassLogger):
         """
         self.context = context
 
-    def getRunning (self, b64=False):
+    def getRunning(self, b64=False):
         """
         Returns all registered agent
         """
-        self.trace("get running agents" )
+        self.trace("get running agents")
         ret = ASI.instance().getAgents()
         return ret
 
@@ -43,30 +44,35 @@ class AgentsManager(Logger.ClassLogger):
         """
         Disconnect agent
         """
-        self.info( "Disconnect agent Name=%s" % name )
-        if not name in ASI.instance().agentsRegistered:
-            self.trace( "disconnect agent, agent %s not found" % name )
+        self.info("Disconnect agent Name=%s" % name)
+        if name not in ASI.instance().agentsRegistered:
+            self.trace("disconnect agent, agent %s not found" % name)
             return self.context.CODE_NOT_FOUND
 
-        agentProfile =  ASI.instance().agentsRegistered[name]
-        ASI.instance().stopClient(client=agentProfile['address'] )
+        agentProfile = ASI.instance().agentsRegistered[name]
+        ASI.instance().stopClient(client=agentProfile['address'])
         return self.context.CODE_OK
 
+
 AM = None
-def instance ():
+
+
+def instance():
     """
     Returns the singleton
     """
     return AM
 
-def initialize (context):
+
+def initialize(context):
     """
     Instance creation
     """
     global AM
     AM = AgentsManager(context=context)
 
-def finalize ():
+
+def finalize():
     """
     Destruction of the singleton
     """

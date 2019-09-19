@@ -30,9 +30,10 @@ from ea.libs.NetLayerLib import Messages as Messages
 from ea.libs.NetLayerLib import ClientAgent as ClientAgent
 from ea.libs import Settings, Logger
 
+
 class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
-    def __init__ (self, listeningAddress, agentName = 'ASI', sslSupport=False, 
-                        wsSupport=False, tsi=None, context=None):
+    def __init__(self, listeningAddress, agentName='ASI', sslSupport=False,
+                 wsSupport=False, tsi=None, context=None):
         """
         Construct Agent Server Interface
 
@@ -42,23 +43,28 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         @param agentName:
         @type agentName: string
         """
-        NetLayerLib.ServerAgent.__init__(self, listeningAddress = listeningAddress, 
-                                        agentName = agentName,
-                                        keepAliveInterval= Settings.getInt('Network', 'keepalive-interval' ), 
-                                        inactivityTimeout=Settings.getInt( 'Network', 'inactivity-timeout' ),
-                                        responseTimeout=Settings.getInt( 'Network', 'response-timeout' ),
-                                        selectTimeout=Settings.get( 'Network', 'select-timeout' ),
-                                        sslSupport=sslSupport,
-                                        wsSupport=wsSupport,
-                                        certFile='%s/%s' % (Settings.getDirExec(),
-                                                            Settings.get( 'Agent_Channel', 'channel-ssl-cert' )), 
-                                        keyFile='%s/%s' % (Settings.getDirExec(),
-                                                           Settings.get( 'Agent_Channel', 'channel-ssl-key' )),
-                                        pickleVer=Settings.getInt( 'Network', 'pickle-version' )
-                                        )
+        NetLayerLib.ServerAgent.__init__(self, listeningAddress=listeningAddress,
+                                         agentName=agentName,
+                                         keepAliveInterval=Settings.getInt(
+                                             'Network', 'keepalive-interval'),
+                                         inactivityTimeout=Settings.getInt(
+                                             'Network', 'inactivity-timeout'),
+                                         responseTimeout=Settings.getInt(
+                                             'Network', 'response-timeout'),
+                                         selectTimeout=Settings.get(
+                                             'Network', 'select-timeout'),
+                                         sslSupport=sslSupport,
+                                         wsSupport=wsSupport,
+                                         certFile='%s/%s' % (Settings.getDirExec(),
+                                                             Settings.get('Agent_Channel', 'channel-ssl-cert')),
+                                         keyFile='%s/%s' % (Settings.getDirExec(),
+                                                            Settings.get('Agent_Channel', 'channel-ssl-key')),
+                                         pickleVer=Settings.getInt(
+                                             'Network', 'pickle-version')
+                                         )
         self.tsi = tsi
-        self.context=context
-        
+        self.context = context
+
         self.__mutex = threading.RLock()
         self.__mutexNotif = threading.RLock()
         self.agentsRegistered = {}
@@ -68,7 +74,7 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         """
         Called on ws handshake successful
         """
-        self.trace("ws hanshake success: %s" % str(clientId) )
+        self.trace("ws hanshake success: %s" % str(clientId))
         # save public ip
         self.agentsPublicIp[clientId] = publicIp
 
@@ -88,19 +94,19 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
             return self.agentsRegistered[aname]
         return ret
 
-    def getAgents (self):
+    def getAgents(self):
         """
         Returns all registered agents
 
         @return:
         @rtype: list
         """
-        self.trace("get agents" )
+        self.trace("get agents")
         ret = []
         for k, c in self.agentsRegistered.items():
-            tpl = { 'id': k }
+            tpl = {'id': k}
             tpl.update(c)
-            ret.append( tpl )
+            ret.append(tpl)
         return ret
 
     def notifyAgent(self, client, tid, data):
@@ -109,24 +115,25 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         """
         try:
             agentName = data['destination-agent']
-            agent = self.getAgent( aname=agentName)
+            agent = self.getAgent(aname=agentName)
             if agent is None:
                 data['event'] = 'agent-system-error'
                 self.tsi.notify(client=client, data=data)
             else:
-                NetLayerLib.ServerAgent.notify(self, client=agent['address'], data=data)
+                NetLayerLib.ServerAgent.notify(
+                    self, client=agent['address'], data=data)
         except Exception as e:
             self.error("unable to notify agent: %s" % str(e))
 
-    def onConnection (self, client):
+    def onConnection(self, client):
         """
         Called on connection
 
         @param client:
         @type client:
         """
-        self.trace("New connection from %s" % str(client.client_address) )
-        NetLayerLib.ServerAgent.onConnection( self, client )
+        self.trace("New connection from %s" % str(client.client_address))
+        NetLayerLib.ServerAgent.onConnection(self, client)
 
     def onRequest(self, client, tid, request):
         """
@@ -147,25 +154,29 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
                 body = request['body']
                 if 'cmd' in body:
                     if body['cmd'] == Messages.CMD_HELLO:
-                        self.trace( 'ASI <-- CMD HELLO: %s' % tid )
+                        self.trace('ASI <-- CMD HELLO: %s' % tid)
                         self.onRegistration(client, tid, request)
                     else:
-                        self.error( 'cmd unknown %s' % body['cmd'])
-                        rsp = {'cmd': body['cmd'], 'res': Messages.CMD_ERROR }
-                        NetLayerLib.ServerAgent.failed(self, client, tid, body = rsp )
+                        self.error('cmd unknown %s' % body['cmd'])
+                        rsp = {'cmd': body['cmd'], 'res': Messages.CMD_ERROR}
+                        NetLayerLib.ServerAgent.failed(
+                            self, client, tid, body=rsp)
                 else:
-                    self.error( 'cmd is missing')
-                    
+                    self.error('cmd is missing')
+
             # handle notify
             elif request['cmd'] == Messages.RSQ_NOTIFY:
-                self.trace("notify %s received from agent of size: %s" % (tid, len(request['body'])) )
+                self.trace(
+                    "notify %s received from agent of size: %s" %
+                    (tid, len(
+                        request['body'])))
                 self.onNotify(client, tid, request=request['body'])
-            
+
             # unknown errors
             else:
-                self.error( 'request unknown %s' % request['cmd'])
+                self.error('request unknown %s' % request['cmd'])
         except Exception as e:
-            self.error( "unable to handle incoming request: %s" % e )
+            self.error("unable to handle incoming request: %s" % e)
 
     def onNotify(self, client, tid, request):
         """
@@ -175,10 +186,10 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         try:
             self.tsi.notify(client=request["from-src"], data=request)
         except Exception as e:
-            self.error( 'unable to handle notify: %s' % str(e) )
+            self.error('unable to handle notify: %s' % str(e))
         self.__mutexNotif.release()
 
-    def onRegistration (self, client, tid, request):
+    def onRegistration(self, client, tid, request):
         """
         Called on the registration of a new agents
 
@@ -191,82 +202,88 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         @param request:
         @type request:
         """
-        self.trace("on registration" )
+        self.trace("on registration")
         self.__mutex.acquire()
-        doNotify=False
+        doNotify = False
 
         if sys.version_info > (3,):
             request['userid'] = request['userid'].decode("utf8")
-            
-        if request['userid'] in  self.agentsRegistered:
-            self.info('duplicate agents registration: %s' % request['userid'] )
+
+        if request['userid'] in self.agentsRegistered:
+            self.info('duplicate agents registration: %s' % request['userid'])
             NetLayerLib.ServerAgent.failed(self, client, tid)
         else:
             if not ('type' in request['body']):
-                self.error('type missing in request: %s' % request['body'] )
+                self.error('type missing in request: %s' % request['body'])
                 NetLayerLib.ServerAgent.failed(self, client, tid)
             else:
                 if request['body']['type'] != ClientAgent.TYPE_AGENT_AGENT:
-                    self.error('agent type refused: %s' % request['body']['type'])
+                    self.error(
+                        'agent type refused: %s' %
+                        request['body']['type'])
                     NetLayerLib.ServerAgent.forbidden(self, client, tid)
                 else:
-                    tpl = { 'address' : client,
-                            'version': request['body']['version'],
-                            'description': request['body']['description']['details'],
-                            'auto-startup': request['body']['description']['default'],
-                            'type': request['body']['name'],
-                            'start-at': request['body']['start-at'],
-                            'publicip': self.agentsPublicIp[client]
-                            }
+                    tpl = {'address': client,
+                           'version': request['body']['version'],
+                           'description': request['body']['description']['details'],
+                           'auto-startup': request['body']['description']['default'],
+                           'type': request['body']['name'],
+                           'start-at': request['body']['start-at'],
+                           'publicip': self.agentsPublicIp[client]
+                           }
 
                     self.agentsRegistered[request['userid']] = tpl
                     NetLayerLib.ServerAgent.ok(self, client, tid)
-                    self.info( 'Remote agent registered: Name="%s"' % request['userid'] )
+                    self.info(
+                        'Remote agent registered: Name="%s"' %
+                        request['userid'])
                     doNotify = True
-        
+
         if doNotify:
             # Notify all connected users
-            notif = ( 'agents', ( 'add', self.getAgents() ) )
-            ESI.instance().notifyByUserTypes(body = notif, 
-                                             admin=True, 
-                                             monitor=False, 
+            notif = ('agents', ('add', self.getAgents()))
+            ESI.instance().notifyByUserTypes(body=notif,
+                                             admin=True,
+                                             monitor=False,
                                              tester=True)
         self.__mutex.release()
 
-    def onDisconnection (self, client):
+    def onDisconnection(self, client):
         """
         Reimplemented from ServerAgent
 
         @type  client:
         @param client:
         """
-        self.trace("on disconnection" )
+        self.trace("on disconnection")
         NetLayerLib.ServerAgent.onDisconnection(self, client)
         clientRegistered = self.agentsRegistered.items()
         for k, c in clientRegistered:
             if c['address'] == client.client_address:
-                ret = self.agentsRegistered.pop(k)
-                publicip = self.agentsPublicIp.pop(c['address'])
-                del publicip
-                self.info( 'Agent unregistered: Name="%s"' % k )
-                notif = ( 'agents', ( 'del', self.getAgents() ) )
-                ESI.instance().notifyByUserTypes(body = notif, 
-                                                 admin=True, 
-                                                 monitor=False, 
+                self.agentsRegistered.pop(k)
+                self.agentsPublicIp.pop(c['address'])
+
+                self.info('Agent unregistered: Name="%s"' % k)
+                notif = ('agents', ('del', self.getAgents()))
+                ESI.instance().notifyByUserTypes(body=notif,
+                                                 admin=True,
+                                                 monitor=False,
                                                  tester=True)
-                del ret
                 break
 
     def trace(self, txt):
         """
         Trace message
         """
-        if Settings.instance()  is not None:
-            if Settings.get( 'Trace', 'debug-level') == 'VERBOSE':
+        if Settings.instance() is not None:
+            if Settings.get('Trace', 'debug-level') == 'VERBOSE':
                 Logger.ClassLogger.trace(self, txt=txt)
 
+
 ASI = None
-def instance ():
+
+
+def instance():
     """
     Returns the singleton
 
@@ -275,7 +292,8 @@ def instance ():
     """
     return ASI
 
-def initialize (listeningAddress, sslSupport, wsSupport, tsi, context):
+
+def initialize(listeningAddress, sslSupport, wsSupport, tsi, context):
     """
     Instance creation
 
@@ -283,11 +301,12 @@ def initialize (listeningAddress, sslSupport, wsSupport, tsi, context):
     @type listeningAddress:
     """
     global ASI
-    ASI = AgentServerInterface( listeningAddress = listeningAddress, 
-                                sslSupport=sslSupport, wsSupport=wsSupport,
-                                tsi=tsi, context=context)
+    ASI = AgentServerInterface(listeningAddress=listeningAddress,
+                               sslSupport=sslSupport, wsSupport=wsSupport,
+                               tsi=tsi, context=context)
 
-def finalize ():
+
+def finalize():
     """
     Destruction of the singleton
     """

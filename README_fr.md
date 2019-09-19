@@ -1,5 +1,8 @@
 # ExtensiveAutomation
 
+![](https://github.com/ExtensiveAutomation/extensiveautomation-server/workflows/Build%20Test%20Python%20Package/badge.svg)
+![](https://github.com/ExtensiveAutomation/extensiveautomation-server/workflows/Build%20Docker%20Image/badge.svg)
+
 | | |
 | ------------- | ------------- |
 | ExtensiveAutomation | Python automation server |
@@ -68,9 +71,13 @@ Le serveur peut s'exécuter avec Python 2 et Python 3, ainsi que sur Windows et 
     
             python -m pip install wrapt pycnic lxml jsonpath_ng
           
-    * Environnement Python2, il est nécessaire d'installer la librarie `libxslt` :
+    * Environnement Python2, il est nécessaire d'installer la librarie `libxslt` et modifier le fichier settings.ini:
     
             python -m pip install wrapt scandir pycnic lxml jsonpath_ng
+            
+            vim src/ea/settings.ini
+            [Bin]
+            python=/usr/bin/python2.7
         
 3. Démarrer le serveur. Sur Linux, le serveur est exécuté en tant que daemon.
 
@@ -171,22 +178,16 @@ Vous pouvez suivre la procédure suivante pour utiliser un serveur LDAP:
 2. Configurer le fichier de configuration `settings.ini` pour activer l'authentication ldap
 
         [Users_Session]
+        
         ; enable ldap user authentication for rest api session only
         ; 0=disable 1=enable
-        ldap-auth-enable=1
-        ; remote address of your ldap server
-        ldap-remote-addr=127.0.0.1
-        ; remote port of your ldap server
-        ldap-remote-port=389
-        ; enable ssl to communicate with the remote server
-        ; 0=disable 1=enable
-        ldap-remote-ssl=0
+        ldap-authbind=1
+        ; remote addresses of your ldap servers
+        ; ldaps://127.0.0.1:636 
+        ldap-host=[ "ldap://127.0.0.1:389" ]
         ; username form
         ; uid=%%s,ou=People,dc=extensive,dc=local
-        ; AUTHTEST\\%%s
-        ldap-username=uid=%%s,ou=People,dc=extensive,dc=local
-        ; authentification type: bind, ntlm
-        ldap-auth-type=bind
+        ldap-dn=[ "uid=%%s,ou=People,dc=extensive,dc=local" ]
 
 3. Redémarrer le serveur.
 

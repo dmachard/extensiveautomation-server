@@ -24,5 +24,5 @@
 from ea import server
 
 # import the server from the extensiveautomation package
-# and display the documentation usage 
+# and display the documentation usage
 server.cli()

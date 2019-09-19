@@ -6,12 +6,13 @@ import time
 import atexit
 import signal
 
+
 def log_exception(*args):
     """
     Log exception
     """
     timestamp = time.time()
-    c,e,traceback = args
+    c, e, traceback = args
 
     # extract number line, function name and file
     lineno = traceback.tb_lineno
@@ -19,11 +20,14 @@ def log_exception(*args):
     name = frame.f_code.co_name
     filename = frame.f_code.co_filename
 
-    sys.stderr.write('%s Traceback Num=%s Function=%s File=%s' % (timestamp, lineno, name, filename))
+    sys.stderr.write(
+        '%s Traceback Num=%s Function=%s File=%s' %
+        (timestamp, lineno, name, filename))
     sys.stderr.write('%s')
-    
+
 # a simple unix/linux daemon in Python by Sander Marechal
 # adaptation for this project
+
 
 class Daemon(object):
     def __init__(self):
@@ -37,7 +41,7 @@ class Daemon(object):
         self.runningfile = None
         self.name = None
 
-    def prepare(self,  pidfile, name, stdin, stdout, stderr, runningfile):
+    def prepare(self, pidfile, name, stdin, stdout, stderr, runningfile):
         """
         """
         self.stdin = stdin
@@ -56,7 +60,7 @@ class Daemon(object):
         except OSError:
             return False
         return True
-    
+
     def daemonize(self):
         """
         do the UNIX double-fork magic, see Stevens' "Advanced
@@ -69,14 +73,16 @@ class Daemon(object):
                 # exit first parent
                 sys.exit(0)
         except OSError as e:
-            sys.stderr.write("fork #1 failed: %d (%s)\n" % (e.errno, e.strerror))
+            sys.stderr.write(
+                "fork #1 failed: %d (%s)\n" %
+                (e.errno, e.strerror))
             sys.exit(1)
-   
+
         # decouple from parent environment
         os.chdir("/")
         os.setsid()
         os.umask(0)
-   
+
         # do second fork
         try:
             pid = os.fork()
@@ -84,37 +90,39 @@ class Daemon(object):
                 # exit from second parent
                 sys.exit(0)
         except OSError as e:
-            sys.stderr.write("fork #2 failed: %d (%s)\n" % (e.errno, e.strerror))
+            sys.stderr.write(
+                "fork #2 failed: %d (%s)\n" %
+                (e.errno, e.strerror))
             sys.exit(1)
-   
+
         # Setup our signal handlers
         signal.signal(signal.SIGHUP, self.hupHandler)
 
         # redirect standard file descriptors
         sys.stdout.flush()
         sys.stderr.flush()
-        
+
         if sys.version_info < (3,):
-            si = file(self.stdin, 'r')
-            so = file(self.stdout, 'a+')
-            se = file(self.stderr, 'a+', 0)
+            si = open(self.stdin, 'r')
+            so = open(self.stdout, 'a+')
+            se = open(self.stderr, 'a+', 0)
             os.dup2(si.fileno(), sys.stdin.fileno())
             os.dup2(so.fileno(), sys.stdout.fileno())
             os.dup2(se.fileno(), sys.stderr.fileno())
         else:
             # 1 to select line buffering (only usable in text mode)
-            sys.stdout = open( self.stdout ,"a+", 1) 
-            sys.stderr = open( self.stderr ,"a+", 1)
+            sys.stdout = open(self.stdout, "a+", 1)
+            sys.stderr = open(self.stderr, "a+", 1)
             sys.excepthook = log_exception
-            
+
         # write pidfile
         atexit.register(self.delpid)
         pid = str(os.getpid())
-        open(self.pidfile,'w+').write("%s\n" % pid)
-    
+        open(self.pidfile, 'w+').write("%s\n" % pid)
+
         # write running file
         self.delrunning()
-        
+
     def hupHandler(self, signum, frame):
         """
         """
@@ -130,13 +138,13 @@ class Daemon(object):
         """
         pass
 
-    def checkpid(self, pid):        
+    def checkpid(self, pid):
         """
         Check for the existence of a unix pid.
         """
         try:
             os.kill(pid, 0)
-        except OSError as e:
+        except OSError:
             return False
         else:
             return True
@@ -146,7 +154,7 @@ class Daemon(object):
         Check for a pidfile to see if the daemon already runs
         """
         pid = self.getPid()
-   
+
         if pid is not None:
             # Second verif, check if the process is present
             if self.checkpid(pid=pid):
@@ -161,17 +169,17 @@ class Daemon(object):
         """
         try:
             os.remove(self.pidfile)
-        except:
+        except BaseException:
             pass
-			
+
     def getPid(self):
         """
         """
         if self.pidfile is None:
-            sys.stderr.write( " (no pid file detected!)" )
+            sys.stderr.write(" (no pid file detected!)")
             sys.exit(1)
         try:
-            pf = open(self.pidfile,'r')
+            pf = open(self.pidfile, 'r')
             pid = int(pf.read().strip())
             pf.close()
         except IOError:
@@ -183,14 +191,14 @@ class Daemon(object):
         """
         try:
             os.remove(self.runningfile)
-        except:
+        except BaseException:
             pass
-    
+
     def setrunning(self):
         """
         """
-        open(self.runningfile,'w+').write("OK")
-        
+        open(self.runningfile, 'w+').write("OK")
+
     def start(self):
         """
         Start the daemon
@@ -201,10 +209,11 @@ class Daemon(object):
         if pid is not None:
             # Second verif, check if the process is present
             if self.checkpid(pid=pid):
-                sys.stderr.write( " (process already running.)" )
+                sys.stderr.write(" (process already running.)")
                 sys.exit(1)
             else:
-                sys.stdout.write( " (pid file exist but without process, crash ? whatever removing pidfile and start...)" )
+                sys.stdout.write(
+                    " (pid file exist but without process, crash ? whatever removing pidfile and start...)")
                 sys.stdout.flush()
                 self.delpid()
                 self.delrunning()
@@ -223,17 +232,17 @@ class Daemon(object):
         # initial state
         started = False
         running = False
-        
+
         if pid is not None:
             # second verif, check if the process is present
             if self.checkpid(pid=pid):
                 started = True
             else:
                 started = False
-            
+
         if os.path.exists(self.runningfile):
             running = True
-            
+
         if started and not running:
             message = "%s is starting...\n"
             sys.stdout.write(message % self.name)
@@ -244,7 +253,7 @@ class Daemon(object):
             message = "%s is not running\n"
             sys.stdout.write(message % self.name)
 
-        return  running
+        return running
 
     def stop(self):
         """
@@ -252,19 +261,19 @@ class Daemon(object):
         """
         # Get the pid from the pidfile
         pid = self.getPid()
-        
+
         if os.path.exists(self.pidfile):
             os.remove(self.pidfile)
         if os.path.exists(self.runningfile):
             os.remove(self.runningfile)
-            
+
         if pid is None:
-            return # not an error in a restart
-        
+            return  # not an error in a restart
+
         self.stopping()
-        # Try killing the daemon process 
+        # Try killing the daemon process
         try:
-            while 1:
+            while True:
                 os.kill(pid, signal.SIGTERM)
                 time.sleep(0.1)
         except OSError as err:

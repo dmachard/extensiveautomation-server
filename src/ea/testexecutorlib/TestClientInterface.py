@@ -21,38 +21,43 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-    
+
+from ea.testexecutorlib import TestSettings
+from ea.libs.NetLayerLib import ClientAgent as NetLayerLib
 import time
 import sys
 
 # unicode = str with python3
 if sys.version_info > (3,):
     unicode = str
-   
-from ea.libs.NetLayerLib import ClientAgent as NetLayerLib
-from ea.testexecutorlib import TestSettings
+
 
 class TestClientInterface(NetLayerLib.ClientAgent):
     """
     Test client interface
     """
+
     def __init__(self, address, name):
         """
-        Constructor for the test client interface 
+        Constructor for the test client interface
         """
-            
-        self.DEBUG_MODE = TestSettings.get( 'Trace', 'level' )
 
-        NetLayerLib.ClientAgent.__init__(self, 
-                        typeAgent = NetLayerLib.TYPE_AGENT_USER, 
-                        agentName = 'TEST', startAuto = True, forceClose=False,
-                        keepAliveInterval=TestSettings.getInt( 'Network', 'keepalive-interval' ), 
-                        inactivityTimeout=TestSettings.getInt( 'Network', 'inactivity-timeout' ),
-                        timeoutTcpConnect=TestSettings.getInt( 'Network', 'tcp-connect-timeout' ),
-                        responseTimeout=TestSettings.getInt( 'Network', 'response-timeout' )
-                     )
+        self.DEBUG_MODE = TestSettings.get('Trace', 'level')
+
+        NetLayerLib.ClientAgent.__init__(self,
+                                         typeAgent=NetLayerLib.TYPE_AGENT_USER,
+                                         agentName='TEST', startAuto=True, forceClose=False,
+                                         keepAliveInterval=TestSettings.getInt(
+                                             'Network', 'keepalive-interval'),
+                                         inactivityTimeout=TestSettings.getInt(
+                                             'Network', 'inactivity-timeout'),
+                                         timeoutTcpConnect=TestSettings.getInt(
+                                             'Network', 'tcp-connect-timeout'),
+                                         responseTimeout=TestSettings.getInt(
+                                             'Network', 'response-timeout')
+                                         )
         _ip, _port = address
-        self.setServerAddress( ip = _ip, port = _port)
+        self.setServerAddress(ip=_ip, port=_port)
         self.__test_name = name
 
     def onRequest(self, client, tid, request):
@@ -61,16 +66,22 @@ class TestClientInterface(NetLayerLib.ClientAgent):
         """
         pass
 
-    def trace (self, txt):
+    def trace(self, txt):
         """
         Display txt on screen
-        """ 
+        """
         if self.DEBUG_MODE == 'DEBUG':
-            timestamp =  time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())) \
+            timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())) \
                 + ".%3.3d" % int((time.time() * 1000) % 1000)
-            print("%s | [%s] %s" % (timestamp, self.__class__.__name__, unicode(txt).encode('utf-8')))
+            print(
+                "%s | [%s] %s" %
+                (timestamp,
+                 self.__class__.__name__,
+                 unicode(txt).encode('utf-8')))
+
 
 TCI = None
+
 
 def instance():
     """
@@ -78,13 +89,15 @@ def instance():
     """
     return TCI
 
-def initialize( address , name):
+
+def initialize(address, name):
     """
     Initiliaze
     """
     global TCI
-    TCI = TestClientInterface(address = address, name = name)
+    TCI = TestClientInterface(address=address, name=name)
     instance().startCA()
+
 
 def finalize():
     """
@@ -92,4 +105,5 @@ def finalize():
     """
     instance().stopCA()
     global TCI
-    if TCI: TCI = None
+    if TCI:
+        TCI = None

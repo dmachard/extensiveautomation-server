@@ -25,8 +25,9 @@ from ea.testexecutorlib import TestExecutorLib
 
 __DESCRIPTION__ = """The library enable to create test reporting in realtime."""
 __HELPER__ = [
-                ('TestCases', ['__init__'])
-             ]
+    ('TestCases', ['__init__'])
+]
+
 
 class TestCases(object):
     def __init__(self):
@@ -35,13 +36,14 @@ class TestCases(object):
         Iterate on each testcase to get the verdict.
         """
         self.i = -1
+
     def __str__(self):
         """
         """
         tcs = TestExecutorLib.getTsMgr().testcases()
         return "TestCases(nb=%s)" % len(tcs)
-    
+
     def __iter__(self):
         """
         """
-        return iter( TestExecutorLib.getTsMgr().testcases() )
+        return iter(TestExecutorLib.getTsMgr().testcases())

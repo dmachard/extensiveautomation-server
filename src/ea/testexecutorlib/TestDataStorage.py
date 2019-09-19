@@ -20,24 +20,26 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
-    
+
 import sys
 import os
 
 try:
     import cPickle
-except ImportError: # support python 3
+except ImportError:  # support python 3
     import pickle as cPickle
 
 
 STORAGE_MODE_FILE = "FILE"
 STORAGE_MODE_MEM = "MEM"
 
+
 class TestDataStorage:
     """
     Test data storage
     """
-    def __init__ (self, path, storageMode=STORAGE_MODE_MEM):
+
+    def __init__(self, path, storageMode=STORAGE_MODE_MEM):
         """
         Constructor for the test data storage
         """
@@ -69,10 +71,10 @@ class TestDataStorage:
         try:
             if validData:
                 fd = open(storagePath, 'wb')
-                fd.write( cPickle.dumps(data) )
+                fd.write(cPickle.dumps(data))
                 fd.close()
         except Exception as e:
-            self.error( "[save_data] %s" % str(e) )
+            self.error("[save_data] %s" % str(e))
 
     def load_data(self):
         """
@@ -83,21 +85,21 @@ class TestDataStorage:
 
         storagePath = '%s/%s' % (self.__path, self.__filename)
         storagePath = os.path.normpath(storagePath)
-        
+
         # check if the storage.dat file exists ?
         if not os.path.exists(storagePath):
             return {}
-            
+
         # read the file and unpickle the content
         try:
-            fd = open( storagePath, "r")
+            fd = open(storagePath, "r")
             data = fd.read()
             fd.close()
-            return cPickle.loads( data )
+            return cPickle.loads(data)
         except Exception as e:
-            self.error( "[load_data] %s" % str(e) )
+            self.error("[load_data] %s" % str(e))
             return None
-            
+
     def reset_data(self):
         """
         Reset data from the storage
@@ -107,46 +109,50 @@ class TestDataStorage:
             self.__storageData = {}
             return True
 
-
         storagePath = '%s/%s' % (self.__path, self.__filename)
         storagePath = os.path.normpath(storagePath)
-        
+
         # check if the file exists?
         if not os.path.exists(storagePath):
             return {}
-            
+
         # Empty the file storage.dat
         try:
-            fd = open(storagePath , "wb")
-            fd.write( "" )
+            fd = open(storagePath, "wb")
+            fd.write("")
             fd.close()
             return True
         except Exception as e:
-            self.error( "[reset_data] %s" % str(e) )
+            self.error("[reset_data] %s" % str(e))
             return False
-            
-    def error (self, err):
+
+    def error(self, err):
         """
         Log error
         """
-        sys.stderr.write( "[%s] %s\n" % ( self.__class__.__name__,err) )
+        sys.stderr.write("[%s] %s\n" % (self.__class__.__name__, err))
 
 
 TDS = None
 
+
 def instance():
     """
     """
-    if TDS: return TDS
+    if TDS:
+        return TDS
 
-def initialize( path):
+
+def initialize(path):
     """
     """
     global TDS
-    TDS = TestDataStorage(path = path)
+    TDS = TestDataStorage(path=path)
+
 
 def finalize():
     """
     """
     global TDS
-    if TDS: TDS = None
+    if TDS:
+        TDS = None

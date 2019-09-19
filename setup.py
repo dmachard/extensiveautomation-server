@@ -24,12 +24,12 @@ import setuptools
 
 with open("src/ea/VERSION", "r") as fh:
     VERSION = fh.read()
-    
+
 with open("README_pypi.md", "r") as fh:
     LONG_DESCRIPTION = fh.read()
- 
+
 KEYWORDS = ('extensiveautomation automation testautomation testing')
-    
+
 setuptools.setup(
     name="extensiveautomation_server",
     version=VERSION,
@@ -39,8 +39,8 @@ setuptools.setup(
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
     url="https://www.extensiveautomation.org/",
-    package_dir  = {'': 'src'},
-    packages = setuptools.find_packages('src'),
+    package_dir={'': 'src'},
+    packages=setuptools.find_packages('src'),
     include_package_data=True,
     platforms='any',
     keywords=KEYWORDS,
@@ -52,12 +52,12 @@ setuptools.setup(
         "Topic :: Software Development :: Testing",
         "Topic :: Software Development :: Testing :: Acceptance"
     ],
-    entry_points = {'console_scripts': ['extensiveautomation = ea.server:cli']},
+    entry_points={'console_scripts': ['extensiveautomation = ea.server:cli']},
     install_requires=[
-                       "wrapt", 
-                       "scandir",
-                       "pycnic",
-                       "lxml",
-                       "jsonpath_ng"
-                     ]
+        "wrapt",
+        "scandir",
+        "pycnic",
+        "lxml",
+        "jsonpath_ng"
+    ]
 )

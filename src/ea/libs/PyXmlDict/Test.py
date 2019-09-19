@@ -27,10 +27,10 @@ import Xml2Dict
 if __name__ == '__main__':
     """
     """
-    codecX2D = Xml2Dict.Xml2Dict( )
-    codecD2X = Dict2Xml.Dict2Xml( coding = None )
+    codecX2D = Xml2Dict.Xml2Dict()
+    codecD2X = Dict2Xml.Dict2Xml(coding=None)
     # TEST 1
-    xml =  """<Family>
+    xml = """<Family>
 <Member Name="Abe" DOB="3/31/42" />
 <Member Name="Betty" DOB="2/4/49" />
 <Member Name="Edith" Father="Abe" Mother="Betty" DOB="8/30/80" />
@@ -38,27 +38,26 @@ if __name__ == '__main__':
 </Family>"""
     print("========== BEGIN TEST 1 ============")
     print("BEGIN WITH: \n%s" % xml)
-    retX2D = codecX2D.parseXml( xml = xml ) 
+    retX2D = codecX2D.parseXml(xml=xml)
     print("\nCONVERT TO \n%s" % retX2D)
-    retD2X = codecD2X.parseDict( dico = retX2D )
+    retD2X = codecD2X.parseDict(dico=retX2D)
     print("\nRECONVERT TO \n%s" % retD2X)
     print("========== END TEST 1 ============")
 
-
     # TEST 2
-    xml =  """<Request>
+    xml = """<Request>
 <RequestID>1</RequestID>
 </Request>"""
     print("========== BEGIN TEST 2 ============")
     print("BEGIN WITH: \n%s" % xml)
-    retX2D = codecX2D.parseXml( xml = xml ) 
+    retX2D = codecX2D.parseXml(xml=xml)
     print("\nCONVERT TO \n%s" % retX2D)
-    retD2X = codecD2X.parseDict( dico = retX2D )
+    retD2X = codecD2X.parseDict(dico=retX2D)
     print("\nRECONVERT TO \n%s" % retD2X)
     print("========== END TEST 2 ============")
 
     # TEST 3
-    xml =  """<?xml version="1.0" encoding="UTF-8"?>
+    xml = """<?xml version="1.0" encoding="UTF-8"?>
 <test>
     <items>
         <item id="1">
@@ -81,14 +80,14 @@ if __name__ == '__main__':
 </test>"""
     print("========== BEGIN TEST 3 ============")
     print("BEGIN WITH: \n%s" % xml)
-    retX2D = codecX2D.parseXml( xml = xml ) 
+    retX2D = codecX2D.parseXml(xml=xml)
     print("\nCONVERT TO \n%s" % retX2D)
-    retD2X = codecD2X.parseDict( dico = retX2D )
+    retD2X = codecD2X.parseDict(dico=retX2D)
     print("\nRECONVERT TO \n%s" % retD2X)
     print("========== END TEST 3 ============")
 
     # TEST 4
-    xml =  """<Response>
+    xml = """<Response>
       <items>
          <item >
             <Request>GET</Request>
@@ -102,8 +101,8 @@ if __name__ == '__main__':
     </Response>"""
     print("========== BEGIN TEST 4 ============")
     print("BEGIN WITH: \n%s" % xml)
-    retX2D = codecX2D.parseXml( xml = xml ) 
+    retX2D = codecX2D.parseXml(xml=xml)
     print("\nCONVERT TO \n%s" % retX2D)
-    retD2X = codecD2X.parseDict( dico = retX2D )
+    retD2X = codecD2X.parseDict(dico=retX2D)
     print("\nRECONVERT TO \n%s" % retD2X)
     print("========== END TEST 4 ============")

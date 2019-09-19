@@ -29,28 +29,30 @@ import sys
 import threading
 import time
 
+from ea.libs.NetLayerLib import FifoCallBack
+
 # unicode = str with python3
 if sys.version_info > (3,):
     unicode = str
-    
-from ea.libs.NetLayerLib import FifoCallBack
+
 
 class TransactionManager(object):
     """
     Transaction manager
     """
     ID_MAX = 99999
+
     def __init__(self):
         """
         Constructor
         """
         self.__started = False
         self.__fifo_incoming_events_thread = None
-        
+
         self.__mutex = threading.RLock()
         self.__transactionId = 0
         self.__outgoingTransactions = {}
-    
+
     def getNewTransactionId(self):
         """
         Return a new transaction id
@@ -65,8 +67,8 @@ class TransactionManager(object):
         ret = self.__transactionId
         self.__mutex.release()
         return ret
-    
-    def newTransaction(self, waitResponse = False, client = 0):
+
+    def newTransaction(self, waitResponse=False, client=0):
         """
         Return a new transaction
 
@@ -81,15 +83,19 @@ class TransactionManager(object):
         """
         event = None
         transactionId = self.getNewTransactionId()
-        if waitResponse: 
+        if waitResponse:
             event = threading.Event()
         self.__mutex.acquire()
-        transaction = { 'tid': transactionId, 'timestamp': time.time(), 'event': event }
-        self.__outgoingTransactions[ (client, transactionId) ] = transaction
-        self.__mutex.release()      
+        transaction = {
+            'tid': transactionId,
+            'timestamp': time.time(),
+            'event': event}
+        self.__outgoingTransactions[(client, transactionId)] = transaction
+        self.__mutex.release()
         return transactionId, event
-    
-    def waitResponse(self, event, transactionId, responseTimeout = 30.0, client = 0, cancelEvent=None):
+
+    def waitResponse(self, event, transactionId,
+                     responseTimeout=30.0, client=0, cancelEvent=None):
         """
         Wait response
 
@@ -109,12 +115,14 @@ class TransactionManager(object):
         @rtype:
         """
         timeout = False
-        startTime = self.__outgoingTransactions[ (client,transactionId) ]['timestamp'] 
+        startTime = self.__outgoingTransactions[(
+            client, transactionId)]['timestamp']
         if cancelEvent is not None:
-            while (not event.isSet()) and (not timeout) and (not cancelEvent.isSet()):
+            while (not event.isSet()) and (
+                    not timeout) and (not cancelEvent.isSet()):
                 time.sleep(0.1)
                 if (time.time() - startTime) >= responseTimeout:
-                    timeout = True      
+                    timeout = True
         else:
             while (not event.isSet()) and (not timeout):
                 time.sleep(0.1)
@@ -123,25 +131,30 @@ class TransactionManager(object):
         if cancelEvent is not None:
             if cancelEvent.isSet():
                 self.__mutex.acquire()
-                del self.__outgoingTransactions[ (client,transactionId) ]
+                del self.__outgoingTransactions[(client, transactionId)]
                 self.__mutex.release()
-                self.trace("request transaction id %s cancelled" % (transactionId) )
+                self.trace(
+                    "request transaction id %s cancelled" %
+                    (transactionId))
                 return None
-                
+
         if not timeout:
             self.__mutex.acquire()
-            response = self.__outgoingTransactions[ (client,transactionId) ]['response']
-            del self.__outgoingTransactions[ (client,transactionId) ]
+            response = self.__outgoingTransactions[(
+                client, transactionId)]['response']
+            del self.__outgoingTransactions[(client, transactionId)]
             self.__mutex.release()
             return response
         else:
             self.__mutex.acquire()
-            del self.__outgoingTransactions[ (client,transactionId) ]
+            del self.__outgoingTransactions[(client, transactionId)]
             self.__mutex.release()
-            self.trace("client %s timeout on synchronous request transaction id %s" % (client,transactionId) )
+            self.trace(
+                "client %s timeout on synchronous request transaction id %s" %
+                (client, transactionId))
             return None
-    
-    def onMessage(self, message, client = 0):
+
+    def onMessage(self, message, client=0):
         """
         On message
 
@@ -154,26 +167,40 @@ class TransactionManager(object):
         typ, mess = message[0], message[1]
         transactionId = int(mess['tid'])
         if typ == 'request':
-            self.trace("<-- %s %s from %s" % (mess['cmd'], transactionId, client))
-            self.__fifo_incoming_events_thread.putItem(lambda: self.onRequest(client, transactionId, mess))
+            self.trace(
+                "<-- %s %s from %s" %
+                (mess['cmd'], transactionId, client))
+            self.__fifo_incoming_events_thread.putItem(
+                lambda: self.onRequest(client, transactionId, mess))
         if typ == 'response':
             self.__mutex.acquire()
             if (client, transactionId) in self.__outgoingTransactions:
-                entry = self.__outgoingTransactions[ (client,transactionId) ]
+                entry = self.__outgoingTransactions[(client, transactionId)]
                 # synchronous request ?
                 if entry['event']:
-                    self.__outgoingTransactions[(client,transactionId) ]['response'] = mess
+                    self.__outgoingTransactions[(
+                        client, transactionId)]['response'] = mess
                     entry['event'].set()
                 else:
-                    del self.__outgoingTransactions[ (client,transactionId) ]
+                    del self.__outgoingTransactions[(client, transactionId)]
                 self.__mutex.release()
-                self.trace("<-- %s %s %s from %s - took %fs" % ( mess['code'], transactionId, mess['phrase'], client, time.time() - entry['timestamp'] ))
+                self.trace(
+                    "<-- %s %s %s from %s - took %fs" %
+                    (mess['code'],
+                     transactionId,
+                     mess['phrase'],
+                        client,
+                        time.time() -
+                        entry['timestamp']))
                 if not entry['event']:
-                    self.__fifo_incoming_events_thread.putItem(lambda: self.onResponse(client, transactionId, mess))
+                    self.__fifo_incoming_events_thread.putItem(
+                        lambda: self.onResponse(client, transactionId, mess))
             else:
                 self.__mutex.release()
-                self.trace("<-- response from %s to unknown transaction ID %s" % (client, transactionId) )
-                self.trace( self.__outgoingTransactions )
+                self.trace(
+                    "<-- response from %s to unknown transaction ID %s" %
+                    (client, transactionId))
+                self.trace(self.__outgoingTransactions)
                 return
 
     def start(self):
@@ -184,8 +211,8 @@ class TransactionManager(object):
             self.__fifo_incoming_events_thread = FifoCallBack.FifoCallbackThread()
             self.__fifo_incoming_events_thread.start()
             self.__started = True
-            self.trace("Transaction Manager Started." )
-    
+            self.trace("Transaction Manager Started.")
+
     def stop(self):
         """
         Stop the manager
@@ -194,7 +221,7 @@ class TransactionManager(object):
             self.__fifo_incoming_events_thread.stop()
             self.__fifo_incoming_events_thread.join()
             self.__started = False
-            self.trace("Transaction Manager Stopped." )
+            self.trace("Transaction Manager Stopped.")
 
     def trace(self, txt):
         """
@@ -219,7 +246,7 @@ class TransactionManager(object):
         @type request:
         """
         pass
-    
+
     def onRequest(self, client, tid, request):
         """
         You should override this method

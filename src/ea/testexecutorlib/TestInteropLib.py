@@ -21,15 +21,17 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-import sys
-
 from ea.testexecutorlib import TestLoggerXml as TLX
-from ea.testexecutorlib TestTemplatesLib
+from ea.testexecutorlib import TestTemplatesLib
 from ea.testexecutorlib import TestExecutorLib as TestExecutor
 
-class InteropException(Exception): pass
+
+class InteropException(Exception):
+    pass
+
 
 FROM_LEVEL = "INTEROP"
+
 
 class InteropPlugin(object):
     def __init__(self, parent):
@@ -38,8 +40,10 @@ class InteropPlugin(object):
         self.tcparent = parent
 
         if not isinstance(parent, TestExecutor.TestCase):
-            raise InteropException("ERR_INT_001: testcase expected (%s)" % type(parent) )
-            
+            raise InteropException(
+                "ERR_INT_001: testcase expected (%s)" %
+                type(parent))
+
     def logRequest(self, msg, details, raw=""):
         """
         """
@@ -47,16 +51,16 @@ class InteropPlugin(object):
         tpl.addLayer(details)
         tpl.addRaw(raw)
         try:
-            TLX.instance().log_snd(msg, 
-                                   tpl.getEvent(), 
-                                   tpl.type(), 
-                                   TestExecutor.TC, self.tcparent.getId(), 
-                                   fromlevel=FROM_LEVEL, 
-                                   tolevel=self.__class__.__name__.upper(), 
+            TLX.instance().log_snd(msg,
+                                   tpl.getEvent(),
+                                   tpl.type(),
+                                   TestExecutor.TC, self.tcparent.getId(),
+                                   fromlevel=FROM_LEVEL,
+                                   tolevel=self.__class__.__name__.upper(),
                                    testInfo=self.tcparent.getTestInfo())
         except Exception as e:
-            raise InteropException( 'ERR_INT_002: error on request: %s' % e )
-            
+            raise InteropException('ERR_INT_002: error on request: %s' % e)
+
     def logResponse(self, msg, details, raw=""):
         """
         """
@@ -64,16 +68,16 @@ class InteropPlugin(object):
         tpl.addLayer(details)
         tpl.addRaw(raw)
         try:
-            TLX.instance().log_rcv(msg, 
-                                   tpl.getEvent(), 
-                                   tpl.type(), 
-                                   TestExecutor.TC, 
-                                   self.tcparent.getId(), 
-                                   fromlevel=self.__class__.__name__.upper(), 
-                                   tolevel=FROM_LEVEL, 
+            TLX.instance().log_rcv(msg,
+                                   tpl.getEvent(),
+                                   tpl.type(),
+                                   TestExecutor.TC,
+                                   self.tcparent.getId(),
+                                   fromlevel=self.__class__.__name__.upper(),
+                                   tolevel=FROM_LEVEL,
                                    testInfo=self.tcparent.getTestInfo())
         except Exception as e:
-            raise InteropException( 'ERR_INT_003: error on response: %s' % e )
+            raise InteropException('ERR_INT_003: error on response: %s' % e)
 
     def template(self, name, content):
         """

@@ -28,23 +28,25 @@ import sys
 import threading
 try:
     import Queue
-except ImportError: # support python 3
+except ImportError:  # support python 3
     import queue as Queue
 
 # unicode = str with python3
 if sys.version_info > (3,):
     unicode = str
 
+
 class FifoCallbackThread(threading.Thread):
     """
     Fifo with callback and thread
     """
+
     def __init__(self):
         """
         Construct a fifo callback function thread
         """
         threading.Thread.__init__(self)
-        self.queue = Queue.Queue(0) # FIFO size is infinite 
+        self.queue = Queue.Queue(0)  # FIFO size is infinite
         self.running = True
         self.event = threading.Event()
 
@@ -55,14 +57,14 @@ class FifoCallbackThread(threading.Thread):
         @param callback:
         @type callback:
         """
-        self.queue.put( callback )
+        self.queue.put(callback)
         self.event.set()
 
     def run(self):
         """
         Main loop
         """
-        while self.running: 
+        while self.running:
             self.event.wait()
             if self.running:
                 while not self.queue.empty():

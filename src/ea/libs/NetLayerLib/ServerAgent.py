@@ -28,22 +28,25 @@ Server agent module
 import time
 import sys
 
+from ea.libs.NetLayerLib import TransactionManager
+from ea.libs.NetLayerLib import Messages
+from ea.libs.NetLayerLib import TcpServer
+
 # unicode = str with python3
 if sys.version_info > (3,):
     unicode = str
-    
-from ea.libs.NetLayerLib import TcpServer
-from ea.libs.NetLayerLib import Messages
-from ea.libs.NetLayerLib import TransactionManager
 
-class ServerAgent(TcpServer.TcpServerThread, TransactionManager.TransactionManager):
+
+class ServerAgent(TcpServer.TcpServerThread,
+                  TransactionManager.TransactionManager):
     """
     Server agent
     """
-    def __init__(self, listeningAddress, agentName, inactivityTimeout = 60, 
-                       keepAliveInterval = 40, responseTimeout=30.0,
-                       selectTimeout=0.01, wsSupport=False, sslSupport=False, 
-                       certFile='', keyFile='', pickleVer=2):
+
+    def __init__(self, listeningAddress, agentName, inactivityTimeout=60,
+                 keepAliveInterval=40, responseTimeout=30.0,
+                 selectTimeout=0.01, wsSupport=False, sslSupport=False,
+                 certFile='', keyFile='', pickleVer=2):
         """
         @param listeningAddress:
         @type listeningAddress:
@@ -51,23 +54,23 @@ class ServerAgent(TcpServer.TcpServerThread, TransactionManager.TransactionManag
         @param agentName:
         @type agentName:
         """
-        TcpServer.TcpServerThread.__init__(self, 
-                                            listeningAddress, 
-                                            inactivityTimeout = inactivityTimeout, 
-                                            keepAliveInterval = keepAliveInterval,
-                                            selectTimeout=selectTimeout, 
-                                            wsSupport=wsSupport, 
-                                            sslSupport=sslSupport, 
-                                            certFile=certFile, 
-                                            keyFile=keyFile)
+        TcpServer.TcpServerThread.__init__(self,
+                                           listeningAddress,
+                                           inactivityTimeout=inactivityTimeout,
+                                           keepAliveInterval=keepAliveInterval,
+                                           selectTimeout=selectTimeout,
+                                           wsSupport=wsSupport,
+                                           sslSupport=sslSupport,
+                                           certFile=certFile,
+                                           keyFile=keyFile)
         self.__responseCmdTimeout = responseTimeout
         TransactionManager.TransactionManager.__init__(self)
-        self.__codec = Messages.Messages( userId=agentName, pickleVer=pickleVer )
+        self.__codec = Messages.Messages(userId=agentName, pickleVer=pickleVer)
         self.__listeningAddress = listeningAddress
-        self.__agentName = agentName    
+        self.__agentName = agentName
         self.started = False
-    
-    def startSA (self):
+
+    def startSA(self):
         """
         Start server agent
         """
@@ -85,23 +88,23 @@ class ServerAgent(TcpServer.TcpServerThread, TransactionManager.TransactionManag
             TcpServer.TcpServerThread.stop(self)
             self.started = False
 
-    def notify (self, client, data):
+    def notify(self, client, data):
         """
-        Send a notify 
+        Send a notify
 
         @param data:
         @type data:
         """
         try:
-            tid = TransactionManager.TransactionManager.getNewTransactionId(self)
-            encoded = self.__codec.notify( tid = tid, body = data )
+            tid = TransactionManager.TransactionManager.getNewTransactionId(
+                self)
+            encoded = self.__codec.notify(tid=tid, body=data)
             TcpServer.TcpServerThread.sendPacket(self, client, encoded)
             self.trace("-> NOTIFY %s" % tid)
         except Exception as e:
-            self.error( '[notify] request error %s' % str(e) )
+            self.error('[notify] request error %s' % str(e))
 
-
-    def cmd (self, client, data, timeout=0.0):
+    def cmd(self, client, data, timeout=0.0):
         """
         Send a command
 
@@ -116,24 +119,23 @@ class ServerAgent(TcpServer.TcpServerThread, TransactionManager.TransactionManag
         """
         try:
             ret = None
-            tid, event = TransactionManager.TransactionManager.newTransaction(self, 
-                                                                              waitResponse = True, 
-                                                                              client = client)
-            encoded = self.__codec.cmd( tid = tid, body = data)
+            tid, event = TransactionManager.TransactionManager.newTransaction(self,
+                                                                              waitResponse=True,
+                                                                              client=client)
+            encoded = self.__codec.cmd(tid=tid, body=data)
             TcpServer.TcpServerThread.sendPacket(self, client, encoded)
             maxTime = self.__responseCmdTimeout
             if timeout > 0:
                 maxTime = timeout
-            self.trace("-> REQUEST %s, timeout of %s" % (tid,maxTime) )
-            ret = TransactionManager.TransactionManager.waitResponse(self, 
-                                                                     event, 
-                                                                     tid, 
-                                                                     client = client, 
+            self.trace("-> REQUEST %s, timeout of %s" % (tid, maxTime))
+            ret = TransactionManager.TransactionManager.waitResponse(self,
+                                                                     event,
+                                                                     tid,
+                                                                     client=client,
                                                                      responseTimeout=maxTime)
         except Exception as e:
-            self.error( '[cmd] %s' % str(e) )
+            self.error('[cmd] %s' % str(e))
         return ret
-
 
     def handlePacket(self, client, packet):
         """
@@ -147,12 +149,13 @@ class ServerAgent(TcpServer.TcpServerThread, TransactionManager.TransactionManag
         """
         try:
             if len(packet):
-                decoded = self.__codec.decode(msgraw = packet)
-                TransactionManager.TransactionManager.onMessage( self, decoded, client )
+                decoded = self.__codec.decode(msgraw=packet)
+                TransactionManager.TransactionManager.onMessage(
+                    self, decoded, client)
         except Exception as e:
-            self.error('[handlePacket] got an unknown message, %s' % str(e) )
+            self.error('[handlePacket] got an unknown message, %s' % str(e))
 
-    def failed (self, client, tid, body = None):
+    def failed(self, client, tid, body=None):
         """
         Send a failed message
 
@@ -166,14 +169,13 @@ class ServerAgent(TcpServer.TcpServerThread, TransactionManager.TransactionManag
         @type body:
         """
         try:
-            rspEncoded = self.__codec.failed( tid = tid, body = body )
+            rspEncoded = self.__codec.failed(tid=tid, body=body)
             TcpServer.TcpServerThread.sendPacket(self, client, rspEncoded)
             self.trace("-> 400 FAILED %s" % tid)
         except Exception as e:
-            self.error( '[failed] reply error %s' % str(e) )
+            self.error('[failed] reply error %s' % str(e))
 
-
-    def forbidden (self, client, tid, body = None):
+    def forbidden(self, client, tid, body=None):
         """
         Send a forbidden message
 
@@ -187,13 +189,13 @@ class ServerAgent(TcpServer.TcpServerThread, TransactionManager.TransactionManag
         @type body:
         """
         try:
-            rspEncoded = self.__codec.forbidden( tid = tid, body = body )
+            rspEncoded = self.__codec.forbidden(tid=tid, body=body)
             TcpServer.TcpServerThread.sendPacket(self, client, rspEncoded)
             self.trace("-> 403 OK %s" % tid)
         except Exception as e:
-            self.error( '[forbidden] reply error %s' % str(e) )
+            self.error('[forbidden] reply error %s' % str(e))
 
-    def ok (self, client, tid, body = None):
+    def ok(self, client, tid, body=None):
         """
         Send an ok message
 
@@ -207,11 +209,11 @@ class ServerAgent(TcpServer.TcpServerThread, TransactionManager.TransactionManag
         @type body:
         """
         try:
-            rspEncoded = self.__codec.ok( tid = tid, body = body )
+            rspEncoded = self.__codec.ok(tid=tid, body=body)
             TcpServer.TcpServerThread.sendPacket(self, client, rspEncoded)
             self.trace("-> 200 OK %s" % tid)
         except Exception as e:
-            self.error( '[ok] reply error %s' % str(e) )
+            self.error('[ok] reply error %s' % str(e))
 
     def onResponse(self, client, tid, response):
         """
@@ -227,7 +229,7 @@ class ServerAgent(TcpServer.TcpServerThread, TransactionManager.TransactionManag
         @type request:
         """
         pass
-    
+
     def onRequest(self, client, tid, request):
         """
         You should override this method
@@ -242,15 +244,15 @@ class ServerAgent(TcpServer.TcpServerThread, TransactionManager.TransactionManag
         @type request:
         """
         pass
-    
+
     def get_timestamp(self):
         """
         """
-        timestamp =  time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())) \
-                + ".%3.3d" % int((time.time() * 1000) % 1000)
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())) \
+            + ".%3.3d" % int((time.time() * 1000) % 1000)
         return timestamp
-        
-    def trace (self, txt):
+
+    def trace(self, txt):
         """
         Display message in the screen
 
@@ -258,34 +260,34 @@ class ServerAgent(TcpServer.TcpServerThread, TransactionManager.TransactionManag
         @type txt: string
         """
         if __debug__:
-            print("%s | [%s] %s" % ( self.get_timestamp(), 
-                                     self.__class__.__name__, 
-                                     unicode(txt).encode('utf-8'))
-                                   )
+            print("%s | [%s] %s" % (self.get_timestamp(),
+                                    self.__class__.__name__,
+                                    unicode(txt).encode('utf-8'))
+                  )
 
-    def error (self, err):
+    def error(self, err):
         """
         Display error
 
         @param err:
         @type err:
         """
-        sys.stderr.write( "%s | [%s] %s\n" % ( 
-                                              self.get_timestamp(), 
-                                              self.__class__.__name__, 
-                                              err 
-                                             ) 
-                        )
+        sys.stderr.write("%s | [%s] %s\n" % (
+            self.get_timestamp(),
+            self.__class__.__name__,
+            err
+        )
+        )
 
-    def warning (self, war):
+    def warning(self, war):
         """
         Display warning
 
         @param err:
         @type err:
         """
-        print("%s | [%s] %s" % ( 
-                                 self.get_timestamp(), 
-                                 self.__class__.__name__, 
-                                 unicode(war).encode('utf-8'))
-                                )
+        print("%s | [%s] %s" % (
+            self.get_timestamp(),
+            self.__class__.__name__,
+            unicode(war).encode('utf-8'))
+        )

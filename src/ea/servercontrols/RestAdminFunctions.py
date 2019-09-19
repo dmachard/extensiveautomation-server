@@ -33,16 +33,20 @@ from ea.serverengine import (Context,
                              TaskManager,
                              UsersManager
                              )
-from ea.serverrepositories import ( RepoAdapters,
-                                    RepoTests,
-                                    RepoArchives )
+from ea.serverrepositories import (RepoAdapters,
+                                   RepoTests,
+                                   RepoArchives)
 from ea.servercontrols import CliFunctions
 
-class EmptyValue(Exception): pass
+
+class EmptyValue(Exception):
+    pass
+
 
 class HandlerCORS(Handler):
     def options(self):
         return {}
+
 
 @wrapt.decorator
 def _to_yaml(wrapped, instance, args, kwargs):
@@ -51,6 +55,7 @@ def _to_yaml(wrapped, instance, args, kwargs):
     public decorator for yaml generator
     """
     return wrapped(*args, **kwargs)
+
 
 def _get_user(request):
     """
@@ -75,9 +80,12 @@ def _get_user(request):
         else:
             raise HTTP_401("Invalid session")
 
+
 """
 Tasks handlers
 """
+
+
 class TasksKillAll(HandlerCORS):
     """
     /rest/tasks/kill/all
@@ -112,18 +120,21 @@ class TasksKillAll(HandlerCORS):
                 {
                   "message": "tasks successfully killed",
                   "cmd": "/tasks/kill/all"
-                }
+               }
           '403':
             description: Access refused
         """
         user_profile = _get_user(request=self.request)
 
-        if not user_profile['administrator']: raise HTTP_403("Access refused")
+        if not user_profile['administrator']:
+            raise HTTP_403("Access refused")
 
         # kill all tasks
         TaskManager.instance().killAllTasks()
 
-        return { "cmd": self.request.path, "message": "tasks successfully killed" }
+        return {"cmd": self.request.path,
+                "message": "tasks successfully killed"}
+
 
 class TasksCancelAll(HandlerCORS):
     """
@@ -159,18 +170,21 @@ class TasksCancelAll(HandlerCORS):
                 {
                   "message": "tasks successfully cancelled",
                   "cmd": "/tasks/cancel/all"
-                }
+               }
           '403':
             description: Access refused
         """
         user_profile = _get_user(request=self.request)
 
-        if not user_profile['administrator']: raise HTTP_403("Access refused")
+        if not user_profile['administrator']:
+            raise HTTP_403("Access refused")
 
         # kill all tasks
         TaskManager.instance().cancelAllTasks()
 
-        return { "cmd": self.request.path, "message": "tasks successfully cancelled" }
+        return {"cmd": self.request.path,
+                "message": "tasks successfully cancelled"}
+
 
 class TasksHistoryClear(HandlerCORS):
     """
@@ -206,7 +220,7 @@ class TasksHistoryClear(HandlerCORS):
                 {
                   "message": "tasks successfully reseted",
                   "cmd": "/tasks/history/clear"
-                }
+               }
           '403':
             description: Access refused
           '500':
@@ -214,12 +228,15 @@ class TasksHistoryClear(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if not user_profile['administrator']: raise HTTP_403("Access refused")
+        if not user_profile['administrator']:
+            raise HTTP_403("Access refused")
 
         success = TaskManager.instance().clearHistory()
         if not success:
             raise HTTP_500("unable to clear the history")
-        return { "cmd": self.request.path, "message": "tasks successfully reseted" }
+        return {"cmd": self.request.path,
+                "message": "tasks successfully reseted"}
+
 
 class AdaptersDirectoryRemoveAll(HandlerCORS):
     """
@@ -264,7 +281,7 @@ class AdaptersDirectoryRemoveAll(HandlerCORS):
                 {
                   "cmd": "/adapters/directory/remove/all",
                   "message": "all directories successfully removed"
-                }
+               }
           '400':
             description: Bad request provided
           '403':
@@ -274,18 +291,20 @@ class AdaptersDirectoryRemoveAll(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if not user_profile['administrator']: raise HTTP_403("Access refused")
+        if not user_profile['administrator']:
+            raise HTTP_403("Access refused")
 
         try:
             folderPath = self.request.data.get("directory-path")
-            if folderPath is None: raise EmptyValue("Please specify a source folder path")
+            if folderPath is None:
+                raise EmptyValue("Please specify a source folder path")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
             raise HTTP_400("Bad request provided (%s ?)" % e)
 
         # avoid directory traversal
-        folderPath = os.path.normpath("/" + folderPath )
+        folderPath = os.path.normpath("/" + folderPath)
 
         success = RepoAdapters.instance().delDirAll(folderPath)
         if success == Context.instance().CODE_ERROR:
@@ -295,11 +314,15 @@ class AdaptersDirectoryRemoveAll(HandlerCORS):
         if success == Context.instance().CODE_FORBIDDEN:
             raise HTTP_403("Removing directory denied")
 
-        return { "cmd": self.request.path, "message": "all directories successfully removed" }
+        return {"cmd": self.request.path,
+                "message": "all directories successfully removed"}
+
 
 """
 Administration handlers
 """
+
+
 class AdminConfigListing(HandlerCORS):
     """
     /rest/administration/configurationg/listing
@@ -333,20 +356,22 @@ class AdminConfigListing(HandlerCORS):
               application/json: |
                 {
                   "cmd": "/administration/configurationg/listing"
-                }
+               }
           '403':
             description: Access refused
         """
         user_profile = _get_user(request=self.request)
 
-        if not user_profile['administrator']: raise HTTP_403("Access refused")
+        if not user_profile['administrator']:
+            raise HTTP_403("Access refused")
 
         config = {}
         for section in Settings.instance().sections():
-            for (name,value) in Settings.instance().items(section):
-                config["%s-%s" % ( section.lower(), name.lower() )] = value
+            for (name, value) in Settings.instance().items(section):
+                config["%s-%s" % (section.lower(), name.lower())] = value
 
-        return { "cmd": self.request.path, "configuration": config }
+        return {"cmd": self.request.path, "configuration": config}
+
 
 class AdminConfigReload(HandlerCORS):
     """
@@ -384,17 +409,19 @@ class AdminConfigReload(HandlerCORS):
                 {
                   "cmd": "/administration/configuration/reload",
                   "status": "reloaded"
-                }
+               }
           '403':
             description: Access refused
         """
         user_profile = _get_user(request=self.request)
 
-        if not user_profile['administrator']: raise HTTP_403("Access refused")
+        if not user_profile['administrator']:
+            raise HTTP_403("Access refused")
 
         CliFunctions.instance().reload()
 
-        return { "cmd": self.request.path, "status": "reloaded" }
+        return {"cmd": self.request.path, "status": "reloaded"}
+
 
 class AdminProjectsListing(HandlerCORS):
     """
@@ -432,7 +459,7 @@ class AdminProjectsListing(HandlerCORS):
                 {
                   "cmd": "/administration/projects/listing",
                   "projects: "...."
-                }
+               }
           '400':
             description: Bad request provided
           '500':
@@ -440,13 +467,15 @@ class AdminProjectsListing(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if not user_profile['administrator']: raise HTTP_403("Access refused")
+        if not user_profile['administrator']:
+            raise HTTP_403("Access refused")
 
         success, details = ProjectsManager.instance().getProjectsFromDB()
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
 
-        return { "cmd": self.request.path, "projects": details }
+        return {"cmd": self.request.path, "projects": details}
+
 
 class AdminProjectsAdd(HandlerCORS):
     """
@@ -492,7 +521,7 @@ class AdminProjectsAdd(HandlerCORS):
                 {
                   "cmd": "/administration/projects/add",
                   "message: "project successfully added"
-                }
+               }
           '400':
             description: Bad request provided
           '403':
@@ -502,23 +531,28 @@ class AdminProjectsAdd(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if not user_profile['administrator']: raise HTTP_403("Access refused")
+        if not user_profile['administrator']:
+            raise HTTP_403("Access refused")
 
         try:
             projectName = self.request.data.get("project-name")
-            if projectName is None : raise HTTP_400("Please specify a project name")
+            if projectName is None:
+                raise HTTP_400("Please specify a project name")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
             raise HTTP_400("Bad request provided (%s ?)" % e)
 
-        success, details = ProjectsManager.instance().addProjectToDB(projectName=projectName)
+        success, details = ProjectsManager.instance(
+        ).addProjectToDB(projectName=projectName)
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
         if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403(details)
 
-        return { "cmd": self.request.path, "message": "project successfully added", "project-id": details }
+        return {"cmd": self.request.path,
+                "message": "project successfully added", "project-id": details}
+
 
 class AdminProjectsRename(HandlerCORS):
     """
@@ -566,7 +600,7 @@ class AdminProjectsRename(HandlerCORS):
                 {
                   "cmd": "/administration/projects/rename",
                   "message: "project successfully renamed"
-                }
+               }
           '400':
             description: Bad request provided
           '403':
@@ -576,14 +610,17 @@ class AdminProjectsRename(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if not user_profile['administrator']: raise HTTP_403("Access refused")
+        if not user_profile['administrator']:
+            raise HTTP_403("Access refused")
 
         try:
             projectId = self.request.data.get("project-id")
-            if projectId is None: raise HTTP_400("Please specify a project id")
+            if projectId is None:
+                raise HTTP_400("Please specify a project id")
 
             projectName = self.request.data.get("project-name")
-            if projectName is None: raise HTTP_400("Please specify a project name")
+            if projectName is None:
+                raise HTTP_400("Please specify a project name")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -600,7 +637,9 @@ class AdminProjectsRename(HandlerCORS):
         if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_403(details)
 
-        return { "cmd": self.request.path, "message": "project successfully updated" }
+        return {"cmd": self.request.path,
+                "message": "project successfully updated"}
+
 
 class AdminProjectsRemove(HandlerCORS):
     """
@@ -646,7 +685,7 @@ class AdminProjectsRemove(HandlerCORS):
                 {
                   "cmd": "/administration/projects/remove",
                   "message: "project successfully removed"
-                }
+               }
           '400':
             description: Bad request provided
           '403':
@@ -656,11 +695,13 @@ class AdminProjectsRemove(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if not user_profile['administrator']: raise HTTP_403("Access refused")
+        if not user_profile['administrator']:
+            raise HTTP_403("Access refused")
 
         try:
             projectId = self.request.data.get("project-id")
-            if projectId is None: raise HTTP_400("Please specify a project id")
+            if projectId is None:
+                raise HTTP_400("Please specify a project id")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -670,13 +711,16 @@ class AdminProjectsRemove(HandlerCORS):
         if not isinstance(projectId, int):
             raise HTTP_400("Bad project id provided in request, int expected")
 
-        if projectId == 1: raise HTTP_403("Remove this project is not authorized")
+        if projectId == 1:
+            raise HTTP_403("Remove this project is not authorized")
 
         success, details = ProjectsManager.instance().delProjectFromDB(projectId=projectId)
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
 
-        return { "cmd": self.request.path, "message": "project successfully removed" }
+        return {"cmd": self.request.path,
+                "message": "project successfully removed"}
+
 
 class AdminUsersProfile(HandlerCORS):
     """
@@ -721,7 +765,7 @@ class AdminUsersProfile(HandlerCORS):
               application/json: |
                 {
                   "cmd": "/administration/users/profile"
-                }
+               }
           '403':
             description: Access refused
           '404':
@@ -733,20 +777,23 @@ class AdminUsersProfile(HandlerCORS):
 
         try:
             userId = self.request.data.get("user-id")
-            if userId  is None: raise HTTP_400("Please specify a user id")
+            if userId is None:
+                raise HTTP_400("Please specify a user id")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
             raise HTTP_400("Bad request provided (%s ?)" % e)
 
-        if int(userId) != int(user_profile["id"]) and not user_profile['administrator']:
+        if int(userId) != int(
+                user_profile["id"]) and not user_profile['administrator']:
             raise HTTP_403("Access refused")
         else:
             success, details = UsersManager.instance().getUserProfile(userId=userId)
             if success == Context.instance().CODE_ERROR:
                 raise HTTP_500(details)
 
-        return { "cmd": self.request.path, "user": details }
+        return {"cmd": self.request.path, "user": details}
+
 
 class AdminUsersListing(HandlerCORS):
     """
@@ -783,7 +830,7 @@ class AdminUsersListing(HandlerCORS):
               application/json: |
                 {
                   "cmd": "/administration/users/listing"
-                }
+               }
           '403':
             description: Access refused
           '500':
@@ -791,7 +838,8 @@ class AdminUsersListing(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if not user_profile['administrator']: raise HTTP_403("Access refused")
+        if not user_profile['administrator']:
+            raise HTTP_403("Access refused")
 
         success, details_users = UsersManager.instance().getUsersFromDB()
         if success == Context.instance().CODE_ERROR:
@@ -805,23 +853,27 @@ class AdminUsersListing(HandlerCORS):
             for user in details_users:
                 # cleanup result
                 # all these keys will be remove in future
-                if user["tester"]: user["level"] = "tester"
-                if user["monitor"]: user["level"] = "monitor"
-                if user["administrator"]: user["level"] = "administrator"
+                if user["tester"]:
+                    user["level"] = "tester"
+                if user["monitor"]:
+                    user["level"] = "monitor"
+                if user["administrator"]:
+                    user["level"] = "administrator"
                 del user["tester"]
                 del user["monitor"]
                 del user["administrator"]
-                
+
                 # add projects relations in user profile
                 user_projects = []
                 for relation in details_relations:
                     if relation['user_id'] == user['id']:
-                        user_projects.append( relation['project_id'] )
+                        user_projects.append(relation['project_id'])
                 user['projects'] = user_projects
         except Exception as e:
-            raise HTTP_500("error to read user list: %s" % e )
+            raise HTTP_500("error to read user list: %s" % e)
 
-        return { "cmd": self.request.path, "users": details_users }
+        return {"cmd": self.request.path, "users": details_users}
+
 
 class AdminUsersAdd(HandlerCORS):
     """
@@ -891,7 +943,7 @@ class AdminUsersAdd(HandlerCORS):
                 {
                   "cmd": "/administration/users/add",
                   "message: "user successfully added"
-                }
+               }
           '400':
             description: Bad request provided
           '404':
@@ -901,35 +953,45 @@ class AdminUsersAdd(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if not user_profile['administrator']: raise HTTP_403("Access refused")
+        if not user_profile['administrator']:
+            raise HTTP_403("Access refused")
 
         try:
             login = self.request.data.get("login")
-            if not login: raise EmptyValue("Please specify a login")
+            if not login:
+                raise EmptyValue("Please specify a login")
 
             password = self.request.data.get("password")
-            if password is None: raise EmptyValue("Please specify a password")
+            if password is None:
+                raise EmptyValue("Please specify a password")
 
             email = self.request.data.get("email")
-            if email is None: raise EmptyValue("Please specify a email")
+            if email is None:
+                raise EmptyValue("Please specify a email")
 
             level = self.request.data.get("level")
-            if level is None: raise EmptyValue("Please specify a level")
+            if level is None:
+                raise EmptyValue("Please specify a level")
 
             defaultPrj = self.request.data.get("default")
-            if defaultPrj is None: raise EmptyValue("Please specify a default project")
+            if defaultPrj is None:
+                raise EmptyValue("Please specify a default project")
 
             listPrjs = self.request.data.get("projects")
-            if listPrjs is None: raise EmptyValue("Please specify a list of authorized project")
+            if listPrjs is None:
+                raise EmptyValue("Please specify a list of authorized project")
 
             lang = self.request.data.get("lang")
-            if lang is None: raise EmptyValue("Please specify a lang")
+            if lang is None:
+                raise EmptyValue("Please specify a lang")
 
             style = self.request.data.get("style")
-            if style is None: raise EmptyValue("Please specify a style")
+            if style is None:
+                raise EmptyValue("Please specify a style")
 
             notifications = self.request.data.get("notifications")
-            if notifications is None: raise EmptyValue("Please specify a notifications")
+            if notifications is None:
+                raise EmptyValue("Please specify a notifications")
 
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
@@ -937,22 +999,24 @@ class AdminUsersAdd(HandlerCORS):
             raise HTTP_400("Bad request provided (%s ?)" % e)
 
         success, details = UsersManager.instance().addUserToDB(
-                                                       level=level,
-                                                       login=login,
-                                                       password=password,
-                                                       email=email,
-                                                       lang=lang,
-                                                       style=style,
-                                                       notifications=notifications,
-                                                       defaultPrj=defaultPrj,
-                                                       listPrjs=listPrjs
-                                                   )
+            level=level,
+            login=login,
+            password=password,
+            email=email,
+            lang=lang,
+            style=style,
+            notifications=notifications,
+            defaultPrj=defaultPrj,
+            listPrjs=listPrjs
+        )
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
         if success == Context.instance().CODE_ALREADY_EXISTS:
             raise HTTP_500(details)
 
-        return { "cmd": self.request.path, "message": "user successfully added", "user-id": details }
+        return {"cmd": self.request.path,
+                "message": "user successfully added", "user-id": details}
+
 
 class AdminUsersRemove(HandlerCORS):
     """
@@ -998,7 +1062,7 @@ class AdminUsersRemove(HandlerCORS):
                 {
                   "cmd": "/administration/users/remove",
                   "message: "user successfully removed"
-                }
+               }
           '400':
             description: Bad request provided
           '403':
@@ -1010,11 +1074,13 @@ class AdminUsersRemove(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if not user_profile['administrator']: raise HTTP_403("Access refused")
+        if not user_profile['administrator']:
+            raise HTTP_403("Access refused")
 
         try:
             userId = self.request.data.get("user-id")
-            if userId is None: raise HTTP_400("Please specify a user id")
+            if userId is None:
+                raise HTTP_400("Please specify a user id")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -1034,7 +1100,9 @@ class AdminUsersRemove(HandlerCORS):
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
 
-        return { "cmd": self.request.path, "message": "user successfully removed" }
+        return {"cmd": self.request.path,
+                "message": "user successfully removed"}
+
 
 class AdminUsersStatus(HandlerCORS):
     """
@@ -1082,7 +1150,7 @@ class AdminUsersStatus(HandlerCORS):
                 {
                   "cmd": "/administration/users/status",
                   "message: "probe successfully disconnected"
-                }
+               }
           '400':
             description: Bad request provided
           '404':
@@ -1092,14 +1160,18 @@ class AdminUsersStatus(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if not user_profile['administrator']: raise HTTP_403("Access refused")
+        if not user_profile['administrator']:
+            raise HTTP_403("Access refused")
 
         try:
             userId = self.request.data.get("user-id")
-            if userId is None: raise HTTP_400("Please specify a user id")
+            if userId is None:
+                raise HTTP_400("Please specify a user id")
 
             enabled = self.request.data.get("enabled")
-            if enabled is None : raise HTTP_400("Please specify status of the user, enabled parameter")
+            if enabled is None:
+                raise HTTP_400(
+                    "Please specify status of the user, enabled parameter")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -1109,7 +1181,8 @@ class AdminUsersStatus(HandlerCORS):
         if not isinstance(userId, int):
             raise HTTP_400("Bad user id provided in request, int expected")
         if not isinstance(enabled, int):
-            raise HTTP_400("Bad enabled parameter provided in request, int expected")
+            raise HTTP_400(
+                "Bad enabled parameter provided in request, int expected")
 
         # update
         success, details = UsersManager.instance().updateStatusUserInDB(userId=userId,
@@ -1120,9 +1193,12 @@ class AdminUsersStatus(HandlerCORS):
             raise HTTP_500(details)
 
         if enabled:
-            return { "cmd": self.request.path, "message": "user successfully enabled" }
+            return {"cmd": self.request.path,
+                    "message": "user successfully enabled"}
         else:
-            return { "cmd": self.request.path, "message": "user successfully disabled" }
+            return {"cmd": self.request.path,
+                    "message": "user successfully disabled"}
+
 
 class AdminUsersChannelDisconnect(HandlerCORS):
     """
@@ -1168,7 +1244,7 @@ class AdminUsersChannelDisconnect(HandlerCORS):
                 {
                   "cmd": "/administration/users/channel/disconnect",
                   "message: "user successfully disconnected"
-                }
+               }
           '400':
             description: Bad request provided
           '404':
@@ -1176,11 +1252,13 @@ class AdminUsersChannelDisconnect(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if not user_profile['administrator']: raise HTTP_403("Access refused")
+        if not user_profile['administrator']:
+            raise HTTP_403("Access refused")
 
         try:
             userLogin = self.request.data.get("login")
-            if userLogin is None: raise HTTP_400("Please specify a login")
+            if userLogin is None:
+                raise HTTP_400("Please specify a login")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -1190,7 +1268,9 @@ class AdminUsersChannelDisconnect(HandlerCORS):
         if disconnected == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("user not found")
 
-        return { "cmd": self.request.path, "message": "user successfully disconnected" }
+        return {"cmd": self.request.path,
+                "message": "user successfully disconnected"}
+
 
 class AdminUsersDuplicate(HandlerCORS):
     """
@@ -1236,7 +1316,7 @@ class AdminUsersDuplicate(HandlerCORS):
                 {
                   "cmd": "/administration/users/duplicate",
                   "message: "user successfully duplicated"
-                }
+               }
           '400':
             description: Bad request provided
           '404':
@@ -1246,11 +1326,13 @@ class AdminUsersDuplicate(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if not user_profile['administrator']: raise HTTP_403("Access refused")
+        if not user_profile['administrator']:
+            raise HTTP_403("Access refused")
 
         try:
             userId = self.request.data.get("user-id")
-            if userId is None : raise HTTP_400("Please specify a user id")
+            if userId is None:
+                raise HTTP_400("Please specify a user id")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -1266,7 +1348,9 @@ class AdminUsersDuplicate(HandlerCORS):
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
 
-        return { "cmd": self.request.path, "message": "user successfully duplicated", "user-id": details  }
+        return {"cmd": self.request.path,
+                "message": "user successfully duplicated", "user-id": details}
+
 
 class AdminUsersPasswordReset(HandlerCORS):
     """
@@ -1312,7 +1396,7 @@ class AdminUsersPasswordReset(HandlerCORS):
                 {
                   "cmd": "/administration/users/password/reset",
                   "message: "password successfully reseted"
-                }
+               }
           '400':
             description: Bad request provided
           '404':
@@ -1322,11 +1406,13 @@ class AdminUsersPasswordReset(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if not user_profile['administrator']: raise HTTP_403("Access refused")
+        if not user_profile['administrator']:
+            raise HTTP_403("Access refused")
 
         try:
             userId = self.request.data.get("user-id")
-            if userId is None : raise HTTP_400("Please specify a user id")
+            if userId is None:
+                raise HTTP_400("Please specify a user id")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -1342,7 +1428,9 @@ class AdminUsersPasswordReset(HandlerCORS):
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
 
-        return { "cmd": self.request.path, "message": "password successfully reseted" }
+        return {"cmd": self.request.path,
+                "message": "password successfully reseted"}
+
 
 class AdminUsersSearch(HandlerCORS):
     """
@@ -1386,7 +1474,7 @@ class AdminUsersSearch(HandlerCORS):
               application/json: |
                 {
                   "cmd": "/administration/users/search"
-                }
+               }
           '400':
             description: Bad request provided
           '403':
@@ -1398,7 +1486,8 @@ class AdminUsersSearch(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if not user_profile['administrator']: raise HTTP_403("Access refused")
+        if not user_profile['administrator']:
+            raise HTTP_403("Access refused")
 
         try:
             userLogin = self.request.data.get("login")
@@ -1411,16 +1500,18 @@ class AdminUsersSearch(HandlerCORS):
         except Exception as e:
             raise HTTP_400("Bad request provided (%s ?)" % e)
 
-        success, details = UsersManager.instance().getUserFromDB(userId=userId, userLogin=userLogin)
+        success, details = UsersManager.instance().getUserFromDB(
+            userId=userId, userLogin=userLogin)
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
         if len(details) == 0:
             raise HTTP_404("no user found")
 
         if len(details) == 1:
-            return { "cmd": self.request.path, "user": details[0] }
+            return {"cmd": self.request.path, "user": details[0]}
         else:
-            return { "cmd": self.request.path, "users": details }
+            return {"cmd": self.request.path, "users": details}
+
 
 class TestsDirectoryRemoveAll(HandlerCORS):
     """
@@ -1467,7 +1558,7 @@ class TestsDirectoryRemoveAll(HandlerCORS):
                 {
                   "cmd": "/tests/directory/remove/all",
                   "message": "all directories successfully removed"
-                }
+               }
           '400':
             description: Bad request provided
           '403':
@@ -1477,14 +1568,17 @@ class TestsDirectoryRemoveAll(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if not user_profile['administrator']: raise HTTP_403("Access refused")
+        if not user_profile['administrator']:
+            raise HTTP_403("Access refused")
 
         try:
             projectId = self.request.data.get("project-id")
-            if projectId is None: raise EmptyValue("Please specify a project id")
+            if projectId is None:
+                raise EmptyValue("Please specify a project id")
 
             folderPath = self.request.data.get("directory-path")
-            if folderPath is None: raise EmptyValue("Please specify a source folder path")
+            if folderPath is None:
+                raise EmptyValue("Please specify a source folder path")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -1495,7 +1589,7 @@ class TestsDirectoryRemoveAll(HandlerCORS):
             raise HTTP_400("Bad project id provided in request, int expected")
 
         # avoid directory traversal
-        folderPath = os.path.normpath("/" + folderPath )
+        folderPath = os.path.normpath("/" + folderPath)
 
         success = RepoTests.instance().delDirAll(folderPath, projectId)
         if success == Context.instance().CODE_ERROR:
@@ -1505,8 +1599,9 @@ class TestsDirectoryRemoveAll(HandlerCORS):
         if success == Context.instance().CODE_FORBIDDEN:
             raise HTTP_403("Removing directory denied")
 
-        return { "cmd": self.request.path, "message": "all directories successfully removed",
-                 "project-id": projectId }
+        return {"cmd": self.request.path, "message": "all directories successfully removed",
+                "project-id": projectId}
+
 
 class TestsSnapshotRemoveAll(HandlerCORS):
     """
@@ -1557,7 +1652,7 @@ class TestsSnapshotRemoveAll(HandlerCORS):
                 {
                   "cmd": "/rest/tests/snapshot/remove/all",
                   "message": "all snapshots removed"
-                }
+               }
           '400':
             description: Bad request provided
           '403':
@@ -1567,18 +1662,23 @@ class TestsSnapshotRemoveAll(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if not user_profile['administrator']: raise HTTP_403("Access refused")
+        if not user_profile['administrator']:
+            raise HTTP_403("Access refused")
 
         try:
             projectId = self.request.data.get("project-id")
-            if projectId is None: raise EmptyValue("Please specify a project id")
+            if projectId is None:
+                raise EmptyValue("Please specify a project id")
 
             testPath = self.request.data.get("test-path")
-            if testPath is None: raise EmptyValue("Please specify a test path")
+            if testPath is None:
+                raise EmptyValue("Please specify a test path")
             testName = self.request.data.get("test-name")
-            if testName is None: raise EmptyValue("Please specify a test name")
+            if testName is None:
+                raise EmptyValue("Please specify a test name")
             testExt = self.request.data.get("test-extension")
-            if testExt is None: raise EmptyValue("Please specify a test extension")
+            if testExt is None:
+                raise EmptyValue("Please specify a test extension")
 
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
@@ -1595,21 +1695,25 @@ class TestsSnapshotRemoveAll(HandlerCORS):
         if not projectAuthorized:
             raise HTTP_403('Access denied to this project')
 
-        success =  RepoTests.instance().deleteAllSnapshots( testPath=testPath,
-                                                            testPrjId=projectId,
-                                                            testName=testName,
-                                                            testExt=testExt
-                                                            )
+        success = RepoTests.instance().deleteAllSnapshots(testPath=testPath,
+                                                          testPrjId=projectId,
+                                                          testName=testName,
+                                                          testExt=testExt
+                                                          )
         if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_500("Unable to find the test provided")
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500("Unable to delete all snapshots")
 
-        return { "cmd": self.request.path, "message": "all snapshots deleted", "project-id": projectId }
+        return {"cmd": self.request.path,
+                "message": "all snapshots deleted", "project-id": projectId}
+
 
 """
 Variables handlers
 """
+
+
 class VariablesReset(HandlerCORS):
     """
     /rest/variables/reset
@@ -1654,7 +1758,7 @@ class VariablesReset(HandlerCORS):
                 {
                   "message": "variables successfully reseted",
                   "cmd": "/variables/reset"
-                }
+               }
           '400':
             description: Bad request provided | Bad project id provided | Bad json provided in value
           '403':
@@ -1664,11 +1768,13 @@ class VariablesReset(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if not user_profile['administrator']: raise HTTP_403("Access refused")
+        if not user_profile['administrator']:
+            raise HTTP_403("Access refused")
 
         try:
             projectId = self.request.data.get("project-id")
-            if projectId is None: raise EmptyValue("Please specify a project id")
+            if projectId is None:
+                raise EmptyValue("Please specify a project id")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -1688,11 +1794,15 @@ class VariablesReset(HandlerCORS):
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
 
-        return { "cmd": self.request.path, "message": "variables successfully reseted" }
+        return {"cmd": self.request.path,
+                "message": "variables successfully reseted"}
+
 
 """
 Tests Results handlers
 """
+
+
 class ResultsReset(HandlerCORS):
     """
     /rest/results/reset
@@ -1739,7 +1849,7 @@ class ResultsReset(HandlerCORS):
                 {
                   "cmd": "/results/reset",
                   "message": "xxxxxxxx"
-                }
+               }
           '400':
             description: Bad request provided
           '403':
@@ -1749,11 +1859,13 @@ class ResultsReset(HandlerCORS):
         """
         user_profile = _get_user(request=self.request)
 
-        if not user_profile['administrator']: raise HTTP_403("Access refused")
+        if not user_profile['administrator']:
+            raise HTTP_403("Access refused")
 
         try:
             projectId = self.request.data.get("project-id")
-            if projectId is None: raise EmptyValue("Please specify a project id")
+            if projectId is None:
+                raise EmptyValue("Please specify a project id")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -1773,5 +1885,5 @@ class ResultsReset(HandlerCORS):
         if success != Context.instance().CODE_OK:
             raise HTTP_500("Unable to reset test results")
 
-        return { "cmd": self.request.path, "message": "results successfully reseted",
-                 'project-id': projectId }
+        return {"cmd": self.request.path, "message": "results successfully reseted",
+                'project-id': projectId}

@@ -21,15 +21,12 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-import sys
-
 from init_sqlite3 import create_sqlite3_model
 from common_bdd import delete_db
 
 from init_data import add_configs
 from init_data import add_users
 from init_data import add_projects
-from init_data import add_relations
 from init_data import add_globals
 
 # remove the current database

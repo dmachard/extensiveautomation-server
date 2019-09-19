@@ -23,18 +23,16 @@
 
 import os
 import sqlite3
-import sys
-sys.path.insert(0, '../../../' )
 
-from ea.libs import Settings
+path = os.path.abspath(__file__)
+dir_path = os.path.dirname(path)
+new_dir_path = os.sep.join(dir_path.split(os.sep)[:-2])
 
-# initialize settings module to read the settings.ini file
-Settings.initialize(path="./")
+DIR_EXEC = os.path.normpath("%s/" % new_dir_path)
 
 # prepare the path of the database
-db_name = "%s/%s/%s" % ( Settings.getDirExec(),
-                         Settings.get( 'Paths', 'var' ),
-                         Settings.get( 'Database', 'db' ))
+db_name = "%s/var/data.db" % (DIR_EXEC)
+
 
 def delete_db():
     """
@@ -44,31 +42,32 @@ def delete_db():
         os.remove(db_name)
     except Exception:
         pass
-  
-def querySQL ( query ):
+
+
+def querySQL(query):
     """
     detect dabatase type
     only 2 type supported (mysql and sqlite)
-    
+
     @param query: sql query
     @type query: string
     """
     # connect to the db
     conn = sqlite3.connect(db_name)
-    
+
     c = conn.cursor()
-    
+
     # execute the sql query
     print(query)
     print()
     c.execute(query)
-    
+
     # retrieve the last id
     lastrowid = c.lastrowid
 
-    c.close ()
-    
+    c.close()
+
     conn.commit()
     conn.close()
-    
+
     return lastrowid

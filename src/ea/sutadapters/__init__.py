@@ -23,6 +23,6 @@
 
 __DESCRIPTION__ = "This library contains all adapters available to test your SUT (System Under Test)."
 
-__HELPER__ =    []
+__HELPER__ = []
 
 __all__ = []

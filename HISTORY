@@ -1,3 +1,20 @@
+21.1.0
+	Date: 25/08/2019
+	What's new
+		1. (minor) No more return settings file content from rest api
+		2. (minor) Continue code cleanup
+		3. (minor) Disable email test result notification on Windows platform
+		4. (minor) Variables encryption database has been removed, prefer another way to do it.
+		5. (medium) Salt used on user's password is now re-generated each time during database creation
+		6. (medium) Folders for projects are automatically created if missing during start of the server
+		7. (minor) Users manager: default users can be now removed
+		8. (medium) Cleanup on the model of the user table
+		9. (major) Default users, projects, and global variables can be now modified from json files
+		10. (major) Support remote ldap simple bind and ntlm authentication for user session 
+		11. (minor) Test library: test manipulator feature removed
+	Issues Fixed
+		1 (minor) fix error in setup file, readme missing 
+
 21.0.1
 	Date: 10/08/2019
 	What's new

@@ -29,17 +29,19 @@ from ea.libs import Settings, Logger
 
 DEFAULT_PRJ_ID = "1"
 
+
 class ProjectsManager(Logger.ClassLogger):
     """
     """
+
     def __init__(self, context):
         """
         Class Projects Manager
         """
         self.tb_projects = 'projects'
 
-        self.repoTests ='%s/%s' % ( Settings.getDirExec(),
-                                    Settings.get( 'Paths', 'tests' ) )
+        self.repoTests = '%s/%s' % (Settings.getDirExec(),
+                                    Settings.get('Paths', 'tests'))
         self.context = context
 
         # load projects in cache, new in v19
@@ -47,8 +49,8 @@ class ProjectsManager(Logger.ClassLogger):
         self.loadCache()
 
         # Initialize the repository
-        self.info( 'Deploying folders projects and reserved folders...' )
-        
+        self.info('Deploying folders projects and reserved folders...')
+
         self.createDirProjects()
         self.addReservedFolders()
 
@@ -63,7 +65,7 @@ class ProjectsManager(Logger.ClassLogger):
             raise Exception("Unable to get projects from database")
 
         self.__cache = projects_list
-        self.trace("Projects cache Size=%s" % len(self.__cache) )
+        self.trace("Projects cache Size=%s" % len(self.__cache))
 
     def cache(self):
         """
@@ -76,15 +78,15 @@ class ProjectsManager(Logger.ClassLogger):
         Add reserved folders (recycle and sandbox)
         """
         self.trace("adding reserved folders")
-        
+
         code, prjsList = self.getProjectsFromDB()
         if code != self.context.CODE_OK:
             return
 
         for prj in prjsList:
             try:
-                os.mkdir( "%s/%s/@Recycle" % (self.repoTests, prj["id"]) )
-                os.mkdir( "%s/%s/@Sandbox" % (self.repoTests, prj["id"]) )
+                os.mkdir("%s/%s/@Recycle" % (self.repoTests, prj["id"]))
+                os.mkdir("%s/%s/@Sandbox" % (self.repoTests, prj["id"]))
             except Exception:
                 pass
 
@@ -92,14 +94,14 @@ class ProjectsManager(Logger.ClassLogger):
         """
         """
         self.trace("creating projects folders if missing")
-        
+
         code, projects_list = self.getProjectsFromDB()
         if code != self.context.CODE_OK:
             return
-        
+
         for prj in projects_list:
-            if not os.path.exists( "%s/%s" % (self.repoTests,prj["id"]) ) :
-                os.mkdir( "%s/%s" % (self.repoTests, prj["id"]) )
+            if not os.path.exists("%s/%s" % (self.repoTests, prj["id"])):
+                os.mkdir("%s/%s" % (self.repoTests, prj["id"]))
 
     def getProjects(self, user):
         """
@@ -107,7 +109,7 @@ class ProjectsManager(Logger.ClassLogger):
         """
         # search the user in the cache
         if user not in UsersManager.instance().cache():
-            self.error( 'Get project for Login=%s not found in cache' % (user) )
+            self.error('Get project for Login=%s not found in cache' % (user))
             return False
 
         user_projects = UsersManager.instance().cache()[user]['projects']
@@ -126,7 +128,9 @@ class ProjectsManager(Logger.ClassLogger):
         """
         # search the user in the cache
         if user not in UsersManager.instance().cache():
-            self.error( 'Check project access for Login=%s not found in cache' % (user) )
+            self.error(
+                'Check project access for Login=%s not found in cache' %
+                (user))
             return False
 
         # check if the provided project id is authorized for the user
@@ -138,7 +142,11 @@ class ProjectsManager(Logger.ClassLogger):
                 break
 
         # return the final result
-        self.trace( 'Check project access for Login=%s and ProjectID=%s Result=%s' % (user, projectId, str(granted)) )
+        self.trace('Check project access for Login=%s and ProjectID=%s Result=%s' % (user,
+                                                                                     projectId,
+                                                                                     str(granted)
+                                                                                     )
+                   )
         return granted
 
     def getDefaultProjectForUser(self, user):
@@ -154,15 +162,16 @@ class ProjectsManager(Logger.ClassLogger):
                 found = True
                 break
 
-        if not found: self.error( 'no default project returned for User=%s' % user)
-        self.trace( 'Get default project for User=%s Result=%s' % (user, pid) )
+        if not found:
+            self.error('no default project returned for User=%s' % user)
+        self.trace('Get default project for User=%s Result=%s' % (user, pid))
         return pid
 
     def getProjectID(self, name):
         """
         Return project id according to the name passed as argument
         """
-        pid = 0 # default project
+        pid = 0  # default project
         found = False
 
         for p in self.cache():
@@ -171,15 +180,16 @@ class ProjectsManager(Logger.ClassLogger):
                 found = True
                 break
 
-        if not found: self.error( 'no project id returned with name=%s' % name )
-        self.trace( 'Get project ID with Name=%s Result=%s ' % (name, pid) )
+        if not found:
+            self.error('no project id returned with name=%s' % name)
+        self.trace('Get project ID with Name=%s Result=%s ' % (name, pid))
         return pid
 
     def getProjectName(self, prjId):
         """
         Return project name according to the id passed as argument
         """
-        prjName = 'Common' # default project
+        prjName = 'Common'  # default project
         found = False
 
         for p in self.cache():
@@ -188,57 +198,60 @@ class ProjectsManager(Logger.ClassLogger):
                 found = True
                 break
 
-        if not found: self.error( 'no project name returned with id=%s' % prjId )
-        self.trace( 'Get project name with Id=%s Result=%s' % (prjId, prjName) )
+        if not found:
+            self.error('no project name returned with id=%s' % prjId)
+        self.trace('Get project name with Id=%s Result=%s' % (prjId, prjName))
         return prjName
 
     def addProject(self, prjId):
         """
         Add project folder
         """
-        self.trace( 'creating the project %s' % prjId )
+        self.trace('creating the project %s' % prjId)
         ret = False
         try:
-            res = os.path.exists( "%s/%s" % (self.repoTests,prjId) )
+            res = os.path.exists("%s/%s" % (self.repoTests, prjId))
             if res:
-                self.trace( 'project %s already exist' % prjId )
+                self.trace('project %s already exist' % prjId)
                 ret = False
             else:
                 try:
-                    os.mkdir( "%s/%s" % (self.repoTests, prjId) )
+                    os.mkdir("%s/%s" % (self.repoTests, prjId))
 
                     # create some reserved folders
-                    os.mkdir( "%s/%s/@Recycle" % (self.repoTests, prjId) )
-                    os.mkdir( "%s/%s/@Sandbox" % (self.repoTests, prjId) )
+                    os.mkdir("%s/%s/@Recycle" % (self.repoTests, prjId))
+                    os.mkdir("%s/%s/@Sandbox" % (self.repoTests, prjId))
 
                 except Exception as e:
-                    self.error( "unable to create the project %s: %s" % (prjId,str(e)) )
+                    self.error(
+                        "unable to create the project %s: %s" %
+                        (prjId, str(e)))
                     ret = False
                 else:
                     ret = True
         except Exception as e:
-            self.error("add project error: %s" % str(e) )
+            self.error("add project error: %s" % str(e))
         return ret
 
     def delProject(self, prjId):
         """
         Delete project folder
         """
-        self.trace( 'deleting the project %s' % prjId )
+        self.trace('deleting the project %s' % prjId)
         ret = False
         try:
-            res = os.path.exists( "%s/%s" % (self.repoTests,prjId) )
+            res = os.path.exists("%s/%s" % (self.repoTests, prjId))
             if not res:
-                self.trace( 'project %s does not exist' % prjId )
+                self.trace('project %s does not exist' % prjId)
                 ret = False
             else:
-                shutil.rmtree( "%s/%s" % (self.repoTests,prjId) )
+                shutil.rmtree("%s/%s" % (self.repoTests, prjId))
                 ret = True
         except OSError as e:
-            self.trace( e )
+            self.trace(e)
             ret = False
         except Exception as e:
-            self.error( "del project error: %s" % str(e) )
+            self.error("del project error: %s" % str(e))
             ret = False
         return ret
 
@@ -250,24 +263,27 @@ class ProjectsManager(Logger.ClassLogger):
             return (self.context.CODE_ERROR, "project name is empty")
 
         # check if the name of the project already exists
-        sql = """SELECT * FROM `%s` WHERE  name=?""" % ( self.tb_projects )
-        success, dbRows = DbManager.instance().querySQL( query = sql, arg1=projectName  )
+        sql = """SELECT * FROM `%s` WHERE  name=?""" % (self.tb_projects)
+        success, dbRows = DbManager.instance().querySQL(query=sql, arg1=projectName)
         if not success:
-            self.error( "unable to read project's table" )
+            self.error("unable to read project's table")
             return (self.context.CODE_ERROR, "unable to read project's table")
-        if len(dbRows): return (self.context.CODE_ALREADY_EXISTS, "this name already exists")
+        if len(dbRows):
+            return (self.context.CODE_ALREADY_EXISTS,
+                    "this name already exists")
 
         # insert in db
-        sql = """INSERT INTO `%s`(`name`, `active` ) VALUES(?, '1')""" % (self.tb_projects)
-        success, lastRowId = DbManager.instance().querySQL( query = sql,
-                                                            insertData=True,
-                                                            arg1=projectName  )
+        sql = """INSERT INTO `%s`(`name`, `active`) VALUES(?, '1')""" % (
+            self.tb_projects)
+        success, lastRowId = DbManager.instance().querySQL(query=sql,
+                                                           insertData=True,
+                                                           arg1=projectName)
         if not success:
             self.error("unable to insert project")
             return (self.context.CODE_ERROR, "unable to insert project")
 
         # create the folder according to the id of the project
-        added = self.addProject(prjId=int(lastRowId) )
+        added = self.addProject(prjId=int(lastRowId))
         if not added:
             self.error("unable to add project")
             # todo, cancel the previous insert
@@ -276,7 +292,7 @@ class ProjectsManager(Logger.ClassLogger):
         # refresh the cache, new in v19
         self.loadCache()
 
-        return (self.context.CODE_OK, "%s" % int(lastRowId) )
+        return (self.context.CODE_OK, "%s" % int(lastRowId))
 
     def updateProjectFromDB(self, projectName, projectId):
         """
@@ -287,41 +303,46 @@ class ProjectsManager(Logger.ClassLogger):
         # not possible to delete default project common
         if int(projectId) == 1:
             self.error("update the default project not authorized")
-            return (self.context.CODE_ERROR, "update the default project is not authorized")
+            return (self.context.CODE_ERROR,
+                    "update the default project is not authorized")
 
         if not len(projectName):
             self.error("project name is empty")
             return (self.context.CODE_ERROR, "the project name is empty")
 
         # find the project id
-        sql = """SELECT * FROM `%s` WHERE  id=?""" % ( self.tb_projects)
-        success, dbRows = DbManager.instance().querySQL( query = sql, arg1=projectId  )
+        sql = """SELECT * FROM `%s` WHERE  id=?""" % (self.tb_projects)
+        success, dbRows = DbManager.instance().querySQL(query=sql, arg1=projectId)
         if not success:
-            self.error( "unable to read project id" )
+            self.error("unable to read project id")
             return (self.context.CODE_ERROR, "unable to read project id")
-        if not len(dbRows): return (self.context.CODE_NOT_FOUND, "this project id does not exist")
+        if not len(dbRows):
+            return (self.context.CODE_NOT_FOUND,
+                    "this project id does not exist")
 
         # check if the name of the project already exists
-        sql = """SELECT * FROM `%s` WHERE  name=?""" % ( self.tb_projects )
-        success, dbRows = DbManager.instance().querySQL( query = sql, arg1=projectName  )
+        sql = """SELECT * FROM `%s` WHERE  name=?""" % (self.tb_projects)
+        success, dbRows = DbManager.instance().querySQL(query=sql, arg1=projectName)
         if not success:
-            self.error( "unable to read project's table" )
+            self.error("unable to read project's table")
             return (self.context.CODE_ERROR, "unable to read project's table")
-        if len(dbRows): return (self.context.CODE_ALREADY_EXISTS, "this name already exists")
+        if len(dbRows):
+            return (self.context.CODE_ALREADY_EXISTS,
+                    "this name already exists")
 
         # update in db
-        sql = """UPDATE `%s` SET name=? WHERE id=?""" % ( self.tb_projects )
-        success, _ = DbManager.instance().querySQL( query = sql,
-                                                    arg1=projectName,
-                                                    arg2=projectId )
+        sql = """UPDATE `%s` SET name=? WHERE id=?""" % (self.tb_projects)
+        success, _ = DbManager.instance().querySQL(query=sql,
+                                                   arg1=projectName,
+                                                   arg2=projectId)
         if not success:
-            self.error( "unable to update project by id" )
+            self.error("unable to update project by id")
             return (self.context.CODE_ERROR, "unable to update project by id")
 
         # refresh the cache, new in v19
         self.loadCache()
 
-        return (self.context.CODE_OK, "" )
+        return (self.context.CODE_OK, "")
 
     def delProjectFromDB(self, projectId):
         """
@@ -333,35 +354,41 @@ class ProjectsManager(Logger.ClassLogger):
         # not possible to delete default project common
         if int(projectId) == 1:
             self.error("delete the default project not authorized")
-            return (self.context.CODE_ERROR, "delete the default project not authorized")
+            return (self.context.CODE_ERROR,
+                    "delete the default project not authorized")
 
         # find the project id
-        sql = """SELECT * FROM `%s` WHERE  id=?""" % ( self.tb_projects )
-        success, dbRows = DbManager.instance().querySQL( query = sql, arg1=projectId  )
+        sql = """SELECT * FROM `%s` WHERE  id=?""" % (self.tb_projects)
+        success, dbRows = DbManager.instance().querySQL(query=sql, arg1=projectId)
         if not success:
-            self.error( "unable to read project id" )
+            self.error("unable to read project id")
             return (self.context.CODE_ERROR, "unable to read project id")
-        if not len(dbRows): return (self.context.CODE_NOT_FOUND, "this project id does not exist")
+        if not len(dbRows):
+            return (self.context.CODE_NOT_FOUND,
+                    "this project id does not exist")
 
         # checking relations projects`
         sql = """SELECT COUNT(*) as nbrelation FROM `relations-projects` WHERE  project_id=?"""
-        success, dbRows = DbManager.instance().querySQL( query = sql, columnName=True, arg1=projectId  )
+        success, dbRows = DbManager.instance().querySQL(
+            query=sql, columnName=True, arg1=projectId)
         if not success:
-            self.error( "unable to read project relations" )
-            return (self.context.CODE_ERROR, "unable to read project relations")
+            self.error("unable to read project relations")
+            return (self.context.CODE_ERROR,
+                    "unable to read project relations")
         if dbRows[0]["nbrelation"]:
-            msg = "unable to remove project because linked to user(s)=%s" % dbRows[0]["nbrelation"]
-            return (self.context.CODE_ERROR, msg )
+            msg = "unable to remove project because linked to user(s)=%s" % dbRows[
+                0]["nbrelation"]
+            return (self.context.CODE_ERROR, msg)
 
         # delete from db
-        sql = """DELETE FROM `%s` WHERE  id=?""" % ( self.tb_projects )
-        success, _ = DbManager.instance().querySQL( query = sql, arg1=projectId  )
+        sql = """DELETE FROM `%s` WHERE  id=?""" % (self.tb_projects)
+        success, _ = DbManager.instance().querySQL(query=sql, arg1=projectId)
         if not success:
-            self.error( "unable to remove project by id" )
+            self.error("unable to remove project by id")
             return (self.context.CODE_ERROR, "unable to remove project by id")
 
         # delete the folder according to the id of the project
-        deleted = self.delProject(prjId=int(projectId) )
+        deleted = self.delProject(prjId=int(projectId))
         if not deleted:
             self.error("unable to delete project")
             # todo, cancel the previous delete
@@ -370,20 +397,20 @@ class ProjectsManager(Logger.ClassLogger):
         # refresh the cache, new in v19
         self.loadCache()
 
-        return (self.context.CODE_OK, "" )
+        return (self.context.CODE_OK, "")
 
     def getProjectsFromDB(self):
         """
         Delete all projects
         """
         # get all projects
-        sql = """SELECT * FROM `%s`""" % ( self.tb_projects)
-        success, dbRows = DbManager.instance().querySQL( query = sql, columnName=True  )
+        sql = """SELECT * FROM `%s`""" % (self.tb_projects)
+        success, dbRows = DbManager.instance().querySQL(query=sql, columnName=True)
         if not success:
-            self.error( "unable to read project's table" )
+            self.error("unable to read project's table")
             return (self.context.CODE_ERROR, [])
 
-        return (self.context.CODE_OK, dbRows )
+        return (self.context.CODE_OK, dbRows)
 
     def getProjectFromDB(self, projectName=None, projectId=None):
         """
@@ -391,38 +418,43 @@ class ProjectsManager(Logger.ClassLogger):
         sql_args = ()
 
         # get all projects
-        sql = """SELECT * FROM `%s`""" % ( self.tb_projects )
+        sql = """SELECT * FROM `%s`""" % (self.tb_projects)
         sql += """ WHERE """
         if projectName is not None:
             sql += """name LIKE ?"""
-            sql_args += ( "%%%s%%" % projectName,)
+            sql_args += ("%%%s%%" % projectName,)
         if projectId is not None:
             sql += """ id=?"""
             sql_args += (projectId,)
-        success, dbRows = DbManager.instance().querySQL( query = sql,
-                                                         columnName=True,
-                                                         args=sql_args  )
+        success, dbRows = DbManager.instance().querySQL(query=sql,
+                                                        columnName=True,
+                                                        args=sql_args)
         if not success:
-            self.error( "unable to search project table" )
+            self.error("unable to search project table")
             return (self.context.CODE_ERROR, "unable to search project table")
 
-        return (self.context.CODE_OK, dbRows )
+        return (self.context.CODE_OK, dbRows)
+
 
 PM = None
-def instance ():
+
+
+def instance():
     """
     Returns the singleton
     """
     return PM
 
-def initialize (context):
+
+def initialize(context):
     """
     Instance creation
     """
     global PM
     PM = ProjectsManager(context=context)
 
-def finalize ():
+
+def finalize():
     """
     Destruction of the singleton
     """

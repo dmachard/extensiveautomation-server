@@ -24,16 +24,16 @@
 """
 Tcp server module
 """
-import sys 
+import sys
 import threading
 try:
     import SocketServer
-except ImportError: # python3 support
+except ImportError:  # python3 support
     import socketserver as SocketServer
 import select
 try:
     import Queue
-except ImportError: # support python 3
+except ImportError:  # support python 3
     import queue as Queue
 import time
 import socket
@@ -41,14 +41,15 @@ import ssl
 
 try:
     xrange
-except NameError: # support python3
+except NameError:  # support python3
     xrange = range
-    
+
+from ea.libs.NetLayerLib import WebSocket
+
 # unicode = str with python3
 if sys.version_info > (3,):
     unicode = str
 
-from ea.libs.NetLayerLib import WebSocket
 
 class NoMoreData(Exception):
     """
@@ -56,13 +57,15 @@ class NoMoreData(Exception):
     """
     pass
 
+
 class TcpRequestHandler(SocketServer.BaseRequestHandler):
     """
     Tcp request handler
     """
+
     def __init__(self, request, clientAddress, server, terminator=b'\x00'):
         """
-        TCP request handler 
+        TCP request handler
 
         @param request:
         @type request:
@@ -77,11 +80,11 @@ class TcpRequestHandler(SocketServer.BaseRequestHandler):
         @type terminator: string
         """
         self.__mutex__ = threading.RLock()
-        self.clientId = clientAddress # (ip,port)
-        self.publicIp = clientAddress[0] # external ip with rp
+        self.clientId = clientAddress  # (ip,port)
+        self.publicIp = clientAddress[0]  # external ip with rp
         self.stopEvent = threading.Event()
-        self.buf = b'' # contains all received data.
-        self.bufWs = b'' # contains just ws data
+        self.buf = b''  # contains all received data.
+        self.bufWs = b''  # contains just ws data
         self.queue = Queue.Queue(0)
         self.socket = None
         self.terminator = terminator
@@ -90,9 +93,9 @@ class TcpRequestHandler(SocketServer.BaseRequestHandler):
         self.lastKeepAliveTimestamp = time.time()
         self.wsHandshakeSuccess = False
         self.wsCodec = WebSocket.WebSocketCodec(parent=self)
-        SocketServer.BaseRequestHandler.__init__(self, request, clientAddress, server)
+        SocketServer.BaseRequestHandler.__init__(
+            self, request, clientAddress, server)
 
-        
     def mainReceiveSendLoop(self):
         """
         Main loop to receive and send data
@@ -100,7 +103,8 @@ class TcpRequestHandler(SocketServer.BaseRequestHandler):
         while not self.stopEvent.isSet():
 
             # Check if we have incoming data
-            r, w, e = select.select([ self.socket ], [], [ self.socket ], self.server.selectTimeout )
+            r, w, e = select.select(
+                [self.socket], [], [self.socket], self.server.selectTimeout)
             if self.socket in e:
                 raise EOFError("Socket select error: disconnecting")
             elif self.socket in r:
@@ -111,10 +115,11 @@ class TcpRequestHandler(SocketServer.BaseRequestHandler):
                     self.lastActivityTimestamp = time.time()
                     self.buf = b''.join([self.buf, read])
                     self.onIncomingData()
- 
-            # Check inactivity timeout 
+
+            # Check inactivity timeout
             elif self.server.inactivityTimeout:
-                if  (time.time() - self.lastActivityTimestamp) > self.server.inactivityTimeout:
+                if (time.time() -
+                        self.lastActivityTimestamp) > self.server.inactivityTimeout:
                     raise EOFError("Inactivity timeout: disconnecting")
 
             try:
@@ -127,41 +132,51 @@ class TcpRequestHandler(SocketServer.BaseRequestHandler):
                             if time.time() - self.lastKeepAliveTimestamp > self.server.keepAliveInterval:
                                 self.lastKeepAliveTimestamp = time.time()
                                 wsping, pingid = self.wsCodec.encodePing()
-                                self.trace("sending ws ping message to %s" % pingid )
-                                self.queue.put(wsping)              
+                                self.trace(
+                                    "sending ws ping message to %s" % pingid)
+                                self.queue.put(wsping)
                 else:
                     # Send (queue) a Keep-Alive if needed
                     if self.server.keepAliveInterval:
                         if time.time() - self.lastKeepAliveTimestamp > self.server.keepAliveInterval:
                             self.lastKeepAliveTimestamp = time.time()
-                            self.trace("sending keep-alive to %s" % str(self.clientId) )
+                            self.trace("sending keep-alive to %s" %
+                                       str(self.clientId))
                             self.sendPacket(self.keepAlivePdu)
             except Exception as e:
-                raise Exception( "keepalive error: %s" % e )
-             
+                raise Exception("keepalive error: %s" % e)
+
             try:
                 # Send queued messages
                 while not self.queue.empty():
                     try:
-                        r, w, e = select.select([ ], [ self.socket ], [ self.socket ], self.server.selectTimeout )
+                        r, w, e = select.select(
+                            [], [
+                                self.socket], [
+                                self.socket], self.server.selectTimeout)
                         if self.socket in e:
-                            raise IOError("Socket select error when sending a message: disconnecting")
+                            raise IOError(
+                                "Socket select error when sending a message: disconnecting")
                         elif self.socket in w:
                             message = self.queue.get(False)
                             self.socket.sendall(message)
                             del message
                         else:
-                            self.trace("Not ready to send a queued message. Queue size: %s" % self.queue.qsize())
+                            self.trace(
+                                "Not ready to send a queued message. Queue size: %s" %
+                                self.queue.qsize())
                             break
                     except Queue.Empty:
                         pass
                     except IOError as e:
-                        self.error("IOError while sending a packet to client (%s) - disconnecting" % str(e))
+                        self.error(
+                            "IOError while sending a packet to client (%s) - disconnecting" %
+                            str(e))
                         self.stop()
                     except Exception as e:
                         self.error("Unable to send message: %s" % str(e))
             except Exception as e:
-                raise Exception( "send error: %s" % e )
+                raise Exception("send error: %s" % e)
         self.socket.close()
 
     def handshakeWebSocket(self, keyReceived):
@@ -178,15 +193,15 @@ class TcpRequestHandler(SocketServer.BaseRequestHandler):
             headers.append(b"Upgrade: websocket")
             headers.append(b"Connection: upgrade")
             wsAccept = self.wsCodec.createSecWsAccept(key=keyReceived)
-            headers.append(b"Sec-WebSocket-Accept: %s" % wsAccept )
+            headers.append(b"Sec-WebSocket-Accept: %s" % wsAccept)
             headers.append(b"")
             headers.append(b"")
 
             # send packet
             self.sendHttpPacket(packet=b"\r\n".join(headers))
         except Exception as e:
-            self.error( "unable to respond to the web socket handshake: %s" % e )
-            
+            self.error("unable to respond to the web socket handshake: %s" % e)
+
     def onIncomingData(self):
         """
         Called on incoming data
@@ -196,38 +211,43 @@ class TcpRequestHandler(SocketServer.BaseRequestHandler):
             self.trace('Opening ws handshake expected')
             readTrueData = self.decodeWsHandshake()
             if self.wsHandshakeSuccess:
-                self.server.onWsHanshakeSuccess(self.clientId,self.publicIp)          
+                self.server.onWsHanshakeSuccess(self.clientId, self.publicIp)
         else:
             readTrueData = True
-            
+
         if readTrueData:
             if self.server.wsSupport:
                 while len(self.buf) >= 2:
                     time.sleep(self.server.selectTimeout)
                     try:
-                        (data, opcode, left, needmore) = self.wsCodec.decodeWsData(buffer=self.buf)
+                        (data, opcode, left, needmore) = self.wsCodec.decodeWsData(
+                            buffer=self.buf)
                     except Exception as e:
-                        raise Exception("unable to decode ws: %s" % e )
+                        raise Exception("unable to decode ws: %s" % e)
                     self.buf = left
                     if opcode == WebSocket.WEBSOCKET_OPCODE_TEXT:
                         try:
-                            if len(data): self.bufWs = b''.join([self.bufWs, data]) 
+                            if len(data):
+                                self.bufWs = b''.join([self.bufWs, data])
                         except Exception as e:
-                            raise Exception("unable to bufferize ws: %s" % e )
+                            raise Exception("unable to bufferize ws: %s" % e)
                     else:
                         try:
                             if opcode == WebSocket.WEBSOCKET_OPCODE_PING:
-                                self.trace("received ws ping message id=%s" % data)
+                                self.trace(
+                                    "received ws ping message id=%s" % data)
                                 wspong = self.wsCodec.encodePong(data=data)
                                 self.queue.put(wspong)
                                 self.trace("sending pong message id=%s" % data)
                             elif opcode == WebSocket.WEBSOCKET_OPCODE_PONG:
-                                self.trace("received ws pong message id=%s" % data)
+                                self.trace(
+                                    "received ws pong message id=%s" % data)
                             else:
-                                self.error('unknown ws opcode received: %s' % opcode)
+                                self.error(
+                                    'unknown ws opcode received: %s' % opcode)
                                 break
                         except Exception as e:
-                            raise Exception("unable to ping ws: %s" % e )
+                            raise Exception("unable to ping ws: %s" % e)
                     self.readBufferWs()
                     if needmore:
                         break
@@ -244,8 +264,8 @@ class TcpRequestHandler(SocketServer.BaseRequestHandler):
                 self.handlePacket(pdu)
             self.bufWs = pdus[-1]
         except Exception as e:
-            raise Exception( "read buffer ws: %s" % e )
-            
+            raise Exception("read buffer ws: %s" % e)
+
     def readBuffer(self):
         """
         Read tcp buffer
@@ -259,36 +279,39 @@ class TcpRequestHandler(SocketServer.BaseRequestHandler):
                     self.trace("received keep-alive from client")
             self.buf = pdus[-1]
         except Exception as e:
-            raise Exception( "read buffer: %s" % e )
-            
+            raise Exception("read buffer: %s" % e)
+
     def decodeWsHandshake(self):
         """
         Decode incoming websocket handshake request
         """
         readTrueData = False
         try:
-            if self.buf.find(b"\r\n\r\n")!=-1:
+            if self.buf.find(b"\r\n\r\n") != -1:
                 req = self.buf.split(b"\r\n\r\n")[0]
-                
+
                 self.trace('ws complete request received')
-                reqline = req.splitlines()[0].split(b" ",2)
-                if reqline[2] not in (b"HTTP/1.1") and reqline[0] not in (b"GET"):
-                    self.error( "Malformed HTTP message: %s" % reqline )
+                reqline = req.splitlines()[0].split(b" ", 2)
+                if reqline[2] not in (
+                        b"HTTP/1.1") and reqline[0] not in (b"GET"):
+                    self.error("Malformed HTTP message: %s" % reqline)
                     response = b'HTTP/1.1 400 Bad Request\r\n\r\n'
                     self.sendHttpPacket(response)
-                    self.server.onWsHanshakeError( self.clientId )
+                    self.server.onWsHanshakeError(self.clientId)
                 else:
                     # checking ws headers
-                    status, key = self.wsCodec.checkingWsReqHeaders(request=req)
+                    status, key = self.wsCodec.checkingWsReqHeaders(
+                        request=req)
                     if not status:
-                        self.error( "handshake ws refused" )
+                        self.error("handshake ws refused")
                         response = b'HTTP/1.1 500 Internal Server Error\r\n\r\n'
                         self.sendHttpPacket(response)
-                        self.server.onWsHanshakeError( self.clientId )
+                        self.server.onWsHanshakeError(self.clientId)
                     else:
-                        publicIp = self.wsCodec.getHeaderForwardedFor(request=req)
+                        publicIp = self.wsCodec.getHeaderForwardedFor(
+                            request=req)
                         if publicIp is not None:
-                            self.trace( "ws public ip: %s" % publicIp )
+                            self.trace("ws public ip: %s" % publicIp)
                             self.publicIp = publicIp
                         self.handshakeWebSocket(keyReceived=key)
                         self.trace('ws handshake accepted')
@@ -298,9 +321,9 @@ class TcpRequestHandler(SocketServer.BaseRequestHandler):
             else:
                 raise Exception('need more ws headers on request')
         except Exception as e:
-            self.error("more data needed for ws handshake: %s" % e )
+            self.error("more data needed for ws handshake: %s" % e)
         return readTrueData
-        
+
     def stop(self):
         """
         Stop thread
@@ -315,7 +338,7 @@ class TcpRequestHandler(SocketServer.BaseRequestHandler):
         @type packet:
         """
         self.queue.put(packet)
-        
+
     def sendPacket(self, packet):
         """
         Send packet
@@ -326,8 +349,9 @@ class TcpRequestHandler(SocketServer.BaseRequestHandler):
         if self.server.wsSupport and self.wsHandshakeSuccess:
             payload_data = packet + self.terminator
             # make chunk
-            chunks=[payload_data[x:x+self.server.wsMaxPayloadSize] for x in xrange(0, len(payload_data), self.server.wsMaxPayloadSize)]
-            
+            chunks = [payload_data[x:x + self.server.wsMaxPayloadSize]
+                      for x in xrange(0, len(payload_data), self.server.wsMaxPayloadSize)]
+
             # encode data in the websocket packet and enqueue it
             for chunk in chunks:
                 wsdata = self.wsCodec.encodeText(data=chunk)
@@ -346,12 +370,12 @@ class TcpRequestHandler(SocketServer.BaseRequestHandler):
             try:
                 self.mainReceiveSendLoop()
             except NoMoreData as e:
-                self.trace( "handle no more data: %s" % e)
+                self.trace("handle no more data: %s" % e)
                 self.stop()
             except Exception as e:
-                self.error( "unable to handle tcp client thread: %s" % e )
+                self.error("unable to handle tcp client thread: %s" % e)
                 self.stop()
-    
+
     def handlePacket(self, packet):
         """
         Handle packet
@@ -359,14 +383,14 @@ class TcpRequestHandler(SocketServer.BaseRequestHandler):
         @param packet:
         @type packet:
         """
-        self.server.handlePacket( self.clientId, packet )
-    
+        self.server.handlePacket(self.clientId, packet)
+
     def setup(self):
         """
         Called on connection
         """
         self.server.onConnection(self)
-    
+
     def finish(self):
         """
         Called on disconnection
@@ -378,44 +402,50 @@ class TcpRequestHandler(SocketServer.BaseRequestHandler):
         except Exception as e:
             self.error('unable to finish: %s' % e)
 
-    def trace (self, txt):
+    def trace(self, txt):
         """
         Display txt on screen
 
         @param txt: message
         @type txt: string
         """
-        self.server.trace('[TcpClientThread]: %s %s' % (str(self.clientId), txt) )
+        self.server.trace('[TcpClientThread]: %s %s' %
+                          (str(self.clientId), txt))
 
-    def error (self, txt):
+    def error(self, txt):
         """
         Display txt on screen
 
         @param txt: message
         @type txt: string
         """
-        self.server.error('[TcpClientThread]: %s %s' % (str(self.clientId), txt) )
+        self.server.error('[TcpClientThread]: %s %s' %
+                          (str(self.clientId), txt))
 
-    def warning (self, txt):
+    def warning(self, txt):
         """
         Display txt on screen
 
         @param txt: message
         @type txt: string
         """
-        self.server.warning('[TcpClientThread]: %s %s' % (str(self.clientId), txt) )
+        self.server.warning('[TcpClientThread]: %s %s' %
+                            (str(self.clientId), txt))
 
-class TcpServerThread(threading.Thread, SocketServer.ThreadingMixIn, SocketServer.TCPServer):
+
+class TcpServerThread(
+        threading.Thread, SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     """
     Tcp server thread
     """
     allow_reuse_address = True
-    def __init__(self, listeningAddress, inactivityTimeout = 120, 
-                       keepAliveInterval = 40, selectTimeout=0.1, 
-                       sslSupport=False, certFile='', keyFile='', 
-                       sslVersion=ssl.PROTOCOL_TLSv1, 
-                       wsMaxPayloadSize=WebSocket.WEBSOCKET_MAX_BASIC_DATA1024, 
-                       wsSupport=False ):
+
+    def __init__(self, listeningAddress, inactivityTimeout=120,
+                 keepAliveInterval=40, selectTimeout=0.1,
+                 sslSupport=False, certFile='', keyFile='',
+                 sslVersion=ssl.PROTOCOL_TLSv1,
+                 wsMaxPayloadSize=WebSocket.WEBSOCKET_MAX_BASIC_DATA1024,
+                 wsSupport=False):
         """
         @param listeningAddress: listening address ip and port
         @type listeningAddress: tuple
@@ -448,17 +478,21 @@ class TcpServerThread(threading.Thread, SocketServer.ThreadingMixIn, SocketServe
         @type wsMaxPayloadSize: boolean
         """
         threading.Thread.__init__(self)
-        SocketServer.TCPServer.__init__(self, listeningAddress, TcpRequestHandler ) #, bind_and_activate=True
+        SocketServer.TCPServer.__init__(
+            self, listeningAddress, TcpRequestHandler)  # , bind_and_activate=True
         self.mutex = threading.RLock()
         self.stopEvent = threading.Event()
         self.listeningAddress = listeningAddress
-        self.clients = {} 
+        self.clients = {}
         self.inactivityTimeout = inactivityTimeout
         self.keepAliveInterval = keepAliveInterval
         self.selectTimeout = float(selectTimeout)
         # web socket
         self.wsSupport = wsSupport
-        if wsSupport: self.__trace__('Web socket activated - version %s' % WebSocket.WEBSOCKET_VERSION)
+        if wsSupport:
+            self.__trace__(
+                'Web socket activated - version %s' %
+                WebSocket.WEBSOCKET_VERSION)
         self.wsMaxPayloadSize = wsMaxPayloadSize
 
         # ssl support
@@ -466,10 +500,11 @@ class TcpServerThread(threading.Thread, SocketServer.ThreadingMixIn, SocketServe
         self.certFile = certFile
         self.keyFile = keyFile
         self.sslVersion = sslVersion
-        if sslSupport: self.__trace__('Ssl activated - version %s' % self.sslVersion)
-        
+        if sslSupport:
+            self.__trace__('Ssl activated - version %s' % self.sslVersion)
+
         self.dataReceived = 0
-        
+
     def get_request(self):
         """
         Called on incomming request
@@ -480,24 +515,27 @@ class TcpServerThread(threading.Thread, SocketServer.ThreadingMixIn, SocketServe
         """
         newsocket, fromaddr = self.socket.accept()
         if self.sslSupport:
-            self.__trace__( "new client %s, ssl activated, wrap socket to ssl" % str(fromaddr) )
-            connstream = ssl.wrap_socket(newsocket, 
-                                         server_side=True, 
-                                         certfile = self.certFile, 
-                                         keyfile = self.keyFile, 
-                                         ssl_version = self.sslVersion)
+            self.__trace__(
+                "new client %s, ssl activated, wrap socket to ssl" %
+                str(fromaddr))
+            connstream = ssl.wrap_socket(newsocket,
+                                         server_side=True,
+                                         certfile=self.certFile,
+                                         keyfile=self.keyFile,
+                                         ssl_version=self.sslVersion)
         else:
-            connstream= newsocket
+            connstream = newsocket
         return connstream, fromaddr
-        
+
     def run(self):
         """
         In run
         """
-        self.__trace__("Started, listening on %s" % (str(self.listeningAddress)))
+        self.__trace__("Started, listening on %s" %
+                       (str(self.listeningAddress)))
         while not self.stopEvent.isSet():
             self.handleRequestWithTimeout(self.selectTimeout)
-    
+
     def stop(self):
         """
         Stop server
@@ -515,12 +553,12 @@ class TcpServerThread(threading.Thread, SocketServer.ThreadingMixIn, SocketServe
         @param client:
         @type client:
         """
-        self.__trace__("Stopping client %s ..." % str(client) )
+        self.__trace__("Stopping client %s ..." % str(client))
         if client in self.clients:
             c = self.clients[client]
             c.stop()
-            self.__trace__("Client stopped %s ..." % str(client) )
-            
+            self.__trace__("Client stopped %s ..." % str(client))
+
     def onConnection(self, client):
         """
         Called on connection
@@ -529,12 +567,12 @@ class TcpServerThread(threading.Thread, SocketServer.ThreadingMixIn, SocketServe
         @type client: tcpclientthread
         """
         self.__trace__("New client connected: privateaddress=%s publicip=%s" % (str(client.client_address),
-                                                                                client.publicIp) )
+                                                                                client.publicIp))
         self.mutex.acquire()
-        self.clients.update( { client.client_address : client } )
+        self.clients.update({client.client_address: client})
         self.mutex.release()
         self.__trace__("New client added: %s" % str(client.client_address))
-    
+
     def onDisconnection(self, client):
         """
         Called on disconnection
@@ -544,10 +582,10 @@ class TcpServerThread(threading.Thread, SocketServer.ThreadingMixIn, SocketServe
         """
         self.__trace__("Client disconnected: %s" % str(client.client_address))
         self.mutex.acquire()
-        del self.clients[ client.client_address ]
+        del self.clients[client.client_address]
         self.mutex.release()
         self.__trace__("Client removed: %s" % str(client.client_address))
-    
+
     def onWsHanshakeError(self, clientId):
         """
         Called on websocket handshake error
@@ -555,8 +593,10 @@ class TcpServerThread(threading.Thread, SocketServer.ThreadingMixIn, SocketServe
         @param clientId:
         @type clientId:
         """
-        self.__trace__("WS opening handshake error for client %s" % str(clientId))
-        
+        self.__trace__(
+            "WS opening handshake error for client %s" %
+            str(clientId))
+
     def onWsHanshakeSuccess(self, clientId, publicIp):
         """
         Called on websocket handshake success
@@ -564,8 +604,10 @@ class TcpServerThread(threading.Thread, SocketServer.ThreadingMixIn, SocketServe
         @param clientId:
         @type clientId:
         """
-        self.__trace__("WS handshake successful for client %s public ip=%s" % (str(clientId),publicIp) )
-        
+        self.__trace__(
+            "WS handshake successful for client %s public ip=%s" %
+            (str(clientId), publicIp))
+
     def sendPacket(self, client, packet):
         """
         Send packet to the client
@@ -579,13 +621,13 @@ class TcpServerThread(threading.Thread, SocketServer.ThreadingMixIn, SocketServe
         self.__trace__("Sending packet to client: %s" % str(client))
         self.mutex.acquire()
         if client in self.clients:
-            client = self.clients[ client ]
+            client = self.clients[client]
         else:
             client = None
         self.mutex.release()
         if client:
-            self.__trace__("Client found for %s" % str(client.client_address) )
-            client.sendPacket( packet )
+            self.__trace__("Client found for %s" % str(client.client_address))
+            client.sendPacket(packet)
 
     def handlePacket(self, client, packet):
         """
@@ -598,7 +640,7 @@ class TcpServerThread(threading.Thread, SocketServer.ThreadingMixIn, SocketServe
         @type packet:
         """
         pass
-        
+
     def handleRequestWithTimeout(self, timeout):
         """
         Handle request with timeout
@@ -609,8 +651,8 @@ class TcpServerThread(threading.Thread, SocketServer.ThreadingMixIn, SocketServe
         r, w, e = select.select([self.socket], [], [], timeout)
         if r:
             self.handle_request()
-    
-    def __trace__ (self, txt):
+
+    def __trace__(self, txt):
         """
         Added class name and calls the function trace
 
@@ -618,9 +660,9 @@ class TcpServerThread(threading.Thread, SocketServer.ThreadingMixIn, SocketServe
         @type txt:
         """
         msg_ = "[TcpServerThread] %s" % txt
-        self.trace( msg_ )
-    
-    def trace (self, txt):
+        self.trace(msg_)
+
+    def trace(self, txt):
         """
         Display txt on screen
 
@@ -629,7 +671,7 @@ class TcpServerThread(threading.Thread, SocketServer.ThreadingMixIn, SocketServe
         """
         print(txt)
 
-    def error (self, txt):
+    def error(self, txt):
         """
         Display txt on screen
 
@@ -638,7 +680,7 @@ class TcpServerThread(threading.Thread, SocketServer.ThreadingMixIn, SocketServe
         """
         print(txt)
 
-    def warning (self, txt):
+    def warning(self, txt):
         """
         Display txt on screen
 

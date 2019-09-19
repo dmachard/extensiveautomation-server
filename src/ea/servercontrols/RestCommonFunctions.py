@@ -26,6 +26,7 @@ from pycnic.errors import HTTP_401, HTTP_400, HTTP_500, HTTP_403, HTTP_404
 
 import wrapt
 import platform
+import os
 
 from ea.libs import Settings
 from ea.serverengine import (Context,
@@ -33,12 +34,19 @@ from ea.serverengine import (Context,
                              TaskManager,
                              AgentsManager,
                              UsersManager,
-                             HelperManager )
-from ea.serverrepositories import ( RepoAdapters,
-                                    RepoTests,
-                                    RepoArchives )
+                             HelperManager)
+from ea.serverrepositories import (RepoAdapters,
+                                   RepoTests,
+                                   RepoArchives)
 
-class EmptyValue(Exception): pass
+from ea.libs.FileModels import TestSuite as TestSuite
+from ea.libs.FileModels import TestUnit as TestUnit
+from ea.libs.FileModels import TestPlan as TestPlan
+
+
+class EmptyValue(Exception):
+    pass
+
 
 @wrapt.decorator
 def _to_yaml(wrapped, instance, args, kwargs):
@@ -47,6 +55,7 @@ def _to_yaml(wrapped, instance, args, kwargs):
     public decorator for yaml generator
     """
     return wrapped(*args, **kwargs)
+
 
 def _get_user(request):
     """
@@ -71,13 +80,35 @@ def _get_user(request):
         else:
             raise HTTP_401("Invalid session")
 
+
+def _check_project_permissions(user_login, project_id):
+    """
+    Look up project
+    """
+    try:
+        project_id = int(project_id)
+    except BaseException:
+        raise HTTP_400(
+            "Bad project id (Id=%s) provided in request, int expected" %
+            str(project_id))
+
+    # get the project id according to the name and checking permissions
+    project_authorized = ProjectsManager.instance().checkProjectsAuthorization(user=user_login,
+                                                                               projectId=project_id)
+    if not project_authorized:
+        raise HTTP_403('Permission denied to this project')
+
+
 class HandlerCORS(Handler):
     def options(self):
         return {}
 
+
 """
 Session handlers
 """
+
+
 class SessionLogin(HandlerCORS):
     """
     /rest/session/login
@@ -140,7 +171,7 @@ class SessionLogin(HandlerCORS):
                   "session_id": "NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M",
                   "message": "Logged in",
                   "project_id": 1
-                }
+               }
             headers:
               Set-Cookie:
                 type: string
@@ -155,13 +186,15 @@ class SessionLogin(HandlerCORS):
 
             login = self.request.data.get("login")
             password = self.request.data.get("password")
-            if login is None: raise EmptyValue("Please specify login")
-            if password is None: raise EmptyValue("Please specify password")
+            if login is None:
+                raise EmptyValue("Please specify login")
+            if password is None:
+                raise EmptyValue("Please specify password")
 
             channelId = self.request.data.get("channel-id")
-            clientVersion = self.request.data.get("client-version")
-            clientPlatform = self.request.data.get("client-platform")
-            clientPortable = self.request.data.get("client-portable")
+            # clientVersion = self.request.data.get("client-version")
+            # clientPlatform = self.request.data.get("client-platform")
+            # clientPortable = self.request.data.get("client-portable")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -183,7 +216,7 @@ class SessionLogin(HandlerCORS):
         if userSession == Context.instance().CODE_FAILED:
             raise HTTP_401("Invalid credential!")
 
-        lease = Settings.get('Users_Session', 'max-expiry-age') #in seconds
+        lease = Settings.get('Users_Session', 'max-expiry-age')  # in seconds
         userProfile = Context.instance().getSessions()[userSession]
 
         self.response.set_cookie(key="session_id", value=userSession,
@@ -194,33 +227,36 @@ class SessionLogin(HandlerCORS):
 
         if channelId is not None:
             if not isinstance(channelId, list):
-                raise HTTP_400("Bad channel-id provided in request, list expected")
+                raise HTTP_400(
+                    "Bad channel-id provided in request, list expected")
             if len(channelId) != 2:
-                raise HTTP_400("Bad len channel-id provided in request, list of 2 elements expected")
+                raise HTTP_400(
+                    "Bad len channel-id provided in request, list of 2 elements expected")
 
             channelId = tuple(channelId)
-            user = { 'address' : channelId, 'profile': userProfile }
-            registered = Context.instance().registerUser(user=user)
+            user = {'address': channelId, 'profile': userProfile}
+            Context.instance().registerUser(user=user)
 
         _rsp = {
-                    "cmd": self.request.path,
-                    "message":"Logged in",
-                    "session_id": userSession,
-                    "expires": int(lease),
-                    "user_id": userProfile['id'],
-                    "levels": levels,
-                    "project_id":  userProfile['defaultproject'],
-                    "api_login": userProfile['login'],
-                    "api_secret": userProfile['apikey_secret'],
-                   # "email": userProfile['email'],
-                   # "projects": userProfile['projects']
-                }
+            "cmd": self.request.path,
+            "message": "Logged in",
+            "session_id": userSession,
+            "expires": int(lease),
+            "user_id": userProfile['id'],
+            "levels": levels,
+            "project_id": userProfile['defaultproject'],
+            "api_login": userProfile['login'],
+            "api_secret": userProfile['apikey_secret'],
+            # "email": userProfile['email'],
+            # "projects": userProfile['projects']
+        }
 
         _rsp["client-available"] = False
         _rsp["version"] = ''
         _rsp["name"] = ''
 
         return _rsp
+
 
 class SessionLogout(HandlerCORS):
     """
@@ -256,7 +292,7 @@ class SessionLogout(HandlerCORS):
                 {
                   "message": "logged out",
                   "cmd": "/session/logout"
-                }
+               }
             headers:
               Set-Cookie:
                 type: string
@@ -268,9 +304,10 @@ class SessionLogout(HandlerCORS):
         if sess_id in Context.instance().getSessions():
             del Context.instance().getSessions()[sess_id]
             self.response.delete_cookie("session_id")
-            return {  "cmd": self.request.path, "message":"logged out" }
+            return {"cmd": self.request.path, "message": "logged out"}
 
-        return { "cmd": self.request.path, "message":"Not logged in" }
+        return {"cmd": self.request.path, "message": "Not logged in"}
+
 
 class SessionRefresh(HandlerCORS):
     """
@@ -306,7 +343,7 @@ class SessionRefresh(HandlerCORS):
                 {
                   "message": "session refreshed",
                   "cmd": "/session/refresh"
-                }
+               }
             headers:
               Set-Cookie:
                 type: string
@@ -315,12 +352,18 @@ class SessionRefresh(HandlerCORS):
           '401':
             description: Access denied
         """
-        sess_user = _get_user(request=self.request)
+        # sess_user = _get_user(request=self.request)
         sess_id = self.request.cookies.get("session_id")
 
         expires = Context.instance().updateSession(sessionId=sess_id)
-        self.response.set_cookie(key="session_id", value=sess_id, expires=expires, path='/', domain="")
-        return { "cmd": self.request.path, "message":"session refreshed" }
+        self.response.set_cookie(
+            key="session_id",
+            value=sess_id,
+            expires=expires,
+            path='/',
+            domain="")
+        return {"cmd": self.request.path, "message": "session refreshed"}
+
 
 class SessionContext(HandlerCORS):
     """
@@ -356,15 +399,17 @@ class SessionContext(HandlerCORS):
                 {
                   "context": "xxxxxxxxxxxx",
                   "cmd": "/session/context"
-                }
+               }
           '401':
             description: Access denied
         """
         user_profile = _get_user(request=self.request)
 
-        context = Context.instance().getInformations(user=user_profile['login'])
+        context = Context.instance().getInformations(
+            user=user_profile['login'])
 
-        return { "cmd": self.request.path, "context": context }
+        return {"cmd": self.request.path, "context": context}
+
 
 class SessionContextNotify(HandlerCORS):
     """
@@ -399,15 +444,16 @@ class SessionContextNotify(HandlerCORS):
                 {
                   "message": "success",
                   "cmd": "/session/context/notify"
-                }
+               }
           '401':
             description: Access denied
         """
-        user_profile = _get_user(request=self.request)
+        # user_profile = _get_user(request=self.request)
 
         Context.instance().refreshTestEnvironment()
 
-        return { "cmd": self.request.path, "message": "success" }
+        return {"cmd": self.request.path, "message": "success"}
+
 
 class SessionContextAll(HandlerCORS):
     """
@@ -443,7 +489,7 @@ class SessionContextAll(HandlerCORS):
                 {
                   "context": "xxxxxxxxxxxx",
                   "cmd": "/session/context"
-                }
+               }
           '401':
             description: Access denied
         """
@@ -451,15 +497,16 @@ class SessionContextAll(HandlerCORS):
 
         USER_CTX = Context.UserContext(login=user_profile["login"])
 
-        rsp = { "cmd": self.request.path }
+        rsp = {"cmd": self.request.path}
 
         rsp['agents-running'] = AgentsManager.instance().getRunning()
 
         rsp['projects'] = USER_CTX.getProjects()
         rsp['default-project'] = USER_CTX.getDefault()
 
-        _, _, archs, stats_archs = RepoArchives.instance().getTree(project=USER_CTX.getDefault())
-        rsp['archives'] =  archs
+        _, _, archs, stats_archs = RepoArchives.instance().getTree(
+            project=USER_CTX.getDefault())
+        rsp['archives'] = archs
         rsp['stats-repo-archives'] = stats_archs
 
         rsp['tasks-running'] = TaskManager.instance().getRunning(user=USER_CTX)
@@ -467,14 +514,15 @@ class SessionContextAll(HandlerCORS):
         rsp['tasks-history'] = TaskManager.instance().getHistory(user=USER_CTX)
         rsp['tasks-enqueued'] = TaskManager.instance().getEnqueued()
 
-        _, _, tests, stats_tests = RepoTests.instance().getTree(project=USER_CTX.getDefault() )
+        _, _, tests, stats_tests = RepoTests.instance().getTree(
+            project=USER_CTX.getDefault())
         rsp['repo'] = tests
         rsp['stats-repo-tests'] = stats_tests
 
         rsp['help'] = HelperManager.instance().getHelps()
-        rsp['stats'] = {} # StatsManager.instance().getStats()
+        rsp['stats'] = {}  # StatsManager.instance().getStats()
 
-        rsp['stats-server'] = {} # Context.instance().getStats()
+        rsp['stats-server'] = {}  # Context.instance().getStats()
         rsp['backups-repo-tests'] = []
         rsp['backups-repo-adapters'] = []
         rsp['backups-repo-libraries'] = []
@@ -485,8 +533,8 @@ class SessionContextAll(HandlerCORS):
         rsp['stats-repo-adapters'] = stats_adps
 
         # _, _, libs, stats_libs = RepoLibraries.instance().getTree()
-        rsp['repo-lib-adp'] = [] #libs
-        rsp['stats-repo-libraries'] = {} #stats_libs
+        rsp['repo-lib-adp'] = []  # libs
+        rsp['stats-repo-libraries'] = {}  # stats_libs
 
         rsp['core'] = Context.instance().getRn(pathRn=Settings.getDirExec())
         rsp['adapters'] = ''
@@ -498,9 +546,12 @@ class SessionContextAll(HandlerCORS):
 
         return rsp
 
+
 """
 Administration handlers
 """
+
+
 class AdminProjectsSearchByName(HandlerCORS):
     """
     /rest/administration/projects/search/by/name
@@ -545,29 +596,32 @@ class AdminProjectsSearchByName(HandlerCORS):
                 {
                   "cmd": "/administration/projects/search/by/name",
                   "project: {}
-                }
+               }
           '400':
             description: Bad request provided
           '500':
             description: Server error
         """
-        user_profile = _get_user(request=self.request)
+        # user_profile = _get_user(request=self.request)
 
         try:
             projectName = self.request.data.get("project-name")
-            if projectName is None: raise EmptyValue("Please specify the name of the project")
+            if projectName is None:
+                raise EmptyValue("Please specify the name of the project")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
             raise HTTP_400("Bad request provided (%s ?)" % e)
 
-        success, details = ProjectsManager.instance().getProjectFromDB(projectName=projectName)
+        success, details = ProjectsManager.instance(
+        ).getProjectFromDB(projectName=projectName)
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
         if len(details) == 0:
             raise HTTP_500("no project found")
 
-        return { "cmd": self.request.path, "project": details[0] }
+        return {"cmd": self.request.path, "project": details[0]}
+
 
 class AdminUsersPasswordUpdate(HandlerCORS):
     """
@@ -617,7 +671,7 @@ class AdminUsersPasswordUpdate(HandlerCORS):
                 {
                   "cmd": "/administration/users/password/update",
                   "message: "password successfully updated"
-                }
+               }
           '400':
             description: Bad request provided
           '404':
@@ -631,13 +685,16 @@ class AdminUsersPasswordUpdate(HandlerCORS):
 
         try:
             userId = self.request.data.get("user-id")
-            if userId is None : raise HTTP_400("Please specify a user id")
+            if userId is None:
+                raise HTTP_400("Please specify a user id")
 
             currentPwd = self.request.data.get("current-password")
-            if currentPwd is None : raise HTTP_400("Please specify the current password")
+            if currentPwd is None:
+                raise HTTP_400("Please specify the current password")
 
             newPwd = self.request.data.get("new-password")
-            if newPwd is None : raise HTTP_400("Please specify the new password")
+            if newPwd is None:
+                raise HTTP_400("Please specify the new password")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -648,8 +705,8 @@ class AdminUsersPasswordUpdate(HandlerCORS):
             raise HTTP_400("Bad user id provided in request, int expected")
 
         if not user_profile['administrator']:
-                if userId != user_profile['id']:
-                        raise HTTP_403("Not authorized to change password")
+            if userId != user_profile['id']:
+                raise HTTP_403("Not authorized to change password")
 
         # update
         success, details = UsersManager.instance().updatePwdUserInDB(userId=userId,
@@ -662,7 +719,9 @@ class AdminUsersPasswordUpdate(HandlerCORS):
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
 
-        return { "cmd": self.request.path, "message": "password successfully updated" }
+        return {"cmd": self.request.path,
+                "message": "password successfully updated"}
+
 
 class AdminUsersUpdate(HandlerCORS):
     """
@@ -728,7 +787,7 @@ class AdminUsersUpdate(HandlerCORS):
                 {
                   "cmd": "/administration/users/update",
                   "message: "user successfully updated"
-                }
+               }
           '400':
             description: Bad request provided
           '404':
@@ -740,7 +799,8 @@ class AdminUsersUpdate(HandlerCORS):
 
         try:
             userId = self.request.data.get("user-id")
-            if userId is None : raise HTTP_400("Please specify a user id")
+            if userId is None:
+                raise HTTP_400("Please specify a user id")
 
             login = self.request.data.get("login")
             email = self.request.data.get("email")
@@ -763,23 +823,24 @@ class AdminUsersUpdate(HandlerCORS):
             def_valid = False
             if default is not None:
                 for prj in projects:
-                    if int(prj)  == int(default):
+                    if int(prj) == int(default):
                         def_valid = True
                 if not def_valid:
                     raise HTTP_403("Access denied to this project as default")
 
             success, details = UsersManager.instance().updateUserInDB(userId=userId,
-                                                                  email=email,
-                                                                  login=login,
-                                                                  level=level,
-                                                                  lang=lang,
-                                                                  style=style,
-                                                                  notifications=notifications,
-                                                                  default=default,
-                                                                  projects=projects)
+                                                                      email=email,
+                                                                      login=login,
+                                                                      level=level,
+                                                                      lang=lang,
+                                                                      style=style,
+                                                                      notifications=notifications,
+                                                                      default=default,
+                                                                      projects=projects)
         else:
             if userId != user_profile['id']:
-                raise HTTP_403("Not authorized to change notifications for other user")
+                raise HTTP_403(
+                    "Not authorized to change notifications for other user")
             success, details = UsersManager.instance().updateUserInDB(userId=userId,
                                                                       notifications=notifications)
 
@@ -790,7 +851,9 @@ class AdminUsersUpdate(HandlerCORS):
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
 
-        return { "cmd": self.request.path, "message": "user successfully updated" }
+        return {"cmd": self.request.path,
+                "message": "user successfully updated"}
+
 
 class SystemAbout(HandlerCORS):
     """
@@ -838,13 +901,13 @@ class SystemAbout(HandlerCORS):
             examples:
               application/json: |
                 {
-                  "about": { 'rn': '...', 'core': '...', 'version': '...'},
+                  "about": {'rn': '...', 'core': '...', 'version': '...'},
                   "cmd": "/system/about"
-                }
+               }
           '401':
             description: Access denied
         """
-        user_profile = _get_user(request=self.request)
+        # user_profile = _get_user(request=self.request)
 
         about = {}
 
@@ -858,7 +921,8 @@ class SystemAbout(HandlerCORS):
         about["changelogs"] = rn
         about["version"] = versions
 
-        return { "cmd": self.request.path, "about": about }
+        return {"cmd": self.request.path, "about": about}
+
 
 class SystemStatus(HandlerCORS):
     """
@@ -893,15 +957,66 @@ class SystemStatus(HandlerCORS):
                 {
                   "status": 'OK',
                   "cmd": "/system/status"
-                }
+               }
           '401':
             description: Access denied
         """
-        return { "cmd": self.request.path, "status": "OK" }
+        return {"cmd": self.request.path, "status": "OK"}
+
 
 """
 Tasks handlers
 """
+
+
+class TasksListing(HandlerCORS):
+    """
+    /rest/tasks/listing
+    """
+    @_to_yaml
+    def get(self):
+        """
+        tags:
+          - tasks
+        summary: Get a listing of all tasks
+        description: ''
+        operationId: tasksListing
+        produces:
+          - application/json
+        parameters:
+          - name: Cookie
+            in: header
+            description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
+            required: true
+            type: string
+        responses:
+          '200':
+            description: tasks listing
+            schema :
+              properties:
+                cmd:
+                  type: string
+                tasks-listing:
+                  type: array
+            examples:
+              application/json: |
+                {
+                  "tasks-listing": [],
+                  "cmd": "/tasks/listing"
+               }
+          '401':
+            description: Access denied
+        """
+        user_profile = _get_user(request=self.request)
+
+        _userCtx = Context.UserContext(login=user_profile['login'])
+        if user_profile['administrator']:
+            _userCtx = None
+
+        listing = TaskManager.instance().getListing(user=_userCtx)
+        return {"cmd": self.request.path, "tasks-listing": listing}
+
+
 class TasksRunning(HandlerCORS):
     """
     /rest/tasks/running
@@ -938,17 +1053,19 @@ class TasksRunning(HandlerCORS):
                 {
                   "tasks-running": [],
                   "cmd": "/tasks/running"
-                }
+               }
           '401':
             description: Access denied
         """
         user_profile = _get_user(request=self.request)
 
         _userCtx = Context.UserContext(login=user_profile['login'])
-        if user_profile['administrator']: _userCtx = None
+        if user_profile['administrator']:
+            _userCtx = None
 
         running = TaskManager.instance().getRunning(user=_userCtx)
-        return { "cmd": self.request.path, "tasks-running": running }
+        return {"cmd": self.request.path, "tasks-running": running}
+
 
 class TasksWaiting(HandlerCORS):
     """
@@ -986,17 +1103,19 @@ class TasksWaiting(HandlerCORS):
                 {
                   "tasks-waiting": [],
                   "cmd": "/tasks/waiting"
-                }
+               }
           '401':
             description: Access denied
         """
         user_profile = _get_user(request=self.request)
 
         _userCtx = Context.UserContext(login=user_profile['login'])
-        if user_profile['administrator']: _userCtx = None
+        if user_profile['administrator']:
+            _userCtx = None
 
         waiting = TaskManager.instance().getWaiting(user=_userCtx)
-        return { "cmd": self.request.path, "tasks-waiting": waiting }
+        return {"cmd": self.request.path, "tasks-waiting": waiting}
+
 
 class TasksHistory(HandlerCORS):
     """
@@ -1034,17 +1153,19 @@ class TasksHistory(HandlerCORS):
                 {
                   "tasks-history": [],
                   "cmd": "/tasks/history"
-                }
+               }
           '401':
             description: Access denied
         """
         user_profile = _get_user(request=self.request)
 
         _userCtx = Context.UserContext(login=user_profile['login'])
-        if user_profile['administrator']: _userCtx = None
+        if user_profile['administrator']:
+            _userCtx = None
 
         history = TaskManager.instance().getHistory(user=_userCtx)
-        return { "cmd": self.request.path, "tasks-history": history }
+        return {"cmd": self.request.path, "tasks-history": history}
+
 
 class TasksHistoryAll(HandlerCORS):
     """
@@ -1082,17 +1203,19 @@ class TasksHistoryAll(HandlerCORS):
                 {
                   "tasks-history": [],
                   "cmd": "/tasks/history/all"
-                }
+               }
           '401':
             description: Access denied
         """
         user_profile = _get_user(request=self.request)
 
         _userCtx = Context.UserContext(login=user_profile['login'])
-        if user_profile['administrator']: _userCtx = None
+        if user_profile['administrator']:
+            _userCtx = None
 
         history = TaskManager.instance().getHistory(Full=True, user=_userCtx)
-        return { "cmd": self.request.path, "tasks-history": history }
+        return {"cmd": self.request.path, "tasks-history": history}
+
 
 class TasksCancel(HandlerCORS):
     """
@@ -1137,7 +1260,7 @@ class TasksCancel(HandlerCORS):
                 {
                   "message": "task successfully cancelled",
                   "cmd": "/tasks/cancel"
-                }
+               }
           '401':
             description: Access denied
         """
@@ -1145,7 +1268,8 @@ class TasksCancel(HandlerCORS):
 
         try:
             taskId = self.request.data.get("task-id")
-            if taskId is None: raise EmptyValue("Please specify task-id")
+            if taskId is None:
+                raise EmptyValue("Please specify task-id")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -1156,7 +1280,8 @@ class TasksCancel(HandlerCORS):
             raise HTTP_400("Bad task id provided in request, int expected")
 
         _userName = user_profile['login']
-        if user_profile['administrator']: _userName = None
+        if user_profile['administrator']:
+            _userName = None
 
         # kill all task
         success = TaskManager.instance().cancelTask(taskId=taskId, userName=_userName)
@@ -1167,7 +1292,9 @@ class TasksCancel(HandlerCORS):
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500("unable to kill the task")
 
-        return { "cmd": self.request.path, "message": "task successfully cancelled", 'task-id': taskId }
+        return {"cmd": self.request.path,
+                "message": "task successfully cancelled", 'task-id': taskId}
+
 
 class TasksCancelSelective(HandlerCORS):
     """
@@ -1214,7 +1341,7 @@ class TasksCancelSelective(HandlerCORS):
                 {
                   "message": "tasks successfully cancelled",
                   "cmd": "/tasks/cancel/selective"
-                }
+               }
           '401':
             description: Access denied
         """
@@ -1222,7 +1349,8 @@ class TasksCancelSelective(HandlerCORS):
 
         try:
             tasksId = self.request.data.get("tasks-id")
-            if tasksId is None: raise EmptyValue("Please specify tasks-id")
+            if tasksId is None:
+                raise EmptyValue("Please specify tasks-id")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -1233,7 +1361,8 @@ class TasksCancelSelective(HandlerCORS):
             raise HTTP_400("Bad tasks id provided in request, list expected")
 
         _userName = user_profile['login']
-        if user_profile['administrator']: _userName = None
+        if user_profile['administrator']:
+            _userName = None
 
         # cancel selective tasks
         for taskId in tasksId:
@@ -1245,7 +1374,495 @@ class TasksCancelSelective(HandlerCORS):
             if success == Context.instance().CODE_ERROR:
                 raise HTTP_500("unable to cancel the task")
 
-        return { "cmd": self.request.path, "message": "tasks successfully cancelled" }
+        return {"cmd": self.request.path,
+                "message": "tasks successfully cancelled"}
+
+
+class TasksSchedule(HandlerCORS):
+    """
+    /rest/tasks/schedule
+    """
+    @_to_yaml
+    def post(self):
+        """
+        tags:
+          - tasks
+        summary: Schedule a task from task manager
+        description: ''
+        operationId: tasksSchedule
+        consumes:
+          - application/json
+        produces:
+          - application/json
+        parameters:
+          - name: Cookie
+            in: header
+            description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
+            required: true
+            type: string
+          - name: body
+            in: body
+            required: true
+            schema:
+              required: [ project-id, test-extension, test-path, test-name]
+              properties:
+                project-id:
+                  type: integer
+                test-definition:
+                  type: string
+                test-execution:
+                  type: string
+                test-properties:
+                  type: object
+                test-extension:
+                  type: string
+                test-path:
+                  type: string
+                test-name:
+                  type: string
+                schedule-id:
+                  type: integer
+                  description: '0 => now, 1 => at, 2 => in'
+                schedule-at:
+                  type: array
+                  description: '[ Y,M,D,H,M,S ]'
+                  items:
+                    type: integer
+                schedule-repeat:
+                  type: integer
+                debug-enabled:
+                  type: boolean
+                from-time:
+                  type: array
+                  description: '[ Y,M,D,H,M,S ]'
+                  items:
+                    type: integer
+                to-time:
+                  type: array
+                  description: '[ Y,M,D,H,M,S ]'
+                  items:
+                    type: integer
+                test-inputs:
+                  type: array
+                  description: Test inputs parameters can be used to overwrite the original test parameters
+                  items:
+                    type: object
+                    required: [ name, value, type ]
+                    properties:
+                      name:
+                        type: string
+                      type:
+                        type: string
+                      value:
+                        type: string
+        responses:
+          '200':
+            description: tests listing
+            schema :
+              properties:
+                cmd:
+                  type: string
+                test-id:
+                  type: string
+                task-id:
+                  type: string
+                tab-id:
+                  type: string
+                test-name:
+                  type: string
+                message:
+                  type: string
+            examples:
+              application/json: |
+                {
+                  "cmd": "/tests/schedule",
+                  "message": ""
+                  "test-id": "",
+                  "task-id": "",
+                  "tab-id": ""
+                  "test-name": ""
+               }
+          '400':
+            description: Bad request provided
+          '403':
+            description: Access denied to this project
+          '500':
+            description: Server error
+        """
+        user_profile = _get_user(request=self.request)
+
+        try:
+            projectId = self.request.data.get("project-id")
+            if projectId is None:
+                raise EmptyValue("Please specify a project id")
+
+            testDefinition = self.request.data.get("test-definition")
+            if testDefinition is None:
+                testDefinition = ""
+
+            testExecution = self.request.data.get("test-execution")
+            if testExecution is None:
+                testExecution = ""
+
+            testProperties = self.request.data.get("test-properties")
+            if testProperties is None:
+                testProperties = {}
+
+            testExtension = self.request.data.get("test-extension")
+            if testExtension is None:
+                raise EmptyValue("Please specify a test extension")
+
+            testPath = self.request.data.get("test-path")
+            if testPath is None:
+                raise EmptyValue("Please specify a test path")
+
+            testName = self.request.data.get("test-name")
+            if testName is None:
+                raise EmptyValue("Please specify a test name")
+
+            scheduleId = self.request.data.get("schedule-id")
+            if scheduleId is None:
+                scheduleId = 0
+
+            _scheduleAt = self.request.data.get("schedule-at")
+            _scheduleRepeat = self.request.data.get("schedule-repeat", 0)
+            # _tabId = self.request.data.get("tab-id")
+            # _backgroundMode = self.request.data.get("background-mode")
+            # _stepMode = self.request.data.get("step-mode")
+            # _breakpointMode = self.request.data.get("breakpoint-mode")
+            # _probesEnabled = self.request.data.get("probes-enabled")
+            # _notificationsEnabled = self.request.data.get("notifications-enabled")
+            # _logsEnabled = self.request.data.get("logs-enabled")
+            _debugEnabled = self.request.data.get("debug-enabled")
+            _fromTime = self.request.data.get("from-time")
+            _toTime = self.request.data.get("to-time")
+
+            _testInputs = self.request.data.get("test-inputs")
+        except EmptyValue as e:
+            raise HTTP_400("%s" % e)
+        except Exception as e:
+            raise HTTP_400("Bad request provided (%s ?)" % e)
+
+        # checking input
+        if not isinstance(projectId, int):
+            raise HTTP_400("Bad project id provided in request, int expected")
+        if not isinstance(scheduleId, int):
+            raise HTTP_400("Bad schedule id provided in request, int expected")
+
+        if _testInputs is not None:
+            if not isinstance(_testInputs, list):
+                raise HTTP_400(
+                    "Bad test inputs provided in request, list expected")
+            for inp in _testInputs:
+                if not isinstance(inp, dict):
+                    raise HTTP_400(
+                        "Bad test inputs provided in request, list of dict expected")
+                if not ("name" in inp and "type" in inp and "value" in inp):
+                    raise HTTP_400(
+                        "Bad test format inputs provided in request")
+
+        # run a test not save; change the project id to the default
+        if projectId == 0:
+            projectId = ProjectsManager.instance().getDefaultProjectForUser(
+                user=user_profile['login'])
+
+        _check_project_permissions(
+            user_login=user_profile['login'],
+            project_id=projectId)
+
+        # no test content provided
+        if not len(testDefinition) and not len(
+                testExecution) and not len(testProperties):
+            if testExtension == 'tsx':
+                doc = TestSuite.DataModel()
+                res = doc.load(absPath="%s/%s/%s/%s.%s" % (RepoTests.instance().testsPath,
+                                                           projectId,
+                                                           testPath,
+                                                           testName,
+                                                           testExtension))
+                if not res:
+                    raise HTTP_500('Unable to read test suite: %s' % testPath)
+
+                testData = {'test-definition': doc.testdef,
+                            'test-execution': doc.testexec,
+                            'test-properties': doc.properties['properties'],
+                            'test-extension': testExtension
+                            }
+
+            elif testExtension == 'tux':
+                doc = TestUnit.DataModel()
+                res = doc.load(absPath="%s/%s/%s/%s.%s" % (RepoTests.instance().testsPath,
+                                                           projectId,
+                                                           testPath,
+                                                           testName,
+                                                           testExtension))
+                if not res:
+                    raise HTTP_500('Unable to read test unit: %s' % testPath)
+
+                testData = {'test-definition': doc.testdef,
+                            'test-properties': doc.properties['properties'],
+                            'test-extension': testExtension}
+            elif testExtension == 'tpx':
+                doc = TestPlan.DataModel()
+                res = doc.load(absPath="%s/%s/%s/%s.%s" % (RepoTests.instance().testsPath,
+                                                           projectId,
+                                                           testPath,
+                                                           testName,
+                                                           testExtension))
+                if not res:
+                    raise HTTP_500('Unable to read test plan: %s' % testPath)
+
+                tests = doc.getSorted()
+                success, error_msg = RepoTests.instance().addtf2tp(data_=tests)
+                if success != Context.instance().CODE_OK:
+                    raise HTTP_500(
+                        'Unable to prepare test plan: %s' %
+                        error_msg)
+
+                testData = {'test-execution': tests,
+                            'test-properties': doc.properties['properties'],
+                            'test-extension': testExtension}
+
+            elif testExtension == 'tgx':
+                doc = TestPlan.DataModel()
+                res = doc.load(absPath="%s/%s/%s/%s.%s" % (RepoTests.instance().testsPath,
+                                                           projectId,
+                                                           testPath,
+                                                           testName,
+                                                           testExtension))
+                if not res:
+                    raise HTTP_500('Unable to read test global: %s' % testPath)
+
+                alltests = doc.getSorted()
+                success, error_msg, alltests = RepoTests.instance().addtf2tg(data_=alltests)
+                if success != Context.instance().CODE_OK:
+                    raise HTTP_500(
+                        'Unable to prepare test global: %s' %
+                        error_msg)
+
+                testData = {'test-execution': alltests,
+                            'test-properties': doc.properties['properties'],
+                            'test-extension': testExtension}
+            else:
+                raise HTTP_403(
+                    'Test extension not supported: %s' %
+                    testExtension)
+
+        else:
+            if testExtension == 'tsx':
+                testData = {'test-definition': testDefinition,
+                            'test-execution': testExecution,
+                            'test-properties': testProperties,
+                            'test-extension': testExtension}
+
+            elif testExtension == 'tux':
+                testData = {'test-definition': testDefinition,
+                            'test-execution': '',
+                            'test-properties': testProperties,
+                            'test-extension': testExtension}
+
+            elif testExtension == 'tpx':
+                success, error_msg = RepoTests.instance().addtf2tp(data_=testExecution)
+                if success != Context.instance().CODE_OK:
+                    raise HTTP_500(
+                        'Unable to prepare test plan: %s' %
+                        error_msg)
+
+                testData = {'test-definition': '',
+                            'test-execution': testExecution,
+                            'test-properties': testProperties,
+                            'test-extension': testExtension}
+
+            elif testExtension == 'tgx':
+                success, error_msg, testExecution = RepoTests.instance().addtf2tg(data_=testExecution)
+                if success != Context.instance().CODE_OK:
+                    raise HTTP_500(
+                        'Unable to prepare test global: %s' %
+                        error_msg)
+
+                testData = {'test-definition': '',
+                            'test-execution': testExecution,
+                            'test-properties': testProperties,
+                            'test-extension': testExtension}
+
+            else:
+                raise HTTP_403(
+                    'Test extension not supported: %s' %
+                    testExtension)
+
+        # tabId = 0
+        # backgroundMode = True
+        # stepMode = False
+        # breakpointMode = False
+        # notificationsEnabled = False
+        # logsEnabled = True
+        debugEnabled = False
+        # probesEnabled = False
+        fromTime = (0, 0, 0, 0, 0, 0)
+        toTime = (0, 0, 0, 0, 0, 0)
+        message = "success"
+        scheduleAt = (0, 0, 0, 0, 0, 0)
+
+        # if _tabId is not None: tabId = _tabId
+        # if _backgroundMode is not None: backgroundMode=_backgroundMode
+        # if _stepMode is not None: stepMode=_stepMode
+        # if _breakpointMode is not None: breakpointMode=_breakpointMode
+        # if _notificationsEnabled is not None: notificationsEnabled=_notificationsEnabled
+        # if _logsEnabled is not None: logsEnabled=_logsEnabled
+        if _debugEnabled is not None:
+            debugEnabled = _debugEnabled
+        # if _probesEnabled is not None: probesEnabled=_probesEnabled
+        if _fromTime is not None:
+            fromTime = _fromTime
+        if _toTime is not None:
+            toTime = _toTime
+        if _scheduleAt is not None:
+            scheduleAt = _scheduleAt
+
+        # personalize test description ?
+        if _testInputs is not None:
+            for newInp in _testInputs:
+                if "scope" not in newInp:
+                    newInp["scope"] = "local"
+                for origInp in testData["test-properties"]['inputs-parameters']['parameter']:
+                    if "scope" not in origInp:
+                        origInp["scope"] = "local"
+
+                    # if the param exist on the original test than overwrite
+                    # them
+                    if newInp["name"] == origInp["name"]:
+                        origInp["value"] = newInp["value"]
+                        origInp["type"] = newInp["type"]
+                        origInp["scope"] = newInp["scope"]
+
+        if not testPath.endswith(testName):
+            if len(testPath):
+                _testPath = "%s/%s" % (testPath, testName)
+            else:
+                _testPath = testName
+            _testPath = os.path.normpath(_testPath)
+        else:
+            _testPath = testPath
+
+        task = TaskManager.instance().registerTask(
+            testData=testData,
+            testName=testName,
+            testPath=_testPath,
+            testUserId=user_profile['id'],
+            testUser=user_profile['login'],
+            testId=0,
+            testBackground=True,
+            runAt=scheduleAt,
+            runType=scheduleId,
+            runNb=_scheduleRepeat,
+            withoutProbes=False,
+            debugActivated=debugEnabled,
+            withoutNotif=False,
+            noKeepTr=False,
+            testProjectId=projectId,
+            runFrom=fromTime,
+            runTo=toTime,
+            stepByStep=False,
+            breakpoint=False,
+            channelId=False
+        )
+
+        if task.lastError is not None:
+            raise HTTP_500('ERROR: %s' % task.lastError)
+
+        message = "success"
+        if task.isRecursive():
+            message = "recursive"
+        if task.isPostponed():
+            message = "postponed"
+        if task.isSuccessive():
+            message = "successive"
+        return {"cmd": self.request.path,
+                "message": message,
+                "task-id": task.getId(),
+                "test-id": task.getTestID(),
+                "test-name": testName}
+
+
+class TasksRemove(HandlerCORS):
+    """
+    /rest/tasks/remove
+    """
+    @_to_yaml
+    def post(self):
+        """
+        tags:
+          - tasks
+        summary: Remove task from task manager
+        description: ''
+        operationId: tasksRemove
+        produces:
+          - application/json
+        parameters:
+          - name: Cookie
+            in: header
+            description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
+            required: true
+            type: string
+          - name: body
+            in: body
+            required: true
+            schema:
+              required: [ task-id ]
+              properties:
+                task-id:
+                  type: integer
+                  description: task id to remove
+        responses:
+          '200':
+            description: Task successfully removed
+            schema :
+              properties:
+                cmd:
+                  type: string
+                message:
+                  type: string
+            examples:
+              application/json: |
+                {
+                  "message": "task successfully removed",
+                  "cmd": "/tasks/remove"
+               }
+          '401':
+            description: Access denied
+        """
+        user_profile = _get_user(request=self.request)
+
+        try:
+            taskId = self.request.data.get("task-id")
+            if taskId is None:
+                raise EmptyValue("Please specify task-id")
+        except EmptyValue as e:
+            raise HTTP_400("%s" % e)
+        except Exception as e:
+            raise HTTP_400("Bad request provided (%s ?)" % e)
+
+        # checking input
+        if not isinstance(taskId, int):
+            raise HTTP_400("Bad task id provided in request, int expected")
+
+        _userName = user_profile['login']
+        if user_profile['administrator']:
+            _userName = None
+
+        # remove all task
+        success = TaskManager.instance().delTask(taskId=taskId, userName=_userName)
+        if success == Context.instance().CODE_NOT_FOUND:
+            raise HTTP_404("task id not found")
+        if success == Context.instance().CODE_FORBIDDEN:
+            raise HTTP_403("access denied to this task")
+        if success == Context.instance().CODE_ERROR:
+            raise HTTP_500("unable to remove the task")
+
+        return {"cmd": self.request.path,
+                "message": "task successfully removed",
+                "task-id": taskId}
+
 
 class TasksKill(HandlerCORS):
     """
@@ -1290,7 +1907,7 @@ class TasksKill(HandlerCORS):
                 {
                   "message": "task successfully killed",
                   "cmd": "/tasks/kill"
-                }
+               }
           '401':
             description: Access denied
         """
@@ -1298,7 +1915,8 @@ class TasksKill(HandlerCORS):
 
         try:
             taskId = self.request.data.get("task-id")
-            if taskId is None: raise EmptyValue("Please specify task-id")
+            if taskId is None:
+                raise EmptyValue("Please specify task-id")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -1309,7 +1927,8 @@ class TasksKill(HandlerCORS):
             raise HTTP_400("Bad task id provided in request, int expected")
 
         _userName = user_profile['login']
-        if user_profile['administrator']: _userName = None
+        if user_profile['administrator']:
+            _userName = None
 
         # kill all task
         success = TaskManager.instance().killTask(taskId=taskId, userName=_userName)
@@ -1320,7 +1939,9 @@ class TasksKill(HandlerCORS):
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500("unable to kill the task")
 
-        return { "cmd": self.request.path, "message": "task successfully killed", 'task-id': taskId }
+        return {"cmd": self.request.path,
+                "message": "task successfully killed", 'task-id': taskId}
+
 
 class TasksKillSelective(HandlerCORS):
     """
@@ -1367,7 +1988,7 @@ class TasksKillSelective(HandlerCORS):
                 {
                   "message": "tasks successfully killed",
                   "cmd": "/tasks/kill/selective"
-                }
+               }
           '401':
             description: Access denied
         """
@@ -1375,7 +1996,8 @@ class TasksKillSelective(HandlerCORS):
 
         try:
             tasksId = self.request.data.get("tasks-id")
-            if tasksId is None: raise EmptyValue("Please specify tasks-id")
+            if tasksId is None:
+                raise EmptyValue("Please specify tasks-id")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -1386,7 +2008,8 @@ class TasksKillSelective(HandlerCORS):
             raise HTTP_400("Bad tasks id provided in request, list expected")
 
         _userName = user_profile['login']
-        if user_profile['administrator']: _userName = None
+        if user_profile['administrator']:
+            _userName = None
 
         # kill selective tasks
         for taskId in tasksId:
@@ -1398,7 +2021,9 @@ class TasksKillSelective(HandlerCORS):
             if success == Context.instance().CODE_ERROR:
                 raise HTTP_500("unable to kill the task")
 
-        return { "cmd": self.request.path, "message": "tasks successfully killed" }
+        return {"cmd": self.request.path,
+                "message": "tasks successfully killed"}
+
 
 class TasksReschedule(HandlerCORS):
     """
@@ -1475,7 +2100,7 @@ class TasksReschedule(HandlerCORS):
                 {
                   "message": "task successfully rescheduled",
                   "cmd": "/tasks/reschedule"
-                }
+               }
           '401':
             description: Access denied
         """
@@ -1489,26 +2114,38 @@ class TasksReschedule(HandlerCORS):
             scheduleAt = self.request.data.get("schedule-at")
             scheduleRepeat = self.request.data.get("schedule-repeat")
             probesEnabled = self.request.data.get("probes-enabled")
-            notificationsEnabled = self.request.data.get("notifications-enabled")
+            notificationsEnabled = self.request.data.get(
+                "notifications-enabled")
             logsEnabled = self.request.data.get("logs-enabled")
             debugEnabled = self.request.data.get("debug-enabled")
             fromTime = self.request.data.get("from-time")
             toTime = self.request.data.get("to-time")
 
-            if taskId is None: raise EmptyValue("Please specify task-id")
-            if taskEnabled is None: raise EmptyValue("Please specify task-boolean")
+            if taskId is None:
+                raise EmptyValue("Please specify task-id")
+            if taskEnabled is None:
+                raise EmptyValue("Please specify task-boolean")
 
-            if scheduleType is None and scheduleId is None : raise EmptyValue("Please specify schedule-type or schedule-id")
-            if scheduleAt is None: raise EmptyValue("Please specify schedule-at")
-            if scheduleRepeat is None: raise EmptyValue("Please specify schedule-repeat")
+            if scheduleType is None and scheduleId is None:
+                raise EmptyValue("Please specify schedule-type or schedule-id")
+            if scheduleAt is None:
+                raise EmptyValue("Please specify schedule-at")
+            if scheduleRepeat is None:
+                raise EmptyValue("Please specify schedule-repeat")
 
-            if probesEnabled is None: raise EmptyValue("Please specify probes-enabled")
-            if notificationsEnabled is None: raise EmptyValue("Please specify notifications-enabled")
-            if logsEnabled is None: raise EmptyValue("Please specify logs-enabled")
-            if debugEnabled is None: raise EmptyValue("Please specify debug-enabled")
+            if probesEnabled is None:
+                raise EmptyValue("Please specify probes-enabled")
+            if notificationsEnabled is None:
+                raise EmptyValue("Please specify notifications-enabled")
+            if logsEnabled is None:
+                raise EmptyValue("Please specify logs-enabled")
+            if debugEnabled is None:
+                raise EmptyValue("Please specify debug-enabled")
 
-            if fromTime is None: raise EmptyValue("Please specify from-time")
-            if toTime is None: raise EmptyValue("Please specify to-time")
+            if fromTime is None:
+                raise EmptyValue("Please specify from-time")
+            if toTime is None:
+                raise EmptyValue("Please specify to-time")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -1518,35 +2155,46 @@ class TasksReschedule(HandlerCORS):
         if not isinstance(taskId, int):
             raise HTTP_400("Bad task-id provided in request, int expected")
         if not isinstance(taskEnabled, bool):
-            raise HTTP_400("Bad task-enabled provided in request, boolean expected")
+            raise HTTP_400(
+                "Bad task-enabled provided in request, boolean expected")
         if not isinstance(scheduleRepeat, int):
-            raise HTTP_400("Bad schedule-repeat provided in request, int expected")
+            raise HTTP_400(
+                "Bad schedule-repeat provided in request, int expected")
         if not isinstance(probesEnabled, bool):
-            raise HTTP_400("Bad probes-enabled provided in request, boolean expected")
+            raise HTTP_400(
+                "Bad probes-enabled provided in request, boolean expected")
         if not isinstance(notificationsEnabled, bool):
-            raise HTTP_400("Bad notifications-enabled provided in request, boolean expected")
+            raise HTTP_400(
+                "Bad notifications-enabled provided in request, boolean expected")
         if not isinstance(logsEnabled, bool):
-            raise HTTP_400("Bad logs-enabled provided in request, boolean expected")
+            raise HTTP_400(
+                "Bad logs-enabled provided in request, boolean expected")
         if not isinstance(debugEnabled, bool):
-            raise HTTP_400("Bad debug-enabled provided in request, boolean expected")
+            raise HTTP_400(
+                "Bad debug-enabled provided in request, boolean expected")
         if len(scheduleAt) != 6:
-            raise HTTP_400("Bad schedule-at provided in request, array of size 6 expected")
+            raise HTTP_400(
+                "Bad schedule-at provided in request, array of size 6 expected")
         if len(fromTime) != 6:
-            raise HTTP_400("Bad from-time provided in request, array of size 6 expected")
+            raise HTTP_400(
+                "Bad from-time provided in request, array of size 6 expected")
         if len(toTime) != 6:
-            raise HTTP_400("Bad to-time provided in request, array of size 6 expected")
+            raise HTTP_400(
+                "Bad to-time provided in request, array of size 6 expected")
 
         if scheduleType is not None:
             if scheduleType not in TaskManager.SCHEDULE_TYPES:
-                raise HTTP_400("Bad schedule-type provided in request, string expected daily | hourly | weekly | every | at | in | now ")
+                raise HTTP_400(
+                    "Bad schedule-type provided in request, string expected daily | hourly | weekly | every | at | in | now ")
 
         if scheduleId is None:
             scheduleId = TaskManager.SCHEDULE_TYPES[scheduleType]
 
         _userName = user_profile['login']
-        if user_profile['administrator']: _userName = None
+        if user_profile['administrator']:
+            _userName = None
 
-        success = TaskManager.instance().updateTask( taskId = taskId, schedType=scheduleId, schedEnabled=taskEnabled,
+        success = TaskManager.instance().updateTask(taskId=taskId, schedType=scheduleId, schedEnabled=taskEnabled,
                                                     shedAt=scheduleAt, schedNb=scheduleRepeat, withoutProbes=probesEnabled,
                                                     debugActivated=debugEnabled, withoutNotif=notificationsEnabled,
                                                     noKeepTr=logsEnabled, schedFrom=fromTime, schedTo=toTime,
@@ -1558,7 +2206,9 @@ class TasksReschedule(HandlerCORS):
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500("unable to reschedule the task")
 
-        return { "cmd": self.request.path, "message": "task successfully rescheduled" }
+        return {"cmd": self.request.path,
+                "message": "task successfully rescheduled"}
+
 
 class TasksVerdict(HandlerCORS):
     """
@@ -1602,7 +2252,7 @@ class TasksVerdict(HandlerCORS):
                 {
                   "message": "task replayed with success",
                   "cmd": "/tasks/verdict"
-                }
+               }
           '401':
             description: Access denied
         """
@@ -1610,7 +2260,8 @@ class TasksVerdict(HandlerCORS):
 
         try:
             taskId = self.request.data.get("task-id")
-            if taskId is None: raise EmptyValue("Please specify task-id")
+            if taskId is None:
+                raise EmptyValue("Please specify task-id")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -1621,9 +2272,10 @@ class TasksVerdict(HandlerCORS):
             raise HTTP_400("Bad task id provided in request, int expected")
 
         _userName = user_profile['login']
-        if user_profile['administrator']: _userName = None
+        if user_profile['administrator']:
+            _userName = None
 
-        task = TaskManager.instance().getTaskBy( taskId = taskId, userName=_userName )
+        task = TaskManager.instance().getTaskBy(taskId=taskId, userName=_userName)
         if task == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("task id not found")
         if task == Context.instance().CODE_FORBIDDEN:
@@ -1632,7 +2284,9 @@ class TasksVerdict(HandlerCORS):
         verdict = task.getTestVerdict()
         xmlVerdict = task.getTestVerdict(returnXml=True)
 
-        return { "cmd": self.request.path, "verdict": verdict, "xml-verdict": xmlVerdict }
+        return {"cmd": self.request.path,
+                "verdict": verdict, "xml-verdict": xmlVerdict}
+
 
 class TasksReview(HandlerCORS):
     """
@@ -1676,7 +2330,7 @@ class TasksReview(HandlerCORS):
                 {
                   "message": "task replayed with success",
                   "cmd": "/tasks/review"
-                }
+               }
           '401':
             description: Access denied
         """
@@ -1684,7 +2338,8 @@ class TasksReview(HandlerCORS):
 
         try:
             taskId = self.request.data.get("task-id")
-            if taskId is None: raise EmptyValue("Please specify task-id")
+            if taskId is None:
+                raise EmptyValue("Please specify task-id")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -1695,9 +2350,10 @@ class TasksReview(HandlerCORS):
             raise HTTP_400("Bad task id provided in request, int expected")
 
         _userName = user_profile['login']
-        if user_profile['administrator']: _userName = None
+        if user_profile['administrator']:
+            _userName = None
 
-        task = TaskManager.instance().getTaskBy( taskId = taskId, userName=_userName )
+        task = TaskManager.instance().getTaskBy(taskId=taskId, userName=_userName)
         if task == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("task id not found")
         if task == Context.instance().CODE_FORBIDDEN:
@@ -1706,7 +2362,9 @@ class TasksReview(HandlerCORS):
         review = task.getTestReport()
         xmlReview = task.getTestReport(returnXml=True)
 
-        return { "cmd": self.request.path, "review": review, "xml-review": xmlReview }
+        return {"cmd": self.request.path,
+                "review": review, "xml-review": xmlReview}
+
 
 class TasksDesign(HandlerCORS):
     """
@@ -1750,7 +2408,7 @@ class TasksDesign(HandlerCORS):
                 {
                   "message": "task replayed with success",
                   "cmd": "/tasks/replay"
-                }
+               }
           '401':
             description: Access denied
         """
@@ -1758,7 +2416,8 @@ class TasksDesign(HandlerCORS):
 
         try:
             taskId = self.request.data.get("task-id")
-            if taskId is None: raise EmptyValue("Please specify task-id")
+            if taskId is None:
+                raise EmptyValue("Please specify task-id")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -1769,9 +2428,10 @@ class TasksDesign(HandlerCORS):
             raise HTTP_400("Bad task id provided in request, int expected")
 
         _userName = user_profile['login']
-        if user_profile['administrator']: _userName = None
+        if user_profile['administrator']:
+            _userName = None
 
-        task = TaskManager.instance().getTaskBy( taskId = taskId, userName=_userName )
+        task = TaskManager.instance().getTaskBy(taskId=taskId, userName=_userName)
         if task == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("task id not found")
         if task == Context.instance().CODE_FORBIDDEN:
@@ -1780,7 +2440,9 @@ class TasksDesign(HandlerCORS):
         design = task.getTestDesign()
         xmlDesign = task.getTestDesign(returnXml=True)
 
-        return { "cmd": self.request.path, "design": design, "xml-design": xmlDesign }
+        return {"cmd": self.request.path,
+                "design": design, "xml-design": xmlDesign}
+
 
 class TasksComment(HandlerCORS):
     """
@@ -1828,7 +2490,7 @@ class TasksComment(HandlerCORS):
                 {
                   "message": "comment added with success",
                   "cmd": "/tasks/comment"
-                }
+               }
           '401':
             description: Access denied
         """
@@ -1839,7 +2501,8 @@ class TasksComment(HandlerCORS):
             comment = self.request.data.get("comment")
             timestamp = self.request.data.get("timestamp")
 
-            if taskId is None: raise EmptyValue("Please specify task-id")
+            if taskId is None:
+                raise EmptyValue("Please specify task-id")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -1850,23 +2513,26 @@ class TasksComment(HandlerCORS):
             raise HTTP_400("Bad task id provided in request, int expected")
 
         _userName = user_profile['login']
-        if user_profile['administrator']: _userName = None
+        if user_profile['administrator']:
+            _userName = None
 
-        task = TaskManager.instance().getTaskBy( taskId = taskId, userName=_userName )
+        task = TaskManager.instance().getTaskBy(taskId=taskId, userName=_userName)
         if task == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("task id not found")
         if task == Context.instance().CODE_FORBIDDEN:
             raise HTTP_403("access denied to this task")
 
         archivePath = task.getFileResultPath()
-        success, _, _, _ = RepoArchives.instance().addComment(  archiveUser=user_profile['login'],
-                                                                archivePath=archivePath,
-                                                                archivePost=comment,
-                                                                archiveTimestamp=timestamp )
+        success, _, _, _ = RepoArchives.instance().addComment(archiveUser=user_profile['login'],
+                                                              archivePath=archivePath,
+                                                              archivePost=comment,
+                                                              archiveTimestamp=timestamp)
         if success != Context.instance().CODE_OK:
             raise HTTP_500("Unable to add comment")
 
-        return { "cmd": self.request.path, "message": "comment added with success" }
+        return {"cmd": self.request.path,
+                "message": "comment added with success"}
+
 
 class TasksReplay(HandlerCORS):
     """
@@ -1910,7 +2576,7 @@ class TasksReplay(HandlerCORS):
                 {
                   "message": "task replayed with success",
                   "cmd": "/tasks/replay"
-                }
+               }
           '401':
             description: Access denied
         """
@@ -1918,7 +2584,8 @@ class TasksReplay(HandlerCORS):
 
         try:
             taskId = self.request.data.get("task-id")
-            if taskId is None: raise EmptyValue("Please specify task-id")
+            if taskId is None:
+                raise EmptyValue("Please specify task-id")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -1929,9 +2596,10 @@ class TasksReplay(HandlerCORS):
             raise HTTP_400("Bad task id provided in request, int expected")
 
         _userName = user_profile['login']
-        if user_profile['administrator']: _userName = None
+        if user_profile['administrator']:
+            _userName = None
 
-        success = TaskManager.instance().replayTask( tid = taskId, userName=_userName)
+        success = TaskManager.instance().replayTask(tid=taskId, userName=_userName)
         if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404("task id not found")
         if success == Context.instance().CODE_FORBIDDEN:
@@ -1939,4 +2607,5 @@ class TasksReplay(HandlerCORS):
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500("unable to replay the task")
 
-        return { "cmd": self.request.path, "message": "task replayed with success" }
+        return {"cmd": self.request.path,
+                "message": "task replayed with success"}

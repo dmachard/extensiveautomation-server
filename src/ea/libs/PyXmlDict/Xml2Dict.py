@@ -22,18 +22,18 @@
 # -------------------------------------------------------------------
 
 # prefer to use this library for huge xml file support
-etree=None
+import sys
+etree = None
 try:
     from lxml import etree
 except ImportError:
     pass
-    
+
 try:
     import xml.etree.ElementTree as ET
-except Exception as e:
+except ImportError:
     import cElementTree as ET
 
-import sys
 
 def bytes2str(val):
     """
@@ -43,24 +43,25 @@ def bytes2str(val):
         return str(val, "utf8")
     else:
         return val
-        
-        
+
+
 class Xml2Dict(object):
     """
     Xml to Dict
     """
-    def __init__ (self, coding = 'UTF-8'):
+
+    def __init__(self, coding='UTF-8'):
         """
         Convert xml string to python dict
-        
+
         @param coding: expected value in UTF-8, ISO, etc ...
         @type coding: string
         """
         self.coding = coding
 
-    def __getNbChildren (self, node):
+    def __getNbChildren(self, node):
         """
-        Returns the number of child 
+        Returns the number of child
 
         @param node: element
         @type node: ET
@@ -71,7 +72,7 @@ class Xml2Dict(object):
         size = len(node.getchildren())
         return size
 
-    def __makeDict (self, nodeName, nodeAttrib, nodeValue ):
+    def __makeDict(self, nodeName, nodeAttrib, nodeValue):
         """
         Contructs a python dictionnary
         <test id="1">toto</test> => {'test': 'toto', '@test': {'id': '1'} }
@@ -95,7 +96,7 @@ class Xml2Dict(object):
         ret["@%s" % nodeName] = nodeAttrib
         return ret
 
-    def __makeList (self, dico, nodeName, nodeAttrib, nodeValue):
+    def __makeList(self, dico, nodeName, nodeAttrib, nodeValue):
         """
         Contructs python list
 
@@ -113,16 +114,16 @@ class Xml2Dict(object):
         """
         if sys.version_info > (3,):
             nodeValue = bytes2str(nodeValue)
-            
-        if not isinstance( dico[nodeName], list):
-            dico[nodeName] = [ dico[nodeName] ]
-        rslt = self.__makeDict( nodeName = nodeName, nodeAttrib = nodeAttrib, 
-                nodeValue = nodeValue   )
-        dico[nodeName].append( rslt[nodeName] )
+
+        if not isinstance(dico[nodeName], list):
+            dico[nodeName] = [dico[nodeName]]
+        rslt = self.__makeDict(nodeName=nodeName, nodeAttrib=nodeAttrib,
+                               nodeValue=nodeValue)
+        dico[nodeName].append(rslt[nodeName])
         # attribs
-        if not isinstance( dico["@%s" % nodeName], list):
-            dico["@%s" % nodeName] = [ dico["@%s" % nodeName] ]
-        dico["@%s" % nodeName].append( nodeAttrib )
+        if not isinstance(dico["@%s" % nodeName], list):
+            dico["@%s" % nodeName] = [dico["@%s" % nodeName]]
+        dico["@%s" % nodeName].append(nodeAttrib)
 
     def __parseNode(self, node):
         """
@@ -131,16 +132,16 @@ class Xml2Dict(object):
         @param node: element
         @type node: ET
 
-        @return: 
+        @return:
         @rtype: dict
         """
         ret = {}
         # iter of all children
         for child in node.getchildren():
             # retrieve tag, attrib and number of child
-            ctag = child.tag # node name
+            ctag = child.tag  # node name
             cattrib = dict(child.attrib)
-            nbChild = self.__getNbChildren( node = child )
+            nbChild = self.__getNbChildren(node=child)
             if nbChild == 0:
                 # child is null the retrieve the value of the node
                 ctext = child.text
@@ -149,23 +150,35 @@ class Xml2Dict(object):
                 ctext = ctext.encode(self.coding)
                 # if node name already exists then contructs list
                 if ctag in ret:
-                    self.__makeList ( dico = ret, nodeName = ctag, nodeAttrib = cattrib, nodeValue = ctext )
+                    self.__makeList(
+                        dico=ret,
+                        nodeName=ctag,
+                        nodeAttrib=cattrib,
+                        nodeValue=ctext)
                 else:
-                # constructs dictionnary
-                    rslt = self.__makeDict( nodeName = ctag, nodeAttrib = cattrib, nodeValue = ctext )
-                    ret.update( rslt )
+                    # constructs dictionnary
+                    rslt = self.__makeDict(
+                        nodeName=ctag, nodeAttrib=cattrib, nodeValue=ctext)
+                    ret.update(rslt)
             else:
                 # child > 0 so recursive call
                 if ctag in ret:
-                    self.__makeList ( dico = ret, nodeName = ctag, nodeAttrib = cattrib, nodeValue = 
-                                        self.__parseNode( node = child ) )
+                    self.__makeList(
+                        dico=ret,
+                        nodeName=ctag,
+                        nodeAttrib=cattrib,
+                        nodeValue=self.__parseNode(
+                            node=child))
                 else:
-                    rslt = self.__makeDict( nodeName = ctag, nodeAttrib = cattrib, nodeValue = 
-                                        self.__parseNode( node = child )    )
-                    ret.update( rslt )
-        return ret  
+                    rslt = self.__makeDict(
+                        nodeName=ctag,
+                        nodeAttrib=cattrib,
+                        nodeValue=self.__parseNode(
+                            node=child))
+                    ret.update(rslt)
+        return ret
 
-    def parseXml (self, xml, huge_tree=False):
+    def parseXml(self, xml, huge_tree=False):
         """
         Converts XML to Dict
 
@@ -181,16 +194,16 @@ class Xml2Dict(object):
         else:
             parser = etree.XMLParser(huge_tree=huge_tree)
             root = etree.fromstring(xml, parser)
-        
-        nbChild = self.__getNbChildren( node = root )
+
+        nbChild = self.__getNbChildren(node=root)
         if nbChild > 0:
-            ret = self.__makeDict( nodeName = root.tag, nodeAttrib = dict(root.attrib),
-                                    nodeValue = self.__parseNode( node = root ) )       
+            ret = self.__makeDict(nodeName=root.tag, nodeAttrib=dict(root.attrib),
+                                  nodeValue=self.__parseNode(node=root))
         else:
             rtext = root.text.encode(self.coding)
             if rtext is None:
                 rtext = ""
             rtext = rtext.encode(self.coding)
-            ret = self.__makeDict( nodeName = root.tag, nodeAttrib = dict(root.attrib),
-                                    nodeValue = rtext )     
+            ret = self.__makeDict(nodeName=root.tag, nodeAttrib=dict(root.attrib),
+                                  nodeValue=rtext)
         return ret

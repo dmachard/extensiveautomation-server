@@ -27,7 +27,8 @@ import time
 
 from ea.libs import Settings, Logger
 from ea.serverinterfaces import EventServerInterface as ESI
-from ea.serverrepositories import ( RepoManager )
+from ea.serverrepositories import (RepoManager)
+
 
 class StorageDataAdapters(RepoManager.RepoManager, Logger.ClassLogger):
     def __init__(self, context):
@@ -35,8 +36,8 @@ class StorageDataAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         Storage data adapters
         """
         RepoManager.RepoManager.__init__(self, pathRepo='%s%s' % (Settings.getDirExec(),
-                                                                  Settings.get( 'Paths', 'tmp' )),
-                                        context=context)
+                                                                  Settings.get('Paths', 'tmp')),
+                                         context=context)
         self.context = context
         self.prefixAdapters = "adapter"
         self.prefixAdaptersAll = "private_storage"
@@ -58,32 +59,32 @@ class StorageDataAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         mainDir = "%s/%s" % (self.adpDataPath, dirProject)
         mainDir = os.path.normpath(mainDir)
         try:
-            if not os.path.exists( mainDir ):
-                os.mkdir( mainDir, 0o755 )
-                self.trace( "sub adapters storage created: %s" %  dirProject)
+            if not os.path.exists(mainDir):
+                os.mkdir(mainDir, 0o755)
+                self.trace("sub adapters storage created: %s" % dirProject)
         except Exception as e:
-            self.error( "sub adapters folder creation error: %s" % str(e) )
+            self.error("sub adapters folder creation error: %s" % str(e))
 
         mainDir = "%s/%s/%s" % (self.adpDataPath, dirProject, dirToday)
         mainDir = os.path.normpath(mainDir)
         try:
-            if not os.path.exists( mainDir ):
-                os.mkdir( mainDir, 0o755 )
-                self.trace( "sub adapters storage created: %s" %  dirToday)
+            if not os.path.exists(mainDir):
+                os.mkdir(mainDir, 0o755)
+                self.trace("sub adapters storage created: %s" % dirToday)
         except Exception as e:
-            self.error( "sub adapters folder creation error: %s" % str(e) )
+            self.error("sub adapters folder creation error: %s" % str(e))
 
         testDir = "%s/%s" % (mainDir, dirTest)
         testDir = os.path.normpath(testDir)
         try:
             # remove first
-            if os.path.exists( testDir  ):
-                shutil.rmtree( testDir )
+            if os.path.exists(testDir):
+                shutil.rmtree(testDir)
             else:
-                os.mkdir( testDir, 0o755 )
-                self.trace( "sub test adapters storage created: %s" %  dirTest)
+                os.mkdir(testDir, 0o755)
+                self.trace("sub test adapters storage created: %s" % dirTest)
         except Exception as e:
-            self.error( "sub test adapters folder creation error: %s" % str(e) )
+            self.error("sub test adapters folder creation error: %s" % str(e))
 
     def removeSubStorage(self, dirToday, dirTest, projectId=0):
         """
@@ -93,25 +94,27 @@ class StorageDataAdapters(RepoManager.RepoManager, Logger.ClassLogger):
         testDir = "%s/%s" % (mainDir, dirTest)
         testDir = os.path.normpath(testDir)
         try:
-            if os.path.exists( testDir ):
-                shutil.rmtree( testDir )
-                self.trace( "adapters storage deleted: %s"  % dirTest )
+            if os.path.exists(testDir):
+                shutil.rmtree(testDir)
+                self.trace("adapters storage deleted: %s" % dirTest)
         except Exception as e:
-            self.error( "unable to delete the temp adapters folder: %s" % str(e) )
+            self.error(
+                "unable to delete the temp adapters folder: %s" %
+                str(e))
 
     def initStorage(self):
         """
         Initialize the storage
         """
         try:
-            if not os.path.exists( self.adpDataPath ):
-                os.mkdir( self.adpDataPath, 0o755 )
-                self.trace( "adapters storage created" )
+            if not os.path.exists(self.adpDataPath):
+                os.mkdir(self.adpDataPath, 0o755)
+                self.trace("adapters storage created")
         except Exception as e:
-            self.trace( "folder creation error: %s" % str(e) )
+            self.trace("folder creation error: %s" % str(e))
 
     def zipDataV2(self, dirToday, dirTest, destPathZip,
-                  replayId, projectId=0, virtualName = ""):
+                  replayId, projectId=0, virtualName=""):
         """
         Zip data by adapters and notify users in just one zip
         """
@@ -123,60 +126,67 @@ class StorageDataAdapters(RepoManager.RepoManager, Logger.ClassLogger):
             testDir = os.path.normpath(testDir)
 
             # prepare the file name
-            tp = time.strftime( "%Y-%m-%d_%H-%M-%S", time.localtime(time.time()) ) \
-                     + ".%3.3d" % int((time.time() * 1000) % 1000 )
-            fileName = "%s_%s_%s" % (self.prefixAdaptersAll, tp , replayId)
+            tp = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime(time.time())) \
+                + ".%3.3d" % int((time.time() * 1000) % 1000)
+            fileName = "%s_%s_%s" % (self.prefixAdaptersAll, tp, replayId)
 
             # zip the folder
-            zipped = self.zipFolder(folderPath=testDir, 
-                                    zipName="%s.zip" % fileName, 
+            zipped = self.zipFolder(folderPath=testDir,
+                                    zipName="%s.zip" % fileName,
                                     zipPath=destPathZip)
 
             if zipped == self.context.CODE_OK:
                 # notify users
-                if Settings.getInt( 'Notifications', 'archives'):
-                    size_ = os.path.getsize( "%s/%s.zip" % (destPathZip, fileName) )
+                if Settings.getInt('Notifications', 'archives'):
+                    size_ = os.path.getsize(
+                        "%s/%s.zip" %
+                        (destPathZip, fileName))
                     notif = {}
-                    m = [   {   "type": "folder", 
-                                "name": dirToday, 
-                                "project": "%s" % projectId,
-                                "content": [ {  "type": "folder", 
-                                                "name": dirTest, 
-                                                "project": "%s" % projectId,
-                                                "virtual-name": virtualName,
-                                "content": [ {"type": "file", 
-                                              "name": "%s.zip" % fileName, 
-                                              'size': str(size_), 
-                                              "project": "%s" % projectId } ]} ] }  ]
+                    m = [{"type": "folder",
+                          "name": dirToday,
+                          "project": "%s" % projectId,
+                          "content": [{"type": "folder",
+                                       "name": dirTest,
+                                       "project": "%s" % projectId,
+                                       "virtual-name": virtualName,
+                                       "content": [{"type": "file",
+                                                    "name": "%s.zip" % fileName,
+                                                    'size': str(size_),
+                                                    "project": "%s" % projectId}]}]}]
                     notif['archive'] = m
-                    data = ( 'archive', ( None, notif) )
-                    ESI.instance().notifyByUserTypes(body = data,
+                    data = ('archive', (None, notif))
+                    ESI.instance().notifyByUserTypes(body=data,
                                                      admin=True,
                                                      monitor=False,
                                                      tester=True)
                 ret = True
             else:
-                self.error( 'error to zip data adapters' )
+                self.error('error to zip data adapters')
                 ret = False
         except Exception as e:
-            self.error( 'unable to zip data adapters v2: %s' % str(e) )
+            self.error('unable to zip data adapters v2: %s' % str(e))
         return ret
 
+
 SDAMng = None
-def instance ():
+
+
+def instance():
     """
     Returns the singleton
     """
     return SDAMng
 
-def initialize (context):
+
+def initialize(context):
     """
     Instance creation
     """
     global SDAMng
     SDAMng = StorageDataAdapters(context=context)
 
-def finalize ():
+
+def finalize():
     """
     Destruction of the singleton
     """

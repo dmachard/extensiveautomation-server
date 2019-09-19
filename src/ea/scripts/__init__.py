@@ -21,34 +21,6 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-import os
-
-from ea.libs import Settings
-
-
-def getInt(section, key):
-    """
-    Return value as integer according to the key
-    """
-    return Settings.getInt(section, key)
-
-
-def get(section, key):
-    """
-    Return value according to the key
-    """
-    return Settings.get(section, key)
-
-
-def initialize(path="./"):
-    """
-    Initialize settings
-    """
-    Settings.initialize(path=os.path.normpath(path), cfgname='test.ini')
-
-
-def finalize():
-    """
-    Finalize settings
-    """
-    Settings.finalize()
+"""
+Scripts
+"""

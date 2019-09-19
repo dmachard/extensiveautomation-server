@@ -21,15 +21,14 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-import sys
-
 from common_bdd import querySQL
 
-def create_sqlite3_model(): 
+
+def create_sqlite3_model():
     print("Initializing new database...")
     print()
-    
-    querySQL( query = "CREATE TABLE `users` ( \
+
+    querySQL(query="CREATE TABLE `users` (\
 `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
 `login` varchar(50) NOT NULL, \
 `password` varchar(200) NOT NULL, \
@@ -47,7 +46,7 @@ def create_sqlite3_model():
 `apikey_secret` varchar(200) \
 );")
 
-    querySQL( query = "CREATE TABLE `tasks-history` ( \
+    querySQL(query="CREATE TABLE `tasks-history` (\
 `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
 `eventtype` INT not null, \
 `eventargs` VARCHAR(50), \
@@ -60,29 +59,28 @@ def create_sqlite3_model():
 `projectid` INT \
 ) ;")
 
-    querySQL( query = "CREATE TABLE `config` ( \
+    querySQL(query="CREATE TABLE `config` (\
 `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
 `opt` TEXT, \
 `value` TEXT \
 );")
 
-    querySQL( query = "CREATE TABLE `projects` ( \
+    querySQL(query="CREATE TABLE `projects` (\
 `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
 `name` TEXT, \
 `active` INT, \
 `description` TEXT \
 );")
 
-    querySQL( query = "CREATE TABLE `relations-projects` ( \
+    querySQL(query="CREATE TABLE `relations-projects` (\
 `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
 `user_id` INT, \
 `project_id` INT \
 );")
 
-    querySQL( query = "CREATE TABLE `test-environment` ( \
+    querySQL(query="CREATE TABLE `test-environment` (\
 `id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
 `name` TEXT, \
 `value` TEXT, \
 `project_id` INT \
 );")
-                    

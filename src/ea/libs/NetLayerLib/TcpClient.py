@@ -25,50 +25,59 @@
 Tcp client module
 """
 
-try:
-    xrange
-except NameError: # support python3
-    xrange = range
-    
-import threading
-import select
+import errno
+import sys
+import struct
+import ssl
+import time
 import socket
+import select
+import threading
+
+try:
+    import xrange
+except ImportError:  # support python3
+    xrange = range
+
 try:
     import Queue
-except ImportError: # support python 3
+except ImportError:  # support python 3
     import queue as Queue
-import time
-import ssl
-import struct
-import sys
-import errno
+
+from ea.libs.NetLayerLib import WebSocket
 
 # unicode = str with python3
 if sys.version_info > (3,):
     unicode = str
 else:
     # these exceptions does not exist in python2.X
-    class ConnectionAbortedError(Exception): pass
-    class ConnectionRefusedError(Exception): pass
-    class ConnectionResetError(Exception): pass
-    
-from ea.libs.NetLayerLib import WebSocket
+    class ConnectionAbortedError(Exception):
+        pass
 
-PROXY_TYPE_NONE             = -1
-PROXY_TYPE_SOCKS4           = 0
-PROXY_TYPE_SOCKS5           = 1
-PROXY_TYPE_HTTP             = 2
+    class ConnectionRefusedError(Exception):
+        pass
+
+    class ConnectionResetError(Exception):
+        pass
+
+
+PROXY_TYPE_NONE = -1
+PROXY_TYPE_SOCKS4 = 0
+PROXY_TYPE_SOCKS5 = 1
+PROXY_TYPE_HTTP = 2
+
 
 class TcpClientThread(threading.Thread):
     """
     Tcp client thread
     """
-    def __init__(self,  serverAddress = None, localAddress = ('', 0), inactivityTimeout = 30,
-                        keepAliveInterval = 20 , timeout = 5, proxyAddress=None, proxyUserId=b'client',
-                        selectTimeout=0.01, terminator=b'\x00',  
-                        sslSupport=False, sslVersion=ssl.PROTOCOL_TLSv1, checkSsl=False,
-                        wsSupport=False, wsMaxPayloadSize=WebSocket.WEBSOCKET_MAX_BASIC_DATA1024,
-                        tcpKeepAlive=True, tcpKeepIdle=3, tcpKeepCnt=3, tcpKeepIntvl=3):
+
+    def __init__(self, serverAddress=None, localAddress=('', 0), inactivityTimeout=30,
+                 keepAliveInterval=20, timeout=5, proxyAddress=None, proxyUserId=b'client',
+                 selectTimeout=0.01, terminator=b'\x00',
+                 sslSupport=False, sslVersion=ssl.PROTOCOL_TLSv1, checkSsl=False,
+                 wsSupport=False, wsMaxPayloadSize=WebSocket.WEBSOCKET_MAX_BASIC_DATA1024,
+                 tcpKeepAlive=True, tcpKeepIdle=3, tcpKeepCnt=3, tcpKeepIntvl=3):
         """
         TCP Client thread
 
@@ -113,30 +122,34 @@ class TcpClientThread(threading.Thread):
         """
         threading.Thread.__init__(self)
         self.serverAddress = serverAddress
-        self.proxyAddress = proxyAddress # sock4
+        self.proxyAddress = proxyAddress  # sock4
         self.localAddress = localAddress
         self.serverDstHostname = None
-        
+
         # proxy
         self.proxyDstHostname = None
         self.proxyConnectSuccess = False
         self.proxyType = PROXY_TYPE_NONE
         self.proxyUserId = proxyUserId
-        
+
         # web socket
         self.wsCodec = WebSocket.WebSocketCodec(parent=self)
         self.wsSupport = wsSupport
-        if wsSupport: self.trace('Web socket activated - version %s' % WebSocket.WEBSOCKET_VERSION)       
+        if wsSupport:
+            self.trace(
+                'Web socket activated - version %s' %
+                WebSocket.WEBSOCKET_VERSION)
         self.wsHandshakeSuccess = False
         self.wsKey = b''
         self.wsMaxPayloadSize = wsMaxPayloadSize
-        
+
         # ssl
         self.sslSupport = sslSupport
         self.sslVersion = sslVersion
         self.checkSsl = checkSsl
-        if sslSupport: self.trace('Ssl activated - version %s' % self.sslVersion)       
-            
+        if sslSupport:
+            self.trace('Ssl activated - version %s' % self.sslVersion)
+
         # buffer
         self.buf = b''
         self.bufWs = b''
@@ -147,20 +160,20 @@ class TcpClientThread(threading.Thread):
         self.closeSocket = False
         self.inactivityServer = False
         self.timeout = timeout
-        
+
         self.terminator = terminator
         self.keepAlivePdu = b''
         self.inactivityTimeout = inactivityTimeout
         self.keepAliveInterval = keepAliveInterval
         self.selectTimeout = float(selectTimeout)
-        
+
         self.tcpKeepAlive = tcpKeepAlive
         self.tcpKeepIdle = tcpKeepIdle
         self.tcpKeepIntvl = tcpKeepIntvl
         self.tcpKeepCnt = tcpKeepCnt
-        
+
         self.trace('Tcp Client Thread Initialized')
-        
+
     def unsetProxy(self):
         """
         Unset the proxy
@@ -170,14 +183,14 @@ class TcpClientThread(threading.Thread):
         self.proxyConnectSuccess = False
         self.proxyType = PROXY_TYPE_NONE
 
-    def setProxyAddress (self, ip, port):
+    def setProxyAddress(self, ip, port):
         """
         Set the destination server address
 
         @param ip: destination ip address
         @type ip: string
 
-        @param port: destination tcp port 
+        @param port: destination tcp port
         @type port: Integer
 
         @return:
@@ -186,45 +199,47 @@ class TcpClientThread(threading.Thread):
         try:
             if not len(ip):
                 return None
-            self.proxyAddress = (ip,port)
+            self.proxyAddress = (ip, port)
             # check if ip or dns
-            ret = socket.gethostbyname( str(ip) ) # (hostname, aliaslist, ipaddrlist)
+            # (hostname, aliaslist, ipaddrlist)
+            ret = socket.gethostbyname(str(ip))
             if ret != ip:
                 self.proxyAddress = (ret, port)
                 self.proxyDstHostname = ip
         except Exception as e:
-            self.error( e )
-            self.onResolveHostnameProxyFailed(err = e )
+            self.error(e)
+            self.onResolveHostnameProxyFailed(err=e)
             return None
         return self.proxyAddress
 
-    def setServerAddress (self, ip, port):
+    def setServerAddress(self, ip, port):
         """
         Set the destination server address
 
         @param ip: destination ip address
         @type ip: string
 
-        @param port: destination tcp port 
+        @param port: destination tcp port
         @type port: Integer
 
         @return:
         @rtype:
         """
         try:
-            self.serverAddress = (ip,port)
+            self.serverAddress = (ip, port)
             # check if ip or dns
-            ret = socket.gethostbyname( str(ip) ) # (hostname, aliaslist, ipaddrlist)
+            # (hostname, aliaslist, ipaddrlist)
+            ret = socket.gethostbyname(str(ip))
             if ret != ip:
                 self.serverAddress = (ret, port)
                 self.serverDstHostname = ip
         except Exception as e:
-            if sys.version_info > (3,): # python 3 support
-                self.error( str(e) )
-                self.onResolveHostnameFailed(err = str(e) )
+            if sys.version_info > (3,):  # python 3 support
+                self.error(str(e))
+                self.onResolveHostnameFailed(err=str(e))
             else:
-                self.error( str(e).decode('iso-8859-15') )
-                self.onResolveHostnameFailed(err = str(e).decode('iso-8859-15') )
+                self.error(str(e).decode('iso-8859-15'))
+                self.onResolveHostnameFailed(err=str(e).decode('iso-8859-15'))
             return None
         return self.serverAddress
 
@@ -239,13 +254,13 @@ class TcpClientThread(threading.Thread):
             ipAddr = socket.inet_aton(destIp)
             # 0x04 = version = socks4
             # 0x01 = command = connect
-            req = b"\x04\x01" + struct.pack(">H",destPort) + ipAddr
+            req = b"\x04\x01" + struct.pack(">H", destPort) + ipAddr
             # Add userid
             req += self.proxyUserId
             # send packet
             self.sendPacket(packet=req)
         except Exception as e:
-            self.error( "unable to initiate proxy socks4: %s" % str(e) )
+            self.error("unable to initiate proxy socks4: %s" % str(e))
 
     def sendProxySocks5Request(self, login=None, password=None):
         """
@@ -253,14 +268,14 @@ class TcpClientThread(threading.Thread):
         """
         self.proxyType = PROXY_TYPE_SOCKS5
         try:
-            if login is not None and password is not None : # The username/password
+            if login is not None and password is not None:  # The username/password
                 req = b"\x05\x02\x00\x02"
             else:
-                req = b"\x05\x01\x00" # No username/password were entered
+                req = b"\x05\x01\x00"  # No username/password were entered
             # send packet
             self.sendPacket(packet=req)
         except Exception as e:
-            self.error( "unable to initiate proxy socks5: %s" % str(e) )
+            self.error("unable to initiate proxy socks5: %s" % str(e))
 
     def sendProxyHttpRequest(self):
         """
@@ -273,14 +288,14 @@ class TcpClientThread(threading.Thread):
                 destIp = self.serverDstHostname
             # Construct request
             reqProxy = []
-            reqProxy.append("CONNECT %s:%s HTTP/1.1" % (destIp, str(destPort)) )
-            reqProxy.append("Host: %s:%s" % (destIp, str(destPort)) )
+            reqProxy.append("CONNECT %s:%s HTTP/1.1" % (destIp, str(destPort)))
+            reqProxy.append("Host: %s:%s" % (destIp, str(destPort)))
             reqProxy.append("")
             reqProxy.append("")
             # send packet
             self.sendHttpPacket(packet="\r\n".join(reqProxy))
         except Exception as e:
-            self.error( "unable to initiate proxy http: %s" % e )
+            self.error("unable to initiate proxy http: %s" % e)
 
     def handshakeWebSocket(self, resource="/", hostport='localhost'):
         """
@@ -295,15 +310,17 @@ class TcpClientThread(threading.Thread):
             headers.append("Host: %s" % hostport)
             headers.append("Origin: http://%s" % hostport)
             self.wsKey = self.wsCodec.createSecWsKey()
-            headers.append("Sec-WebSocket-Key: %s" % self.wsKey )
-            headers.append("Sec-WebSocket-Version: %s" % WebSocket.WEBSOCKET_VERSION)
+            headers.append("Sec-WebSocket-Key: %s" % self.wsKey)
+            headers.append(
+                "Sec-WebSocket-Version: %s" %
+                WebSocket.WEBSOCKET_VERSION)
             headers.append("")
             headers.append("")
 
             # send packet
             self.sendHttpPacket(packet="\r\n".join(headers))
         except Exception as e:
-            self.error( "unable to initiate web socket: %s" % e )
+            self.error("unable to initiate web socket: %s" % e)
 
     def startConnection(self, threadingConnect=True):
         """
@@ -314,8 +331,8 @@ class TcpClientThread(threading.Thread):
             t.start()
         else:
             self.__startConnection()
-            
-    def __startConnection (self):
+
+    def __startConnection(self):
         """
         Starts TCP connection (SYN)
         """
@@ -323,33 +340,64 @@ class TcpClientThread(threading.Thread):
         self.wsHandshakeSuccess = False
         self.proxyConnectSuccess = False
         if self.proxyAddress is not None:
-            self.trace( "connecting from %s to %s with the proxy %s" % ( str(self.localAddress), str(self.serverAddress), str(self.proxyAddress) ) )
+            self.trace(
+                "connecting from %s to %s with the proxy %s" %
+                (str(
+                    self.localAddress), str(
+                    self.serverAddress), str(
+                    self.proxyAddress)))
         else:
-            self.trace( "connecting from %s to %s" % ( str(self.localAddress), str(self.serverAddress)) )
+            self.trace(
+                "connecting from %s to %s" %
+                (str(
+                    self.localAddress), str(
+                    self.serverAddress)))
         try:
             self.buf = b''
             self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            if self.tcpKeepAlive: self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
+            if self.tcpKeepAlive:
+                self.socket.setsockopt(
+                    socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
             if sys.platform == "win32":
-                if self.tcpKeepAlive: self.socket.ioctl(socket.SIO_KEEPALIVE_VALS, (1, self.tcpKeepIdle*1000, self.tcpKeepIntvl*1000))
+                if self.tcpKeepAlive:
+                    self.socket.ioctl(socket.SIO_KEEPALIVE_VALS,
+                                      (1, self.tcpKeepIdle * 1000, self.tcpKeepIntvl * 1000))
             elif sys.platform == "darwin":
                 # interval in seconds between keepalive probes
-                if self.tcpKeepAlive: self.socket.setsockopt(socket.SOL_TCP, socket.TCP_KEEPINTVL, self.tcpKeepIntvl) 
+                if self.tcpKeepAlive:
+                    self.socket.setsockopt(socket.SOL_TCP,
+                                           socket.TCP_KEEPINTVL,
+                                           self.tcpKeepIntvl)
                 # failed keepalive probes before declaring the other end dead
-                if self.tcpKeepAlive: self.socket.setsockopt(socket.SOL_TCP, socket.TCP_KEEPCNT, self.tcpKeepCnt) 
+                if self.tcpKeepAlive:
+                    self.socket.setsockopt(socket.SOL_TCP,
+                                           socket.TCP_KEEPCNT,
+                                           self.tcpKeepCnt)
             else:
                 # seconds before sending keepalive probes
-                if self.tcpKeepAlive: self.socket.setsockopt(socket.SOL_TCP, socket.TCP_KEEPIDLE, self.tcpKeepIdle ) 
+                if self.tcpKeepAlive:
+                    self.socket.setsockopt(socket.SOL_TCP,
+                                           socket.TCP_KEEPIDLE,
+                                           self.tcpKeepIdle)
                 # interval in seconds between keepalive probes
-                if self.tcpKeepAlive: self.socket.setsockopt(socket.SOL_TCP, socket.TCP_KEEPINTVL, self.tcpKeepIntvl) 
+                if self.tcpKeepAlive:
+                    self.socket.setsockopt(socket.SOL_TCP,
+                                           socket.TCP_KEEPINTVL,
+                                           self.tcpKeepIntvl)
                 # failed keepalive probes before declaring the other end dead
-                if self.tcpKeepAlive: self.socket.setsockopt(socket.SOL_TCP, socket.TCP_KEEPCNT, self.tcpKeepCnt) 
-                
-            if self.sslSupport and self.proxyAddress is None: 
+                if self.tcpKeepAlive:
+                    self.socket.setsockopt(socket.SOL_TCP,
+                                           socket.TCP_KEEPCNT,
+                                           self.tcpKeepCnt)
+
+            if self.sslSupport and self.proxyAddress is None:
                 certReqs = ssl.CERT_NONE
-                if self.checkSsl: certReqs = ssl.CERT_REQUIRED
-                self.socket = ssl.wrap_socket( self.socket, cert_reqs=certReqs, ssl_version=self.sslVersion  )
-                
+                if self.checkSsl:
+                    certReqs = ssl.CERT_REQUIRED
+                self.socket = ssl.wrap_socket(self.socket,
+                                              cert_reqs=certReqs,
+                                              ssl_version=self.sslVersion)
+
             self.socket.settimeout(self.timeout)
             self.socket.bind(self.localAddress)
             if self.proxyAddress is not None:
@@ -362,25 +410,25 @@ class TcpClientThread(threading.Thread):
             else:
                 self.socket.connect(self.serverAddress)
                 self.lastActivityTimestamp = time.time()
-                self.lastKeepAliveTimestamp = time.time()           
+                self.lastKeepAliveTimestamp = time.time()
                 self.event.set()
                 self.trace("connected.")
                 self.onConnection()
         except socket.timeout as e:
             if self.proxyAddress is not None:
-                self.error("socket tcp proxy %s on connection." % ( str(e) ) )
-                self.onProxyConnectionTimeout(err = str(e))
+                self.error("socket tcp proxy %s on connection." % (str(e)))
+                self.onProxyConnectionTimeout(err=str(e))
             else:
-                self.error("socket tcp %s on connection." % ( str(e) ) )
-                self.onConnectionTimeout(err = str(e))
+                self.error("socket tcp %s on connection." % (str(e)))
+                self.onConnectionTimeout(err=str(e))
         except Exception as e:
             if self.proxyAddress is not None:
-                self.error("Proxy %s." % ( str(e) ) )
-                self.onProxyConnectionRefused(err = str(e))
+                self.error("Proxy %s." % (str(e)))
+                self.onProxyConnectionRefused(err=str(e))
             else:
-                self.error("%s." % ( str(e) ) )
-                self.onConnectionRefused(err = str(e))
-    
+                self.error("%s." % (str(e)))
+                self.onConnectionRefused(err=str(e))
+
     def closeConnection(self):
         """
         Close TCP connection (RESET)
@@ -391,29 +439,32 @@ class TcpClientThread(threading.Thread):
         """
         Main loop
         """
-        while self.running: 
+        while self.running:
             self.event.wait()
             if self.running:
                 try:
                     # check if we have incoming data
-                    if self.socket is not None:             
-                        r, w, e = select.select([ self.socket ], [], [ self.socket ], self.selectTimeout)
+                    if self.socket is not None:
+                        r, w, e = select.select(
+                            [self.socket], [], [self.socket], self.selectTimeout)
                         if self.socket in e:
-                            raise EOFError("socket select error: disconnecting")
+                            raise EOFError(
+                                "socket select error: disconnecting")
                         elif self.socket in r:
                             read = self.socket.recv(8192)
                             if not read:
                                 raise EOFError("no more data, connection lost")
                             else:
                                 self.lastActivityTimestamp = time.time()
-                                self.buf = b''.join([self.buf,read])
+                                self.buf = b''.join([self.buf, read])
                                 self.onIncomingData()
-                        
-                        # Check inactivity timeout 
+
+                        # Check inactivity timeout
                         elif self.inactivityTimeout:
                             if time.time() - self.lastActivityTimestamp > self.inactivityTimeout:
                                 if self.proxyAddress is not None:
-                                    raise EOFError("Inactivity proxy/server timeout")
+                                    raise EOFError(
+                                        "Inactivity proxy/server timeout")
                                 else:
                                     raise EOFError("Inactivity timeout")
 
@@ -427,11 +478,11 @@ class TcpClientThread(threading.Thread):
                                 if self.keepAliveInterval:
                                     if time.time() - self.lastKeepAliveTimestamp > self.keepAliveInterval:
                                         self.lastKeepAliveTimestamp = time.time()
-                                        # self.lastActivityTimestamp = time.time()
                                         wsping, pingId = self.wsCodec.encodePing()
-                                        self.trace("sending ws ping message id=%s" % pingId)                                        
+                                        self.trace(
+                                            "sending ws ping message id=%s" % pingId)
                                         self.queue.put(wsping)
-                        else: # old style
+                        else:  # old style
                             # Prepare Keep-Alive if needed
                             keepAlive = False
                             if self.proxyAddress is not None and self.proxyConnectSuccess:
@@ -442,19 +493,23 @@ class TcpClientThread(threading.Thread):
 
                             # Send (queue) a Keep-Alive if needed, old style
                             if keepAlive:
-                                if self.keepAliveInterval:                                    
+                                if self.keepAliveInterval:
                                     if time.time() - self.lastKeepAliveTimestamp > self.keepAliveInterval:
                                         self.lastKeepAliveTimestamp = time.time()
                                         # self.lastActivityTimestamp = time.time()
                                         self.trace("sending keep-alive")
-                                        self.sendPacket( self.keepAlivePdu )
+                                        self.sendPacket(self.keepAlivePdu)
 
                         # send queued messages
                         while not self.queue.empty():
-                            r, w, e = select.select([ ], [ self.socket ], [ self.socket ], self.selectTimeout)
+                            r, w, e = select.select(
+                                [], [
+                                    self.socket], [
+                                    self.socket], self.selectTimeout)
                             if self.socket in e:
-                                raise EOFError("socket select error when sending a message: disconnecting")
-                            elif self.socket in w:  
+                                raise EOFError(
+                                    "socket select error when sending a message: disconnecting")
+                            elif self.socket in w:
                                 try:
                                     message = self.queue.get(False)
                                     self.socket.sendall(message)
@@ -463,53 +518,54 @@ class TcpClientThread(threading.Thread):
                                     if self.closeSocket:
                                         self.event.set()
                                 except Exception as e:
-                                    self.error("unable to send message: " + str(e))
+                                    self.error(
+                                        "unable to send message: " + str(e))
                             else:
                                 break
                 except EOFError as e:
                     if "Inactivity timeout" in str(e):
-                        self.error( "disconnecting, inactivity timeout" )
+                        self.error("disconnecting, inactivity timeout")
                         self.inactivityServer = True
                         # self.onInactivityTimeout()
                         self.event.clear()
                         self.closeSocket = True
                     else:
-                        self.error( "disconnected by the server: %s" % str(e) )
+                        self.error("disconnected by the server: %s" % str(e))
                         self.onDisconnection(byServer=True)
                         self.event.clear()
-                
+
                 # new with python3
-                except ConnectionAbortedError as e:
-                    self.error( "connection aborted by peer" )
+                except ConnectionAbortedError:
+                    self.error("connection aborted by peer")
                     self.onDisconnection(byServer=True)
-                    self.event.clear()  
-                except ConnectionRefusedError as e:
-                    self.error( "connection refused by peer" )
+                    self.event.clear()
+                except ConnectionRefusedError:
+                    self.error("connection refused by peer")
                     self.onDisconnection(byServer=True)
-                    self.event.clear()  
-                except ConnectionResetError as e:
-                    self.error( "connection reseted by peer" )
+                    self.event.clear()
+                except ConnectionResetError:
+                    self.error("connection reseted by peer")
                     self.onDisconnection(byServer=True)
                     self.event.clear()
                 # end of new
-                
+
                 # new in v20, for alpine support
                 except select.error as e:
                     _errno, _ = e
                     if _errno != errno.EINTR:
                         raise
-                # end of new 
-                
+                # end of new
+
                 except Exception as e:
                     if "[Errno 10054]" in str(e):
-                        self.error( "connection reseted by peer" )
+                        self.error("connection reseted by peer")
                         self.onDisconnection(byServer=True)
                         self.event.clear()
                     else:
-                        self.error( "generic error on run: %s" % str(e) )
+                        self.error("generic error on run: %s" % str(e))
                         self.closeSocket = True
                         self.event.clear()
-            
+
             # close socket
             if self.closeSocket:
                 self.trace("cleanup socked")
@@ -527,7 +583,8 @@ class TcpClientThread(threading.Thread):
                     # cleanup the buffer
                     self.buf = b''
                     self.closeSocket = False
-                    self.onDisconnection(inactivityServer=self.inactivityServer)
+                    self.onDisconnection(
+                        inactivityServer=self.inactivityServer)
                     self.event.clear()
                     self.trace("closed")
 
@@ -542,20 +599,24 @@ class TcpClientThread(threading.Thread):
                 # handle proxy handshake
                 readTrueData = False
                 if self.proxyAddress is not None and not self.proxyConnectSuccess and self.buf:
-                    self.trace( 'data received for proxy handshake of len %s' %  len(self.buf) )
+                    self.trace(
+                        'data received for proxy handshake of len %s' % len(
+                            self.buf))
                     readTrueData = self.decodeProxyResponse()
                     if self.proxyConnectSuccess:
                         self.onProxyConnectionSuccess()
                 else:
                     readTrueData = True
-                    
+
                 # handle websocket handshake
                 readTrueData = False
-                if self.wsSupport and not self.wsHandshakeSuccess and self.buf:           
-                    if not readTrueData and not self.proxyConnectSuccess and self.proxyAddress is not None: 
+                if self.wsSupport and not self.wsHandshakeSuccess and self.buf:
+                    if not readTrueData and not self.proxyConnectSuccess and self.proxyAddress is not None:
                         pass
                     else:
-                        self.trace( 'data received for ws handshake of len %s' %  len(self.buf) )
+                        self.trace(
+                            'data received for ws handshake of len %s' % len(
+                                self.buf))
                         readTrueData = self.decodeWsHandshake()
                         if self.wsHandshakeSuccess:
                             self.onWsHanshakeSuccess()
@@ -563,33 +624,38 @@ class TcpClientThread(threading.Thread):
                     readTrueData = True
 
                 # handle other data
-                if readTrueData: # other than proxy and websocket handshake
+                if readTrueData:  # other than proxy and websocket handshake
                     if self.wsSupport:
-                        (data, opcode, left, needmore) = self.wsCodec.decodeWsData(buffer=self.buf)
+                        (data, opcode, left, needmore) = self.wsCodec.decodeWsData(
+                            buffer=self.buf)
                         self.buf = left
                         if not needmore:
                             if opcode == WebSocket.WEBSOCKET_OPCODE_TEXT:
-                                self.bufWs = b''.join([self.bufWs, data]) 
+                                self.bufWs = b''.join([self.bufWs, data])
                             else:
                                 if opcode == WebSocket.WEBSOCKET_OPCODE_PONG:
-                                    self.trace("received ws pong message id=%s" % data)
+                                    self.trace(
+                                        "received ws pong message id=%s" % data)
                                 elif opcode == WebSocket.WEBSOCKET_OPCODE_PING:
-                                    self.trace("received ws ping message id=%s" % data)     
+                                    self.trace(
+                                        "received ws ping message id=%s" % data)
                                     wspong = self.wsCodec.encodePong(data=data)
                                     self.queue.put(wspong)
-                                    self.trace("sending pong message id=%s" % data)                                 
+                                    self.trace(
+                                        "sending pong message id=%s" % data)
                                 else:
-                                    self.error('unknown ws opcode received: %s' % opcode) 
+                                    self.error(
+                                        'unknown ws opcode received: %s' % opcode)
 
                             self.readBufferWs()
                             if len(self.buf) >= 2:
                                 self.onIncomingData()
 
-                    else: # old style
+                    else:  # old style
                         self.readBuffer()
 
         except Exception as e:
-            self.error("error on incoming data: %s" % e )
+            self.error("error on incoming data: %s" % e)
 
     def readBufferWs(self):
         """
@@ -611,7 +677,7 @@ class TcpClientThread(threading.Thread):
             else:
                 self.trace("received keep-alive from server")
         self.buf = pdus[-1]
-        
+
     def decodeWsHandshake(self):
         """
         Decode websocket handshake
@@ -621,30 +687,37 @@ class TcpClientThread(threading.Thread):
         """
         readTrueData = False
         try:
-            if self.buf.find(b"\r\n\r\n")!=-1:
+            if self.buf.find(b"\r\n\r\n") != -1:
                 datasplitted = self.buf.split(b"\r\n\r\n", 1)
                 rsp = datasplitted[0]
                 self.trace('ws complete response received')
-                statusline = rsp.splitlines()[0].split(b" ",2)
+                statusline = rsp.splitlines()[0].split(b" ", 2)
                 if statusline[0] not in (b"HTTP/1.1"):
                     self.buf = b''
                     self.closeConnection()
-                    self.error( "Malformed HTTP ws message: %s" % statusline )
-                    self.onWsHanshakeError( err="Malformed HTTP message ws: %s" % statusline)
+                    self.error("Malformed HTTP ws message: %s" % statusline)
+                    self.onWsHanshakeError(
+                        err="Malformed HTTP message ws: %s" %
+                        statusline)
                 else:
                     statuscode = int(statusline[1])
                     if statuscode != 101:
                         self.buf = b''
                         self.closeConnection()
-                        self.error( "Handshake ws refused\nInvalid http status code: %s" % statuscode )
-                        self.onWsHanshakeError( err="Handshake ws refused\nInvalid http status code %s" % statuscode)
+                        self.error(
+                            "Handshake ws refused\nInvalid http status code: %s" %
+                            statuscode)
+                        self.onWsHanshakeError(
+                            err="Handshake ws refused\nInvalid http status code %s" %
+                            statuscode)
                     else:
                         # checking ws headers
-                        if not self.wsCodec.checkingWsHeaders(response=rsp, key=self.wsKey):
+                        if not self.wsCodec.checkingWsHeaders(
+                                response=rsp, key=self.wsKey):
                             self.buf = b''
                             self.closeConnection()
-                            self.error( "Handshake ws refused, invalid headers" )
-                            self.onWsHanshakeError( err="Handshake ws refused")
+                            self.error("Handshake ws refused, invalid headers")
+                            self.onWsHanshakeError(err="Handshake ws refused")
                         else:
                             self.trace('Ws handshake accepted')
                             self.wsHandshakeSuccess = True
@@ -665,53 +738,64 @@ class TcpClientThread(threading.Thread):
 
         @return: True when client is ready to received application data, False otherwise
         @rtype: boolean
-        """ 
+        """
         readTrueData = False
         try:
             # handle socks4
             if self.proxyType == PROXY_TYPE_SOCKS4:
-                if ord(self.buf[0]) != 0: # bad version on response
+                if ord(self.buf[0]) != 0:  # bad version on response
                     self.buf = b''
                     self.closeConnection()
-                    self.error( "Socks4: bad response from proxy: %s" % self.buf[0] )
-                    self.onProxyConnectionError( err="Socks4: bad response from proxy: %s" % self.buf[0])
+                    self.error(
+                        "Socks4: bad response from proxy: %s" %
+                        self.buf[0])
+                    self.onProxyConnectionError(
+                        err="Socks4: bad response from proxy: %s" %
+                        self.buf[0])
                 else:
-                    if  ord(self.buf[1]) != 90: # granted
+                    if ord(self.buf[1]) != 90:  # granted
                         self.buf = b''
-                        self.error( "Socks4 proxy refused the connection!" )
+                        self.error("Socks4 proxy refused the connection!")
                         self.closeConnection()
-                        self.onProxyConnectionError( err="Socks4 proxy refused the connection!") # Server returned an error
+                        self.onProxyConnectionError(
+                            err="Socks4 proxy refused the connection!")  # Server returned an error
                     else:
                         self.trace('Proxy tunnel established')
                         readTrueData = True
                         # Get the bound address/port
                         self.proxyConnectSuccess = True
                         self.buf = b''
-            
+
             # handle http
             elif self.proxyType == PROXY_TYPE_HTTP:
                 self.trace("http proxy activated")
                 self.trace("response received: %s" % self.buf)
-                
+
                 # if \r\n\r\n if detected then the response if complete
                 # otherwise we must wait more data
-                if self.buf.find(b"\r\n\r\n")!=-1:
+                if self.buf.find(b"\r\n\r\n") != -1:
                     # read the status line
-                    statusline = self.buf.splitlines()[0].split(b" ",2)
+                    statusline = self.buf.splitlines()[0].split(b" ", 2)
                     if statusline[0] not in (b"HTTP/1.0", b"HTTP/1.1"):
                         self.buf = b''
                         self.closeConnection()
-                        self.error( "Bad http response from proxy: %s" % statusline )
-                        self.onProxyConnectionError( err="Bad http response from proxy: %s" % statusline)
+                        self.error(
+                            "Bad http response from proxy: %s" %
+                            statusline)
+                        self.onProxyConnectionError(
+                            err="Bad http response from proxy: %s" % statusline)
                     else:
                         # extract the status code
                         statuscode = int(statusline[1])
                         if statuscode != 200:
                             self.buf = b''
                             self.closeConnection()
-                            #self.error( "Http proxy refuses the connection: %s" % b' '.join(statusline) )
-                            self.error( "Http proxy refuses the connection: %s" % statusline )
-                            self.onProxyConnectionError( err="The HTTP proxy refuses the connection!\nStatus code received: %s" % statuscode)
+                            self.error(
+                                "Http proxy refuses the connection: %s" %
+                                statusline)
+                            self.onProxyConnectionError(
+                                err="The HTTP proxy refuses the connection!\nStatus code received: %s" %
+                                statuscode)
 
                         else:
                             # tunnel established
@@ -719,46 +803,59 @@ class TcpClientThread(threading.Thread):
                             self.trace('Proxy tunnel established')
                             if self.sslSupport:
                                 certReqs = ssl.CERT_NONE
-                                if self.checkSsl: certReqs = ssl.CERT_REQUIRED
+                                if self.checkSsl:
+                                    certReqs = ssl.CERT_REQUIRED
                                 try:
-                                    self.socket = ssl.wrap_socket( self.socket, cert_reqs=certReqs, ssl_version=self.sslVersion  )
+                                    self.socket = ssl.wrap_socket(
+                                        self.socket, cert_reqs=certReqs, ssl_version=self.sslVersion)
                                     self.socket.do_handshake()
                                 except Exception as e:
                                     self.buf = b''
                                     self.closeConnection()
-                                    self.error( "SSL Http proxy refuses to establish the tunnel: %s" % e )
-                                    self.onProxyConnectionError( err="The SSL HTTP proxy refuses to establish the tunnel")
+                                    self.error(
+                                        "SSL Http proxy refuses to establish the tunnel: %s" % e)
+                                    self.onProxyConnectionError(
+                                        err="The SSL HTTP proxy refuses to establish the tunnel")
                                 else:
                                     self.proxyConnectSuccess = True
                                     self.buf = b''
                                     readTrueData = True
-                            else:        
+                            else:
                                 # set final step
                                 self.proxyConnectSuccess = True
                                 self.buf = b''
                                 readTrueData = True
                 else:
                     raise Exception('need more proxy headers: %s' % self.buf)
-                    
+
             # handle socks5: not implemented
-            elif  self.proxyType == PROXY_TYPE_SOCKS5:
-                if ord(self.buf[0]) != 5: # bad version on response
-                    self.error( "Socks5: bad response from proxy: %s" % self.buf[0] )
-                    self.onProxyConnectionError( err="Socks5: bad response from proxy: %s" % self.buf[0])
+            elif self.proxyType == PROXY_TYPE_SOCKS5:
+                if ord(self.buf[0]) != 5:  # bad version on response
+                    self.error(
+                        "Socks5: bad response from proxy: %s" %
+                        self.buf[0])
+                    self.onProxyConnectionError(
+                        err="Socks5: bad response from proxy: %s" %
+                        self.buf[0])
                 else:
-                    if ord(self.buf[1]) == 0: # No authentication is required
+                    if ord(self.buf[1]) == 0:  # No authentication is required
                         pass
-                    elif ord(self.buf[1]) == 2: # we need to perform a basic username/password
+                    # we need to perform a basic username/password
+                    elif ord(self.buf[1]) == 2:
                         pass
                     else:
                         self.buf = b''
-                        self.error( "Socks5: authentication type not supported: %s" % self.buf[1] )
-                        self.onProxyConnectionError( err="Socks5: authentication type not supported: %s" % self.buf[1])
+                        self.error(
+                            "Socks5: authentication type not supported: %s" %
+                            self.buf[1])
+                        self.onProxyConnectionError(
+                            err="Socks5: authentication type not supported: %s" %
+                            self.buf[1])
             else:
-                self.error( 'proxy type unknown: %s' % str(e) )
+                self.error('proxy type unknown: %s' % self.proxyType)
                 readTrueData = True
         except Exception as e:
-            self.error("more data needed for proxy handshake: %s" % e )
+            self.error("more data needed for proxy handshake: %s" % e)
         return readTrueData
 
     def stop(self):
@@ -776,13 +873,13 @@ class TcpClientThread(threading.Thread):
         @param packet: packet to send
         @type packet: string
         """
-        if isinstance(packet, bytes): # python 3 support
-            self.queue.put( packet )
+        if isinstance(packet, bytes):  # python 3 support
+            self.queue.put(packet)
         else:
-            if sys.version_info[0] == 3: # python 3 support
-                self.queue.put( bytes(packet, "UTF-8") )
+            if sys.version_info[0] == 3:  # python 3 support
+                self.queue.put(bytes(packet, "UTF-8"))
             else:
-                self.queue.put( packet )
+                self.queue.put(packet)
 
     def sendPacket(self, packet):
         """
@@ -793,8 +890,8 @@ class TcpClientThread(threading.Thread):
         """
         if self.wsSupport and self.wsHandshakeSuccess:
 
-            if sys.version_info[0] == 3: # python 3 support
-                if isinstance(packet, bytes): 
+            if sys.version_info[0] == 3:  # python 3 support
+                if isinstance(packet, bytes):
                     payload_data = packet + self.terminator
                 else:
                     payload_data = bytes(packet, "UTF-8") + self.terminator
@@ -802,47 +899,49 @@ class TcpClientThread(threading.Thread):
                 payload_data = packet + self.terminator
 
             # make chunk
-            if sys.version_info[0] == 3: # python 3 support
-                chunks=[payload_data[x:x+self.wsMaxPayloadSize] for x in range(0, len(payload_data), self.wsMaxPayloadSize)]
+            if sys.version_info[0] == 3:  # python 3 support
+                chunks = [payload_data[x:x + self.wsMaxPayloadSize]
+                          for x in range(0, len(payload_data), self.wsMaxPayloadSize)]
             else:
-                chunks=[payload_data[x:x+self.wsMaxPayloadSize] for x in xrange(0, len(payload_data), self.wsMaxPayloadSize)]
+                chunks = [payload_data[x:x + self.wsMaxPayloadSize]
+                          for x in xrange(0, len(payload_data), self.wsMaxPayloadSize)]
 
             # encode data in the websocket packet and enqueue it
             for chunk in chunks:
                 # encode in text websocket
                 wsdata = self.wsCodec.encodeText(data=chunk)
 
-                if isinstance(packet, bytes): # python 3 support
-                    self.queue.put(wsdata) 
+                if isinstance(packet, bytes):  # python 3 support
+                    self.queue.put(wsdata)
                 else:
-                    if sys.version_info[0] == 3: # python 3 support
-                        self.queue.put( bytes(wsdata, "UTF-8") )
+                    if sys.version_info[0] == 3:  # python 3 support
+                        self.queue.put(bytes(wsdata, "UTF-8"))
                     else:
-                        self.queue.put( wsdata  )
+                        self.queue.put(wsdata)
         else:
-            if isinstance(packet, bytes): # python 3 support
+            if isinstance(packet, bytes):  # python 3 support
                 self.queue.put(packet + self.terminator)
             else:
-                if sys.version_info[0] == 3: # python 3 support
-                    self.queue.put( bytes(packet, "UTF-8") + self.terminator )
+                if sys.version_info[0] == 3:  # python 3 support
+                    self.queue.put(bytes(packet, "UTF-8") + self.terminator)
                 else:
-                    self.queue.put( packet + self.terminator )
-        
+                    self.queue.put(packet + self.terminator)
+
     def handleIncomingPacket(self, pdu):
         """
         Function to reimplement
-        Called on incoming packet 
+        Called on incoming packet
 
         @param pdu: payload received
         @type pdu: string
         """
-        self.trace( pdu )
-    
+        self.trace(pdu)
+
     def getLocalAddress(self):
         """
         Returns the binding address
 
-        @return: local bind address (ip,port)
+        @return: local bind address (ip, port)
         @rtype: tuple
         """
         rslt = self.localAddress
@@ -863,7 +962,7 @@ class TcpClientThread(threading.Thread):
         @type err: string
         """
         pass
-        
+
     def onWsHanshakeSuccess(self):
         """
         Function to reimplement
@@ -884,7 +983,7 @@ class TcpClientThread(threading.Thread):
         Called on successful tcp connection
         """
         pass
-    
+
     def onProxyConnection(self):
         """
         Function to reimplement
@@ -901,7 +1000,7 @@ class TcpClientThread(threading.Thread):
         @type byServer: boolean
         """
         pass
-    
+
     def onConnectionRefused(self, err):
         """
         Function to reimplement
@@ -928,7 +1027,7 @@ class TcpClientThread(threading.Thread):
         @type err: string
         """
         pass
-        
+
     def onConnectionTimeout(self, err):
         """
         Function to reimplement
@@ -937,7 +1036,7 @@ class TcpClientThread(threading.Thread):
         @type err: string
         """
         pass
-    
+
     def onInactivityTimeout(self):
         """
         Function to reimplement
@@ -955,7 +1054,7 @@ class TcpClientThread(threading.Thread):
         @type err: string
         """
         pass
-    
+
     def onProxyConnectionError(self, err):
         """
         Function to reimplement
@@ -973,8 +1072,8 @@ class TcpClientThread(threading.Thread):
         @type err: string
         """
         pass
-        
-    def trace (self, txt):
+
+    def trace(self, txt):
         """
         Display txt on screen
 
@@ -983,7 +1082,7 @@ class TcpClientThread(threading.Thread):
         """
         print(txt)
 
-    def error (self, txt):
+    def error(self, txt):
         """
         Display txt on screen
 
@@ -991,33 +1090,3 @@ class TcpClientThread(threading.Thread):
         @type txt: string
         """
         print(txt)
-
-
-#if __name__ == '__main__':
-#    def onDisconnection(byServer=False): print('disconnected: %s' % byServer)
-#    # 172.16.51.9
-#    # 174.129.224.73
-#    ws = TcpClientThread( serverAddress = ('172.16.51.2', 80), localAddress = ('', 0), inactivityTimeout = 120,
-#                            keepAliveInterval = 20, timeout = 1, proxyAddress=None, proxyUserId='client',
-#                            selectTimeout=0.01, terminator='\x00', wsSupport=True, sslSupport=False)
-#    ws.start()
-#    #ws.onDisconnection = onDisconnection
-#    print("starting connection")
-#    ws.startConnection()
-#    
-#    print("waiting...")
-#    time.sleep( 1 )
-#    ws.handshakeWebSocket(resource="/?encoding=text", hostport="echo.websocket.org")
-#    time.sleep( 1 )
-#    print('sending data')
-#    a = 0
-#    for i in xrange(500):
-#        ws.sendPacket(packet='a'*6000)
-#        a += len('a'*6000)
-#    print(a)
-#    time.sleep( 60 )
-#    print("stopping connection")
-#    ws.closeConnection()
-#    ws.stop()
-#    ws.join()
-#    

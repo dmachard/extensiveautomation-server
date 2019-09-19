@@ -22,5 +22,3 @@
 # -------------------------------------------------------------------
 
 __DESCRIPTION__ = """General library."""
-
-from ea.testexecutorlib.TestExecutorLib import *

@@ -24,16 +24,17 @@
 import sys
 import operator
 import inspect
-  
+
 try:
     xrange
-except NameError: # support python3
+except NameError:  # support python3
     xrange = range
+
 
 def describeFunc(obj, method=False):
     """
-    Describe the function object passed as argument. 
-    If this is a method object, the second argument 
+    Describe the function object passed as argument.
+    If this is a method object, the second argument
     will be passed as True
 
     @param obj:
@@ -50,7 +51,7 @@ def describeFunc(obj, method=False):
 
     args = arginfo[0]
 
-    desc = { }
+    desc = {}
     desc['name'] = obj.__name__
     if obj.__doc__ is not None:
         desc['desc'] = obj.__doc__
@@ -58,17 +59,17 @@ def describeFunc(obj, method=False):
     if args:
         if args[0] == 'self':
             args.pop(0)
-        
+
         desc['args'] = args
 
         if arginfo[3]:
             dl = len(arginfo[3])
             al = len(args)
-            defargs = args[al-dl:al]
+            defargs = args[al - dl:al]
             if sys.version_info < (3,):
-                desc['default-args'] = zip( defargs, arginfo[3] )
+                desc['default-args'] = zip(defargs, arginfo[3])
             else:
-                desc['default-args'] = list( zip( defargs, arginfo[3] ) )
+                desc['default-args'] = list(zip(defargs, arginfo[3]))
             # convert None value to str 'None'
             for i in xrange(len(desc['default-args'])):
                 k, v = desc['default-args'][i]
@@ -88,6 +89,7 @@ def describeFunc(obj, method=False):
         desc['type'] = 'function'
     return desc
 
+
 def describeClass(obj, functions):
     """
     Describe the class object passed as argument including its methods
@@ -99,7 +101,7 @@ def describeClass(obj, functions):
     @type functions:
     """
     ret = []
-    desc = { 'name': obj.__name__, 'functions': ret, 'type': 'class' }
+    desc = {'name': obj.__name__, 'functions': ret, 'type': 'class'}
     if obj.__doc__ is not None:
         desc['desc'] = obj.__doc__
 
@@ -109,17 +111,18 @@ def describeClass(obj, functions):
                 item = getattr(obj, name)
                 if sys.version_info < (3,):
                     if inspect.ismethod(item):
-                        ret.append( describeFunc(item, True) )
+                        ret.append(describeFunc(item, True))
                 else:
                     if inspect.isfunction(item):
-                        ret.append( describeFunc(item, True) )
+                        ret.append(describeFunc(item, True))
     ret.sort(key=operator.itemgetter('name'))
 
     return desc
 
-def describeModule( module, classes, descr='', removeVersion=False ):
+
+def describeModule(module, classes, descr='', removeVersion=False):
     """
-    Describe the module object passed as argument 
+    Describe the module object passed as argument
     including its classes and functions
 
     @param module:
@@ -134,35 +137,36 @@ def describeModule( module, classes, descr='', removeVersion=False ):
 
     ret = []
     completeName = module.__name__
-    moduleName = completeName.rsplit('.',1)
-    
+    moduleName = completeName.rsplit('.', 1)
+
     # remove version in complete name
     if removeVersion:
         fullName = completeName.split('.')
         fullModuleName = "%s.%s" % (fullName[0], fullName[2])
     else:
         fullModuleName = module.__name__
-    desc= { 'name': moduleName[1] , 
-            'realname': fullModuleName, 
-            'classes': ret, 
-            'type': 'module', 
-            'desc': descr }
+    desc = {'name': moduleName[1],
+            'realname': fullModuleName,
+            'classes': ret,
+            'type': 'module',
+            'desc': descr}
 
-    for name in dir(module):    
+    for name in dir(module):
         for m in classes:
-            n,c = m
+            n, c = m
             if n == name:
                 obj = getattr(module, name)
                 if inspect.isclass(obj):
-                    ret.append( describeClass(obj, c) )
+                    ret.append(describeClass(obj, c))
                 elif (inspect.ismethod(obj) or inspect.isfunction(obj)):
-                    ret.append( describeFunc(obj) )
+                    ret.append(describeFunc(obj))
 
     return desc
 
-def describePackage( package, modules, descr='' ):
+
+def describePackage(package, modules, descr=''):
     """
-    Describe the python package object passed as argument 
+    Describe the python package object passed as argument
     including its classes and functions
 
     pkg/
@@ -183,21 +187,21 @@ def describePackage( package, modules, descr='' ):
     @type descr:
     """
     ret = []
-    desc = { 'name': package.__name__ , 
-             'modules': ret , 
-             'type': 'package', 
-             'desc': descr }
+    desc = {'name': package.__name__,
+            'modules': ret,
+            'type': 'package',
+            'desc': descr}
     for name in dir(package):
         for m in modules:
             d = ''
-            if len(m) ==2:
-                n,c = m # module name, next data to inspect
+            if len(m) == 2:
+                n, c = m  # module name, next data to inspect
             else:
-                n,c,d = m # module name, next data to inspect, module description
+                n, c, d = m  # module name, next data to inspect, module description
             if n == name:
                 obj = getattr(package, name)
                 if inspect.ismodule(obj):
-                    ret.append( describeModule(obj, c, d) )
+                    ret.append(describeModule(obj, c, d))
                 if inspect.isclass(obj):
-                    ret.append( describeClass(obj, c) )
+                    ret.append(describeClass(obj, c))
     return desc

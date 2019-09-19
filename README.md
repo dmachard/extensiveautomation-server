@@ -1,5 +1,8 @@
 # ExtensiveAutomation
 
+![](https://github.com/ExtensiveAutomation/extensiveautomation-server/workflows/Build%20Test%20Python%20Package/badge.svg)
+![](https://github.com/ExtensiveAutomation/extensiveautomation-server/workflows/Build%20Docker%20Image/badge.svg)
+
 | | |
 | ------------- | ------------- |
 | ExtensiveAutomation | Python automation server |
@@ -71,10 +74,14 @@ The server can run on both Python 2 and Python 3, and also run on Linux and Wind
     
             python -m pip install wrapt pycnic lxml jsonpath_ng
           
-    * Python2 environment, the `libxslt` library must be installed
+    * Python2 environment, the `libxslt` library must be installed and settings file updated
     
             python -m pip install wrapt scandir pycnic lxml jsonpath_ng
         
+            vim src/ea/settings.ini
+            [Bin]
+            python=/usr/bin/python2.7
+            
 3. Start the server. On linux the server is running as daemon.
 
         cd src/
@@ -167,22 +174,17 @@ Follow this procedure to enable LDAP authentication:
 2. Configure the `settings.ini`  file to enable ldap authentication and other stuff
 
         [Users_Session]
+        
         ; enable ldap user authentication for rest api session only
         ; 0=disable 1=enable
-        ldap-auth-enable=1
-        ; remote address of your ldap server
-        ldap-remote-addr=127.0.0.1
-        ; remote port of your ldap server
-        ldap-remote-port=389
-        ; enable ssl to communicate with the remote server
-        ; 0=disable 1=enable
-        ldap-remote-ssl=0
+        ldap-authbind=1
+        ; remote addresses of your ldap servers
+        ; ldaps://127.0.0.1:636 
+        ldap-host=[ "ldap://127.0.0.1:389" ]
         ; username form
         ; uid=%%s,ou=People,dc=extensive,dc=local
-        ; AUTHTEST\\%%s
-        ldap-username=uid=%%s,ou=People,dc=extensive,dc=local
-        ; authentification type: bind, ntlm
-        ldap-auth-type=bind
+        ldap-dn=[ "uid=%%s,ou=People,dc=extensive,dc=local" ]
+
 
 3. Restart the server
 

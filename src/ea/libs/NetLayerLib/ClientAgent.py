@@ -28,36 +28,40 @@ Client agent module
 import time
 import sys
 
+from ea.libs.NetLayerLib import TransactionManager
+from ea.libs.NetLayerLib import Messages
+from ea.libs.NetLayerLib import TcpClient
+
 # unicode = str with python3
 if sys.version_info > (3,):
     unicode = str
-    
-from ea.libs.NetLayerLib import TcpClient
-from ea.libs.NetLayerLib import Messages
-from ea.libs.NetLayerLib import TransactionManager
+
 
 TYPE_AGENT_AGENT = "Agent"
 TYPE_AGENT_PROBE = "Probe"
 TYPE_AGENT_USER = "User"
 TYPE_AGENT_USER = "Test"
 
-TYPE_REG_ANONYMOUS  = "Anonymous"
-TYPE_REG_ACCOUNT    = "Account"
+TYPE_REG_ANONYMOUS = "Anonymous"
+TYPE_REG_ACCOUNT = "Account"
 
-class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManager):
+
+class ClientAgent(TcpClient.TcpClientThread,
+                  TransactionManager.TransactionManager):
     """
     Client agent
     """
-    def __init__(self, typeAgent, agentName = None, 
-                       startAuto = False, inactivityTimeout = 60,
-                       keepAliveInterval = 40, timeoutTcpConnect=5, 
-                       responseTimeout=30.0, forceClose=True, 
-                       selectTimeout=0.01, wsSupport=False, 
-                       sslSupport=False, pickleVer=2, 
-                       regType=TYPE_REG_ANONYMOUS,
-                       regLogin='', regPass='', 
-                       tcpKeepAlive=True, tcpKeepIdle=3, 
-                       tcpKeepCnt=3, tcpKeepIntvl=3):
+
+    def __init__(self, typeAgent, agentName=None,
+                 startAuto=False, inactivityTimeout=60,
+                 keepAliveInterval=40, timeoutTcpConnect=5,
+                 responseTimeout=30.0, forceClose=True,
+                 selectTimeout=0.01, wsSupport=False,
+                 sslSupport=False, pickleVer=2,
+                 regType=TYPE_REG_ANONYMOUS,
+                 regLogin='', regPass='',
+                 tcpKeepAlive=True, tcpKeepIdle=3,
+                 tcpKeepCnt=3, tcpKeepIntvl=3):
         """
         Constructor
 
@@ -73,32 +77,32 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
         @param timeoutTcpConnect:
         @type timeoutTcpConnect: float
         """
-        TcpClient.TcpClientThread.__init__(self, inactivityTimeout=inactivityTimeout, 
-                                            keepAliveInterval=keepAliveInterval, 
-                                            timeout=timeoutTcpConnect,
-                                            selectTimeout=selectTimeout, 
-                                            wsSupport=wsSupport, 
-                                            sslSupport=sslSupport,
-                                            tcpKeepAlive=tcpKeepAlive, 
-                                            tcpKeepIdle=tcpKeepIdle, 
-                                            tcpKeepCnt=tcpKeepCnt, 
-                                            tcpKeepIntvl=tcpKeepIntvl)
+        TcpClient.TcpClientThread.__init__(self, inactivityTimeout=inactivityTimeout,
+                                           keepAliveInterval=keepAliveInterval,
+                                           timeout=timeoutTcpConnect,
+                                           selectTimeout=selectTimeout,
+                                           wsSupport=wsSupport,
+                                           sslSupport=sslSupport,
+                                           tcpKeepAlive=tcpKeepAlive,
+                                           tcpKeepIdle=tcpKeepIdle,
+                                           tcpKeepCnt=tcpKeepCnt,
+                                           tcpKeepIntvl=tcpKeepIntvl)
         TransactionManager.TransactionManager.__init__(self)
         self.__responseCmdTimeout = responseTimeout
-        self.__codec = Messages.Messages( userId = agentName, pickleVer=pickleVer )
+        self.__codec = Messages.Messages(userId=agentName, pickleVer=pickleVer)
         self.__agentName = agentName
         self.__localAddress = None
-        
+
         self.__typeAgent = typeAgent
         self.__registered = False
         self.__startAuto = startAuto
         self.__connected = False
         self.__forceClose = forceClose
-        
+
         self.regType = regType
         self.regLogin = regLogin
         self.regPass = regPass
-        
+
         self.ver = None
         self.desc = None
         self.name = None
@@ -108,8 +112,8 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
         Get type client
         """
         return self.__typeAgent
-        
-    def setAgentName (self, name):
+
+    def setAgentName(self, name):
         """
         Set the agent name
 
@@ -117,7 +121,7 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
         @type name:
         """
         self.__agentName = name
-        self.__codec.setUserId( name )
+        self.__codec.setUserId(name)
 
     def setDetails(self, name, desc, ver):
         """
@@ -135,8 +139,8 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
         self.ver = ver
         self.desc = desc
         self.name = name
-    
-    def isConnected (self):
+
+    def isConnected(self):
         """
         Return the connection status
 
@@ -145,7 +149,7 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
         """
         return self.__connected
 
-    def isRegistered (self):
+    def isRegistered(self):
         """
         Return the registration status
 
@@ -154,13 +158,13 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
         """
         return self.__registered
 
-    def startCA (self):
+    def startCA(self):
         """
         Start the client agent
         """
         TransactionManager.TransactionManager.start(self)
         TcpClient.TcpClientThread.start(self)
-        res =  self.getLocalAddress()
+        res = self.getLocalAddress()
         if res[0] == '':
             self.__localAddress = ('127.0.0.1', res[1])
         else:
@@ -168,7 +172,7 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
         if self.__startAuto:
             TcpClient.TcpClientThread.startConnection(self)
 
-    def stopCA (self):
+    def stopCA(self):
         """
         Stop the client agent
         """
@@ -187,14 +191,14 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
         Reimplementation from TcpClientThread
         """
         try:
-            decoded = self.__codec.decode(msgraw = pdu)
+            decoded = self.__codec.decode(msgraw=pdu)
         except Exception as e:
-            self.error('unable to decode new message: %s' % str(e) )
+            self.error('unable to decode new message: %s' % str(e))
         else:
             try:
-                TransactionManager.TransactionManager.onMessage( self, decoded  )
+                TransactionManager.TransactionManager.onMessage(self, decoded)
             except Exception as e:
-                self.error('unable to handle new message: %s' % str(e) )
+                self.error('unable to handle new message: %s' % str(e))
 
     def onConnection(self):
         """
@@ -212,37 +216,37 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
         try:
             self.sendProxyHttpRequest()
         except Exception as e:
-            self.error( 'unable to init proxy: %s' % str(e) )
-        
+            self.error('unable to init proxy: %s' % str(e))
+
     def doRegistration(self, cancelEvent=None):
         """
         Send a registration
         """
         self.trace('Do registration...')
         data = {
-                    'version': self.ver,
-                    'description': self.desc,
-                    'name': self.name,
-                    'type': self.__typeAgent,
-                    'start-at': time.time() ,
-                    'reg-type': self.regType,
-                    'reg-login': self.regLogin,
-                    'reg-pass': self.regPass
-                }
+            'version': self.ver,
+            'description': self.desc,
+            'name': self.name,
+            'type': self.__typeAgent,
+            'start-at': time.time(),
+            'reg-type': self.regType,
+            'reg-login': self.regLogin,
+            'reg-pass': self.regPass
+        }
 
         rsp = self.hello(data, cancelEvent=cancelEvent)
-        if rsp is None : 
+        if rsp is None:
             self.trace('Registration failed, no response.')
-            self.onRegistrationFailed( 'No response' )
+            self.onRegistrationFailed('No response')
         elif rsp['code'] == b'403':
             self.trace('Registration refused')
-            self.onRegistrationRefused( err = 'Registration refused')
+            self.onRegistrationRefused(err='Registration refused')
         elif rsp['code'] == b'400':
             self.trace('Registration failed, conflict name')
-            self.onRegistrationFailed( err = 'Conflict name')
+            self.onRegistrationFailed(err='Conflict name')
         elif rsp['code'] == b'500':
             self.error('Server Error')
-            self.onRegistrationFailed( err = 'Server Error' )
+            self.onRegistrationFailed(err='Server Error')
         elif rsp['code'] == b'200':
             self.trace('Registered')
             self.__registered = True
@@ -263,7 +267,7 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
         self.__registered = False
         self.__connected = False
 
-    def onRegistrationRefused (self, err):
+    def onRegistrationRefused(self, err):
         """
         You should override this method
 
@@ -272,7 +276,7 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
         """
         pass
 
-    def onRegistrationFailed (self, err):
+    def onRegistrationFailed(self, err):
         """
         You should override this method
 
@@ -280,14 +284,14 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
         @type err:
         """
         pass
-    
-    def onRegistrationSuccessful (self):
+
+    def onRegistrationSuccessful(self):
         """
         You should override this method
         """
         pass
 
-    def bad (self, tid, body = None):
+    def bad(self, tid, body=None):
         """
         Send a bad message
 
@@ -299,18 +303,18 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
         """
         # encode message
         try:
-            rspEncoded = self.__codec.error( tid = tid, body = body )
+            rspEncoded = self.__codec.error(tid=tid, body=body)
         except Exception as e:
-            self.error( 'unable to encode bad message: %s' % str(e) )
+            self.error('unable to encode bad message: %s' % str(e))
         else:
             # send packet
             try:
                 TcpClient.TcpClientThread.sendPacket(self, rspEncoded)
                 self.trace("-> 500 BAD %s" % tid)
             except Exception as e:
-                self.error( '[failed] reply error %s' % str(e) )
+                self.error('[failed] reply error %s' % str(e))
 
-    def failed (self, tid, body = None):
+    def failed(self, tid, body=None):
         """
         Send a failed message
 
@@ -322,18 +326,18 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
         """
         # encode message
         try:
-            rspEncoded = self.__codec.failed( tid = tid, body = body )
+            rspEncoded = self.__codec.failed(tid=tid, body=body)
         except Exception as e:
-            self.error( 'unable to encode failed message: %s' % str(e) )
+            self.error('unable to encode failed message: %s' % str(e))
         else:
             # send packet
             try:
                 TcpClient.TcpClientThread.sendPacket(self, rspEncoded)
                 self.trace("-> 400 FAILED %s" % tid)
             except Exception as e:
-                self.error( '[failed] reply error %s' % str(e) )
+                self.error('[failed] reply error %s' % str(e))
 
-    def forbidden (self, tid, body = None):
+    def forbidden(self, tid, body=None):
         """
         Send a forbidden message
 
@@ -345,18 +349,18 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
         """
         # encode message
         try:
-            rspEncoded = self.__codec.forbidden( tid = tid, body = body )
+            rspEncoded = self.__codec.forbidden(tid=tid, body=body)
         except Exception as e:
-            self.error( 'unable to encode forbidden message: %s' % str(e) )
+            self.error('unable to encode forbidden message: %s' % str(e))
         else:
             # send packet
             try:
                 TcpClient.TcpClientThread.sendPacket(self, rspEncoded)
                 self.trace("-> 403 OK %s" % tid)
             except Exception as e:
-                self.error( '[forbidden] reply error: %s' % str(e) )
+                self.error('[forbidden] reply error: %s' % str(e))
 
-    def ok (self, tid, body = None):
+    def ok(self, tid, body=None):
         """
         Send a ok message
 
@@ -368,18 +372,18 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
         """
         # encode message
         try:
-            rspEncoded = self.__codec.ok( tid = tid, body = body )
+            rspEncoded = self.__codec.ok(tid=tid, body=body)
         except Exception as e:
-            self.error( 'unable to encode ok message: %s' % str(e) )
+            self.error('unable to encode ok message: %s' % str(e))
         else:
             # send packet
             try:
                 TcpClient.TcpClientThread.sendPacket(self, rspEncoded)
                 self.trace("-> 200 OK %s" % tid)
             except Exception as e:
-                self.error( 'unable to send ok message: %s' % str(e) )
+                self.error('unable to send ok message: %s' % str(e))
 
-    def notify (self, data):
+    def notify(self, data):
         """
         Send a notify
 
@@ -388,19 +392,20 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
         """
         # encode message
         try:
-            tid = TransactionManager.TransactionManager.getNewTransactionId(self)   
-            encoded = self.__codec.notify( tid = tid, body = data )
+            tid = TransactionManager.TransactionManager.getNewTransactionId(
+                self)
+            encoded = self.__codec.notify(tid=tid, body=data)
         except Exception as e:
-            self.error( 'unable to encode notify message: %s' % str(e) )
+            self.error('unable to encode notify message: %s' % str(e))
         else:
             # send packet
             try:
                 TcpClient.TcpClientThread.sendPacket(self, encoded)
                 self.trace("-> NOTIFY %s" % tid)
             except Exception as e:
-                self.error( '[notify] request notify error %s' % str(e) )
+                self.error('[notify] request notify error %s' % str(e))
 
-    def cmd (self, data, timeout=0.0, cancelEvent=None):
+    def cmd(self, data, timeout=0.0, cancelEvent=None):
         """
         Send a command
 
@@ -416,10 +421,11 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
         # encode message
         try:
             ret = None
-            tid, event = TransactionManager.TransactionManager.newTransaction(self, waitResponse = True)
-            encoded = self.__codec.cmd( tid = tid, body = data )
+            tid, event = TransactionManager.TransactionManager.newTransaction(
+                self, waitResponse=True)
+            encoded = self.__codec.cmd(tid=tid, body=data)
         except Exception as e:
-            self.error( 'unable to encode cmd message: %s' % str(e) )
+            self.error('unable to encode cmd message: %s' % str(e))
         else:
             try:
                 # send packet
@@ -429,12 +435,13 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
                 maxTime = self.__responseCmdTimeout
                 if timeout > 0:
                     maxTime = timeout
-                self.trace("-> REQUEST %s, timeout of %s" % (tid,maxTime) )
-                ret = TransactionManager.TransactionManager.waitResponse(self, event, tid, responseTimeout=maxTime, cancelEvent=cancelEvent)
+                self.trace("-> REQUEST %s, timeout of %s" % (tid, maxTime))
+                ret = TransactionManager.TransactionManager.waitResponse(
+                    self, event, tid, responseTimeout=maxTime, cancelEvent=cancelEvent)
             except Exception as e:
-                self.error( '[cmd] %s' % str(e) )
+                self.error('[cmd] %s' % str(e))
             return ret
- 
+
     def hello(self, data, cancelEvent=None):
         """
         Send a hello
@@ -449,9 +456,9 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
 
         if self.__typeAgent == TYPE_AGENT_PROBE or self.__typeAgent == TYPE_AGENT_AGENT:
             self.trace('Registration...')
-            tpl = {'cmd': Messages.CMD_HELLO }
+            tpl = {'cmd': Messages.CMD_HELLO}
             tpl.update(data)
-            ret = self.cmd( data = tpl, cancelEvent=cancelEvent )
+            ret = self.cmd(data=tpl, cancelEvent=cancelEvent)
         return ret
 
     def onResponse(self, client, tid, response):
@@ -468,7 +475,7 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
         @type request:
         """
         pass
-    
+
     def onRequest(self, client, tid, request):
         """
         You should override this method
@@ -484,7 +491,7 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
         """
         pass
 
-    def trace (self, txt):
+    def trace(self, txt):
         """
         Display message in the screen
 
@@ -492,17 +499,23 @@ class ClientAgent(TcpClient.TcpClientThread, TransactionManager.TransactionManag
         @type txt: string
         """
         if __debug__:
-            timestamp =  time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())) \
+            timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())) \
                 + ".%3.3d" % int((time.time() * 1000) % 1000)
-            print("%s | [%s] %s" % (timestamp, self.__class__.__name__, unicode(txt).encode('utf-8')))
+            print(
+                "%s | [%s] %s" %
+                (timestamp,
+                 self.__class__.__name__,
+                 unicode(txt).encode('utf-8')))
 
-    def error (self, err):
+    def error(self, err):
         """
         Display an error
 
         @param err:
         @type err:
         """
-        timestamp =  time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())) \
-        + ".%3.3d" % int((time.time() * 1000) % 1000)
-        sys.stderr.write( "%s | [%s]%s\n" % ( timestamp, self.__class__.__name__, err ) )
+        timestamp = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(time.time())) \
+            + ".%3.3d" % int((time.time() * 1000) % 1000)
+        sys.stderr.write(
+            "%s | [%s]%s\n" %
+            (timestamp, self.__class__.__name__, err))

@@ -36,6 +36,7 @@ from ea.servercontrols import RestTesterFunctions
 from ea.servercontrols import RestAdminFunctions
 from ea.servercontrols import RestCommonFunctions
 
+
 @wrapt.decorator
 def _to_yaml(wrapped, instance, args, kwargs):
     """
@@ -43,6 +44,7 @@ def _to_yaml(wrapped, instance, args, kwargs):
     public decorator for yaml generator
     """
     return wrapped(*args, **kwargs)
+
 
 @wrapt.decorator
 def _to_yaml_defs(wrapped, instance, args, kwargs):
@@ -52,6 +54,7 @@ def _to_yaml_defs(wrapped, instance, args, kwargs):
     """
     return wrapped(*args, **kwargs)
 
+
 @wrapt.decorator
 def _to_yaml_tags(wrapped, instance, args, kwargs):
     """
@@ -60,87 +63,24 @@ def _to_yaml_tags(wrapped, instance, args, kwargs):
     """
     return wrapped(*args, **kwargs)
 
-# """
-# Swagger object definitions
-# """
-# class SwaggerDefinitions(object):
-    # """
-    # """
-    #@_to_yaml_defs
-    # def ResponseGeneric(self):
-        # """
-        # type: object
-        # properties:
-          # cmd:
-            # type: string
-          # message:
-            # type: string
-        # """
-        # pass
-
-# """
-# Swagger tags
-# """
-# class SwaggerTags(object):
-    # """
-    # """
-    # @_to_yaml_tags
-    # def session(self):
-        # """
-        # Everything about your session
-        # """
-        # pass
-    # @_to_yaml_tags
-    # def variables(self):
-        # """
-        # Everything to manage projects variables
-        # """
-        # pass
-    # @_to_yaml_tags
-    # def tests(self):
-        # """
-        # Everything to manage your tests
-        # """
-        # pass
-    # @_to_yaml_tags
-    # def tasks(self):
-        # """
-        # Everything to manage your tasks
-        # """
-        # pass
-    # @_to_yaml_tags
-    # def public(self):
-        # """
-        # Everything to manage your tasks
-        # """
-        # pass
-    # @_to_yaml_tags
-    # def results(self):
-        # """
-        # Everything to manage your test results
-        # """
-        # pass
-    # @_to_yaml_tags
-    # def reports(self):
-        # """
-        # Everything to get your test reports
-        # """
-        # pass
-
 
 """
 Logger
 """
+
+
 class WSGIRequestHandlerLogging(WSGIRequestHandler, Logger.ClassLogger):
     """
     """
+
     def log_message(self, format, *args):
         """
         """
         try:
-            self.trace( "%s %s %s" % args )
-        except:
+            self.trace("%s %s %s" % args)
+        except BaseException:
             print(args)
+
 
 if sys.version_info > (3,):
     _my_logger = None
@@ -153,157 +93,181 @@ else:
 """
 Webservices routing
 """
+
+
 class _WebServices(WSGI):
     # This allows * on all Handlers
     headers = [
-                ("Access-Control-Allow-Origin", "*"),
-                ("Access-Control-Allow-Methods", "*"),
-                ("Access-Control-Allow-Headers", "X-Requested-With, Content-Type, Origin, Authorization, Accept, Client-Security-Token, Accept-Encoding")
-              ]
+        ("Access-Control-Allow-Origin", "*"),
+        ("Access-Control-Allow-Methods", "*"),
+        ("Access-Control-Allow-Headers",
+         "X-Requested-With, Content-Type, Origin, Authorization, Accept, Client-Security-Token, Accept-Encoding")
+    ]
 
     logger = _my_logger
     # debug = True
     routes = [
         # session
-        ('/session/login',                              RestCommonFunctions.SessionLogin()),
-        ('/session/logout',                             RestCommonFunctions.SessionLogout()),
-        ('/session/refresh',                            RestCommonFunctions.SessionRefresh()),
-        ('/session/context',                            RestCommonFunctions.SessionContext()),
-        ('/session/context/notify',                     RestCommonFunctions.SessionContextNotify()),
-        ('/session/context/all',                        RestCommonFunctions.SessionContextAll()),
+        ('/session/login', RestCommonFunctions.SessionLogin()),
+        ('/session/logout', RestCommonFunctions.SessionLogout()),
+        ('/session/refresh', RestCommonFunctions.SessionRefresh()),
+        ('/session/context', RestCommonFunctions.SessionContext()),
+        ('/session/context/notify', RestCommonFunctions.SessionContextNotify()),
+        ('/session/context/all', RestCommonFunctions.SessionContextAll()),
 
         # agents
-        ('/agents/running',                             RestTesterFunctions.AgentsRunning()),
-        ('/agents/disconnect',                          RestTesterFunctions.AgentsDisconnect()),
+        ('/agents/running', RestTesterFunctions.AgentsRunning()),
+        ('/agents/disconnect', RestTesterFunctions.AgentsDisconnect()),
 
         # tasks
-        ('/tasks/running',                              RestCommonFunctions.TasksRunning()),
-        ('/tasks/waiting',                              RestCommonFunctions.TasksWaiting()),
-        ('/tasks/history',                              RestCommonFunctions.TasksHistory()),
-        ('/tasks/history/all',                          RestCommonFunctions.TasksHistoryAll()),
-        ('/tasks/cancel',                               RestCommonFunctions.TasksCancel()),
-        ('/tasks/cancel/selective',                     RestCommonFunctions.TasksCancelSelective()),
-        ('/tasks/cancel/all',                           RestAdminFunctions.TasksCancelAll()),
-        ('/tasks/history/clear',                        RestAdminFunctions.TasksHistoryClear()),
-        ('/tasks/replay',                               RestCommonFunctions.TasksReplay()),
-        ('/tasks/verdict',                              RestCommonFunctions.TasksVerdict()),
-        ('/tasks/review',                               RestCommonFunctions.TasksReview()),
-        ('/tasks/design',                               RestCommonFunctions.TasksDesign()),
-        ('/tasks/comment',                              RestCommonFunctions.TasksComment()),
-        ('/tasks/kill',                                 RestCommonFunctions.TasksKill()),
-        ('/tasks/kill/all',                             RestAdminFunctions.TasksKillAll()),
-        ('/tasks/kill/selective',                       RestCommonFunctions.TasksKillSelective()),
-        ('/tasks/reschedule',                           RestCommonFunctions.TasksReschedule()),
+        ('/tasks/schedule', RestCommonFunctions.TasksSchedule()),
+        ('/tasks/remove', RestCommonFunctions.TasksRemove()),
+        ('/tasks/listing', RestCommonFunctions.TasksListing()),
+        ('/tasks/running', RestCommonFunctions.TasksRunning()),
+        ('/tasks/waiting', RestCommonFunctions.TasksWaiting()),
+        ('/tasks/history', RestCommonFunctions.TasksHistory()),
+        ('/tasks/history/all', RestCommonFunctions.TasksHistoryAll()),
+        ('/tasks/cancel', RestCommonFunctions.TasksCancel()),
+        ('/tasks/cancel/selective', RestCommonFunctions.TasksCancelSelective()),
+        ('/tasks/cancel/all', RestAdminFunctions.TasksCancelAll()),
+        ('/tasks/history/clear', RestAdminFunctions.TasksHistoryClear()),
+        ('/tasks/replay', RestCommonFunctions.TasksReplay()),
+        ('/tasks/verdict', RestCommonFunctions.TasksVerdict()),
+        ('/tasks/review', RestCommonFunctions.TasksReview()),
+        ('/tasks/design', RestCommonFunctions.TasksDesign()),
+        ('/tasks/comment', RestCommonFunctions.TasksComment()),
+        ('/tasks/kill', RestCommonFunctions.TasksKill()),
+        ('/tasks/kill/all', RestAdminFunctions.TasksKillAll()),
+        ('/tasks/kill/selective', RestCommonFunctions.TasksKillSelective()),
+        ('/tasks/reschedule', RestCommonFunctions.TasksReschedule()),
 
         # public storage
-        ('/public/basic/listing',                       RestTesterFunctions.PublicListing()),
-        ('/public/directory/add',                       RestTesterFunctions.PublicDirectoryAdd()),
-        ('/public/directory/remove',                    RestTesterFunctions.PublicDirectoryRemove()),
-        ('/public/directory/rename',                    RestTesterFunctions.PublicDirectoryRename()),
-        ('/public/file/download',                       RestTesterFunctions.PublicDownload()),
-        ('/public/file/import',                         RestTesterFunctions.PublicImport()),
-        ('/public/file/remove',                         RestTesterFunctions.PublicRemove()),
-        ('/public/file/rename',                         RestTesterFunctions.PublicRename()),
+        ('/public/listing/basic', RestTesterFunctions.PublicListing()),
+        ('/public/directory/add', RestTesterFunctions.PublicDirectoryAdd()),
+        ('/public/directory/remove', RestTesterFunctions.PublicDirectoryRemove()),
+        ('/public/directory/rename', RestTesterFunctions.PublicDirectoryRename()),
+        ('/public/file/download', RestTesterFunctions.PublicDownload()),
+        ('/public/file/import', RestTesterFunctions.PublicImport()),
+        ('/public/file/remove', RestTesterFunctions.PublicRemove()),
+        ('/public/file/rename', RestTesterFunctions.PublicRename()),
 
         # tests
-        ('/tests/schedule',                             RestTesterFunctions.TestsSchedule()),
-        ('/tests/schedule/tpg',                         RestTesterFunctions.TestsScheduleTpg()),
-        ('/tests/schedule/group',                       RestTesterFunctions.TestsScheduleGroup()),
-        ('/tests/basic/listing',                        RestTesterFunctions.TestsBasicListing()),
-        ('/tests/listing',                              RestTesterFunctions.TestsListing()),
-        ('/tests/directory/add',                        RestTesterFunctions.TestsDirectoryAdd()),
-        ('/tests/directory/remove',                     RestTesterFunctions.TestsDirectoryRemove()),
-        ('/tests/directory/remove/all',                 RestAdminFunctions.TestsDirectoryRemoveAll()),
-        ('/tests/directory/rename',                     RestTesterFunctions.TestsDirectoryRename()),
-        ('/tests/directory/duplicate',                  RestTesterFunctions.TestsDirectoryDuplicate()),
-        ('/tests/directory/move',                       RestTesterFunctions.TestsDirectoryMove()),
-        ('/tests/file/download',                        RestTesterFunctions.TestsFileDownload()),
-        ('/tests/file/open',                            RestTesterFunctions.TestsFileOpen()),
-        ('/tests/file/upload',                          RestTesterFunctions.TestsFileUpload()),
-        ('/tests/file/remove',                          RestTesterFunctions.TestsFileRemove()),
-        ('/tests/file/rename',                          RestTesterFunctions.TestsFileRename()),
-        ('/tests/file/duplicate',                       RestTesterFunctions.TestsFileDuplicate()),
-        ('/tests/file/move',                            RestTesterFunctions.TestsFileMove()),
-        ('/tests/file/unlock',                          RestTesterFunctions.TestsFileUnlock()),
-        ('/tests/check/syntax',                         RestTesterFunctions.TestsCheckSyntax()),
-        ('/tests/check/syntax/tpg',                     RestTesterFunctions.TestsCheckSyntaxTpg()),
-        ('/tests/create/design',                        RestTesterFunctions.TestsCreateDesign()),
-        ('/tests/create/design/tpg',                    RestTesterFunctions.TestsCreateDesignTpg()),
-        ('/tests/find/file-usage',                      RestTesterFunctions.TestsFindFileUsage()),
+        ('/tests/schedule', RestTesterFunctions.TestsSchedule()),
+        ('/tests/schedule/tpg', RestTesterFunctions.TestsScheduleTpg()),
+        ('/tests/schedule/group', RestTesterFunctions.TestsScheduleGroup()),
+        ('/tests/listing/basic', RestTesterFunctions.TestsBasicListing()),
+        ('/tests/listing/dict', RestTesterFunctions.TestsDictListing()),
+        ('/tests/listing', RestTesterFunctions.TestsListing()),
+        ('/tests/directory/add', RestTesterFunctions.TestsDirectoryAdd()),
+        ('/tests/directory/remove', RestTesterFunctions.TestsDirectoryRemove()),
+        ('/tests/directory/remove/all', RestAdminFunctions.TestsDirectoryRemoveAll()),
+        ('/tests/directory/rename', RestTesterFunctions.TestsDirectoryRename()),
+        ('/tests/directory/duplicate', RestTesterFunctions.TestsDirectoryDuplicate()),
+        ('/tests/directory/move', RestTesterFunctions.TestsDirectoryMove()),
+        ('/tests/file/download', RestTesterFunctions.TestsFileDownload()),
+        ('/tests/file/open', RestTesterFunctions.TestsFileOpen()),
+        ('/tests/file/upload', RestTesterFunctions.TestsFileUpload()),
+        ('/tests/file/remove', RestTesterFunctions.TestsFileRemove()),
+        ('/tests/file/rename', RestTesterFunctions.TestsFileRename()),
+        ('/tests/file/duplicate', RestTesterFunctions.TestsFileDuplicate()),
+        ('/tests/file/move', RestTesterFunctions.TestsFileMove()),
+        ('/tests/file/unlock', RestTesterFunctions.TestsFileUnlock()),
+        ('/tests/check/syntax', RestTesterFunctions.TestsCheckSyntax()),
+        ('/tests/check/syntax/tpg', RestTesterFunctions.TestsCheckSyntaxTpg()),
+        ('/tests/create/design', RestTesterFunctions.TestsCreateDesign()),
+        ('/tests/create/design/tpg', RestTesterFunctions.TestsCreateDesignTpg()),
+        ('/tests/find/file-usage', RestTesterFunctions.TestsFindFileUsage()),
 
         # variables
-        ('/variables/listing',                          RestTesterFunctions.VariablesListing()),
-        ('/variables/add',                              RestTesterFunctions.VariablesAdd()),
-        ('/variables/update',                           RestTesterFunctions.VariablesUpdate()),
-        ('/variables/remove',                           RestTesterFunctions.VariablesRemove()),
-        ('/variables/duplicate',                        RestTesterFunctions.VariablesDuplicate()),
-        ('/variables/reset',                            RestAdminFunctions.VariablesReset()),
-        ('/variables/search/by/name',                   RestTesterFunctions.VariablesSearchByName()),
-        ('/variables/search/by/id',                     RestTesterFunctions.VariablesSearchById()),
+        ('/variables/listing', RestTesterFunctions.VariablesListing()),
+        ('/variables/add', RestTesterFunctions.VariablesAdd()),
+        ('/variables/update', RestTesterFunctions.VariablesUpdate()),
+        ('/variables/remove', RestTesterFunctions.VariablesRemove()),
+        ('/variables/duplicate', RestTesterFunctions.VariablesDuplicate()),
+        ('/variables/reset', RestAdminFunctions.VariablesReset()),
+        ('/variables/search/by/name', RestTesterFunctions.VariablesSearchByName()),
+        ('/variables/search/by/id', RestTesterFunctions.VariablesSearchById()),
 
         # tests results storage
-        ('/results/listing/files',                      RestTesterFunctions.ResultsListingFiles()),
-        ('/results/listing/by/id/datetime',             RestTesterFunctions.ResultsListingIdByDateTime()),
-        ('/results/reset',                              RestAdminFunctions.ResultsReset()),
-        ('/results/remove/by/id',                       RestTesterFunctions.ResultsRemoveById()),
-        ('/results/remove/by/date',                     RestTesterFunctions.ResultsRemoveByDate()),
-        ('/results/follow',                             RestTesterFunctions.ResultsFollow()),
-        ('/results/status',                             RestTesterFunctions.ResultsStatus()),
-        ('/results/verdict',                            RestTesterFunctions.ResultsVerdict()),
-        ('/results/report/verdicts',                    RestTesterFunctions.ResultsReportVerdicts()),
-        ('/results/report/reviews',                     RestTesterFunctions.ResultsReportReviews()),
-        ('/results/report/designs',                     RestTesterFunctions.ResultsReportDesigns()),
-        ('/results/report/comments',                    RestTesterFunctions.ResultsReportComments()),
-        ('/results/report/events',                      RestTesterFunctions.ResultsReportEvents()),
-        ('/results/reports',                            RestTesterFunctions.ResultsReports()),
-        ('/results/upload/file',                        RestTesterFunctions.ResultsUploadFile()),
-        ('/results/download/image',                     RestTesterFunctions.ResultsDownloadImage()),
-        ('/results/download/result',                    RestTesterFunctions.ResultsDownloadResult()),
-        ('/results/download/uncomplete',                RestTesterFunctions.ResultsDownloadResultUncomplete()),
-        ('/results/comment/add',                        RestTesterFunctions.ResultsCommentAdd()),
-        ('/results/comments/remove',                    RestTesterFunctions.ResultsCommentsRemove()),
+        ('/results/listing/files', RestTesterFunctions.ResultsListingFiles()),
+        ('/results/listing/by/id/datetime',
+         RestTesterFunctions.ResultsListingIdByDateTime()),
+        ('/results/reset', RestAdminFunctions.ResultsReset()),
+        ('/results/remove/by/id', RestTesterFunctions.ResultsRemoveById()),
+        ('/results/remove/by/date', RestTesterFunctions.ResultsRemoveByDate()),
+        ('/results/follow', RestTesterFunctions.ResultsFollow()),
+        ('/results/status', RestTesterFunctions.ResultsStatus()),
+        ('/results/verdict', RestTesterFunctions.ResultsVerdict()),
+        ('/results/report/verdicts', RestTesterFunctions.ResultsReportVerdicts()),
+        ('/results/report/reviews', RestTesterFunctions.ResultsReportReviews()),
+        ('/results/report/designs', RestTesterFunctions.ResultsReportDesigns()),
+        ('/results/report/comments', RestTesterFunctions.ResultsReportComments()),
+        ('/results/report/events', RestTesterFunctions.ResultsReportEvents()),
+        ('/results/reports', RestTesterFunctions.ResultsReports()),
+        ('/results/upload/file', RestTesterFunctions.ResultsUploadFile()),
+        ('/results/download/image', RestTesterFunctions.ResultsDownloadImage()),
+        ('/results/download/result', RestTesterFunctions.ResultsDownloadResult()),
+        ('/results/download/uncomplete',
+         RestTesterFunctions.ResultsDownloadResultUncomplete()),
+        ('/results/comment/add', RestTesterFunctions.ResultsCommentAdd()),
+        ('/results/comments/remove', RestTesterFunctions.ResultsCommentsRemove()),
 
-        ( '/adapters/adapter/add',                      RestTesterFunctions.AdaptersAdapterAdd()),
-        ( '/adapters/listing',                          RestTesterFunctions.AdaptersListing()),
-        ( '/adapters/file/move',                        RestTesterFunctions.AdaptersFileMove()),
-        ( '/adapters/file/unlock',                      RestTesterFunctions.AdaptersFileUnlock()),
-        ( '/adapters/file/rename',                      RestTesterFunctions.AdaptersFileRename()),
-        ( '/adapters/file/duplicate',                   RestTesterFunctions.AdaptersFileDuplicate()),
-        ( '/adapters/file/remove',                      RestTesterFunctions.AdaptersFileRemove()),
-        ( '/adapters/file/upload',                      RestTesterFunctions.AdaptersFileUpload()),
-        ( '/adapters/file/download',                    RestTesterFunctions.AdaptersFileDownload()),
-        ( '/adapters/file/open',                        RestTesterFunctions.AdaptersFileOpen()),
-        ( '/adapters/directory/move',                   RestTesterFunctions.AdaptersDirectoryMove()),
-        ( '/adapters/directory/rename',                 RestTesterFunctions.AdaptersDirectoryRename()),
-        ( '/adapters/directory/duplicate',              RestTesterFunctions.AdaptersDirectoryDuplicate()),
-        ( '/adapters/directory/remove',                 RestTesterFunctions.AdaptersDirectoryRemove()),
-        ( '/adapters/directory/remove/all',             RestAdminFunctions.AdaptersDirectoryRemoveAll()),
-        ( '/adapters/directory/add',                    RestTesterFunctions.AdaptersDirectoryAdd()),
+        # adapters
+        ('/adapters/adapter/add', RestTesterFunctions.AdaptersAdapterAdd()),
+        ('/adapters/listing', RestTesterFunctions.AdaptersListing()),
+        ('/adapters/file/move', RestTesterFunctions.AdaptersFileMove()),
+        ('/adapters/file/unlock', RestTesterFunctions.AdaptersFileUnlock()),
+        ('/adapters/file/rename', RestTesterFunctions.AdaptersFileRename()),
+        ('/adapters/file/duplicate', RestTesterFunctions.AdaptersFileDuplicate()),
+        ('/adapters/file/remove', RestTesterFunctions.AdaptersFileRemove()),
+        ('/adapters/file/upload', RestTesterFunctions.AdaptersFileUpload()),
+        ('/adapters/file/download', RestTesterFunctions.AdaptersFileDownload()),
+        ('/adapters/file/open', RestTesterFunctions.AdaptersFileOpen()),
+        ('/adapters/directory/move', RestTesterFunctions.AdaptersDirectoryMove()),
+        ('/adapters/directory/rename', RestTesterFunctions.AdaptersDirectoryRename()),
+        ('/adapters/directory/duplicate',
+         RestTesterFunctions.AdaptersDirectoryDuplicate()),
+        ('/adapters/directory/remove', RestTesterFunctions.AdaptersDirectoryRemove()),
+        ('/adapters/directory/remove/all',
+         RestAdminFunctions.AdaptersDirectoryRemoveAll()),
+        ('/adapters/directory/add', RestTesterFunctions.AdaptersDirectoryAdd()),
+        ('/adapters/check/syntax', RestTesterFunctions.AdaptersCheckSyntax()),
 
         # system
-        ( '/system/status',                             RestCommonFunctions.SystemStatus()),
-        ( '/system/about',                              RestCommonFunctions.SystemAbout()),
+        ('/system/status', RestCommonFunctions.SystemStatus()),
+        ('/system/about', RestCommonFunctions.SystemAbout()),
 
         # administration
-        ( '/administration/configuration/listing',      RestAdminFunctions.AdminConfigListing()),
-        ( '/administration/configuration/reload',       RestAdminFunctions.AdminConfigReload()),
-        ( '/administration/users/profile',              RestAdminFunctions.AdminUsersProfile()),
-        ( '/administration/users/listing',              RestAdminFunctions.AdminUsersListing()),
-        ( '/administration/users/add',                  RestAdminFunctions.AdminUsersAdd()),
-        ( '/administration/users/remove',               RestAdminFunctions.AdminUsersRemove()),
-        ( '/administration/users/channel/disconnect',   RestAdminFunctions.AdminUsersChannelDisconnect()),
-        ( '/administration/users/update',               RestCommonFunctions.AdminUsersUpdate()),
-        ( '/administration/users/status',               RestAdminFunctions.AdminUsersStatus()),
-        ( '/administration/users/duplicate',            RestAdminFunctions.AdminUsersDuplicate()),
-        ( '/administration/users/password/reset',       RestAdminFunctions.AdminUsersPasswordReset()),
-        ( '/administration/users/password/update',      RestCommonFunctions.AdminUsersPasswordUpdate()),
-        ( '/administration/users/search',               RestAdminFunctions.AdminUsersSearch()),
-        ( '/administration/projects/listing',           RestAdminFunctions.AdminProjectsListing()),
-        ( '/administration/projects/add',               RestAdminFunctions.AdminProjectsAdd()),
-        ( '/administration/projects/remove',            RestAdminFunctions.AdminProjectsRemove()),
-        ( '/administration/projects/rename',            RestAdminFunctions.AdminProjectsRename()),
-        ( '/administration/projects/search/by/name',    RestCommonFunctions.AdminProjectsSearchByName()),
+        ('/administration/configuration/listing',
+         RestAdminFunctions.AdminConfigListing()),
+        ('/administration/configuration/reload',
+         RestAdminFunctions.AdminConfigReload()),
+        ('/administration/users/profile', RestAdminFunctions.AdminUsersProfile()),
+        ('/administration/users/listing', RestAdminFunctions.AdminUsersListing()),
+        ('/administration/users/add', RestAdminFunctions.AdminUsersAdd()),
+        ('/administration/users/remove', RestAdminFunctions.AdminUsersRemove()),
+        ('/administration/users/channel/disconnect',
+         RestAdminFunctions.AdminUsersChannelDisconnect()),
+        ('/administration/users/update', RestCommonFunctions.AdminUsersUpdate()),
+        ('/administration/users/status', RestAdminFunctions.AdminUsersStatus()),
+        ('/administration/users/duplicate',
+         RestAdminFunctions.AdminUsersDuplicate()),
+        ('/administration/users/password/reset',
+         RestAdminFunctions.AdminUsersPasswordReset()),
+        ('/administration/users/password/update',
+         RestCommonFunctions.AdminUsersPasswordUpdate()),
+        ('/administration/users/search', RestAdminFunctions.AdminUsersSearch()),
+        ('/administration/projects/listing',
+         RestAdminFunctions.AdminProjectsListing()),
+        ('/administration/projects/add', RestAdminFunctions.AdminProjectsAdd()),
+        ('/administration/projects/remove',
+         RestAdminFunctions.AdminProjectsRemove()),
+        ('/administration/projects/rename',
+         RestAdminFunctions.AdminProjectsRename()),
+        ('/administration/projects/search/by/name',
+         RestCommonFunctions.AdminProjectsSearchByName()),
     ]
+
 
 class _RestServerInterface(Logger.ClassLogger, threading.Thread):
     def __init__(self, listeningAddress):
@@ -316,11 +280,11 @@ class _RestServerInterface(Logger.ClassLogger, threading.Thread):
         threading.Thread.__init__(self)
         self._stopEvent = threading.Event()
 
-        self.httpd = make_server( host=listeningAddress[0],
-                                  port=listeningAddress[1],
-                                  app=_WebServices,
-                                  handler_class=WSGIRequestHandlerLogging
-                                  )
+        self.httpd = make_server(host=listeningAddress[0],
+                                 port=listeningAddress[1],
+                                 app=_WebServices,
+                                 handler_class=WSGIRequestHandlerLogging
+                                 )
 
     def run(self):
         """
@@ -342,8 +306,11 @@ class _RestServerInterface(Logger.ClassLogger, threading.Thread):
         self.httpd.shutdown()
         self.join()
 
-_RSI = None # singleton
-def instance ():
+
+_RSI = None  # singleton
+
+
+def instance():
     """
     Returns the singleton of the rest server
 
@@ -352,7 +319,8 @@ def instance ():
     """
     return _RSI
 
-def initialize (listeningAddress):
+
+def initialize(listeningAddress):
     """
     Rest server instance creation
 
@@ -360,9 +328,10 @@ def initialize (listeningAddress):
     @type listeningAddress: tuple
     """
     global _RSI
-    _RSI = _RestServerInterface( listeningAddress = listeningAddress)
+    _RSI = _RestServerInterface(listeningAddress=listeningAddress)
 
-def finalize ():
+
+def finalize():
     """
     Destruction of the singleton
     """

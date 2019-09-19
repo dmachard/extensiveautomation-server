@@ -27,43 +27,49 @@ import os
 
 from ea.libs import Settings, Logger
 
+
 class HelperManager(Logger.ClassLogger):
     def getHelps(self):
         """
         Returns the documentation cache
         """
-        self.trace("get helps" )
+        self.trace("get helps")
         ret = ''
         try:
-            complete_path = '%s/%s/documentations.dat' % ( Settings.getDirExec(),
-                                                           Settings.get( 'Paths', 'var' ))
-            if os.path.exists( complete_path ):
-                fd = open( complete_path , "rb")
+            complete_path = '%s/%s/documentations.dat' % (Settings.getDirExec(),
+                                                          Settings.get('Paths', 'var'))
+            if os.path.exists(complete_path):
+                fd = open(complete_path, "rb")
                 data = fd.read()
                 fd.close()
 
-                ret = base64.b64encode( zlib.compress(data) )
+                ret = base64.b64encode(zlib.compress(data))
             else:
-                self.error( 'documentation cache does not exist' )
+                self.error('documentation cache does not exist')
         except Exception as e:
-            self.error( "unable to get helps: %s" % e )
+            self.error("unable to get helps: %s" % e)
         return ret.decode('utf8')
 
-HM = None # singleton
-def instance ():
+
+HM = None  # singleton
+
+
+def instance():
     """
     Returns the singleton
     """
     return HM
 
-def initialize ():
+
+def initialize():
     """
     Instance creation
     """
     global HM
     HM = HelperManager()
 
-def finalize ():
+
+def finalize():
     """
     Destruction of the singleton
     """

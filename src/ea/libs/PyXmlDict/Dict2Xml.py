@@ -21,20 +21,19 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
-import sys
-
 try:
     xrange
-except NameError: # support python3
+except NameError:  # support python3
     xrange = range
-    
+
 try:
     import xml.etree.ElementTree as ET
-except Exception as e:
+except ImportError:
     import cElementTree as ET
 
+
 class Dict2Xml(object):
-    def __init__ (self, coding = 'UTF-8'):
+    def __init__(self, coding='UTF-8'):
         """
         Convert python dict to xml string
 
@@ -47,7 +46,7 @@ class Dict2Xml(object):
         # var to save the root node
         self.et = None
 
-    def __parse(self, dico, parent = None, appnd = False):
+    def __parse(self, dico, parent=None, appnd=False):
         """
         Construct XML in function of the argument dico
         This function is called recursively
@@ -79,7 +78,7 @@ class Dict2Xml(object):
                 k = k[1:]
                 attri.update(v)
                 itrAttrib = True
-            elif ('@' == k[:1]) and isinstance(v, list):    
+            elif ('@' == k[:1]) and isinstance(v, list):
                 donothing = True
             if donothing:
                 continue
@@ -90,8 +89,8 @@ class Dict2Xml(object):
             # add attributes to nodes, except for the root
             # on the second iter, the var parent is always different
             # of None
-            if parent is not None:          
-                if appnd : #list handler
+            if parent is not None:
+                if appnd:  # list handler
                     el = ET.SubElement(parent, k, attribList)
                 else:
                     _el = parent.find(k)
@@ -110,7 +109,7 @@ class Dict2Xml(object):
             # this condition is true only on the first iter of the loop for
             if parent is None:
                 if self.et.tag == k:
-                    self.et.attrib.update(attri)    
+                    self.et.attrib.update(attri)
 
             # continue to handle the variable v
             if isinstance(v, dict):
@@ -119,26 +118,26 @@ class Dict2Xml(object):
                 if not itrAttrib:
                     # recursive call
                     if parent is None:
-                        self.__parse( v, self.et ) 
+                        self.__parse(v, self.et)
                     else:
-                        self.__parse( v, el )
+                        self.__parse(v, el)
             elif isinstance(v, list):
                 # temp var to save the length of the var v
                 tmp = []
                 for idx in xrange(len(v)):
-                    tmp.append( {} )
-                #   
+                    tmp.append({})
+                #
                 if '@%s' % k in dico:
-                    for idx in  xrange( len(dico['@%s' % k]) ) :
-                        tmp[idx].update( dico['@%s' % k][idx] )
+                    for idx in xrange(len(dico['@%s' % k])):
+                        tmp[idx].update(dico['@%s' % k][idx])
                 # others iterations
                 if parent is not None:
                     parent.remove(el)
                     for idx in xrange(len(v)):
-                        tpl = { k:v[idx] }
+                        tpl = {k: v[idx]}
                         if tmp[idx] != {}:
-                            tpl.update( { '@%s' % k : tmp[idx] } )
-                        self.__parse( tpl, parent, appnd =True)
+                            tpl.update({'@%s' % k: tmp[idx]})
+                        self.__parse(tpl, parent, appnd=True)
             else:
                 el.text = v
 
@@ -153,6 +152,6 @@ class Dict2Xml(object):
         @rtype: string
         """
         self.__parse(dico)
-        ret = ET.tostring( self.et, self.coding )
+        ret = ET.tostring(self.et, self.coding)
         self.et = None
         return ret

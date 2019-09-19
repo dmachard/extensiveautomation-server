@@ -47,7 +47,8 @@ else:
 # prepare the command line with all options
 parser = OptionParser()
 if platform.system() != "Linux":
-    parser.set_usage("./extensiveautomation.py [start|version|install_adapter|decodetrx|apikey]")
+    parser.set_usage(
+        "./extensiveautomation.py [start|version|install_adapter|decodetrx|apikey]")
 else:
     parser.set_usage("./extensiveautomation.py [start|stop|reload|version|\
 install_adapter|decodetrx|apikey]")
@@ -78,6 +79,7 @@ parser.add_option('--install_adapter', dest='install_adapter', default=False,
                   action='store_true',
                   help='Install sut adapter (argument: <plugin name>)')
 (options, args) = parser.parse_args()
+
 
 def cli():
     """
