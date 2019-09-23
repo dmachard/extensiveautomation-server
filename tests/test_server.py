@@ -25,10 +25,6 @@ import json
 import sys
 import time
 
-def print_flush(msg):
-    print(msg)
-    sys.stdout.flush()
-    
 class Server():
     def __init__(self):
         self.login = "admin"
@@ -38,7 +34,7 @@ class Server():
         self.prev_len_logs = 0
 
     def run_test_login(self):
-        print_flush("Login to API")
+        print("Login to API")
 
         # prepare the request
         payload = { "login": self.login, "password": self.password  }
@@ -50,32 +46,32 @@ class Server():
                           data=json.dumps(payload),
                           headers=headers)
         if r.status_code != 200:
-            print_flush("ERROR LOGIN %s - %s" % (r.status_code, r.text))
+            print("ERROR LOGIN %s - %s" % (r.status_code, r.text))
             sys.exit(1)
         else:
             # save session_id for other test
             rsp = json.loads(r.text)
             self.sessionid = rsp['session_id']
 
-            print_flush("SUCCESS")
+            print("SUCCESS")
 
     def run_tests_framework(self):
-        print_flush("Testing framework...")
+        print("Testing framework...")
         
         self.run_task_schedule(testpath="/Samples/Framework_Features",
                                testname="001_All_features",
                                testext="tpx")
 
-        print_flush("SUCCESS")
+        print("SUCCESS")
 
     def run_tests_api(self):
-        print_flush("Testing REST API...")
+        print("Testing REST API...")
         
         self.run_task_schedule(testpath="/Samples/Self Testing",
                                testname="001_REST_API_Session_Auth",
                                testext="tpx")
 
-        print_flush("SUCCESS")
+        print("SUCCESS")
         
     def run_task_schedule(self, testpath, testname, testext):
         self.prev_len_logs = 0
@@ -96,7 +92,7 @@ class Server():
                           data=json.dumps(payload),
                           headers=headers)
         if r.status_code != 200:
-            print_flush("ERROR TASK SCHEDULE %s - %s" % (r.status_code, r.text))
+            print("ERROR TASK SCHEDULE %s - %s" % (r.status_code, r.text))
             sys.exit(1)
         else:
             # decode response
@@ -115,7 +111,7 @@ class Server():
                           data=json.dumps(payload),
                           headers=headers)
         if r.status_code != 200:
-            print_flush("ERROR RESULT DETAILS %s - %s" % (r.status_code, r.text))
+            print("ERROR RESULT DETAILS %s - %s" % (r.status_code, r.text))
             sys.exit(1)
         else:
             # decode response
@@ -125,16 +121,16 @@ class Server():
             self.prev_len_logs += len_logs
             if len_logs:
                 if sys.version_info < (3,):
-                    print_flush(rsp["test-logs"].encode('utf8').strip())
+                    print(rsp["test-logs"].encode('utf8').strip())
                 else:   
-                    print_flush(rsp["test-logs"].strip())
+                    print(rsp["test-logs"].strip())
             
             if rsp["test-verdict"] == None:
                 time.sleep(2)
                 self.run_result_details(testid=testid)
             else:
                 if rsp["test-verdict"] != "pass":
-                    print_flush("ERROR ON TEST %s" % rsp["test-verdict"])
+                    print("ERROR ON TEST %s" % rsp["test-verdict"])
                     sys.exit(1)
 EA = Server()
 EA.run_test_login()
