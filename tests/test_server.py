@@ -125,7 +125,7 @@ class Server():
             self.prev_len_logs += len_logs
             if len_logs:
                 if sys.version_info < (3,):
-                    print_flush(rsp["test-logs"].decode("utf8").strip())
+                    print_flush(rsp["test-logs"].encode('utf8').strip())
                 else:   
                     print_flush(rsp["test-logs"].strip())
             
