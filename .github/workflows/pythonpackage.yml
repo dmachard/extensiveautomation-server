@@ -48,4 +48,4 @@ jobs:
     - name: Test the server
       run: |
         # start to test the server
-        python ./tests/test_server.py
+        python -u ./tests/test_server.py
