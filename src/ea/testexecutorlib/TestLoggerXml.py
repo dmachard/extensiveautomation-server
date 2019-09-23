@@ -152,7 +152,7 @@ class TestLoggerXml(object):
         self.testname = testname_
         self.__filename = "%s_%s.log" % (testname_, replay_id_)
         self.__filename_hdr = "%s_%s.hdr" % (testname_, replay_id_)
-        self.__filename_json = "%s_%s.json" % (testname_, replay_id_)
+        self.__filename_raw = "%s_%s.raw" % (testname_, replay_id_)
         self.__nbline = 0
         self.__user = user_
         self.__userid = userid_
@@ -174,18 +174,25 @@ class TestLoggerXml(object):
         self.taskUuid = task_uuid
 
         if sys.version_info > (3,):
-            self.fd_logs = open('%s/%s' %
-                                (self.__path, self.__filename), 'a+', 1)
+            self.fd_logs = open('%s/%s' % (self.__path, self.__filename),
+                                'a+', 1)
         else:
-            self.fd_logs = open('%s/%s' %
-                                (self.__path, self.__filename), 'a', 0)
+            self.fd_logs = open('%s/%s' % (self.__path, self.__filename),
+                                'a', 0)
 
         if sys.version_info > (3,):
-            self.fd_hdr = open('%s/%s' %
-                               (self.__path, self.__filename_hdr), 'a+', 1)
+            self.fd_hdr = open('%s/%s' % (self.__path, self.__filename_hdr),
+                               'a+', 1)
         else:
-            self.fd_hdr = open('%s/%s' %
-                               (self.__path, self.__filename_hdr), 'a', 0)
+            self.fd_hdr = open('%s/%s' % (self.__path, self.__filename_hdr),
+                               'a', 0)
+
+        if sys.version_info > (3,):
+            self.fd_raw = open('%s/LOGS' % (self.__path),
+                               'a+', 1)
+        else:
+            self.fd_raw = open('%s/LOGS' % (self.__path),
+                               'a', 0)
 
         self.regex = re.compile(r"(\d+-\d+-\d+)")
 
@@ -285,11 +292,6 @@ class TestLoggerXml(object):
             'task-uuid': self.taskUuid
         }
 
-    def to_notif_json(self, value={}, testInfo={}):
-        """
-        """
-        pass
-
     def to_notif(self, value='', testInfo={}):
         """
         To notif
@@ -354,6 +356,13 @@ class TestLoggerXml(object):
         except Exception as e:
             self.error("[to_header] %s" % str(e))
 
+    def to_notif_raw(self, value):
+        """
+        """
+        raw_line = "%s %s\n" % (self.get_timestamp(),
+                                  value)
+        self.fd_raw.write(raw_line)
+        
     def set_final_verdict(self, verdict):
         """
         Set the final verdict
@@ -380,6 +389,8 @@ class TestLoggerXml(object):
         """
         Log script started event
         """
+        self.to_notif_raw(value="task-started")
+
         self.to_notif({'event': EVENT_SCRIPT_STARTED,
                        'timestamp': self.get_timestamp(),
                        'from-level': fromlevel,
@@ -392,6 +403,9 @@ class TestLoggerXml(object):
         Log script stopped event
         """
         self.set_final_verdict(verdict=finalverdict)
+        
+        self.to_notif_raw(value="task-stopped")
+                                           
         self.to_notif({
             'event': EVENT_SCRIPT_STOPPED,
             'timestamp': self.get_timestamp(),
@@ -404,13 +418,14 @@ class TestLoggerXml(object):
 
         self.fd_logs.close()
         self.fd_hdr.close()
+        self.fd_raw.close()
 
     # Test global events
     def log_testglobal_started(
             self, fromlevel='', tolevel='', tid='', testInfo={}):
         """
         Log testglobal started event
-        """
+        """                        
         self.to_notif({'event': EVENT_TESTGLOBAL_STARTED,
                        'timestamp': self.get_timestamp(),
                        'from-level': fromlevel,
@@ -418,11 +433,12 @@ class TestLoggerXml(object):
                        'test-internal-id': tid}, testInfo=testInfo)
 
     def log_testglobal_stopped(self, result, duration=0, nbTs=0, nbTu=0,
-                               nbTc=0, prjId=0, fromlevel='', tolevel='', testInfo={}):
+                               nbTc=0, prjId=0, fromlevel='',
+                               tolevel='', testInfo={}):
         """
         Log testglobal stopped event
         """
-        self.setResult(result)
+        self.setResult(result)                
         self.to_notif({
             'event': EVENT_TESTGLOBAL_STOPPED,
             'timestamp': self.get_timestamp(),
@@ -464,7 +480,8 @@ class TestLoggerXml(object):
 
     def log_testglobal_trace(self, message, component, color=None,
                              font="normal", bold=False, italic=False,
-                             multiline=False, fromlevel='', tolevel='', testInfo={}):
+                             multiline=False, fromlevel='',
+                             tolevel='', testInfo={}):
         """
         Log testglobal trace event
         """
@@ -482,8 +499,10 @@ class TestLoggerXml(object):
             tpl.update({'color': color})
         self.to_notif(tpl, testInfo=testInfo)
 
-    def log_testglobal_warning(self, message, component, font="normal", bold=False, italic=False,
-                               multiline=False, fromlevel='', tolevel='', testInfo={}):
+    def log_testglobal_warning(self, message, component, font="normal",
+                               bold=False, italic=False,
+                               multiline=False, fromlevel='',
+                               tolevel='', testInfo={}):
         """
         Log testglobal warning event
         """
@@ -500,8 +519,10 @@ class TestLoggerXml(object):
             'to-level': tolevel
         }, testInfo=testInfo)
 
-    def log_testglobal_error(self, message, component, font="normal", bold=False, italic=False,
-                             multiline=False, fromlevel='', tolevel='', testInfo={}):
+    def log_testglobal_error(self, message, component, font="normal",
+                             bold=False, italic=False,
+                             multiline=False, fromlevel='',
+                             tolevel='', testInfo={}):
         """
         Log testglobal error event
         """
@@ -519,8 +540,10 @@ class TestLoggerXml(object):
             'to-level': tolevel
         }, testInfo=testInfo)
 
-    def log_testglobal_internal(self, message, component, font="normal", bold=False, italic=False,
-                                multiline=False, fromlevel='', tolevel='', testInfo={}):
+    def log_testglobal_internal(self, message, component, font="normal",
+                                bold=False, italic=False,
+                                multiline=False, fromlevel='',
+                                tolevel='', testInfo={}):
         """
         Log internal testglobal event
         """
@@ -574,8 +597,8 @@ class TestLoggerXml(object):
             }, testInfo=testInfo
         )
 
-    def log_testplan_started(
-            self, fromlevel='', tolevel='', tid='', testInfo={}):
+    def log_testplan_started(self, fromlevel='', tolevel='',
+                             tid='', testInfo={}):
         """
         Log testplan started event
         """
@@ -586,7 +609,8 @@ class TestLoggerXml(object):
                        'test-internal-id': tid}, testInfo=testInfo)
 
     def log_testplan_stopped(self, result, duration=0, nbTs=0, nbTu=0,
-                             nbTc=0, prjId=0, fromlevel='', tolevel='', testInfo={}):
+                             nbTc=0, prjId=0, fromlevel='',
+                             tolevel='', testInfo={}):
         """
         Log testplan stopped event
         """
@@ -605,7 +629,8 @@ class TestLoggerXml(object):
             'to-level': tolevel
         }, testInfo=testInfo)
 
-    def log_testplan_info(self, message, component, color=None, font="normal",
+    def log_testplan_info(self, message, component,
+                          color=None, font="normal",
                           bold=False, italic=False,
                           multiline=False, fromlevel='', tolevel='',
                           testInfo={}, flagEnd=False, flagBegin=False):
@@ -630,9 +655,11 @@ class TestLoggerXml(object):
             tpl.update({'color': color})
         self.to_notif(tpl, testInfo=testInfo)
 
-    def log_testplan_trace(self, message, component, color=None, font="normal",
+    def log_testplan_trace(self, message, component,
+                           color=None, font="normal",
                            bold=False, italic=False,
-                           multiline=False, fromlevel='', tolevel='', testInfo={}):
+                           multiline=False, fromlevel='',
+                           tolevel='', testInfo={}):
         """
         Log testplan trace event
         """
@@ -650,8 +677,10 @@ class TestLoggerXml(object):
             tpl.update({'color': color})
         self.to_notif(tpl, testInfo=testInfo)
 
-    def log_testplan_warning(self, message, component, font="normal", bold=False, italic=False,
-                             multiline=False, fromlevel='', tolevel='', testInfo={}):
+    def log_testplan_warning(self, message, component, font="normal",
+                             bold=False, italic=False,
+                             multiline=False, fromlevel='',
+                             tolevel='', testInfo={}):
         """
         Log testplan warning event
         """
@@ -668,8 +697,10 @@ class TestLoggerXml(object):
             'to-level': tolevel
         }, testInfo=testInfo)
 
-    def log_testplan_error(self, message, component, font="normal", bold=False, italic=False,
-                           multiline=False, fromlevel='', tolevel='', testInfo={}):
+    def log_testplan_error(self, message, component, font="normal",
+                           bold=False, italic=False,
+                           multiline=False, fromlevel='',
+                           tolevel='', testInfo={}):
         """
         Log testplan error event
         """
@@ -686,8 +717,10 @@ class TestLoggerXml(object):
             'to-level': tolevel
         }, testInfo=testInfo)
 
-    def log_testplan_internal(self, message, component, font="normal", bold=False, italic=False,
-                              multiline=False, fromlevel='', tolevel='', testInfo={}):
+    def log_testplan_internal(self, message, component, font="normal",
+                              bold=False, italic=False,
+                              multiline=False, fromlevel='',
+                              tolevel='', testInfo={}):
         """
         Log internal warning event
         """
@@ -706,11 +739,16 @@ class TestLoggerXml(object):
 
     # Test unit events
 
-    def log_testunit_started(
-            self, fromlevel='', tolevel='', tid='000', alias='', testInfo={}):
+    def log_testunit_started(self, fromlevel='', tolevel='', 
+                             tid='000', alias='', testInfo={},
+                             name=''):
         """
         Log testsuite started event
         """
+        tu_name = name
+        if len(alias): tu_name = alias
+        self.to_notif_raw(value="script-started %s" % (tu_name))
+                                           
         self.to_notif({'event': EVENT_TESTUNIT_STARTED,
                        'timestamp': self.get_timestamp(),
                        'from-level': fromlevel,
@@ -724,6 +762,10 @@ class TestLoggerXml(object):
         Log testsuite stopped event
         """
         self.setResult(result)
+        
+        self.to_notif_raw(value="script-stopped %s %.3f" % (result,
+                                                            duration))
+                                           
         self.to_notif({
             'event': EVENT_TESTUNIT_STOPPED,
             'timestamp': self.get_timestamp(),
@@ -736,7 +778,8 @@ class TestLoggerXml(object):
             'to-level': tolevel
         }, testInfo=testInfo)
 
-    def log_testunit_info(self, message, component, color=None, font="normal",
+    def log_testunit_info(self, message, component, 
+                          color=None, font="normal",
                           bold=False, italic=False,
                           multiline=False, fromlevel='', tolevel='',
                           testInfo={}, flagEnd=False, flagBegin=False):
@@ -763,7 +806,8 @@ class TestLoggerXml(object):
 
     def log_testunit_trace(self, message, component, color=None,
                            font="normal", bold=False, italic=False,
-                           multiline=False, fromlevel='', tolevel='', testInfo={}):
+                           multiline=False, fromlevel='',
+                           tolevel='', testInfo={}):
         """
         Log testsuite trace event
         """
@@ -781,8 +825,10 @@ class TestLoggerXml(object):
             tpl.update({'color': color})
         self.to_notif(tpl, testInfo=testInfo)
 
-    def log_testunit_warning(self, message, component, font="normal", bold=False, italic=False,
-                             multiline=False, fromlevel='', tolevel='', testInfo={}):
+    def log_testunit_warning(self, message, component, font="normal",
+                             bold=False, italic=False,
+                             multiline=False, fromlevel='',
+                             tolevel='', testInfo={}):
         """
         Log testsuite warning event
         """
@@ -799,8 +845,10 @@ class TestLoggerXml(object):
             'to-level': tolevel
         }, testInfo=testInfo)
 
-    def log_testunit_error(self, message, component, font="normal", bold=False, italic=False,
-                           multiline=False, fromlevel='', tolevel='', testInfo={}):
+    def log_testunit_error(self, message, component, font="normal",
+                           bold=False, italic=False,
+                           multiline=False, fromlevel='',
+                           tolevel='', testInfo={}):
         """
         Log testsuite error event
         """
@@ -817,8 +865,10 @@ class TestLoggerXml(object):
             'to-level': tolevel
         }, testInfo=testInfo)
 
-    def log_testunit_internal(self, message, component, font="normal", bold=False, italic=False,
-                              multiline=False, fromlevel='', tolevel='', testInfo={}):
+    def log_testunit_internal(self, message, component, font="normal",
+                              bold=False, italic=False,
+                              multiline=False, fromlevel='',
+                              tolevel='', testInfo={}):
         """
         Log internal warning event
         """
@@ -836,11 +886,16 @@ class TestLoggerXml(object):
 
     # Test suite events
 
-    def log_testsuite_started(
-            self, fromlevel='', tolevel='', tid='000', alias='', testInfo={}):
+    def log_testsuite_started(self, fromlevel='', tolevel='',
+                              tid='000', alias='', testInfo={},
+                              name=''):
         """
         Log testsuite started event
         """
+        ts_name = name
+        if len(alias): ts_name = alias
+        self.to_notif_raw(value="script-started %s" % ts_name)
+                                           
         self.to_notif({'event': EVENT_TESTSUITE_STARTED,
                        'timestamp': self.get_timestamp(),
                        'from-level': fromlevel,
@@ -854,6 +909,10 @@ class TestLoggerXml(object):
         Log testsuite stopped event
         """
         self.setResult(result)
+        
+        self.to_notif_raw(value="script-stopped %s %.3f" % (result,
+                                                           duration))
+                                           
         self.to_notif({
             'event': EVENT_TESTSUITE_STOPPED,
             'timestamp': self.get_timestamp(),
@@ -868,7 +927,7 @@ class TestLoggerXml(object):
 
     def log_testsuite_info(self, message, component, color=None,
                            font="normal", bold=False, italic=False,
-                                multiline=False, fromlevel='', tolevel='',
+                           multiline=False, fromlevel='', tolevel='',
                            testInfo={}, flagEnd=False, flagBegin=False):
         """
         Log testsuite info event
@@ -893,7 +952,8 @@ class TestLoggerXml(object):
 
     def log_testsuite_trace(self, message, component, color=None,
                             font="normal", bold=False, italic=False,
-                            multiline=False, fromlevel='', tolevel='', testInfo={}):
+                            multiline=False, fromlevel='',
+                            tolevel='', testInfo={}):
         """
         Log testsuite trace event
         """
@@ -911,8 +971,10 @@ class TestLoggerXml(object):
             tpl.update({'color': color})
         self.to_notif(tpl, testInfo=testInfo)
 
-    def log_testsuite_warning(self, message, component, font="normal", bold=False, italic=False,
-                              multiline=False, fromlevel='', tolevel='', testInfo={}):
+    def log_testsuite_warning(self, message, component, font="normal",
+                              bold=False, italic=False,
+                              multiline=False, fromlevel='',
+                              tolevel='', testInfo={}):
         """
         Log testsuite warning event
         """
@@ -929,8 +991,10 @@ class TestLoggerXml(object):
             'to-level': tolevel
         }, testInfo=testInfo)
 
-    def log_testsuite_error(self, message, component, font="normal", bold=False, italic=False,
-                            multiline=False, fromlevel='', tolevel='', testInfo={}):
+    def log_testsuite_error(self, message, component, font="normal",
+                            bold=False, italic=False,
+                            multiline=False, fromlevel='',
+                            tolevel='', testInfo={}):
         """
         Log testsuite error event
         """
@@ -947,8 +1011,10 @@ class TestLoggerXml(object):
             'to-level': tolevel
         }, testInfo=testInfo)
 
-    def log_testsuite_internal(self, message, component, font="normal", bold=False, italic=False,
-                               multiline=False, fromlevel='', tolevel='', testInfo={}):
+    def log_testsuite_internal(self, message, component, font="normal",
+                               bold=False, italic=False,
+                               multiline=False, fromlevel='',
+                               tolevel='', testInfo={}):
         """
         Log internal warning event
         """
@@ -966,11 +1032,11 @@ class TestLoggerXml(object):
         }, testInfo=testInfo)
 
     # Test case events
-    def log_testcase_started(
-            self, id_, name, fromlevel='', tolevel='', testInfo={}):
+    def log_testcase_started(self, id_, name, fromlevel='',
+                             tolevel='', testInfo={}):
         """
         Log testcase started event
-        """
+        """                          
         self.to_notif({
             'event': EVENT_TESTCASE_STARTED,
             'timestamp': self.get_timestamp(),
@@ -985,7 +1051,7 @@ class TestLoggerXml(object):
         """
         Log testcase stopped event
         """
-        self.setResult(result)
+        self.setResult(result)                   
         self.to_notif({
             'event': EVENT_TESTCASE_STOPPED,
             'timestamp': self.get_timestamp(),
@@ -1006,6 +1072,9 @@ class TestLoggerXml(object):
         """
         Log testcase info event
         """
+        if not flagEnd and not flagBegin:
+            self.to_notif_raw(value="script-info %s" % (message))
+        
         tpl = {'event': 'testcase',
                'level': 'info',
                'from-component': component,
@@ -1032,6 +1101,8 @@ class TestLoggerXml(object):
         """
         Log testcase error event
         """
+        self.to_notif_raw(value="script-error %s" % (message))
+                                                
         self.to_notif({
             'event': 'testcase',
             'level': 'error',
@@ -1055,6 +1126,8 @@ class TestLoggerXml(object):
         """
         Log testcase warning event
         """
+        self.to_notif_raw(value="script-warning %s" % (message))
+        
         self.to_notif({
             'event': 'testcase',
             'level': 'warning',
@@ -1203,7 +1276,7 @@ class TestLoggerXml(object):
             'color': self.STEP_STARTED,
             'color-text': self.STEP_STARTED_TEXT,
             'multiline': multiline
-        }
+        }                              
         self.to_notif(evt, testInfo=testInfo)
 
     def log_step_failed(self, fromComponent, dataMsg, shortMsg,

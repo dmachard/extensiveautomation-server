@@ -1,17 +1,7 @@
 
-21.2.0
-	Date: 20/09/2019
+21.3.0
+	Date: xx/xx/2019
 	What's new
-		1. (medium): REST API - new method to get listing of all running and waiting tasks
-		2. (minor): Task manager - test id now defined in a task object
-		3. (medium): Tasks manager - tasks (running, history and waiting) are now cached in memory
-		4. (minor): Minor changes in swagger files
-		5. (medium): REST API - new ressource to remove task from cache
-		6. (medium): REST API - new function to schedule a task
+		1. (medium): new feature to read test logs line by line from REST API
 	Issues Fixed
-		1. (medium): fix to support properly ldap authentication for users
-		2. (minor): REST API - fix path in test and public repositories to get listing files
-		3. (medium): fix some bugs and typo error reported by flake
-		4. (medium): REST API - check syntax for adapter integrated as before
-		5. (medium): unable to open file if already locked by another user, only with python3
-		6. (minor): REST API - fix function to follow a test result
+		1. (medium): xxxx

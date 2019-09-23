@@ -468,6 +468,28 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
             except Exception:
                 return "not-running"
         return state
+        
+    def getTrLogs(self, trPath, log_index=0):
+        """
+        Get the logs of the test result passed on argument
+        """
+        logs = ''
+
+        fullPath = "%s/%s/" % (self.testsPath, trPath)
+        fullPath = os.path.normpath(fullPath)
+
+        res = os.path.exists(fullPath)
+        if not res:
+            return logs
+        else:
+            try:
+                f = open("%s/LOGS" % fullPath, 'r')
+                f.seek(log_index)
+                logs = f.read()
+                f.close()
+            except Exception:
+                return logs
+        return logs
 
     def getTrEndResult(self, trPath):
         """

@@ -35,6 +35,7 @@ class Server():
         self.password = "password"
         self.url = "http://127.0.0.1:8081"
         self.sessionid = None
+        self.prev_len_logs = 0
 
     def run_test_login(self):
         print_flush("Login to API")
@@ -67,7 +68,18 @@ class Server():
 
         print_flush("SUCCESS")
 
+    def run_tests_api(self):
+        print_flush("Testing REST API...")
+        
+        self.run_task_schedule(testpath="/Samples/Self Testing",
+                               testname="001_REST_API_Session_Auth",
+                               testext="tpx")
+
+        print_flush("SUCCESS")
+        
     def run_task_schedule(self, testpath, testname, testext):
+        self.prev_len_logs = 0
+    
         # prepare the request
         payload = { "test-path": testpath, 
                     "test-name": testname,
@@ -84,38 +96,44 @@ class Server():
                           data=json.dumps(payload),
                           headers=headers)
         if r.status_code != 200:
-            print_flush("ERROR SCHEDULE %s - %s" % (r.status_code, r.text))
+            print_flush("ERROR TASK SCHEDULE %s - %s" % (r.status_code, r.text))
             sys.exit(1)
         else:
             # decode response
             rsp = json.loads(r.text)
             
-            self.run_result_follow(testid=rsp["test-id"])
+            self.run_result_details(testid=rsp["test-id"])
         
-    def run_result_follow(self, testid):
-        payload = { "test-ids":  [ testid ], "project-id": 1}
+    def run_result_details(self, testid):
+        payload = { "test-id": testid,
+                    "project-id": 1,
+                    "log-index": self.prev_len_logs}
         headers = {'content-type': 'application/json', 
                    'cookie': 'session_id=%s' % self.sessionid}
-        url = "%s/results/follow" % self.url
+        url = "%s/results/details" % self.url
         r = requests.post(url,
                           data=json.dumps(payload),
                           headers=headers)
         if r.status_code != 200:
-            print_flush("ERROR FOLLOW %s - %s" % (r.status_code, r.text))
+            print_flush("ERROR RESULT DETAILS %s - %s" % (r.status_code, r.text))
             sys.exit(1)
         else:
             # decode response
             rsp = json.loads(r.text)
-            for r in rsp["results"]:
-                if r["id"] == testid:
-                    if r["result"]["verdict"] == None:
-                        time.sleep(2)
-                        self.run_result_follow(testid=testid)
-                    else:
-                        if r["result"]["verdict"] != "pass":
-                            print_flush("ERROR ON TEST %s" % r["result"]["verdict"])
-                            sys.exit(1)
-                            
+            
+            len_logs = len(rsp["test-logs"])
+            self.prev_len_logs += len_logs
+            if len_logs:
+                print(rsp["test-logs"].strip())
+            
+            if rsp["test-verdict"] == None:
+                time.sleep(2)
+                self.run_result_details(testid=testid)
+            else:
+                if rsp["test-verdict"] != "pass":
+                    print_flush("ERROR ON TEST %s" % rsp["test-verdict"])
+                    sys.exit(1)
 EA = Server()
 EA.run_test_login()
 EA.run_tests_framework()
+EA.run_tests_api()
