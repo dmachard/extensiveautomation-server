@@ -124,7 +124,10 @@ class Server():
             len_logs = len(rsp["test-logs"])
             self.prev_len_logs += len_logs
             if len_logs:
-                print(rsp["test-logs"].strip())
+                if sys.version_info < (3,):
+                    print_flush(rsp["test-logs"].decode("utf8").strip())
+                else:   
+                    print_flush(rsp["test-logs"].strip())
             
             if rsp["test-verdict"] == None:
                 time.sleep(2)
