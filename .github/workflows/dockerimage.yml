@@ -18,11 +18,11 @@ jobs:
     - name: Test the server
       run: |
         # install web plugin
-        docker exec -it extensive-server "/bin/sh"
-        git clone https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web.git
-        cp -rf extensiveautomation-plugin-web/src/ea/sutadapters/WEB /home/extensive/ea/sutadapters/ 
-        python /home/extensive/extensiveautomation.py --install_adapter WEB
-        exit
+        docker exec extensive-server wget https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web/archive/master.zip
+        docker exec extensive-server unzip master.zip
+        docker exec extensive-server cp -rf extensiveautomation-plugin-web-master/src/ea/sutadapters/WEB/ ea/sutadapters/
+        docker exec extensive-server ls ea/sutadapters/
+        docker exec extensive-server python extensiveautomation.py --install_adapter WEB
         # install python dependancies
         pip install requests
         # start to test the server
