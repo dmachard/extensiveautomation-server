@@ -17,6 +17,12 @@ jobs:
         docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083 --name=extensive-server  extensiveautomation-server
     - name: Test the server
       run: |
+        # install web plugin
+        docker exec -it extensive-server "/bin/sh"
+        git clone https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web.git
+        cp -rf extensiveautomation-plugin-web/src/ea/sutadapters/WEB /home/extensive/ea/sutadapters/ 
+        python /home/extensive/extensiveautomation.py --install_adapter WEB
+        exit
         # install python dependancies
         pip install requests
         # start to test the server
