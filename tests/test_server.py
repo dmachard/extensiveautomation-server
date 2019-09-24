@@ -40,7 +40,7 @@ class Server():
         payload = { "login": self.login, "password": self.password  }
         headers = {'content-type': 'application/json'}
         url = "%s/session/login" % self.url
-        
+
         # send the request
         r = requests.post(url,
                           data=json.dumps(payload),
@@ -57,7 +57,7 @@ class Server():
 
     def run_tests_framework(self):
         print("Testing framework...")
-        
+
         self.run_task_schedule(testpath="/Samples/Framework_Features",
                                testname="001_All_features",
                                testext="tpx")
@@ -66,27 +66,27 @@ class Server():
 
     def run_tests_api(self):
         print("Testing REST API...")
-        
+
         self.run_task_schedule(testpath="/Samples/Self Testing",
                                testname="001_REST_API_Session_Auth",
                                testext="tpx")
 
         print("SUCCESS")
-        
+
     def run_task_schedule(self, testpath, testname, testext):
         self.prev_len_logs = 0
-    
+
         # prepare the request
-        payload = { "test-path": testpath, 
+        payload = { "test-path": testpath,
                     "test-name": testname,
                     "test-extension": testext,
-                    "project-id": 1, 
+                    "project-id": 1,
                     'schedule-id': 0,
                     'schedule-at': [0,0,0,0,0,0] }
-        headers = {'content-type': 'application/json', 
+        headers = {'content-type': 'application/json',
                    'cookie': 'session_id=%s' % self.sessionid}
         url = "%s/tasks/schedule" % self.url
-        
+
         # send the request
         r = requests.post(url,
                           data=json.dumps(payload),
@@ -97,14 +97,15 @@ class Server():
         else:
             # decode response
             rsp = json.loads(r.text)
-            
+
             self.run_result_details(testid=rsp["test-id"])
-        
-    def run_result_details(self, testid):
+
+    def run_result_details(self, testid, logs_index=0):
         payload = { "test-id": testid,
                     "project-id": 1,
-                    "log-index": self.prev_len_logs}
-        headers = {'content-type': 'application/json', 
+                    #"log-index": self.prev_len_logs,
+                    "log-index": logs_index}
+        headers = {'content-type': 'application/json',
                    'cookie': 'session_id=%s' % self.sessionid}
         url = "%s/results/details" % self.url
         r = requests.post(url,
@@ -116,18 +117,18 @@ class Server():
         else:
             # decode response
             rsp = json.loads(r.text)
-            
-            len_logs = len(rsp["test-logs"])
-            self.prev_len_logs += len_logs
-            if len_logs:
+
+            #self.prev_len_logs += len_logs
+            if len(rsp["test-logs"]):
                 if sys.version_info < (3,):
                     print(rsp["test-logs"].encode('utf8').strip())
-                else:   
+                else:
                     print(rsp["test-logs"].strip())
-            
+
             if rsp["test-verdict"] == None:
                 time.sleep(2)
-                self.run_result_details(testid=testid)
+                self.run_result_details(testid=testid,
+                                        logs_index=rsp["test-logs-index"])
             else:
                 if rsp["test-verdict"] != "pass":
                     print("ERROR ON TEST %s" % rsp["test-verdict"])

@@ -7454,13 +7454,14 @@ class ResultsDetails(HandlerCORS):
             
         state = RepoArchives.instance().getTrState(trPath=testPath)
         verdict = RepoArchives.instance().getTrEndResult(trPath=testPath)
-        logs = RepoArchives.instance().getTrLogs(trPath=testPath,
-                                                 log_index=_log_index)
+        logs, logs_index = RepoArchives.instance().getTrLogs(trPath=testPath,
+                                                         log_index=_log_index)
         return {"cmd": self.request.path,
                 'test-id': testId,
                 'test-status': state,
                 'test-verdict': verdict,
-                'test-logs': logs}
+                'test-logs': logs,
+                'test-logs-index': logs_index}
                 
 class ResultsFollow(HandlerCORS):
     """

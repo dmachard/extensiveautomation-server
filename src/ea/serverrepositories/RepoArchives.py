@@ -474,22 +474,24 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
         Get the logs of the test result passed on argument
         """
         logs = ''
-
+        index = 0
+        
         fullPath = "%s/%s/" % (self.testsPath, trPath)
         fullPath = os.path.normpath(fullPath)
 
         res = os.path.exists(fullPath)
         if not res:
-            return logs
+            return (logs, index)
         else:
             try:
-                f = open("%s/LOGS" % fullPath, 'r')
-                f.seek(log_index)
-                logs = f.read()
-                f.close()
+                fh = open("%s/LOGS" % fullPath, 'r')
+                fh.seek(log_index)
+                logs = fh.read()
+                index = fh.tell()
+                fh.close()
             except Exception:
-                return logs
-        return logs
+                return (logs,index)
+        return (logs, index)
 
     def getTrEndResult(self, trPath):
         """
