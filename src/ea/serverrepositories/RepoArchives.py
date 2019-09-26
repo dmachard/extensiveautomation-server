@@ -420,8 +420,8 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                                     taskId = taskId.lower()
                                     f.close()
 
-                                    self.cacheUuid(
-                                        taskId=taskId, testPath=relativePath)
+                                    self.cacheUuid(taskId=taskId,
+                                                   testPath=relativePath)
                                 except Exception:
                                     pass
 
@@ -630,22 +630,83 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                 return(self.context.CODE_NOT_FOUND, trName)
         return (self.context.CODE_OK, trName)
 
-    def getBasicListing(self, projectId=1, dateFilter=None, timeFilter=None):
+    def getListingBasic(self, project_id=1):
         """
+        """
+        listing = []
+        initial_path = "%s/" % (self.testsPath)
+        for entry in reversed(list(scandir.scandir(
+                "%s/%s" % (self.testsPath, project_id)))):
+            if entry.is_dir(follow_symlinks=False):  # date
+                listing.extend(self.__getListingBasic(test_path=entry.path,
+                                                      initial_path=initial_path,
+                                                      project_id=project_id))
+        return listing
+
+    def __getListingBasic(self, test_path, initial_path, project_id):
+        """
+        """
+        listing = []
+        for entry in reversed(list(scandir.scandir(test_path))):
+            if entry.is_dir(follow_symlinks=False):
+
+                # compute the test id (md5 hash)
+                real_path = "/%s" % entry.path.split(initial_path)[1]
+                # hash = hashlib.md5()
+                # if sys.version_info < (3,):
+                    # hash.update(real_path)
+                # else:
+                    # hash.update(real_path.encode('utf-8'))
+                    
+                # example real path: "/1/2016-04-29/2016-04-29_16-14-
+                # 24.293494.TmV3cy9yZXN0X2FwaQ==.admin"
+                # extract the username, testname, date
+                _timestamp, _, _, _user = real_path.rsplit(".")
+                _, _, testdate, _testtime = _timestamp.split("/")
+                _, testtime = _testtime.split("_")
+
+                testdate = testdate.replace("-", "/")
+                testtime = testtime.replace("-", ":")
+
+                with open("%s/TESTPATH" % entry.path, "r") as fh:
+                    testpath = fh.read()
+                    
+                with open("%s/TASKID" % entry.path, "r") as fh:
+                    testid = fh.read()
+                    
+                run_state = "UNKNOWN"
+                if os.path.exists( "%s/RESULT" % entry.path):
+                    with open("%s/RESULT" % entry.path, "r") as fh:
+                        run_state = fh.read()
+                else:
+                    with open("%s/STATE" % entry.path, "r") as fh:
+                        run_state = fh.read()
+                
+                listing.append({'script': testpath,
+                                'id': testid,
+                                'user': _user,
+                                'datetime': "%s %s" % (testdate, testtime),
+                                'state': run_state})
+        return listing
+        
+    def getListingFilter(self, projectId=1, dateFilter=None, timeFilter=None):
+        """
+        Deprecated, will be removed in future
         """
         listing = []
         initialPath = "%s/" % (self.testsPath)
         for entry in reversed(list(scandir.scandir(
                 "%s/%s" % (self.testsPath, projectId)))):
             if entry.is_dir(follow_symlinks=False):  # date
-                listing.extend(self.__getBasicListing(testPath=entry.path,
+                listing.extend(self.__getListingFilter(testPath=entry.path,
                                                       initialPath=initialPath,
                                                       projectId=projectId,
-                                                      dateFilter=dateFilter, timeFilter=timeFilter)
+                                                      dateFilter=dateFilter,
+                                                      timeFilter=timeFilter)
                                )
         return listing
 
-    def __getBasicListing(self, testPath, initialPath,
+    def __getListingFilter(self, testPath, initialPath,
                           projectId, dateFilter, timeFilter):
         """
         """
@@ -656,29 +717,35 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                 # compute the test id (md5 hash)
                 realPath = "/%s" % entry.path.split(initialPath)[1]
                 hash = hashlib.md5()
-                hash.update(realPath)
-
-                # example real path: "/1/2016-04-29/2016-04-29_16-14-24.293494.TmV3cy9yZXN0X2FwaQ==.admin"
+                if sys.version_info < (3,):
+                    hash.update(realPath)
+                else:
+                    hash.update(realPath.encode('utf-8'))
+                    
+                # example real path: "/1/2016-04-29/2016-04-29_16-14-
+                # 24.293494.TmV3cy9yZXN0X2FwaQ==.admin"
                 # extract the username, testname, date
                 _timestamp, _, _testname, _ = realPath.rsplit(".")
                 _, _, testdate, _testtime = _timestamp.split("/")
                 _, testtime = _testtime.split("_")
-                testname = base64.b64decode(_testname)
-
+                
+                if sys.version_info < (3,):
+                    testname = base64.b64decode(_testname)
+                else:
+                    testname = base64.b64decode(_testname)
+                    testname = testname.decode("utf8")
+                    
                 # append to the list
                 appendTest = False
                 if dateFilter is not None and timeFilter is not None:
-                    # if dateFilter == testdate and timeFilter == testtime:
                     if re.match(re.compile(dateFilter, re.S), testdate) is not None and \
                             re.match(re.compile(timeFilter, re.S), testtime) is not None:
                         appendTest = True
                 else:
                     if dateFilter is not None:
-                        # if dateFilter == testdate:
                         if re.match(re.compile(dateFilter, re.S), testdate):
                             appendTest = True
                     if timeFilter is not None:
-                        # if timeFilter == testtime:
                         if re.match(re.compile(timeFilter, re.S),
                                     testtime) is not None:
                             appendTest = True
@@ -686,8 +753,10 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                         appendTest = True
 
                 if appendTest:
-                    listing.append(
-                        {'file': "/%s/%s/%s" % (testdate, testtime, testname), 'test-id': hash.hexdigest()})
+                    listing.append({'file': "/%s/%s/%s" % (testdate,
+                                                           testtime,
+                                                           testname),
+                                    'test-id': hash.hexdigest()})
         return listing
 
     def getTrResume(self, trPath, replayId=0):

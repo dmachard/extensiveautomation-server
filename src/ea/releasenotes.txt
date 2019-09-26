@@ -2,6 +2,8 @@
 21.3.0
 	Date: xx/xx/2019
 	What's new
-		1. (medium): new feature to read test logs line by line from REST API
+		1. (medium): REST API - new feature to read test logs line by line
+		2. (minor): docker image updated, curl command added by default
+		3. (medium): REST API - new feature to get a listing of all runs
 	Issues Fixed
-		1. (medium): xxxx
+		1. (minor): fix bad python3 support (Unicode-objects must be encoded before hashing) on REST API /rest/results/listing/by/id/datetime

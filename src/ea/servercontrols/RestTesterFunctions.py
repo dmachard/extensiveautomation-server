@@ -6746,10 +6746,87 @@ class ResultsListingFiles(HandlerCORS):
                 "statistics": stats_archs,
                 'project-id': projectId}
 
-
-class ResultsListingIdByDateTime(HandlerCORS):
+class ResultsListingBasic(HandlerCORS):
     """
-    /rest/results/listing/id/by/datetime
+    /rest/results/listing/basic
+    """
+    @_to_yaml
+    def post(self):
+        """
+        tags:
+          - results
+        summary: Get the listing id of all tests results.
+        description: ''
+        operationId: resultsListingIdByDatetime
+        consumes:
+          - application/json
+        produces:
+          - application/json
+        parameters:
+          - name: Cookie
+            in: header
+            description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
+            required: true
+            type: string
+          - name: body
+            in: body
+            required: true
+            schema:
+              required: [ project-id ]
+              properties:
+                project-id:
+                  type: integer
+        responses:
+          '200':
+            description: all tests results with id
+            schema :
+              properties:
+                cmd:
+                  type: string
+                listing:
+                  type: array
+                  items:
+                    type: object
+                project-id:
+                  type: string
+            examples:
+              application/json: |
+                {
+                  "cmd": "/results/listing/basic",
+                  "listing":  [...]
+               }
+          '400':
+            description: Bad request provided
+          '403':
+            description: Access denied to this project
+          '500':
+            description: Server error
+        """
+        user_profile = _get_user(request=self.request)
+
+        try:
+            projectId = self.request.data.get("project-id")
+            if projectId is None:
+                raise EmptyValue("Please specify a project id")
+        except EmptyValue as e:
+            raise HTTP_400("%s" % e)
+        except Exception as e:
+            raise HTTP_400("Bad request provided (%s ?)" % e)
+
+        _check_project_permissions(
+            user_login=user_profile['login'],
+            project_id=projectId)
+
+        listing = RepoArchives.instance().getListingBasic(project_id=projectId)
+
+        return {"cmd": self.request.path,
+                "listing": listing,
+                'project-id': projectId}
+
+
+class ResultsListingFilter(HandlerCORS):
+    """
+    /rest/results/listing/by/id/datetime
     """
     @_to_yaml
     def post(self):
@@ -6799,7 +6876,7 @@ class ResultsListingIdByDateTime(HandlerCORS):
             examples:
               application/json: |
                 {
-                  "cmd": "/results/listing/id/by/datetime",
+                  "cmd": "/results/listing/by/id/datetime",
                   "listing":  [...]
                }
           '400':
@@ -6827,9 +6904,9 @@ class ResultsListingIdByDateTime(HandlerCORS):
             user_login=user_profile['login'],
             project_id=projectId)
 
-        listing = RepoArchives.instance().getBasicListing(projectId=projectId,
-                                                          dateFilter=dateFilter,
-                                                          timeFilter=timeFilter)
+        listing = RepoArchives.instance().getListingFilter(projectId=projectId,
+                                                           dateFilter=dateFilter,
+                                                           timeFilter=timeFilter)
 
         return {"cmd": self.request.path,
                 "listing": listing,
@@ -7369,6 +7446,7 @@ class ResultsRemoveByDate(HandlerCORS):
         return {"cmd": self.request.path, "message": "all tests results successfully removed",
                 'project-id': projectId}
 
+
 class ResultsDetails(HandlerCORS):
     """
     /rest/results/details
@@ -7462,6 +7540,7 @@ class ResultsDetails(HandlerCORS):
                 'test-verdict': verdict,
                 'test-logs': logs,
                 'test-logs-index': logs_index}
+
                 
 class ResultsFollow(HandlerCORS):
     """
