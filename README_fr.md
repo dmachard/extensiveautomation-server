@@ -1,7 +1,7 @@
 # ExtensiveAutomation
 
-![](https://github.com/ExtensiveAutomation/extensiveautomation-server/workflows/Python%20Package/badge.svg)
-![](https://github.com/ExtensiveAutomation/extensiveautomation-server/workflows/Docker%20Image/badge.svg)
+![](https://github.com/ExtensiveAutomation/extensiveautomation-server/workflows/Build%20Test%20Python%20Package/badge.svg)
+![](https://github.com/ExtensiveAutomation/extensiveautomation-server/workflows/Build%20Docker%20Image/badge.svg)
 
 | | |
 | ------------- | ------------- |

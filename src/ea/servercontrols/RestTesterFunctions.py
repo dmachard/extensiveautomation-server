@@ -6746,6 +6746,7 @@ class ResultsListingFiles(HandlerCORS):
                 "statistics": stats_archs,
                 'project-id': projectId}
 
+
 class ResultsListingBasic(HandlerCORS):
     """
     /rest/results/listing/basic
@@ -7512,11 +7513,11 @@ class ResultsDetails(HandlerCORS):
             projectId = self.request.data.get("project-id")
             if projectId is None:
                 raise EmptyValue("Please specify a project id")
-                
+
             _log_index = self.request.data.get("log-index")
             if _log_index is None:
                 _log_index = 0
-                
+
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -7529,7 +7530,7 @@ class ResultsDetails(HandlerCORS):
                                                                   testId=testId)
         if founded == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404('Test result not found')
-            
+
         state = RepoArchives.instance().getTrState(trPath=testPath)
         verdict = RepoArchives.instance().getTrEndResult(trPath=testPath)
         logs, logs_index = RepoArchives.instance().getTrLogs(trPath=testPath,
@@ -7541,7 +7542,7 @@ class ResultsDetails(HandlerCORS):
                 'test-logs': logs,
                 'test-logs-index': logs_index}
 
-                
+
 class ResultsFollow(HandlerCORS):
     """
     /rest/results/follow

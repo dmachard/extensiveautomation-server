@@ -362,7 +362,7 @@ class TestLoggerXml(object):
         raw_line = "%s %s\n" % (self.get_timestamp(),
                                   value)
         self.fd_raw.write(raw_line)
-        
+
     def set_final_verdict(self, verdict):
         """
         Set the final verdict
@@ -403,9 +403,9 @@ class TestLoggerXml(object):
         Log script stopped event
         """
         self.set_final_verdict(verdict=finalverdict)
-        
+
         self.to_notif_raw(value="task-stopped")
-                                           
+
         self.to_notif({
             'event': EVENT_SCRIPT_STOPPED,
             'timestamp': self.get_timestamp(),
@@ -425,7 +425,7 @@ class TestLoggerXml(object):
             self, fromlevel='', tolevel='', tid='', testInfo={}):
         """
         Log testglobal started event
-        """                        
+        """
         self.to_notif({'event': EVENT_TESTGLOBAL_STARTED,
                        'timestamp': self.get_timestamp(),
                        'from-level': fromlevel,
@@ -438,7 +438,7 @@ class TestLoggerXml(object):
         """
         Log testglobal stopped event
         """
-        self.setResult(result)                
+        self.setResult(result)
         self.to_notif({
             'event': EVENT_TESTGLOBAL_STOPPED,
             'timestamp': self.get_timestamp(),
@@ -739,7 +739,7 @@ class TestLoggerXml(object):
 
     # Test unit events
 
-    def log_testunit_started(self, fromlevel='', tolevel='', 
+    def log_testunit_started(self, fromlevel='', tolevel='',
                              tid='000', alias='', testInfo={},
                              name=''):
         """
@@ -748,7 +748,7 @@ class TestLoggerXml(object):
         tu_name = name
         if len(alias): tu_name = alias
         self.to_notif_raw(value="script-started %s" % (tu_name))
-                                           
+
         self.to_notif({'event': EVENT_TESTUNIT_STARTED,
                        'timestamp': self.get_timestamp(),
                        'from-level': fromlevel,
@@ -762,10 +762,10 @@ class TestLoggerXml(object):
         Log testsuite stopped event
         """
         self.setResult(result)
-        
+
         self.to_notif_raw(value="script-stopped %s %.3f" % (result,
                                                             duration))
-                                           
+
         self.to_notif({
             'event': EVENT_TESTUNIT_STOPPED,
             'timestamp': self.get_timestamp(),
@@ -778,7 +778,7 @@ class TestLoggerXml(object):
             'to-level': tolevel
         }, testInfo=testInfo)
 
-    def log_testunit_info(self, message, component, 
+    def log_testunit_info(self, message, component,
                           color=None, font="normal",
                           bold=False, italic=False,
                           multiline=False, fromlevel='', tolevel='',
@@ -895,7 +895,7 @@ class TestLoggerXml(object):
         ts_name = name
         if len(alias): ts_name = alias
         self.to_notif_raw(value="script-started %s" % ts_name)
-                                           
+
         self.to_notif({'event': EVENT_TESTSUITE_STARTED,
                        'timestamp': self.get_timestamp(),
                        'from-level': fromlevel,
@@ -909,10 +909,10 @@ class TestLoggerXml(object):
         Log testsuite stopped event
         """
         self.setResult(result)
-        
+
         self.to_notif_raw(value="script-stopped %s %.3f" % (result,
                                                            duration))
-                                           
+
         self.to_notif({
             'event': EVENT_TESTSUITE_STOPPED,
             'timestamp': self.get_timestamp(),
@@ -1036,7 +1036,7 @@ class TestLoggerXml(object):
                              tolevel='', testInfo={}):
         """
         Log testcase started event
-        """                          
+        """
         self.to_notif({
             'event': EVENT_TESTCASE_STARTED,
             'timestamp': self.get_timestamp(),
@@ -1051,7 +1051,7 @@ class TestLoggerXml(object):
         """
         Log testcase stopped event
         """
-        self.setResult(result)                   
+        self.setResult(result)
         self.to_notif({
             'event': EVENT_TESTCASE_STOPPED,
             'timestamp': self.get_timestamp(),
@@ -1074,7 +1074,7 @@ class TestLoggerXml(object):
         """
         if not flagEnd and not flagBegin:
             self.to_notif_raw(value="script-info %s" % (message))
-        
+
         tpl = {'event': 'testcase',
                'level': 'info',
                'from-component': component,
@@ -1102,7 +1102,7 @@ class TestLoggerXml(object):
         Log testcase error event
         """
         self.to_notif_raw(value="script-error %s" % (message))
-                                                
+
         self.to_notif({
             'event': 'testcase',
             'level': 'error',
@@ -1127,7 +1127,7 @@ class TestLoggerXml(object):
         Log testcase warning event
         """
         self.to_notif_raw(value="script-warning %s" % (message))
-        
+
         self.to_notif({
             'event': 'testcase',
             'level': 'warning',
@@ -1258,10 +1258,13 @@ class TestLoggerXml(object):
     # Steps events
     def log_step_started(self, fromComponent, dataMsg, shortMsg,
                          tcid, font="normal", bold=False, italic=False,
-                         multiline=False, fromlevel='', tolevel='', testInfo={}):
+                         multiline=False, fromlevel='', tolevel='',
+                         testInfo={}, step_id=0):
         """
         Log step started event
         """
+        # self.to_notif_raw(value="script-warning [step #%s] %s" % (step_id, shortMsg))
+        
         evt = {
             'event': 'testcase',
             'level': 'step-started',
@@ -1276,15 +1279,18 @@ class TestLoggerXml(object):
             'color': self.STEP_STARTED,
             'color-text': self.STEP_STARTED_TEXT,
             'multiline': multiline
-        }                              
+        }
         self.to_notif(evt, testInfo=testInfo)
 
     def log_step_failed(self, fromComponent, dataMsg, shortMsg,
                         tcid, font="normal", bold=False, italic=False,
-                        multiline=False, fromlevel='', tolevel='', testInfo={}):
+                        multiline=False, fromlevel='', tolevel='',
+                        testInfo={}, step_id=0):
         """
         Log step failed event
         """
+        self.to_notif_raw(value="script-error [step #%s] %s" % (step_id, shortMsg))
+        
         self.to_notif({
             'event': 'testcase',
             'level': 'step-failed',
@@ -1303,10 +1309,13 @@ class TestLoggerXml(object):
 
     def log_step_passed(self, fromComponent, dataMsg, shortMsg,
                         tcid, font="normal", bold=False, italic=False,
-                        multiline=False, fromlevel='', tolevel='', testInfo={}):
+                        multiline=False, fromlevel='', tolevel='',
+                        testInfo={}, step_id=0):
         """
         Log step passed event
         """
+        # self.to_notif_raw(value="script-warning [step #%s] %s" % (step_id, shortMsg))
+        
         self.to_notif({
             'event': 'testcase',
             'level': 'step-passed',

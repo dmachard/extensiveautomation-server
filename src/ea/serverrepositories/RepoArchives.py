@@ -468,14 +468,14 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
             except Exception:
                 return "not-running"
         return state
-        
+
     def getTrLogs(self, trPath, log_index=0):
         """
         Get the logs of the test result passed on argument
         """
         logs = ''
         index = 0
-        
+
         fullPath = "%s/%s/" % (self.testsPath, trPath)
         fullPath = os.path.normpath(fullPath)
 
@@ -657,7 +657,7 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                     # hash.update(real_path)
                 # else:
                     # hash.update(real_path.encode('utf-8'))
-                    
+
                 # example real path: "/1/2016-04-29/2016-04-29_16-14-
                 # 24.293494.TmV3cy9yZXN0X2FwaQ==.admin"
                 # extract the username, testname, date
@@ -670,10 +670,10 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
 
                 with open("%s/TESTPATH" % entry.path, "r") as fh:
                     testpath = fh.read()
-                    
+
                 with open("%s/TASKID" % entry.path, "r") as fh:
                     testid = fh.read()
-                    
+
                 run_state = "UNKNOWN"
                 if os.path.exists( "%s/RESULT" % entry.path):
                     with open("%s/RESULT" % entry.path, "r") as fh:
@@ -681,14 +681,14 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                 else:
                     with open("%s/STATE" % entry.path, "r") as fh:
                         run_state = fh.read()
-                
+
                 listing.append({'script': testpath,
                                 'id': testid,
                                 'user': _user,
                                 'datetime': "%s %s" % (testdate, testtime),
                                 'state': run_state})
         return listing
-        
+
     def getListingFilter(self, projectId=1, dateFilter=None, timeFilter=None):
         """
         Deprecated, will be removed in future
@@ -721,20 +721,20 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                     hash.update(realPath)
                 else:
                     hash.update(realPath.encode('utf-8'))
-                    
+
                 # example real path: "/1/2016-04-29/2016-04-29_16-14-
                 # 24.293494.TmV3cy9yZXN0X2FwaQ==.admin"
                 # extract the username, testname, date
                 _timestamp, _, _testname, _ = realPath.rsplit(".")
                 _, _, testdate, _testtime = _timestamp.split("/")
                 _, testtime = _testtime.split("_")
-                
+
                 if sys.version_info < (3,):
                     testname = base64.b64decode(_testname)
                 else:
                     testname = base64.b64decode(_testname)
                     testname = testname.decode("utf8")
-                    
+
                 # append to the list
                 appendTest = False
                 if dateFilter is not None and timeFilter is not None:

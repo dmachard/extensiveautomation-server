@@ -37,7 +37,7 @@ class Server():
         print("Login to API")
 
         # prepare the request
-        payload = { "login": self.login, "password": self.password  }
+        payload = {"login": self.login, "password": self.password}
         headers = {'content-type': 'application/json'}
         url = "%s/session/login" % self.url
 
@@ -77,12 +77,12 @@ class Server():
         self.prev_len_logs = 0
 
         # prepare the request
-        payload = { "test-path": testpath,
-                    "test-name": testname,
-                    "test-extension": testext,
-                    "project-id": 1,
-                    'schedule-id': 0,
-                    'schedule-at': [0,0,0,0,0,0] }
+        payload = {"test-path": testpath,
+                   "test-name": testname,
+                   "test-extension": testext,
+                   "project-id": 1,
+                   'schedule-id': 0,
+                   'schedule-at': [0,0,0,0,0,0] }
         headers = {'content-type': 'application/json',
                    'cookie': 'session_id=%s' % self.sessionid}
         url = "%s/tasks/schedule" % self.url
@@ -101,10 +101,9 @@ class Server():
             self.run_result_details(testid=rsp["test-id"])
 
     def run_result_details(self, testid, logs_index=0):
-        payload = { "test-id": testid,
-                    "project-id": 1,
-                    #"log-index": self.prev_len_logs,
-                    "log-index": logs_index}
+        payload = {"test-id": testid,
+                   "project-id": 1,
+                   "log-index": logs_index}
         headers = {'content-type': 'application/json',
                    'cookie': 'session_id=%s' % self.sessionid}
         url = "%s/results/details" % self.url
@@ -118,7 +117,6 @@ class Server():
             # decode response
             rsp = json.loads(r.text)
 
-            #self.prev_len_logs += len_logs
             if len(rsp["test-logs"]):
                 if sys.version_info < (3,):
                     print(rsp["test-logs"].encode('utf8').strip())
@@ -133,6 +131,8 @@ class Server():
                 if rsp["test-verdict"] != "pass":
                     print("ERROR ON TEST %s" % rsp["test-verdict"])
                     sys.exit(1)
+
+
 EA = Server()
 EA.run_test_login()
 EA.run_tests_framework()
