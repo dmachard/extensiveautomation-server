@@ -76,6 +76,8 @@ class SEND_SSH_01(TestCase):
 				if stepN is None: continue				
 				searchScreen = False
 				screen =  self.ADP_SYS.hasReceivedScreen(timeout=input('TIMEOUT'), text=TestOperators.RegEx(needle=sys_cmd))
+				for line in screen.get("TERM", "data").splitlines():
+					self.info(line)
 				if screen is None:
 					stepN.setFailed("unable to find %s in screen" % sys_cmd)
 					self.abort("unable to find %s in screen" % sys_cmd)
@@ -93,7 +95,7 @@ class SEND_SSH_01(TestCase):
 
 	def cleanup(self, aborted, svr):
 		if aborted:
-			Trace(self).error(txt="%s" % aborted, bold=False, italic=False, multiline=False, raw=False)
+			Trace(self).error(txt="%s" % aborted)
 		if not input('ALREADY_SHARED'):
 			if self.ADP_SYS is not None:
 				self.ADP_SYS.doText(text="exit")

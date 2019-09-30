@@ -86,7 +86,7 @@ class SEND_HTTP(TestCase):
 				if not TestOperators.RegEx(needle=input('HTTP_RSP_CODE')).seekIn(haystack=rsp_code):
 					msg_error = "- checking http code: KO (%s received, %s expected)" % (rsp_code, input('HTTP_RSP_CODE')) 
 					self.abort(msg_error)
-				step_details.append( "- checking http code: OK" )
+				step_details.append( "- checking http code (%s): OK" % input('HTTP_RSP_CODE') )
 				
 			# check the http phrase of the response
 			if input('HTTP_RSP_PHRASE') is not None:
@@ -94,7 +94,7 @@ class SEND_HTTP(TestCase):
 				if not TestOperators.RegEx(needle=input('HTTP_RSP_PHRASE')).seekIn(haystack=rsp_phrase):
 					msg_error = "- checking http phrase: KO (%s expected, %s received)" % (rsp_phrase, input('HTTP_RSP_PHRASE'))
 					self.abort( msg_error )
-				step_details.append( "- checking http phrase: OK" )
+				step_details.append( "- checking http phrase (%s): OK" %  input('HTTP_RSP_PHRASE'))
 				
 			# check the http version
 			if input('HTTP_RSP_VERSION') is not None:
@@ -102,7 +102,7 @@ class SEND_HTTP(TestCase):
 				if not TestOperators.RegEx(needle=input('HTTP_RSP_VERSION')).seekIn(haystack=rsp_version):
 					msg_error = "- checking http version: KO (%s expected, %s received)" % (rsp_phrase, input('HTTP_RSP_VERSION'))
 					self.abort( msg_error )
-				step_details.append("- checking http version: OK")
+				step_details.append("- checking http version (%s): OK" % input('HTTP_RSP_VERSION'))
 				
 			# check headers in response
 			if input('HTTP_RSP_HEADERS') is not None:
@@ -157,7 +157,7 @@ class SEND_HTTP(TestCase):
 						self.error('bad jsonpath (%s) provided ? more details:\n\n %s' % (jpath, str(e)) )
 						json_values = []
 					if not len(json_values):
-						self.abort( "- searching '%s' with the value '%s' : KO" % (jpath, jvalue) )
+						self.abort( "- searching in json response '%s' with the value '%s' : KO" % (jpath, jvalue) )
 	
 					#  search capture regexp
 					capture_detected = re.findall("\(\?P\<.*\>.*\)", jvalue)
@@ -167,7 +167,7 @@ class SEND_HTTP(TestCase):
 							Cache().capture(data="%s" % json_values[0], regexp=jvalue)
 						else:
 							Cache().set(name=cache_key, data=json_values, flag=False)
-						step_details.append( "- searching and capture value of '%s'" % (jpath) )
+						step_details.append( "- searching in json response and capture value of '%s'" % (jpath) )
 						
 					else:
 						values_detected = False
@@ -176,9 +176,9 @@ class SEND_HTTP(TestCase):
 								values_detected = True
 								
 						if not values_detected:
-							self.abort( "- searching '%s' with the value '%s' : KO" % (jpath, jvalue) )
+							self.abort( "- searching in json response '%s' with the value '%s' : KO" % (jpath, jvalue) )
 						else:
-							step_details.append( "- searching '%s' with the value '%s' : OK" % (jpath, jvalue)  )
+							step_details.append( "- searching in json response '%s' with the value '%s' : OK" % (jpath, jvalue)  )
 						
 			# checking body xml ?
 			if input('HTTP_RSP_BODY_XML') is not None:

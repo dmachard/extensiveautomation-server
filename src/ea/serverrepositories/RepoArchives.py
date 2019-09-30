@@ -635,6 +635,10 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
         """
         listing = []
         initial_path = "%s/" % (self.testsPath)
+        
+        if not os.path.exists("%s/%s" % (self.testsPath, project_id)):
+            return listing
+        
         for entry in reversed(list(scandir.scandir(
                 "%s/%s" % (self.testsPath, project_id)))):
             if entry.is_dir(follow_symlinks=False):  # date
@@ -652,11 +656,6 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
 
                 # compute the test id (md5 hash)
                 real_path = "/%s" % entry.path.split(initial_path)[1]
-                # hash = hashlib.md5()
-                # if sys.version_info < (3,):
-                    # hash.update(real_path)
-                # else:
-                    # hash.update(real_path.encode('utf-8'))
 
                 # example real path: "/1/2016-04-29/2016-04-29_16-14-
                 # 24.293494.TmV3cy9yZXN0X2FwaQ==.admin"
