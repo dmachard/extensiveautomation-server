@@ -136,10 +136,16 @@ class ProjectsManager(Logger.ClassLogger):
         # check if the provided project id is authorized for the user
         granted = False
         user_profile = UsersManager.instance().cache()[user]
-        for p in user_profile['projects']:
-            if int(p) == int(projectId):
-                granted = True
-                break
+        
+        # new exception for administrator 
+        # project is granted to all projects
+        if user_profile['administrator']:
+            granted=True
+        else:
+            for p in user_profile['projects']:
+                if int(p) == int(projectId):
+                    granted = True
+                    break
 
         # return the final result
         self.trace('Check project access for Login=%s and ProjectID=%s Result=%s' % (user,

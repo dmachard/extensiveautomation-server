@@ -363,13 +363,17 @@ class TestLoggerXml(object):
                                   value)
         self.fd_raw.write(raw_line)
 
-    def set_final_verdict(self, verdict):
+    def set_final_verdict(self, verdict, duration):
         """
         Set the final verdict
         """
         try:
             f = open('%s/VERDICT_%s' % (self.__path, verdict), 'w')
             f.close()
+            
+            fh = open('%s/DURATION' % (self.__path), 'w')
+            fh.write("%s" % round(duration,3))
+            fh.close()
         except Exception as e:
             self.error("[set_final_verdict] %s" % str(e))
 
@@ -395,17 +399,17 @@ class TestLoggerXml(object):
                        'timestamp': self.get_timestamp(),
                        'from-level': fromlevel,
                        'to-level': tolevel,
-                       'test-internal-id': tid}, testInfo=testInfo)
+                       'test-internal-id': tid},
+                       testInfo=testInfo)
 
     def log_script_stopped(self, duration=0, finalverdict='UNDEFINED',
                            prjId=0, fromlevel='', tolevel='', testInfo={}):
         """
         Log script stopped event
         """
-        self.set_final_verdict(verdict=finalverdict)
+        self.set_final_verdict(verdict=finalverdict, duration=duration)
 
         self.to_notif_raw(value="task-stopped")
-
         self.to_notif({
             'event': EVENT_SCRIPT_STOPPED,
             'timestamp': self.get_timestamp(),

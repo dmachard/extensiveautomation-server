@@ -2726,7 +2726,6 @@ class TaskManager(Scheduler.SchedulerThread, Logger.ClassLogger):
             prjsDict = {}
             for prj in prjs:
                 prjsDict[int(prj['project_id'])] = True
-
         for task in self.tasks:
             if task.state == STATE_WAITING or task.state == STATE_DISABLED or task.state == STATE_RUNNING:
                 if user is None:

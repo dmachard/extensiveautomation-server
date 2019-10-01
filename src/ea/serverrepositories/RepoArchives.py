@@ -672,6 +672,11 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
 
                 with open("%s/TASKID" % entry.path, "r") as fh:
                     testid = fh.read()
+                    
+                testduration = 0
+                if os.path.exists( "%s/DURATION" % entry.path):
+                    with open("%s/DURATION" % entry.path, "r") as fh:
+                        testduration = fh.read()
 
                 run_state = "UNKNOWN"
                 if os.path.exists( "%s/RESULT" % entry.path):
@@ -685,6 +690,7 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
                                 'id': testid,
                                 'user': _user,
                                 'datetime': "%s %s" % (testdate, testtime),
+                                'duration': testduration,
                                 'state': run_state})
         return listing
 
