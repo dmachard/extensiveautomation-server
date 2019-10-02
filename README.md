@@ -45,7 +45,7 @@ The server can run on both Python 2 and Python 3, and also run on Linux and Wind
 
         extensiveautomation --start
 
-3. Finally, check if the [server is running fine](#testing-is-server-running).
+3. Finally, check if the [server is running fine](#testing-if-server-running).
 
 ### Docker image
 
@@ -60,7 +60,7 @@ The server can run on both Python 2 and Python 3, and also run on Linux and Wind
 
    If you want to start the container with persistant tests data, go to [Docker Hub](https://hub.docker.com/r/extensiveautomation/extensiveautomation-server) page.
 
-3. Finally, check if the [server is running fine](#testing-is-server-running).
+3. Finally, check if the [server is running fine](#testing-if-server-running).
    
 ### Source code
  
@@ -87,7 +87,7 @@ The server can run on both Python 2 and Python 3, and also run on Linux and Wind
         cd src/
         python extensiveautomation.py --start
         
-4. Finally, check if the [server is running fine](#testing-is-server-running).
+4. Finally, check if the [server is running fine](#testing-if-server-running).
 
 ## Testing if server running
 

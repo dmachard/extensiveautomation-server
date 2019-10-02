@@ -190,12 +190,13 @@ class _WebServices(WSGI):
 
         # tests results storage
         ('/results/listing/files', RestTesterFunctions.ResultsListingFiles()),
-        ('/results/listing/by/id/datetime',
-         RestTesterFunctions.ResultsListingIdByDateTime()),
+        ('/results/listing/basic', RestTesterFunctions.ResultsListingBasic()),
+        ('/results/listing/by/id/datetime', RestTesterFunctions.ResultsListingFilter()),
         ('/results/reset', RestAdminFunctions.ResultsReset()),
         ('/results/remove/by/id', RestTesterFunctions.ResultsRemoveById()),
         ('/results/remove/by/date', RestTesterFunctions.ResultsRemoveByDate()),
         ('/results/follow', RestTesterFunctions.ResultsFollow()),
+        ('/results/details', RestTesterFunctions.ResultsDetails()),
         ('/results/status', RestTesterFunctions.ResultsStatus()),
         ('/results/verdict', RestTesterFunctions.ResultsVerdict()),
         ('/results/report/verdicts', RestTesterFunctions.ResultsReportVerdicts()),

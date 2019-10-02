@@ -11,7 +11,7 @@ COPY . /home/extensive/
 
 RUN true \
     && adduser -D extensive \
-    && apk add --update --no-cache g++ make libxslt-dev \
+    && apk add --update --no-cache g++ make libxslt-dev curl \
     && pip install --no-cache-dir wrapt pycnic lxml jsonpath_ng \
     && apk del --no-cache g++ make \
     && cd /home/extensive \

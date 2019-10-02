@@ -3165,7 +3165,8 @@ class Step(object):
                                             tcid=self.tcid_,
                                             fromlevel=LEVEL_TE,
                                             tolevel=LEVEL_USER,
-                                            testInfo=self.tcparent.getTestInfo())
+                                            testInfo=self.tcparent.getTestInfo(),
+                                            step_id=self.id_)
 
             self.saveStep()
 
@@ -3249,7 +3250,8 @@ class Step(object):
                                        tcid=self.tcid_,
                                        fromlevel=LEVEL_TE,
                                        tolevel=LEVEL_USER,
-                                       testInfo=self.tcparent.getTestInfo())
+                                       testInfo=self.tcparent.getTestInfo(),
+                                       step_id=self.id_)
 
         self.saveStep()
 
@@ -3329,7 +3331,8 @@ class Step(object):
                                        tcid=self.tcid_,
                                        fromlevel=LEVEL_TE,
                                        tolevel=LEVEL_USER,
-                                       testInfo=self.tcparent.getTestInfo())
+                                       testInfo=self.tcparent.getTestInfo(),
+                                       step_id=self.id_)
         self.saveStep()
 
 

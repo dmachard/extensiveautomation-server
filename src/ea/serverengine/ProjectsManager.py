@@ -112,13 +112,24 @@ class ProjectsManager(Logger.ClassLogger):
             self.error('Get project for Login=%s not found in cache' % (user))
             return False
 
-        user_projects = UsersManager.instance().cache()[user]['projects']
-        projects_list = []
-        for p in user_projects:
-            projects_dict = {}
-            projects_dict['project_id'] = int(p)
-            projects_dict['name'] = self.getProjectName(prjId=int(p))
-            projects_list.append(projects_dict)
+        # exception added for administrator
+        # an administrator can see all projects
+        if UsersManager.instance().cache()[user]['administrator']:
+            projects_list = []
+            for p in self.cache():
+                projects_dict = {}
+                projects_dict['project_id'] = int(p['id'])
+                projects_dict['name'] = p['name']
+                projects_list.append(projects_dict)
+        else:
+            user_projects = UsersManager.instance().cache()[user]['projects']
+            
+            projects_list = []
+            for p in user_projects:
+                projects_dict = {}
+                projects_dict['project_id'] = int(p)
+                projects_dict['name'] = self.getProjectName(prjId=int(p))
+                projects_list.append(projects_dict)
 
         return projects_list
 
@@ -136,10 +147,16 @@ class ProjectsManager(Logger.ClassLogger):
         # check if the provided project id is authorized for the user
         granted = False
         user_profile = UsersManager.instance().cache()[user]
-        for p in user_profile['projects']:
-            if int(p) == int(projectId):
-                granted = True
-                break
+        
+        # new exception for administrator 
+        # project is granted to all projects
+        if user_profile['administrator']:
+            granted=True
+        else:
+            for p in user_profile['projects']:
+                if int(p) == int(projectId):
+                    granted = True
+                    break
 
         # return the final result
         self.trace('Check project access for Login=%s and ProjectID=%s Result=%s' % (user,

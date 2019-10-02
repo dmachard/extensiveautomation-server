@@ -571,7 +571,7 @@ TLX.instance().setUniqueId("%s", tsId = "%s")
             if isTs:
                 te.append(TestModelCommon.indent("""
 tsMgr.isTestStarted()
-TLX.instance().log_testsuite_started(tid='%s', alias='%s')
+TLX.instance().log_testsuite_started(tid='%s', alias='%s', name='%s')
 TLX.instance().log_testsuite_info(message='BEGIN',
                                   component='TESTSUITE',
                                   fromlevel=LEVEL_TE,
@@ -579,11 +579,11 @@ TLX.instance().log_testsuite_info(message='BEGIN',
                                   flagEnd=False,
                                   flagBegin=True)
 # !! test injection
-    """ % (ts['id'], ts['alias']), nbTab=ts['depth'] + 2))
+    """ % (ts['id'], ts['alias'], ts['path']), nbTab=ts['depth'] + 2))
             else:
                 te.append(TestModelCommon.indent("""
 tsMgr.isTestStarted()
-TLX.instance().log_testunit_started(tid='%s', alias='%s')
+TLX.instance().log_testunit_started(tid='%s', alias='%s', name='%s')
 TLX.instance().log_testunit_info(message='BEGIN',
                                  component='TESTUNIT',
                                  fromlevel=LEVEL_TE,
@@ -591,7 +591,7 @@ TLX.instance().log_testunit_info(message='BEGIN',
                                  flagEnd=False,
                                  flagBegin=True)
 # !! test injection
-    """ % (ts['id'], ts['alias']), nbTab=ts['depth'] + 2))
+    """ % (ts['id'], ts['alias'], ts['path']), nbTab=ts['depth'] + 2))
 
             for dsTs in missingDatasetTs:
                 if isTs:
@@ -1153,7 +1153,7 @@ TLX.instance().setUniqueId("%s", tsId = "%s")
             if isTs:
                 te.append(TestModelCommon.indent("""
 tsMgr.isTestStarted()
-TLX.instance().log_testsuite_started(tid='%s', alias='%s')
+TLX.instance().log_testsuite_started(tid='%s', alias='%s', name='%s')
 TLX.instance().log_testsuite_info(message='BEGIN',
                                   component='TESTSUITE',
                                   fromlevel=LEVEL_TE,
@@ -1161,11 +1161,11 @@ TLX.instance().log_testsuite_info(message='BEGIN',
                                   flagEnd=False,
                                   flagBegin=True)
 # !! test injection
-    """ % (ts['id'], ts['alias']), nbTab=ts['depth'] + 2))
+    """ % (ts['id'], ts['alias'], ts['path']), nbTab=ts['depth'] + 2))
             else:
                 te.append(TestModelCommon.indent("""
 tsMgr.isTestStarted()
-TLX.instance().log_testunit_started(tid='%s', alias='%s')
+TLX.instance().log_testunit_started(tid='%s', alias='%s', name='%s')
 TLX.instance().log_testunit_info(message='BEGIN',
                                  component='TESTUNIT',
                                  fromlevel=LEVEL_TE,
@@ -1173,7 +1173,7 @@ TLX.instance().log_testunit_info(message='BEGIN',
                                  flagEnd=False,
                                  flagBegin=True)
 # !! test injection
-    """ % (ts['id'], ts['alias']), nbTab=ts['depth'] + 2))
+    """ % (ts['id'], ts['alias'], ts['path']), nbTab=ts['depth'] + 2))
 
             for dsTs in missingDatasetTs:
                 if isTs:
@@ -1567,7 +1567,7 @@ scriptstart_time = time.time()
 TLX.instance().log_script_started()
 testsuitestart_time = time.time()
 tsMgr.isTestStarted()
-TLX.instance().log_testsuite_started()
+TLX.instance().log_testsuite_started(name=test_name)
 TLX.instance().log_testsuite_info(message='BEGIN',
                                   component='TESTSUITE',
                                   fromlevel=LEVEL_TE,
@@ -1852,7 +1852,7 @@ scriptstart_time = time.time()
 TLX.instance().log_script_started()
 testunitstart_time = time.time()
 tsMgr.isTestStarted()
-TLX.instance().log_testunit_started()
+TLX.instance().log_testunit_started(name=test_name)
 TLX.instance().log_testunit_info(message='BEGIN',
                                  component='TESTUNIT',
                                  fromlevel=LEVEL_TE,
