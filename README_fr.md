@@ -47,7 +47,7 @@ Le serveur peut s'exécuter avec Python 2 et Python 3, ainsi que sur Windows et 
 
 3. Enfin vérifier le [bon fonctionnement du serveur](#test-du-serveur).
 
-### docker image
+### Docker image
 
 1. Téléchargement de l'image depuis docker hub
 

@@ -1,6 +1,6 @@
 
 21.3.0
-	Date: xx/10/2019
+	Date: 02/10/2019
 	What's new
 		1. (medium): REST API - new feature to read test logs line by line (/results/details)
 		2. (minor): docker image updated, curl command added by default
