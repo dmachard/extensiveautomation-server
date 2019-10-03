@@ -23,10 +23,14 @@
 	* [PyPI](#pypi)
 	* [Image Docker](#docker-image)
 	* [Code source](#source-code)
-* [Test du serveur](#test-du-serveur)
+* [Connexion au serveur](#connexion-au-serveur ) 
+	* [Test du serveur](#test-du-serveur)
+	* [Utilisation du client web](#web-client)
+	* [Utilisation du client lourd](#app-client)
 * [Plugins](#ajouter-des-plugins)
-* [Ajout ReverseProxy](#reverse-proxy)
-* [Authentication utilisateurs via LDAP](#authentication-utilisateurs-via-ldap)
+* [Sécurisation](#securisation)
+	* [Ajout ReverseProxy](#reverse-proxy)
+	* [Authentication utilisateurs via LDAP](#authentication-utilisateurs-via-ldap)
 
 ## Introduction
 
@@ -86,8 +90,9 @@ Le serveur peut s'exécuter avec Python 2 et Python 3, ainsi que sur Windows et 
         
 4. Enfin vérifier le [bon fonctionnement du serveur](#test-du-serveur).
 
-## Test du serveur
+## Connexion au serveur
 
+###  Connexion simple au serveur avec Curl
 
 1. Merci de prendre en compte aussi les points suivants:
 	
@@ -104,7 +109,15 @@ Le serveur peut s'exécuter avec Python 2 et Python 3, ainsi que sur Windows et 
        curl -X POST http://127.0.0.1:8081/session/login \
             -H "Content-Type: application/json" \
             -d '{"login": "admin", "password": "password"}'
+            
+### Connection to the server with the web client
 
+Read the following [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-webclient#web-interface-for-extensiveautomation).
+
+### Connection to the server with the app client
+  
+Read the following [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-appclient#qt-application-for-extensiveautomation).
+ 
 ## Ajouter des plugins
 
 Les plugins permettent au serveur d'intéragir avec le système à controller.
@@ -116,7 +129,9 @@ un par un en fonction de vos besoins.
 * [Plugin GUI (selenium, sikulix and adb)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui)
 * [Et d'autres encore...](https://github.com/ExtensiveAutomation/extensiveautomation-plugins-server)
 
-## Ajout d'un reverse proxy
+## Sécurisation
+
+### Ajout d'un reverse proxy
 
 Ajouter un reverse proxy devant le serveur permet d'exposer seulement un port tcp (8080) et 
 d'activer le chiffrement du flux entre l'utilisateur et le serveur.
@@ -161,7 +176,7 @@ Merci de suivre la procédure ci-dessous pour installer le RP.
             -H "Content-Type: application/json" \
             -d '{"login": "admin", "password": "password"}'
 
-## Activation authentication LDAP
+### Activation authentication LDAP
 
 Par défaut, les utilisateurs sont authentifiés localement au serveur (en vérifiant un hash du mot de passe).
 Ce comportement peut être modifié en utilisant un serveur d'authentification distant. 

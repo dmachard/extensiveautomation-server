@@ -23,10 +23,14 @@
 	* [PyPI package](#pypi-package)
 	* [Docker image](#docker-image)
 	* [Source code](#source-code)
-* [Testing if server running](#testing-if-server-running)
+* [Connecting to server](#connecting-to-server) 
+	* [Simple connection to server with curl](#curl-client)
+	* [Connection to server with the web client](#web-client)
+	* [Connection to server with the app client](#app-client)
 * [Plugins](#adding-plugins)
-* [Adding ReverseProxy](#reverse-proxy)
-* [LDAP users authentication](#ldap-users-authentication)
+* [Security](#security)
+	* [Adding ReverseProxy](#reverse-proxy)
+	* [LDAP users authentication](#ldap-users-authentication)
 
 ## Introduction
 
@@ -89,8 +93,9 @@ The server can run on both Python 2 and Python 3, and also run on Linux and Wind
         
 4. Finally, check if the [server is running fine](#testing-if-server-running).
 
-## Testing if server running
+## Connecting to server
 
+### Simple connection to server with curl
 
 1. Please to take in consideration the following points:
 	
@@ -108,6 +113,14 @@ The server can run on both Python 2 and Python 3, and also run on Linux and Wind
             -H "Content-Type: application/json" \
             -d '{"login": "admin", "password": "password"}'
 
+### Connection to server with the web client
+
+Read the following [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-webclient#web-interface-for-extensiveautomation).
+
+### Connection to server with the app client
+  
+Read the following [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-appclient#qt-application-for-extensiveautomation).
+ 
 ## Adding plugins
 
 Plugins allow to interact with the system to be controlled. But by default the server is provided without plugins. So you need to install them one by one according to your needs.
@@ -117,7 +130,9 @@ Plugins allow to interact with the system to be controlled. But by default the s
 * [GUI plugin (selenium, sikulix and adb)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui)
 * [And many others...](https://github.com/ExtensiveAutomation/extensiveautomation-plugins-server)
 
-## Adding reverse proxy
+## Security
+
+### Adding reverse proxy
 
 Adding a reverse proxy the from of server enables to expose only one tcp port (8080) 
 and to have a tls link between the client and the server. 
@@ -160,7 +175,7 @@ If you want to install a reverse proxy, please to follow this procedure.
          -H "Content-Type: application/json" \
          -d '{"login": "admin", "password": "password"}'
          
-## LDAP users authentication
+### LDAP users authentication
 
 By default, users are authenticated locally from database (by checking hash password).
 This behavior can be modified by using a remote authentication server. In this mode, you always need to add users in the local database.
