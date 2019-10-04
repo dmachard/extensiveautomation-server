@@ -19,16 +19,16 @@
 
 ## Table of contents
 * [Introduction](#introduction)
-* [Installation](#installation)
+* [Server Installation](#installation)
 	* [PyPI package](#pypi-package)
 	* [Docker image](#docker-image)
 	* [Source code](#source-code)
+	* [Adding plugins](#adding-plugins)
 * [Connecting to server](#connecting-to-server) 
-	* [Simple connection to server with curl](#curl-client)
-	* [Connection to server with the web client](#web-client)
-	* [Connection to server with the app client](#app-client)
-* [Plugins](#adding-plugins)
-* [Security](#security)
+	* [Connection to server with curl](#connection-to-server-with-curl)
+	* [Connection to server with the web client](#connection-to-server-with-the-web-client)
+	* [Connection to server with the app client](#connection-to-server-with-the-app-client)
+* [Securisation](#securisation)
 	* [Adding ReverseProxy](#reverse-proxy)
 	* [LDAP users authentication](#ldap-users-authentication)
 
@@ -37,7 +37,7 @@
 **ExtensiveAutomation**  is a generic automation framework for integration, regression and end-to-end usages. The framework provided a rich and collaborative workspace environment. 
 The server can run on both Python 2 and Python 3, and also run on Linux and Windows.
 
-## Installation
+## Server Installation
 
 ### PyPI package
 
@@ -49,7 +49,7 @@ The server can run on both Python 2 and Python 3, and also run on Linux and Wind
 
         extensiveautomation --start
 
-3. Finally, check if the [server is running fine](#testing-if-server-running).
+3. Finally, check if the [server is running fine](#connection-to-server-with-curl).
 
 ### Docker image
 
@@ -64,7 +64,7 @@ The server can run on both Python 2 and Python 3, and also run on Linux and Wind
 
    If you want to start the container with persistant tests data, go to [Docker Hub](https://hub.docker.com/r/extensiveautomation/extensiveautomation-server) page.
 
-3. Finally, check if the [server is running fine](#testing-if-server-running).
+3. Finally, check if the [server is running fine](#connection-to-server-with-curl).
    
 ### Source code
  
@@ -91,11 +91,20 @@ The server can run on both Python 2 and Python 3, and also run on Linux and Wind
         cd src/
         python extensiveautomation.py --start
         
-4. Finally, check if the [server is running fine](#testing-if-server-running).
+4. Finally, check if the [server is running fine](#connection-to-server-with-curl).
+ 
+### Adding plugins
+
+Plugins allow to interact with the system to be controlled. But by default the server is provided without plugins. So you need to install them one by one according to your needs.
+
+* [CLI plugin (ssh)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli)
+* [WEB plugin (http/https)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web)
+* [GUI plugin (selenium, sikulix and adb)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui)
+* [And many others...](https://github.com/ExtensiveAutomation/extensiveautomation-plugins-server)
 
 ## Connecting to server
 
-### Simple connection to server with curl
+### Connection to server with curl
 
 1. Please to take in consideration the following points:
 	
@@ -115,22 +124,13 @@ The server can run on both Python 2 and Python 3, and also run on Linux and Wind
 
 ### Connection to server with the web client
 
-Read the following [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-webclient#web-interface-for-extensiveautomation).
+To use the server from the web interface, please to read the following [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-webclient#web-interface-for-extensiveautomation).
 
 ### Connection to server with the app client
   
-Read the following [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-appclient#qt-application-for-extensiveautomation).
- 
-## Adding plugins
+To use the server from the rich application, please to read the following [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-appclient#qt-application-for-extensiveautomation).
 
-Plugins allow to interact with the system to be controlled. But by default the server is provided without plugins. So you need to install them one by one according to your needs.
-
-* [CLI plugin (ssh)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli)
-* [WEB plugin (http/https)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web)
-* [GUI plugin (selenium, sikulix and adb)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui)
-* [And many others...](https://github.com/ExtensiveAutomation/extensiveautomation-plugins-server)
-
-## Security
+## Securisation
 
 ### Adding reverse proxy
 

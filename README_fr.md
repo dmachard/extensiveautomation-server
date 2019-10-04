@@ -19,16 +19,16 @@
 
 ## Table of contents
 * [Introduction](#introduction)
-* [Installation](#installation)
+* [Installation du serveur](#installation)
 	* [PyPI](#pypi)
 	* [Image Docker](#docker-image)
 	* [Code source](#source-code)
+	* [Ajout plugins](#ajout-des-plugins)
 * [Connexion au serveur](#connexion-au-serveur ) 
-	* [Test du serveur](#test-du-serveur)
-	* [Utilisation du client web](#web-client)
-	* [Utilisation du client lourd](#app-client)
-* [Plugins](#ajouter-des-plugins)
-* [Sécurisation](#securisation)
+	* [Utilisation de la commande curl](#utilisation-de-la-commande-curl)
+	* [Connexion au serveur avec le client web](#connexion-au-serveur-avec-le-client-web)
+	* [Connexion au serveur avec le client web](#connexion-au-serveur-avec-le-client-web)
+* [Sécurisation](#sécurisation)
 	* [Ajout ReverseProxy](#reverse-proxy)
 	* [Authentication utilisateurs via LDAP](#authentication-utilisateurs-via-ldap)
 
@@ -37,7 +37,7 @@
 **ExtensiveAutomation** est un framework générique pour automatiser les tâches de tests, d'exploitation et de déploiment.
 Le serveur peut s'exécuter avec Python 2 et Python 3, ainsi que sur Windows et Linux.
 
-## Installation
+## Installation du serveur
 
 ### PyPI
 
@@ -49,7 +49,7 @@ Le serveur peut s'exécuter avec Python 2 et Python 3, ainsi que sur Windows et 
 
         extensiveautomation --start
 
-3. Enfin vérifier le [bon fonctionnement du serveur](#test-du-serveur).
+3. Enfin vérifier le [bon fonctionnement du serveur](#utilisation-de-la-commande-curl).
 
 ### Docker image
 
@@ -61,7 +61,7 @@ Le serveur peut s'exécuter avec Python 2 et Python 3, ainsi que sur Windows et 
 
         docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083 --name=extensive extensiveautomation
 
-3. Enfin vérifier le [bon fonctionnement du serveur](#test-du-serveur).
+3. Enfin vérifier le [bon fonctionnement du serveur](#utilisation-de-la-commande-curl).
 
 ### Source code
  
@@ -88,11 +88,22 @@ Le serveur peut s'exécuter avec Python 2 et Python 3, ainsi que sur Windows et 
         cd src
         python extensiveautomation.py --start
         
-4. Enfin vérifier le [bon fonctionnement du serveur](#test-du-serveur).
+4. Enfin vérifier le [bon fonctionnement du serveur](#utilisation-de-la-commande-curl).
+ 
+### Ajout des plugins
+
+Les plugins permettent au serveur d'intéragir avec le système à controller.
+Par défaut le serveur est fournit sans aucun plugin, il est donc nécessaire de les installer
+un par un en fonction de vos besoins.
+
+* [Plugin CLI (ssh)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli)
+* [Plugin WEB (http/https)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web)
+* [Plugin GUI (selenium, sikulix and adb)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui)
+* [Et d'autres encore...](https://github.com/ExtensiveAutomation/extensiveautomation-plugins-server)
 
 ## Connexion au serveur
 
-###  Connexion simple au serveur avec Curl
+###  Connexion au serveur avec la commande curl
 
 1. Merci de prendre en compte aussi les points suivants:
 	
@@ -110,24 +121,13 @@ Le serveur peut s'exécuter avec Python 2 et Python 3, ainsi que sur Windows et 
             -H "Content-Type: application/json" \
             -d '{"login": "admin", "password": "password"}'
             
-### Connection to the server with the web client
+### Connexion au serveur avec le client web
 
-Read the following [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-webclient#web-interface-for-extensiveautomation).
+Pour utiliser le serveur depuis l'interface web, merci de lire la [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-webclient#web-interface-for-extensiveautomation) suivante.
 
-### Connection to the server with the app client
+### Connexion au serveur avec le client lourd
   
-Read the following [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-appclient#qt-application-for-extensiveautomation).
- 
-## Ajouter des plugins
-
-Les plugins permettent au serveur d'intéragir avec le système à controller.
-Par défaut le serveur est fournit sans aucun plugin, il est donc nécessaire de les installer
-un par un en fonction de vos besoins.
-
-* [Plugin CLI (ssh)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli)
-* [Plugin WEB (http/https)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web)
-* [Plugin GUI (selenium, sikulix and adb)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui)
-* [Et d'autres encore...](https://github.com/ExtensiveAutomation/extensiveautomation-plugins-server)
+Pour utiliser le serveur depuis le client lourd, merci de lire la [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-appclient#qt-application-for-extensiveautomation) suivante.
 
 ## Sécurisation
 
