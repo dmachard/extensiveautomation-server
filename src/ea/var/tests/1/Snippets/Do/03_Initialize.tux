@@ -59,6 +59,8 @@ def __parseInstancesByType(self, server, name):
 		self.info("- %s_%s" % (name,ins_type)  )
 
 def description(self):
+	import json 
+	
 	# testcase description
 	self.setPurpose(purpose=description('summary'))
 	self.setRequirement(requirement=description('requirement'))
@@ -69,11 +71,10 @@ def description(self):
 																			summary="Set in the cache the environment", 
 																			enabled=True)
 	
-	self.LIB_JSON = SutLibraries.Codecs.JSON(parent=self, name=None, debug=True, ignoreErrors=False, shared=False)
-	
+
 	# some controls
 	if isinstance(input("ENVIRONMENT"), str):
-		environment  = self.LIB_JSON.decode(json_str=input("ENVIRONMENT"))
+		environment  = json.loads(input("ENVIRONMENT"))
 		if environment is None: self.abort("Bad json environment provided", stop=True)
 	else:
 		environment  = input("ENVIRONMENT")
@@ -171,7 +172,7 @@ def definition(self):
 		self.step1.start()
 
 		if input('DEBUG'):
-			envReadable = self.LIB_JSON.toHuman( json_obj=Cache().all() ) 
+			envReadable = json.dumps(Cache().all() , sort_keys = False, indent = 4) 
 			self.warning( "Environnement: \n%s" % envReadable, raw=True)
 			
 		self.step1.setPassed(actual="success")
