@@ -1,6 +1,9 @@
 name: Docker Image
 
-on: [push]
+on:
+  push:
+    branches:
+      - unstable
 
 jobs:
   build:
