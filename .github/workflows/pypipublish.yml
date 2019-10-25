@@ -25,4 +25,4 @@ jobs:
         twine check dist/*
     - name: Publish to PyPI
       run: |
-        twine upload --repository-url https://test.pypi.org/legacy/ dist/* -u ${{ secrets.PYPI_LOGIN }} -p ${{ secrets.PYPI_PASSWORD }}
+        twine upload dist/* -u ${{ secrets.PYPI_LOGIN }} -p ${{ secrets.PYPI_PASSWORD }}
