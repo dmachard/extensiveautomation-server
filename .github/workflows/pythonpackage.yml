@@ -3,6 +3,7 @@ name: Python Package
 on:
   push:
     branches:
+      - master
       - unstable
       
 jobs:

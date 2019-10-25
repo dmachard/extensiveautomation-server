@@ -3,6 +3,7 @@ name: Docker Image
 on:
   push:
     branches:
+      - master
       - unstable
 
 jobs:

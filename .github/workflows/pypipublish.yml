@@ -2,7 +2,7 @@ name: Publish to PyPI
 
 on:
   release:
-    types: [created]
+    types: [published]
 
 jobs:
   release:
@@ -23,6 +23,6 @@ jobs:
     - name: Twine check
       run: |
         twine check dist/*
-    - name: Publish to PyPI
+    - name: Upload to PyPI
       run: |
         twine upload dist/* -u ${{ secrets.PYPI_LOGIN }} -p ${{ secrets.PYPI_PASSWORD }}
