@@ -1,0 +1,25 @@
+name: Publish to PyPI
+  release:
+    types: [created]
+    
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: "3.8"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install twine
+      run: |
+        python setup.py sdist bdist_wheel
+    - name: Twine check
+      run: |
+        twine check dist/*
+    - name: Publish to PyPI
+      run: |
+        twine upload --repository-url https://test.pypi.org/legacy/ dist/* -u ${{ secrets.PYPI_LOGIN }} -p ${{ secrets.PYPI_PASSWORD }}
