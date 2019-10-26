@@ -27,13 +27,14 @@ import signal
 import os
 import platform
 
+from ea.serverengine import DbManager
 from ea.serverengine import AgentsManager
 from ea.serverengine import TaskManager
 from ea.serverengine import Context
 from ea.serverengine import HelperManager
 from ea.serverengine import ProjectsManager
 from ea.serverengine import UsersManager
-from ea.serverengine import DbManager
+from ea.serverengine import VariablesManager
 from ea.serverengine import StorageDataAdapters
 from ea.serverrepositories import (RepoAdapters,
                                    RepoTests,
@@ -163,6 +164,8 @@ class AutomationServer(Logger.ClassLogger, daemon.Daemon):
             self.info("Projects Manager ready")
             UsersManager.initialize(context=Context.instance())
             self.info("Users Manager ready")
+            VariablesManager.initialize(context=Context.instance())
+            self.info("Variables Manager ready")
 
             TaskManager.initialize(context=Context)
             self.info("Task Manager ready")
@@ -295,6 +298,12 @@ class AutomationServer(Logger.ClassLogger, daemon.Daemon):
         except Exception:
             pass
 
+        self.trace("Cleanup variables manager")
+        try:
+            VariablesManager.finalize()
+        except Exception:
+            pass
+            
         self.trace("Cleanup task manager")
         try:
             TaskManager.finalize()

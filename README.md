@@ -134,10 +134,10 @@ To use the server from the rich application, please to read the following [docum
 
 ### Adding reverse proxy
 
-Adding a reverse proxy the from of server enables to expose only one tcp port (8080) 
-and to have a tls link between the client and the server. 
+Adding a reverse proxy in the front of server enables to expose only one tcp port (8080) 
+and to have a TLS link between the client and the server. 
 Also, the default behaviour of the QT client and toolbox is to try to connect 
-on the tcp/8080 port (can be modifed).
+on the tcp/8080 port with ssl (can be modifed).
 
 If you want to install a reverse proxy, please to follow this procedure.
 

@@ -1,0 +1,35 @@
+name: Publish to Website
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: "3.7"
+    - name: Build tar.gz package
+      run: |
+        EA_VERSION=$(cat ./src/ea/VERSION)
+        EA_NAME="extensiveautomation"
+        rm -rf .git/
+        rm -rf .github/
+        cd ..
+        tar -zcvf ${EA_NAME}-server-${EA_VERSION}.tar.gz ${EA_NAME}-server/
+    - name: Upload to Website
+      run: |
+        EA_VERSION=$(cat ./src/ea/VERSION)
+        EA_NAME="extensiveautomation"
+        sudo apt-get install sshpass
+        touch RELEASE_SERVER_DATE
+        touch RELEASE_SERVER_VERSION
+        echo ${EA_VERSION} > RELEASE_SERVER_VERSION
+        date +'%F' > RELEASE_SERVER_DATE
+        export SSHPASS=${{ secrets.WEBSITE_PASSWORD }}
+        sshpass -e scp -P 9443 -o StrictHostKeyChecking=no RELEASE_SERVER_* ${{ secrets.WEBSITE_LOGIN }}@${EA_NAME}.org:/home/upload_versions
+        sshpass -e scp -P 9443 -o StrictHostKeyChecking=no  ../${EA_NAME}-server-${EA_VERSION}.tar.gz ${{ secrets.WEBSITE_LOGIN }}@${EA_NAME}.org:/home/upload/server

@@ -409,7 +409,7 @@ class TestLoggerXml(object):
         """
         self.set_final_verdict(verdict=finalverdict, duration=duration)
 
-        self.to_notif_raw(value="task-stopped")
+        self.to_notif_raw(value="task-stopped %s" % duration)
         self.to_notif({
             'event': EVENT_SCRIPT_STOPPED,
             'timestamp': self.get_timestamp(),
@@ -530,6 +530,8 @@ class TestLoggerXml(object):
         """
         Log testglobal error event
         """
+        self.to_notif_raw(value="script-error %s" % message)
+        
         self.to_notif({
             'event': 'testglobal',
             'timestamp': self.get_timestamp(),
@@ -708,6 +710,8 @@ class TestLoggerXml(object):
         """
         Log testplan error event
         """
+        self.to_notif_raw(value="script-error %s" % message)
+        
         self.to_notif({
             'event': 'testplan',
             'timestamp': self.get_timestamp(),
@@ -856,6 +860,8 @@ class TestLoggerXml(object):
         """
         Log testsuite error event
         """
+        self.to_notif_raw(value="script-error %s" % message)
+        
         self.to_notif({
             'event': 'testunit',
             'timestamp': self.get_timestamp(),
@@ -1002,6 +1008,8 @@ class TestLoggerXml(object):
         """
         Log testsuite error event
         """
+        self.to_notif_raw(value="script-error %s" % message)
+        
         self.to_notif({
             'event': 'testsuite',
             'timestamp': self.get_timestamp(),

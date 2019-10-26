@@ -33,6 +33,9 @@ except ImportError:  # for python3 support
     scandir = os
 import sys
 
+import lxml                                                                     
+from lxml import etree 
+
 # unicode = str with python3
 if sys.version_info > (3,):
     unicode = str
@@ -612,7 +615,10 @@ class RepoManager(Logger.ClassLogger):
                 f = open(complete_path, 'wb')
             else:
                 f = open(complete_path, 'w')
+
             f.write(content_decoded)
+            
+            
             f.close()
 
             return (self.context.CODE_OK,) + ret + (is_locked, lockedBy,)

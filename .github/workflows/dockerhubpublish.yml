@@ -1,0 +1,27 @@
+name: Publish to DockerHub
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build the Docker image
+      run: |
+        docker build ./src --file ./src/Dockerfile -t extensiveautomation-server
+    - name: Tag image
+      run: |
+        EA_VERSION=$(cat ./src/ea/VERSION)
+        EA_NAME="extensiveautomation"
+        docker tag ${EA_NAME}-server ${EA_NAME}/${EA_NAME}-server:${EA_VERSION}
+        docker tag ${EA_NAME}-server ${EA_NAME}/${EA_NAME}-server:latest
+    - name: Upload to DockerHub
+      run: |
+        docker login -u ${{ secrets.DOCKERHUB_LOGIN }} -p ${{ secrets.DOCKERHUB_PASSWORD }}
+        EA_VERSION=$(cat ./src/ea/VERSION)
+        EA_NAME="extensiveautomation"
+        docker push ${EA_NAME}/${EA_NAME}-server:latest
+        docker push ${EA_NAME}/${EA_NAME}-server:${EA_VERSION}

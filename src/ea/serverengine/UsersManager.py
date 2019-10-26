@@ -129,7 +129,7 @@ class UsersManager(Logger.ClassLogger):
             return (self.context.CODE_ERROR, "unable to read user by name")
         if len(res):
             return (self.context.CODE_ALREADY_EXISTS,
-                    "this user name already exists")
+                    "this user name (%s) already exists" % login)
 
         self.trace(level)
         admin = 0
