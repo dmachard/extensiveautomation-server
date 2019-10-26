@@ -18,7 +18,7 @@ jobs:
         EA_VERSION=$(cat ./src/ea/VERSION)
         EA_NAME="extensiveautomation"
         cd ..
-        tar -zcvf ${EA_NAME}-server-${EA_VERSION}.tar.gz ${EA_NAME}-server/
+        tar -zcvf ${EA_NAME}-server-${EA_VERSION}.tar.gz ${EA_NAME}-server/ --exclude .git
         cd ${EA_NAME}-server/
     - name: Upload to Website
       run: |
