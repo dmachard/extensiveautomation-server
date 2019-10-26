@@ -30,5 +30,5 @@ jobs:
         echo ${EA_VERSION} > RELEASE_SERVER_VERSION
         date +'%F' > RELEASE_SERVER_DATE
         export SSHPASS=${{ secrets.WEBSITE_PASSWORD }}
-        sshpass -e scp -P 9443 RELEASE_SERVER_* ${{ secrets.WEBSITE_LOGIN }}@${EA_NAME}.org:/home/upload_versions
-        sshpass -e scp -P 9443 ../${EA_NAME}-server-${EA_VERSION}.tar.gz ${{ secrets.WEBSITE_LOGIN }}@${EA_NAME}.org:/home/upload/server
+        sshpass -e scp -P 9443 -o StrictHostKeyChecking=no RELEASE_SERVER_* ${{ secrets.WEBSITE_LOGIN }}@${EA_NAME}.org:/home/upload_versions
+        sshpass -e scp -P 9443 -o StrictHostKeyChecking=no  ../${EA_NAME}-server-${EA_VERSION}.tar.gz ${{ secrets.WEBSITE_LOGIN }}@${EA_NAME}.org:/home/upload/server
