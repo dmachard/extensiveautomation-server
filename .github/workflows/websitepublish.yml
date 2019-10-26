@@ -1,0 +1,27 @@
+name: Publish to Website
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: "3.7"
+    - name: Build tar.gz package
+      run: |
+        python setup.py sdist
+    - name: Upload to Website
+      run: |
+        touch RELEASE_SERVER_DATE
+        touch RELEASE_SERVER_VERSION
+        cat ./src/ea/VERSION > RELEASE_SERVER_VERSION
+        date +'%F' > RELEASE_SERVER_DATE
+        curl --insecure --user ${{ secrets.WEBSITE_LOGIN }}:${{ secrets.WEBSITE_PASSWORD }} -T RELEASE_APPCLIENT_DATE sftp://extensiveautomation.org:9443/home/upload_versions/
+        curl --insecure --user ${{ secrets.WEBSITE_LOGIN }}:${{ secrets.WEBSITE_PASSWORD }} -T RELEASE_APPCLIENT_VERSION sftp://extensiveautomation.org:9443/home/upload_versions/
+        curl --insecure --user ${{ secrets.WEBSITE_LOGIN }}:${{ secrets.WEBSITE_PASSWORD }} -T rr.json sftp://extensiveautomation.org:9443/home/upload/server/
