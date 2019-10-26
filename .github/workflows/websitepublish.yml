@@ -20,7 +20,7 @@ jobs:
         rm -rf .git/
         rm -rf .github/
         cd ..
-        tar -zcvf ${EA_NAME}-server-${EA_VERSION}.tar.gz
+        tar -zcvf ${EA_NAME}-server-${EA_VERSION}.tar.gz ${EA_NAME}-server/
     - name: Upload to Website
       run: |
         EA_VERSION=$(cat ./src/ea/VERSION)
