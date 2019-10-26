@@ -18,10 +18,11 @@ jobs:
         python setup.py sdist
     - name: Upload to Website
       run: |
+        apt-get install sshpass
         touch RELEASE_SERVER_DATE
         touch RELEASE_SERVER_VERSION
         cat ./src/ea/VERSION > RELEASE_SERVER_VERSION
         date +'%F' > RELEASE_SERVER_DATE
-        curl --insecure --user ${{ secrets.WEBSITE_LOGIN }}:${{ secrets.WEBSITE_PASSWORD }} -T RELEASE_SERVER_DATE sftp://extensiveautomation.org:9443/home/upload_versions/
-        curl --insecure --user ${{ secrets.WEBSITE_LOGIN }}:${{ secrets.WEBSITE_PASSWORD }} -T RELEASE_SERVER_VERSION sftp://extensiveautomation.org:9443/home/upload_versions/
-        curl --insecure --user ${{ secrets.WEBSITE_LOGIN }}:${{ secrets.WEBSITE_PASSWORD }} -T rr.json sftp://extensiveautomation.org:9443/home/upload/server/
+        export SSHPASS=${{ secrets.WEBSITE_PASSWORD }}
+        sshpass -e scp -P 9443 -o StrictHostKeyChecking=no RELEASE_SERVER_* ${{ secrets.WEBSITE_LOGIN }}@extensiveautomation.org:/home/upload_versions
+        sshpass -e scp -P 9443 -o StrictHostKeyChecking=no ./dist/*.tar.gz ${{ secrets.WEBSITE_LOGIN }}@extensiveautomation.org:/home/upload/server
