@@ -22,6 +22,6 @@ jobs:
         touch RELEASE_SERVER_VERSION
         cat ./src/ea/VERSION > RELEASE_SERVER_VERSION
         date +'%F' > RELEASE_SERVER_DATE
-        curl --insecure --user ${{ secrets.WEBSITE_LOGIN }}:${{ secrets.WEBSITE_PASSWORD }} -T RELEASE_APPCLIENT_DATE sftp://extensiveautomation.org:9443/home/upload_versions/
-        curl --insecure --user ${{ secrets.WEBSITE_LOGIN }}:${{ secrets.WEBSITE_PASSWORD }} -T RELEASE_APPCLIENT_VERSION sftp://extensiveautomation.org:9443/home/upload_versions/
+        curl --insecure --user ${{ secrets.WEBSITE_LOGIN }}:${{ secrets.WEBSITE_PASSWORD }} -T RELEASE_SERVER_DATE sftp://extensiveautomation.org:9443/home/upload_versions/
+        curl --insecure --user ${{ secrets.WEBSITE_LOGIN }}:${{ secrets.WEBSITE_PASSWORD }} -T RELEASE_SERVER_VERSION sftp://extensiveautomation.org:9443/home/upload_versions/
         curl --insecure --user ${{ secrets.WEBSITE_LOGIN }}:${{ secrets.WEBSITE_PASSWORD }} -T rr.json sftp://extensiveautomation.org:9443/home/upload/server/
