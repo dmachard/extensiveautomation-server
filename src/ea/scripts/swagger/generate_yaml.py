@@ -21,15 +21,17 @@
 # MA 02110-1301 USA
 # -------------------------------------------------------------------
 
+import inspect
+import ast
+import sys
+import os
+
+sys.path.insert(0, '../../../')
+
 from ea.servercontrols import RestAdminFunctions as AdminFunctions
 from ea.servercontrols import RestTesterFunctions as TesterFunctions
 from ea.servercontrols import RestCommonFunctions as CommonFunctions
 from ea.libs import Settings
-import inspect
-import ast
-import sys
-sys.path.insert(0, '../../../')
-
 
 # initialize settings module to read the settings.ini file
 Settings.initialize(path="./")

@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   description: Control your test server with Extensive Automation API
-  version: 21.1.0
+  version: 21.4.0
   title: Swagger Tester - Extensive Automation
   contact:
     email: d.machard@gmail.com
@@ -51,11 +51,58 @@ paths:
               {
                 "cmd": "/adapters/adapter/add",
                 "message": "adapter added"
-              }
+             }
         '400':
           description: Bad request provided
         '401':
           description: unauthorized
+  /rest/adapters/check/syntax:
+    post:
+      tags:
+        - adapters
+      summary: check the syntax of a adapter
+      description: ''
+      operationId: adaptersCheckSyntax
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ file-content ]
+            properties:
+              file-content:
+                type: string
+      responses:
+        '200':
+          schema :
+            properties:
+              cmd:
+                type: string
+              success:
+                type: boolean
+              syntax-error:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/adapters/check/syntax",
+                "file-content": "...."
+              }
+        '400':
+          description: Bad request provided
+        '403':
+          description: Access denied to this project
+        '500':
+          description: Server error
   /rest/adapters/directory/add:
     post:
       tags:
@@ -96,7 +143,7 @@ paths:
               {
                 "cmd": "/adapters/directory/add",
                 "message": "directory successfully added"
-              }
+             }
         '400':
           description: Bad request provided
         '500':
@@ -154,7 +201,7 @@ paths:
               {
                 "cmd": "/adapters/directory/rename",
                 "message": "directory successfully renamed"
-              }
+             }
         '400':
           description: Bad request provided
         '500':
@@ -210,7 +257,7 @@ paths:
               {
                 "cmd": "/adapters/directory/move",
                 "message": "directory successfully moved"
-              }
+             }
         '400':
           description: Bad request provided
         '500':
@@ -255,7 +302,7 @@ paths:
               {
                 "cmd": "/adapters/directory/remove",
                 "message": "directory successfully removed"
-              }
+             }
         '400':
           description: Bad request provided
         '500':
@@ -315,7 +362,7 @@ paths:
               {
                 "cmd": "/adapters/directory/rename",
                 "message": "directory successfully renamed"
-              }
+             }
         '400':
           description: Bad request provided
         '500':
@@ -360,7 +407,7 @@ paths:
               {
                 "cmd": "/adapters/file/download",
                 "file-content": "...."
-              }
+             }
         '400':
           description: Bad request provided
         '500':
@@ -422,7 +469,7 @@ paths:
               {
                 "cmd": "/adapters/file/rename",
                 "message": "file successfully renamed"
-              }
+             }
         '400':
           description: Bad request provided
         '500':
@@ -480,7 +527,7 @@ paths:
               {
                 "cmd": "/adapters/file/move",
                 "message": "file successfully moved"
-              }
+             }
         '400':
           description: Bad request provided
         '500':
@@ -525,7 +572,7 @@ paths:
               {
                 "cmd": "/adapters/file/open",
                 "file-content": "...."
-              }
+             }
         '400':
           description: Bad request provided
         '500':
@@ -568,7 +615,7 @@ paths:
               {
                 "cmd": "/adapters/file/remove",
                 "message": "file successfully removed"
-              }
+             }
         '400':
           description: Bad request provided
         '500':
@@ -630,7 +677,7 @@ paths:
               {
                 "cmd": "/adapters/file/rename",
                 "message": "file successfully renamed"
-              }
+             }
         '400':
           description: Bad request provided
         '500':
@@ -677,7 +724,7 @@ paths:
               {
                 "cmd": "/adapters/file/unlock",
                 "message": "file successfully unlocked"
-              }
+             }
         '400':
           description: Bad request provided
         '500':
@@ -734,7 +781,7 @@ paths:
               {
                 "cmd": "/adapters/file/upload",
                 "code": 200
-              }
+             }
         '400':
           description: Bad request provided
         '500':
@@ -770,7 +817,7 @@ paths:
               {
                 "cmd": "/adapters/listing",
                 "adapters-listing": "...."
-              }
+             }
         '400':
           description: Bad request provided
         '500':
@@ -814,7 +861,7 @@ paths:
               {
                 "cmd": "/agents/disconnect",
                 "message: "agent successfully disconnected"
-              }
+             }
         '400':
           description: Bad request provided
         '404':
@@ -852,7 +899,7 @@ paths:
               {
                 "cmd": "/agents/running",
                 "agents-running": ...
-              }
+             }
   /rest/results/comment/add:
     post:
       tags:
@@ -909,7 +956,7 @@ paths:
                 "test-id": "7dcc4836-e989-49eb-89b7-5ec1351d2ced",
                 "save-as": False,
                 "save-as-dest: ""
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -970,13 +1017,62 @@ paths:
                 "test-id": "7dcc4836-e989-49eb-89b7-5ec1351d2ced",
                 "save-as": False,
                 "save-as-dest: ""
-              }
+             }
         '400':
           description: Bad request provided
         '403':
           description: Access denied to this project
         '404':
           description: Test result by id not found
+        '500':
+          description: Server error
+  /rest/results/details:
+    post:
+      tags:
+        - results
+      summary: Get details of the test result
+      description: ''
+      operationId: resultsDetails
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ test-id, project-id ]
+            properties:
+              test-id:
+                type: string
+              project-id:
+                type: string
+      responses:
+        '200':
+          schema :
+            properties:
+              cmd:
+                type: string
+              results:
+                type: string
+              project-id:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/results/details",
+                "project-id": 25
+             }
+        '400':
+          description: Bad request provided
+        '403':
+          description: Access denied to this project
         '500':
           description: Server error
   /rest/results/download/image:
@@ -1026,7 +1122,7 @@ paths:
                 "cmd": "/results/download/image",
                 "image": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV....",
                 "test-id": "7dcc4836-e989-49eb-89b7-5ec1351d2ced"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -1098,7 +1194,7 @@ paths:
                 "test-id": "7dcc4836-e989-49eb-89b7-5ec1351d2ced",
                 "save-as": False,
                 "save-as-dest: ""
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -1162,7 +1258,7 @@ paths:
                 "test-id": "7dcc4836-e989-49eb-89b7-5ec1351d2ced",
                 "save-as": False,
                 "save-as-dest: ""
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -1213,7 +1309,57 @@ paths:
               {
                 "cmd": "/results/follow",
                 "project-id": 25
-              }
+             }
+        '400':
+          description: Bad request provided
+        '403':
+          description: Access denied to this project
+        '500':
+          description: Server error
+  /rest/results/listing/basic:
+    post:
+      tags:
+        - results
+      summary: Get the listing id of all tests results.
+      description: ''
+      operationId: resultsListingIdByDatetime
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ project-id ]
+            properties:
+              project-id:
+                type: integer
+      responses:
+        '200':
+          description: all tests results with id
+          schema :
+            properties:
+              cmd:
+                type: string
+              listing:
+                type: array
+                items:
+                  type: object
+              project-id:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/results/listing/basic",
+                "listing":  [...]
+             }
         '400':
           description: Bad request provided
         '403':
@@ -1269,14 +1415,14 @@ paths:
                 "nb-folders": 2,
                 "nb-files":  2,
                 "statistics": {...}
-              }
+             }
         '400':
           description: Bad request provided
         '403':
           description: Access denied to this project
         '500':
           description: Server error
-  /rest/results/listing/id/by/datetime:
+  /rest/results/listing/by/id/datetime:
     post:
       tags:
         - results
@@ -1323,9 +1469,9 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/results/listing/id/by/datetime",
+                "cmd": "/results/listing/by/id/datetime",
                 "listing":  [...]
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -1377,7 +1523,7 @@ paths:
                 "cmd": "/results/remove/by/date",
                 "message": "xxxxxxx",
                 "project-id": 25
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -1431,7 +1577,7 @@ paths:
                 "cmd": "/results/remove",
                 "message": "xxxx",
                 "project-id": 25
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -1487,7 +1633,7 @@ paths:
                 "cmd": "/results/reports",
                 "test-id": "7dcc4836-e989-49eb-89b7-5ec1351d2ced",
                 "comments": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV....",
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -1544,7 +1690,7 @@ paths:
                 "test-id": "7dcc4836-e989-49eb-89b7-5ec1351d2ced",
                 "design": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV....",
                 "xml-design": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV...."
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -1600,7 +1746,7 @@ paths:
                 "cmd": "/results/reports",
                 "test-id": "7dcc4836-e989-49eb-89b7-5ec1351d2ced",
                 "events": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV...."
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -1656,7 +1802,7 @@ paths:
                 "test-id": "7dcc4836-e989-49eb-89b7-5ec1351d2ced",
                 "basic-review": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV....",
                 "review": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV...."
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -1713,7 +1859,7 @@ paths:
                 "test-id": "7dcc4836-e989-49eb-89b7-5ec1351d2ced",
                 "verdict": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV....",
                 "xml-verdict": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV...."
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -1776,7 +1922,7 @@ paths:
                 "xml-design": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV....",
                 "comments": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV....",
                 "events": "eJztfHnPq9iZ5/+R+ju8qqiVbjkV...."
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -1834,7 +1980,7 @@ paths:
                 "test-status": "running",
                 "test-id": "af0b2587-459e-42eb-a4da-e3e6fa227719",
                 "test-progress": 25
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -1880,7 +2026,7 @@ paths:
               {
                 "cmd": "/results/upload/file",
                 "message": "success"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -1934,7 +2080,7 @@ paths:
                 "cmd": "/results/verdict",
                 "test-verdict": "undefined",
                 "test-id": "af0b2587-459e-42eb-a4da-e3e6fa227719"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -1943,7 +2089,7 @@ paths:
           description: Test result not found
         '500':
           description: Server error
-  /rest/tests/basic/listing:
+  /rest/tests/listing/basic:
     post:
       tags:
         - tests
@@ -1983,10 +2129,10 @@ paths:
           examples:
             application/json: |
               {
-                "cmd": "/tests/basic/listing",
+                "cmd": "/tests/listing/basic",
                 "listing": ["/Snippets/UI/03_OpenBrowser.tux", "/Snippets/UI/05_MaximizeBrowser.tux"],
                 "project-id": 1
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -2044,7 +2190,7 @@ paths:
                 "cmd": "/tests/check/syntax/string",
                 "status": True,
                 "error-msg": "...."
-              }
+             }
         '400':
           description: Bad request provided
         '500':
@@ -2100,7 +2246,7 @@ paths:
                 "cmd": "/tests/check/syntax/tpg",
                 "status": True,
                 "error-msg": "...."
-              }
+             }
         '400':
           description: Bad request provided
         '500':
@@ -2158,7 +2304,7 @@ paths:
                 "cmd": "/tests/check/design",
                 "status": True,
                 "error-msg": "...."
-              }
+             }
         '400':
           description: Bad request provided
         '500':
@@ -2216,9 +2362,59 @@ paths:
                 "cmd": "/tests/check/design/tpg",
                 "status": True,
                 "error-msg": "...."
-              }
+             }
         '400':
           description: Bad request provided
+        '500':
+          description: Server error
+  /rest/tests/listing/dict:
+    post:
+      tags:
+        - tests
+      summary: Get the listing of all tests in dict mode.
+      description: ''
+      operationId: testsDictListing
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ project-id ]
+            properties:
+              project-id:
+                type: integer
+      responses:
+        '200':
+          schema :
+            properties:
+              cmd:
+                type: string
+              listing:
+                type: array
+                items:
+                  type: string
+              project-id:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/tests/listing/dict",
+                "listing": {},
+                "project-id": 1
+             }
+        '400':
+          description: Bad request provided
+        '403':
+          description: Access denied to this project
         '500':
           description: Server error
   /rest/tests/directory/add:
@@ -2263,7 +2459,7 @@ paths:
               {
                 "cmd": "/tests/directory/add",
                 "message": "directory successfully added"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -2327,7 +2523,7 @@ paths:
               {
                 "cmd": "/tests/directory/rename",
                 "message": "directory successfully renamed"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -2389,7 +2585,7 @@ paths:
               {
                 "cmd": "/tests/directory/move",
                 "message": "directory successfully moved"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -2436,7 +2632,7 @@ paths:
               {
                 "cmd": "/tests/directory/remove",
                 "message": "directory successfully removed"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -2498,7 +2694,7 @@ paths:
               {
                 "cmd": "/tests/directory/rename",
                 "message": "directory successfully renamed"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -2545,7 +2741,7 @@ paths:
               {
                 "cmd": "/tests/file/download",
                 "file-content": "...."
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -2611,7 +2807,7 @@ paths:
               {
                 "cmd": "/tests/file/rename",
                 "message": "file successfully renamed"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -2679,7 +2875,7 @@ paths:
               {
                 "cmd": "/tests/file/move",
                 "message": "file successfully moved"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -2738,7 +2934,7 @@ paths:
               {
                 "cmd": "/tests/file/open",
                 "file-content": "...."
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -2785,7 +2981,7 @@ paths:
               {
                 "cmd": "/tests/file/remove",
                 "message": "file successfully removed"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -2851,7 +3047,7 @@ paths:
               {
                 "cmd": "/tests/file/rename",
                 "message": "file successfully renamed"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -2902,7 +3098,7 @@ paths:
               {
                 "cmd": "/tests/file/unlock",
                 "message": "file successfully unlocked"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -2961,7 +3157,7 @@ paths:
               {
                 "cmd": "/tests/file/upload",
                 "code": 200
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -3008,7 +3204,7 @@ paths:
               {
                 "cmd": "/tests/find/file-usage",
                 "folder-content": {}
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -3062,7 +3258,7 @@ paths:
                 "cmd": "/tests/listing",
                 "listing": [],
                 "project-id": 1
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -3181,7 +3377,7 @@ paths:
                 "task-id": "",
                 "tab-id": ""
                 "test-name": ""
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -3237,7 +3433,7 @@ paths:
               {
                 "cmd": "/tests/schedule/group",
                 "message": "success"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -3348,7 +3544,7 @@ paths:
             application/json: |
               {
                 "cmd": "/tests/schedule/tpg"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -3402,7 +3598,7 @@ paths:
                 "message": "variable successfully added",
                 "cmd": "/variables/add",
                 "variable-id": "95"
-              }
+             }
         '400':
           description: Bad request provided | Bad project id provided | Bad json provided in value
         '403':
@@ -3453,7 +3649,7 @@ paths:
                 "message": "variable successfully duplicated",
                 "cmd": "/variables/duplicate",
                 "variable-id": "95"
-              }
+             }
         '400':
           description: Bad request provided | Bad project id provided | Bad json provided in value
         '403':
@@ -3520,10 +3716,10 @@ paths:
                                 "id": 1,
                                 "value": false,
                                 "name": "DEBUG"
-                               }
+                              }
                             ],
                 "cmd": "/variables/listing"
-              }
+             }
         '400':
           description: Bad request provided | Bad project id provided | Bad json provided in value
         '403':
@@ -3571,7 +3767,7 @@ paths:
               {
                 "message": "variable successfully removed",
                 "cmd": "/variables/remove"
-              }
+             }
         '400':
           description: Bad request provided | Bad project id provided | Bad json provided in value
         '403':
@@ -3652,9 +3848,9 @@ paths:
                               "id": 95,
                               "value": "1.0",
                               "name": "VAR_AUTO"
-                            },
+                           },
                 "cmd": "/variables/search/by/id"
-              }
+             }
         '400':
           description: Bad request provided | Bad project id provided | Bad json provided in value
         '403':
@@ -3735,9 +3931,9 @@ paths:
                               "id": 95,
                               "value": "1.0",
                               "name": "VAR_AUTO"
-                            },
+                           },
                 "cmd": "/variables/search/by/name"
-              }
+             }
         '400':
           description: Bad request provided | Bad project id provided | Bad json provided in value
         '403':
@@ -3792,7 +3988,7 @@ paths:
               {
                 "message": "variable successfully updated",
                 "cmd": "/variables/update"
-              }
+             }
         '400':
           description: Bad request provided | Bad project id provided | Bad json provided in value
         '403':

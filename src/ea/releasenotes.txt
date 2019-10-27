@@ -8,3 +8,4 @@
 		4. (minor): new specific python module for variables management
 	Issues Fixed
 		1. (minor): fix bad json import in 03_Initialize snippet
+		2. (minor): fix swagger generation
