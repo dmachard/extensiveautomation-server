@@ -40,6 +40,7 @@ except ImportError:
 
 from ea.serverengine import DbManager
 from ea.serverengine import UsersManager
+from ea.serverengine import VariablesManager
 from ea.serverengine import ProjectsManager
 from ea.libs import Settings, Logger
 from ea.serverinterfaces import EventServerInterface as ESI
@@ -556,7 +557,7 @@ class Context(Logger.ClassLogger):
 
         testEnvironment = []
         for prj in projects:
-            vars_list = RepoTests.instance().cacheVars()
+            vars_list = VariablesManager.instance().cacheVars()
 
             env_filtered = []
             for var in vars_list:

@@ -31,7 +31,8 @@ from ea.libs import Settings
 from ea.serverengine import (Context,
                              ProjectsManager,
                              TaskManager,
-                             UsersManager
+                             UsersManager,
+                             VariablesManager
                              )
 from ea.serverrepositories import (RepoAdapters,
                                    RepoTests,
@@ -1790,7 +1791,7 @@ class VariablesReset(HandlerCORS):
         if not projectAuthorized:
             raise HTTP_403('Access denied to this project')
 
-        success, details = RepoTests.instance().delVariablesInDB(projectId=projectId)
+        success, details = VariablesManager.instance().delVariablesInDB(projectId=projectId)
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
 

@@ -287,7 +287,7 @@ class ProjectsManager(Logger.ClassLogger):
             return (self.context.CODE_ERROR, "unable to read project's table")
         if len(dbRows):
             return (self.context.CODE_ALREADY_EXISTS,
-                    "this name already exists")
+                    "this name (%s) already exists" % projectName)
 
         # insert in db
         sql = """INSERT INTO `%s`(`name`, `active`) VALUES(?, '1')""" % (

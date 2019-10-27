@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   description: Control your test server with Extensive Automation API
-  version: 21.1.0
+  version: 21.4.0
   title: Swagger Common - Extensive Automation
   contact:
     email: d.machard@gmail.com
@@ -51,7 +51,7 @@ paths:
               {
                 "cmd": "/administration/projects/search/by/name",
                 "project: {}
-              }
+             }
         '400':
           description: Bad request provided
         '500':
@@ -99,7 +99,7 @@ paths:
               {
                 "cmd": "/administration/users/password/update",
                 "message: "password successfully updated"
-              }
+             }
         '400':
           description: Bad request provided
         '404':
@@ -167,7 +167,7 @@ paths:
               {
                 "cmd": "/administration/users/update",
                 "message: "user successfully updated"
-              }
+             }
         '400':
           description: Bad request provided
         '404':
@@ -203,7 +203,7 @@ paths:
               {
                 "context": "xxxxxxxxxxxx",
                 "cmd": "/session/context"
-              }
+             }
         '401':
           description: Access denied
   /rest/session/context/all:
@@ -235,7 +235,7 @@ paths:
               {
                 "context": "xxxxxxxxxxxx",
                 "cmd": "/session/context"
-              }
+             }
         '401':
           description: Access denied
   /rest/session/context/notify:
@@ -266,7 +266,7 @@ paths:
               {
                 "message": "success",
                 "cmd": "/session/context/notify"
-              }
+             }
         '401':
           description: Access denied
   /rest/session/login:
@@ -326,7 +326,7 @@ paths:
                 "session_id": "NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M",
                 "message": "Logged in",
                 "project_id": 1
-              }
+             }
           headers:
             Set-Cookie:
               type: string
@@ -365,7 +365,7 @@ paths:
               {
                 "message": "logged out",
                 "cmd": "/session/logout"
-              }
+             }
           headers:
             Set-Cookie:
               type: string
@@ -400,7 +400,7 @@ paths:
               {
                 "message": "session refreshed",
                 "cmd": "/session/refresh"
-              }
+             }
           headers:
             Set-Cookie:
               type: string
@@ -449,9 +449,9 @@ paths:
           examples:
             application/json: |
               {
-                "about": { 'rn': '...', 'core': '...', 'version': '...'},
+                "about": {'rn': '...', 'core': '...', 'version': '...'},
                 "cmd": "/system/about"
-              }
+             }
         '401':
           description: Access denied
   /rest/system/status:
@@ -482,7 +482,7 @@ paths:
               {
                 "status": 'OK',
                 "cmd": "/system/status"
-              }
+             }
         '401':
           description: Access denied
   /rest/tasks/cancel:
@@ -523,7 +523,7 @@ paths:
               {
                 "message": "task successfully cancelled",
                 "cmd": "/tasks/cancel"
-              }
+             }
         '401':
           description: Access denied
   /rest/tasks/cancel/selective:
@@ -566,7 +566,7 @@ paths:
               {
                 "message": "tasks successfully cancelled",
                 "cmd": "/tasks/cancel/selective"
-              }
+             }
         '401':
           description: Access denied
   /rest/tasks/comment:
@@ -610,7 +610,7 @@ paths:
               {
                 "message": "comment added with success",
                 "cmd": "/tasks/comment"
-              }
+             }
         '401':
           description: Access denied
   /rest/tasks/design:
@@ -650,7 +650,7 @@ paths:
               {
                 "message": "task replayed with success",
                 "cmd": "/tasks/replay"
-              }
+             }
         '401':
           description: Access denied
   /rest/tasks/history:
@@ -684,7 +684,7 @@ paths:
               {
                 "tasks-history": [],
                 "cmd": "/tasks/history"
-              }
+             }
         '401':
           description: Access denied
   /rest/tasks/history/all:
@@ -718,7 +718,7 @@ paths:
               {
                 "tasks-history": [],
                 "cmd": "/tasks/history/all"
-              }
+             }
         '401':
           description: Access denied
   /rest/tasks/kill:
@@ -759,7 +759,7 @@ paths:
               {
                 "message": "task successfully killed",
                 "cmd": "/tasks/kill"
-              }
+             }
         '401':
           description: Access denied
   /rest/tasks/kill/selective:
@@ -802,7 +802,80 @@ paths:
               {
                 "message": "tasks successfully killed",
                 "cmd": "/tasks/kill/selective"
-              }
+             }
+        '401':
+          description: Access denied
+  /rest/tasks/listing:
+    get:
+      tags:
+        - tasks
+      summary: Get a listing of all tasks
+      description: ''
+      operationId: tasksListing
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
+          required: true
+          type: string
+      responses:
+        '200':
+          description: tasks listing
+          schema :
+            properties:
+              cmd:
+                type: string
+              tasks-listing:
+                type: array
+          examples:
+            application/json: |
+              {
+                "tasks-listing": [],
+                "cmd": "/tasks/listing"
+             }
+        '401':
+          description: Access denied
+  /rest/tasks/remove:
+    post:
+      tags:
+        - tasks
+      summary: Remove task from task manager
+      description: ''
+      operationId: tasksRemove
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ task-id ]
+            properties:
+              task-id:
+                type: integer
+                description: task id to remove
+      responses:
+        '200':
+          description: Task successfully removed
+          schema :
+            properties:
+              cmd:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "message": "task successfully removed",
+                "cmd": "/tasks/remove"
+             }
         '401':
           description: Access denied
   /rest/tasks/replay:
@@ -842,7 +915,7 @@ paths:
               {
                 "message": "task replayed with success",
                 "cmd": "/tasks/replay"
-              }
+             }
         '401':
           description: Access denied
   /rest/tasks/reschedule:
@@ -915,7 +988,7 @@ paths:
               {
                 "message": "task successfully rescheduled",
                 "cmd": "/tasks/reschedule"
-              }
+             }
         '401':
           description: Access denied
   /rest/tasks/review:
@@ -955,7 +1028,7 @@ paths:
               {
                 "message": "task replayed with success",
                 "cmd": "/tasks/review"
-              }
+             }
         '401':
           description: Access denied
   /rest/tasks/running:
@@ -989,9 +1062,114 @@ paths:
               {
                 "tasks-running": [],
                 "cmd": "/tasks/running"
-              }
+             }
         '401':
           description: Access denied
+  /rest/tasks/schedule:
+    post:
+      tags:
+        - tasks
+      summary: Schedule a task from task manager
+      description: ''
+      operationId: tasksSchedule
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: Cookie
+          in: header
+          description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            required: [ project-id, test-extension, test-path, test-name]
+            properties:
+              project-id:
+                type: integer
+              test-definition:
+                type: string
+              test-execution:
+                type: string
+              test-properties:
+                type: object
+              test-extension:
+                type: string
+              test-path:
+                type: string
+              test-name:
+                type: string
+              schedule-id:
+                type: integer
+                description: '0 => now, 1 => at, 2 => in'
+              schedule-at:
+                type: array
+                description: '[ Y,M,D,H,M,S ]'
+                items:
+                  type: integer
+              schedule-repeat:
+                type: integer
+              debug-enabled:
+                type: boolean
+              from-time:
+                type: array
+                description: '[ Y,M,D,H,M,S ]'
+                items:
+                  type: integer
+              to-time:
+                type: array
+                description: '[ Y,M,D,H,M,S ]'
+                items:
+                  type: integer
+              test-inputs:
+                type: array
+                description: Test inputs parameters can be used to overwrite the original test parameters
+                items:
+                  type: object
+                  required: [ name, value, type ]
+                  properties:
+                    name:
+                      type: string
+                    type:
+                      type: string
+                    value:
+                      type: string
+      responses:
+        '200':
+          description: tests listing
+          schema :
+            properties:
+              cmd:
+                type: string
+              test-id:
+                type: string
+              task-id:
+                type: string
+              tab-id:
+                type: string
+              test-name:
+                type: string
+              message:
+                type: string
+          examples:
+            application/json: |
+              {
+                "cmd": "/tests/schedule",
+                "message": ""
+                "test-id": "",
+                "task-id": "",
+                "tab-id": ""
+                "test-name": ""
+             }
+        '400':
+          description: Bad request provided
+        '403':
+          description: Access denied to this project
+        '500':
+          description: Server error
   /rest/tasks/verdict:
     post:
       tags:
@@ -1029,7 +1207,7 @@ paths:
               {
                 "message": "task replayed with success",
                 "cmd": "/tasks/verdict"
-              }
+             }
         '401':
           description: Access denied
   /rest/tasks/waiting:
@@ -1063,6 +1241,6 @@ paths:
               {
                 "tasks-waiting": [],
                 "cmd": "/tasks/waiting"
-              }
+             }
         '401':
           description: Access denied

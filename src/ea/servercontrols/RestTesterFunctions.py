@@ -32,7 +32,8 @@ from ea.libs import Settings
 from ea.serverengine import (Context,
                              ProjectsManager,
                              TaskManager,
-                             AgentsManager
+                             AgentsManager,
+                             VariablesManager
                              )
 from ea.serverrepositories import (RepoAdapters,
                                    RepoTests,
@@ -5929,7 +5930,7 @@ class VariablesAdd(HandlerCORS):
         except Exception:
             raise HTTP_400("Bad json provided in value")
 
-        success, details = RepoTests.instance().addVariableInDB(projectId=projectId,
+        success, details = VariablesManager.instance().addVariableInDB(projectId=projectId,
                                                                 variableName=variableName,
                                                                 variableValue=variableValue)
         if success == Context.instance().CODE_ERROR:
@@ -6022,7 +6023,7 @@ class VariablesDuplicate(HandlerCORS):
             user_login=user_profile['login'],
             project_id=projectId)
 
-        success, details = RepoTests.instance().duplicateVariableInDB(variableId=variableId,
+        success, details = VariablesManager.instance().duplicateVariableInDB(variableId=variableId,
                                                                       projectId=projectId)
         if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404(details)
@@ -6125,7 +6126,7 @@ class VariablesUpdate(HandlerCORS):
         except Exception:
             raise HTTP_400("Bad json provided in value")
 
-        success, details = RepoTests.instance().updateVariableInDB(variableId=variableId,
+        success, details = VariablesManager.instance().updateVariableInDB(variableId=variableId,
                                                                    variableName=variableName,
                                                                    variableValue=variableValue,
                                                                    projectId=projectId)
@@ -6216,7 +6217,7 @@ class VariablesRemove(HandlerCORS):
             user_login=user_profile['login'],
             project_id=projectId)
 
-        success, details = RepoTests.instance().delVariableInDB(
+        success, details = VariablesManager.instance().delVariableInDB(
             variableId=variableId, projectId=projectId)
         if success == Context.instance().CODE_NOT_FOUND:
             raise HTTP_404(details)
@@ -6316,7 +6317,7 @@ class VariablesListing(HandlerCORS):
             user_login=user_profile['login'],
             project_id=projectId)
 
-        success, details = RepoTests.instance().getVariablesFromDB(projectId=projectId)
+        success, details = VariablesManager.instance().getVariablesFromDB(projectId=projectId)
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
 
@@ -6433,7 +6434,7 @@ class VariablesSearchByName(HandlerCORS):
             user_login=user_profile['login'],
             project_id=projectId)
 
-        success, details = RepoTests.instance().getVariableFromDB(projectId=projectId,
+        success, details = VariablesManager.instance().getVariableFromDB(projectId=projectId,
                                                                   variableName=variableName)
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)
@@ -6553,7 +6554,7 @@ class VariablesSearchById(HandlerCORS):
             user_login=user_profile['login'],
             project_id=projectId)
 
-        success, details = RepoTests.instance().getVariableFromDB(projectId=projectId,
+        success, details = VariablesManager.instance().getVariableFromDB(projectId=projectId,
                                                                   variableId=variableId)
         if success == Context.instance().CODE_ERROR:
             raise HTTP_500(details)

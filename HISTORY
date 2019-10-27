@@ -1,3 +1,17 @@
+21.3.0
+	Date: 02/10/2019
+	What's new
+		1. (medium): REST API - new feature to read test logs line by line (/results/details)
+		2. (minor): docker image updated, curl command added by default
+		3. (medium): REST API - new feature to get a listing of all runs
+		4. (minor): new integration tests for github worflow
+		5. (medium): info messages added in Send_SSH snippet
+		6. (medium): info messages added in Send_HTTP_CURL snippet
+		7. (minor): test framework - duration added in result folder
+        8. (medium): project access granted to all projects for administrator
+	Issues Fixed
+		1. (minor): fix bad python3 support (Unicode-objects must be encoded before hashing) on REST API /rest/results/listing/by/id/datetime
+
 21.2.0
 	Date: 20/09/2019
 	What's new

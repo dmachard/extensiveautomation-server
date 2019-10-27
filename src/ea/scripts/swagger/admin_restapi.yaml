@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   description: Control your test server with Extensive Automation API
-  version: 21.1.0
+  version: 21.4.0
   title: Swagger Admin - Extensive Automation
   contact:
     email: d.machard@gmail.com
@@ -50,7 +50,7 @@ paths:
               {
                 "cmd": "/adapters/directory/remove/all",
                 "message": "all directories successfully removed"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -85,7 +85,7 @@ paths:
             application/json: |
               {
                 "cmd": "/administration/configurationg/listing"
-              }
+             }
         '403':
           description: Access refused
   /rest/administration/configuration/reload:
@@ -119,7 +119,7 @@ paths:
               {
                 "cmd": "/administration/configuration/reload",
                 "status": "reloaded"
-              }
+             }
         '403':
           description: Access refused
   /rest/administration/projects/add:
@@ -161,7 +161,7 @@ paths:
               {
                 "cmd": "/administration/projects/add",
                 "message: "project successfully added"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -199,7 +199,7 @@ paths:
               {
                 "cmd": "/administration/projects/listing",
                 "projects: "...."
-              }
+             }
         '400':
           description: Bad request provided
         '500':
@@ -243,7 +243,7 @@ paths:
               {
                 "cmd": "/administration/projects/remove",
                 "message: "project successfully removed"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -291,7 +291,7 @@ paths:
               {
                 "cmd": "/administration/projects/rename",
                 "message: "project successfully renamed"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -361,7 +361,7 @@ paths:
               {
                 "cmd": "/administration/users/add",
                 "message: "user successfully added"
-              }
+             }
         '400':
           description: Bad request provided
         '404':
@@ -407,7 +407,7 @@ paths:
               {
                 "cmd": "/administration/users/channel/disconnect",
                 "message: "user successfully disconnected"
-              }
+             }
         '400':
           description: Bad request provided
         '404':
@@ -451,7 +451,7 @@ paths:
               {
                 "cmd": "/administration/users/duplicate",
                 "message: "user successfully duplicated"
-              }
+             }
         '400':
           description: Bad request provided
         '404':
@@ -488,7 +488,7 @@ paths:
             application/json: |
               {
                 "cmd": "/administration/users/listing"
-              }
+             }
         '403':
           description: Access refused
         '500':
@@ -532,7 +532,7 @@ paths:
               {
                 "cmd": "/administration/users/password/reset",
                 "message: "password successfully reseted"
-              }
+             }
         '400':
           description: Bad request provided
         '404':
@@ -577,7 +577,7 @@ paths:
             application/json: |
               {
                 "cmd": "/administration/users/profile"
-              }
+             }
         '403':
           description: Access refused
         '404':
@@ -623,7 +623,7 @@ paths:
               {
                 "cmd": "/administration/users/remove",
                 "message: "user successfully removed"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -669,7 +669,7 @@ paths:
             application/json: |
               {
                 "cmd": "/administration/users/search"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -719,7 +719,7 @@ paths:
               {
                 "cmd": "/administration/users/status",
                 "message: "probe successfully disconnected"
-              }
+             }
         '400':
           description: Bad request provided
         '404':
@@ -767,7 +767,7 @@ paths:
               {
                 "cmd": "/results/reset",
                 "message": "xxxxxxxx"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -803,7 +803,7 @@ paths:
               {
                 "message": "tasks successfully cancelled",
                 "cmd": "/tasks/cancel/all"
-              }
+             }
         '403':
           description: Access refused
   /rest/tasks/history/clear:
@@ -835,7 +835,7 @@ paths:
               {
                 "message": "tasks successfully reseted",
                 "cmd": "/tasks/history/clear"
-              }
+             }
         '403':
           description: Access refused
         '500':
@@ -869,7 +869,7 @@ paths:
               {
                 "message": "tasks successfully killed",
                 "cmd": "/tasks/kill/all"
-              }
+             }
         '403':
           description: Access refused
   /rest/tests/directory/remove/all:
@@ -912,7 +912,7 @@ paths:
               {
                 "cmd": "/tests/directory/remove/all",
                 "message": "all directories successfully removed"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -963,7 +963,7 @@ paths:
               {
                 "cmd": "/rest/tests/snapshot/remove/all",
                 "message": "all snapshots removed"
-              }
+             }
         '400':
           description: Bad request provided
         '403':
@@ -1009,7 +1009,7 @@ paths:
               {
                 "message": "variables successfully reseted",
                 "cmd": "/variables/reset"
-              }
+             }
         '400':
           description: Bad request provided | Bad project id provided | Bad json provided in value
         '403':

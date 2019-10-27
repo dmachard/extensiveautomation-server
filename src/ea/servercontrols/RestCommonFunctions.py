@@ -192,9 +192,6 @@ class SessionLogin(HandlerCORS):
                 raise EmptyValue("Please specify password")
 
             channelId = self.request.data.get("channel-id")
-            # clientVersion = self.request.data.get("client-version")
-            # clientPlatform = self.request.data.get("client-platform")
-            # clientPortable = self.request.data.get("client-portable")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
