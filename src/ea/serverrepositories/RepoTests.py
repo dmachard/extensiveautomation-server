@@ -46,14 +46,6 @@ except NameError:  # support python3
     xrange = range
 
 
-def uniqid():
-    """
-    Return a unique id
-    """
-    from time import time
-    return hex(int(time() * 10000000))[2:]
-
-
 TS_ENABLED = "2"
 TS_DISABLED = "0"
 

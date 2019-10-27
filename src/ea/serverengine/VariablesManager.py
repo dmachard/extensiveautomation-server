@@ -25,7 +25,14 @@ import json
 
 from ea.serverengine import (DbManager)
 from ea.libs import Logger
-                      
+
+def uniqid():
+    """
+    Return a unique id
+    """
+    from time import time
+    return hex(int(time() * 10000000))[2:]
+      
 class VariablesManager(Logger.ClassLogger):
     """
     Variables manager class
