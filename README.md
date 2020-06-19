@@ -1,12 +1,13 @@
 # ExtensiveAutomation
 
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/extensiveautomation-server)
 ![](https://github.com/ExtensiveAutomation/extensiveautomation-server/workflows/Python%20Package/badge.svg)
 ![](https://github.com/ExtensiveAutomation/extensiveautomation-server/workflows/Docker%20Image/badge.svg)
 
 | | |
 | ------------- | ------------- |
 | ExtensiveAutomation | Python automation server |
-| Copyright |  Copyright (c) 2010-2019  Denis Machard <d.machard@gmail.com> |
+| Copyright |  Copyright (c) 2010-2020  Denis Machard <d.machard@gmail.com> |
 | License |  LGPL2.1 |
 | Homepage |  https://www.extensiveautomation.org/ |
 | Docs |  https://extensiveautomation.readthedocs.io/en/latest/ |
