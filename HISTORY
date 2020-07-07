@@ -1,3 +1,15 @@
+
+21.4.0
+	Date: 25/20/2019
+	What's new
+		1. (medium): test framework: info messages added on technical error 
+		2. (minor): test framework: task duration added in raw event
+		3. (minor): some errors messages improved
+		4. (minor): new specific python module for variables management
+	Issues Fixed
+		1. (minor): fix bad json import in 03_Initialize snippet
+		2. (minor): fix swagger generation
+        
 21.3.0
 	Date: 02/10/2019
 	What's new
