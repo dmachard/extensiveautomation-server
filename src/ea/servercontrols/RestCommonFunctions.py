@@ -217,7 +217,7 @@ class SessionLogin(HandlerCORS):
         userProfile = Context.instance().getSessions()[userSession]
 
         self.response.set_cookie(key="session_id", value=userSession,
-                                 expires='', path='/', domain="")
+                                 expires='', path='/', domain="", flags=["HttpOnly"])
 
         # get levels
         levels = Context.instance().getLevels(userProfile=userProfile)

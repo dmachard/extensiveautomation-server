@@ -1,12 +1,13 @@
 # ExtensiveAutomation
 
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/extensiveautomation-server)
 ![](https://github.com/ExtensiveAutomation/extensiveautomation-server/workflows/Python%20Package/badge.svg)
 ![](https://github.com/ExtensiveAutomation/extensiveautomation-server/workflows/Docker%20Image/badge.svg)
 
 | | |
 | ------------- | ------------- |
 | ExtensiveAutomation | Python automation server |
-| Copyright |  Copyright (c) 2010-2019  Denis Machard <d.machard@gmail.com> |
+| Copyright |  Copyright (c) 2010-2020  Denis Machard <d.machard@gmail.com> |
 | Licence |  LGPL2.1 |
 | Site web |  https://www.extensiveautomation.org/ |
 | Documentations |  https://extensiveautomation.readthedocs.io/fr/latest/ |
@@ -43,7 +44,7 @@ Le serveur peut s'exécuter avec Python 2 et Python 3, ainsi que sur Windows et 
 
 1. Exécuter la commande pip pour installer le serveur
 
-        python -m pip install extensiveautomation_server
+        python3 -m pip install extensiveautomation_server
 
 2. Après l'installation il est possible de démarrer le serveur avec la commande suivante
 
@@ -73,7 +74,7 @@ Le serveur peut s'exécuter avec Python 2 et Python 3, ainsi que sur Windows et 
    
     * Environnement Python3
     
-            python -m pip install wrapt pycnic lxml jsonpath_ng
+            python3 -m pip install wrapt pycnic lxml jsonpath_ng
           
     * Environnement Python2, il est nécessaire d'installer la librarie `libxslt` et modifier le fichier settings.ini:
     

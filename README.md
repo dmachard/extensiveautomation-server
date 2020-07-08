@@ -1,12 +1,13 @@
 # ExtensiveAutomation
 
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/extensiveautomation-server)
 ![](https://github.com/ExtensiveAutomation/extensiveautomation-server/workflows/Python%20Package/badge.svg)
 ![](https://github.com/ExtensiveAutomation/extensiveautomation-server/workflows/Docker%20Image/badge.svg)
 
 | | |
 | ------------- | ------------- |
 | ExtensiveAutomation | Python automation server |
-| Copyright |  Copyright (c) 2010-2019  Denis Machard <d.machard@gmail.com> |
+| Copyright |  Copyright (c) 2010-2020  Denis Machard <d.machard@gmail.com> |
 | License |  LGPL2.1 |
 | Homepage |  https://www.extensiveautomation.org/ |
 | Docs |  https://extensiveautomation.readthedocs.io/en/latest/ |
@@ -28,7 +29,7 @@
 	* [Connection to server with curl](#connection-to-server-with-curl)
 	* [Connection to server with the web client](#connection-to-server-with-the-web-client)
 	* [Connection to server with the app client](#connection-to-server-with-the-app-client)
-* [Securisation](#securisation)
+* [Security](#security)
 	* [Adding ReverseProxy](#reverse-proxy)
 	* [LDAP users authentication](#ldap-users-authentication)
 
@@ -43,7 +44,7 @@ The server can run on both Python 2 and Python 3, and also run on Linux and Wind
 
 1. Run the following command
 
-        python -m pip install extensiveautomation_server
+        python3 -m pip install extensiveautomation_server
 
 2. Type the following command on your shell to start the server
 
@@ -76,7 +77,7 @@ The server can run on both Python 2 and Python 3, and also run on Linux and Wind
    
     * Python3 environment
     
-            python -m pip install wrapt pycnic lxml jsonpath_ng
+            python3 -m pip install wrapt pycnic lxml jsonpath_ng
           
     * Python2 environment, the `libxslt` library must be installed and settings file updated
     
@@ -130,7 +131,20 @@ To use the server from the web interface, please to read the following [document
   
 To use the server from the rich application, please to read the following [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-appclient#qt-application-for-extensiveautomation).
 
-## Securisation
+## Execute a test from REST API
+
+Generate the api key for the admin user
+
+# python3 extensiveautomation.py --apikey admin
+API Key ID: admin
+API Key Secret: 69337fbeebcae1b864fce7d4e88f22cee0f164e9
+
+# python3 extensiveautomation.py --reload
+
+curl  --user admin:69337fbeebcae1b864fce7d4e88f22cee0f164e9 -d '{"project-id": 1,"test-extension": "yaml","test-name": "test","test-path": "/"}' -H "Content-Type: application/json" -X POST http://127.0.0.1:8081/tests/schedule
+
+
+## Security
 
 ### Adding reverse proxy
 

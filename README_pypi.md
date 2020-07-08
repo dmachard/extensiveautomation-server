@@ -2,7 +2,7 @@
 | | |
 | ------------- | ------------- |
 | ExtensiveAutomation | Python automation server |
-| Copyright |  Copyright (c) 2010-2019  Denis Machard <d.machard@gmail.com> |
+| Copyright |  Copyright (c) 2010-2020  Denis Machard <d.machard@gmail.com> |
 | License |  LGPL2.1 |
 | Homepage |  https://www.extensiveautomation.org/ |
 | Docs |  https://extensiveautomation.readthedocs.io/en/latest/ |
@@ -20,7 +20,7 @@ The server can run on both Python 2 and Python 3, and also run on Linux and Wind
 
 1. Run the following command
 
-        python -m pip install extensiveautomation_server
+        python3 -m pip install extensiveautomation_server
 
 2. Type the following command on your shell to start the server
 
