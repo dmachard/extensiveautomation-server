@@ -122,22 +122,22 @@ un par un en fonction de vos besoins.
             -d '{"login": "admin", "password": "password"}'
 
    success response:
+
+        {
+            "cmd": "/session/login", 
+            "message": "Logged in", 
+            "session_id": "MjA1OWI1OTc1MWM0NDU2NDg4MjQxMjRjNWFmN2FkNThhO", 
+            "expires": 86400, 
+            "user_id": 1, 
+            "levels": ["Administrator"], 
+            "project_id": 1, 
+            "api_login": "admin", 
+            "api_secret": "6977aa6a443bd3a6033ebb52557cf90d24c79857", 
+            "client-available": false, 
+            "version": "",
+            "name": ""
+        }
    
-```json
-{"cmd": "/session/login", 
-"message": "Logged in", 
-"session_id": "MjA1OWI1OTc1MWM0NDU2NDg4MjQxMjRjNWFmN2FkNThhO", 
-"expires": 86400, 
-"user_id": 1, 
-"levels": ["Administrator"], 
-"project_id": 1, 
-"api_login": "admin", 
-"api_secret": "6977aa6a443bd3a6033ebb52557cf90d24c79857", 
-"client-available": false, 
-"version": "",
-"name": ""}
-```
-        
 ### Connexion au serveur avec le client web
 
 Pour utiliser le serveur depuis l'interface web, merci de lire la [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-webclient#web-interface-for-extensiveautomation) suivante.
@@ -176,9 +176,14 @@ Curl command:
               
 Success response:
 
-        {"cmd": "/tests/schedule", "message": "background", 
-         "task-id": 2, "test-id": "e57aaa43-325d-468d-8cac-f1dea822ef3a", 
-         "tab-id": 0, "test-name": "01_testunit"}
+        {
+            "cmd": "/tests/schedule",
+            "message": "background", 
+            "task-id": 2,
+            "test-id": "e57aaa43-325d-468d-8cac-f1dea822ef3a", 
+            "tab-id": 0,
+            "test-name": "01_testunit"
+        }
         
 ### Récupérer les logs du test
 
@@ -191,14 +196,17 @@ Curl command:
         
 Success response:
 
-        {"cmd": "/results/details", "test-id": "e57aaa43-325d-468d-8cac-f1dea822ef3a", 
-         "test-status": "complete", 
-         "test-verdict": "pass", 
-         "test-logs": "10:50:10.7241 task-started
-         10:50:10.7243 script-started 01_testunit
-         10:50:10.7309 script-stopped PASS 0.007
-         10:50:10.7375 task-stopped 0.006909608840942383", 
-         "test-logs-index": 156}
+        {
+            "cmd": "/results/details",
+            "test-id": "e57aaa43-325d-468d-8cac-f1dea822ef3a", 
+            "test-status": "complete", 
+            "test-verdict": "pass", 
+            "test-logs": "10:50:10.7241 task-started
+            10:50:10.7243 script-started 01_testunit
+            10:50:10.7309 script-stopped PASS 0.007
+            10:50:10.7375 task-stopped 0.006909608840942383", 
+            "test-logs-index": 156
+        }
          
 ## Sécurisation
 
