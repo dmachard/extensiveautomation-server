@@ -120,7 +120,24 @@ un par un en fonction de vos besoins.
        curl -X POST http://127.0.0.1:8081/session/login \
             -H "Content-Type: application/json" \
             -d '{"login": "admin", "password": "password"}'
-            
+
+   success response:
+   
+        '''json
+        {"cmd": "/session/login", 
+        "message": "Logged in", 
+        "session_id": "MjA1OWI1OTc1MWM0NDU2NDg4MjQxMjRjNWFmN2FkNThhO", 
+        "expires": 86400, 
+        "user_id": 1, 
+        "levels": ["Administrator"], 
+        "project_id": 1, 
+        "api_login": "admin", 
+        "api_secret": "6977aa6a443bd3a6033ebb52557cf90d24c79857", 
+        "client-available": false, 
+        "version": "",
+        "name": ""}
+        '''
+        
 ### Connexion au serveur avec le client web
 
 Pour utiliser le serveur depuis l'interface web, merci de lire la [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-webclient#web-interface-for-extensiveautomation) suivante.
