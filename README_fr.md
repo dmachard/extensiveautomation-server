@@ -123,7 +123,7 @@ un par un en fonction de vos besoins.
 
    success response:
    
-        '''json
+        ```json
         {"cmd": "/session/login", 
         "message": "Logged in", 
         "session_id": "MjA1OWI1OTc1MWM0NDU2NDg4MjQxMjRjNWFmN2FkNThhO", 
@@ -136,7 +136,7 @@ un par un en fonction de vos besoins.
         "client-available": false, 
         "version": "",
         "name": ""}
-        '''
+        ```
         
 ### Connexion au serveur avec le client web
 

@@ -124,7 +124,7 @@ Plugins allow to interact with the system to be controlled. But by default the s
 
    success response:
    
-        '''json
+        ```json
         {"cmd": "/session/login", 
         "message": "Logged in", 
         "session_id": "MjA1OWI1OTc1MWM0NDU2NDg4MjQxMjRjNWFmN2FkNThhO", 
@@ -137,7 +137,7 @@ Plugins allow to interact with the system to be controlled. But by default the s
         "client-available": false, 
         "version": "",
         "name": ""}
-        '''
+        ```
         
 ### Connection to server with the web client
 
