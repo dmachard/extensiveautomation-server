@@ -76,17 +76,11 @@
 2. Installer les dépendances python suivantes avec la commande `pip`:
    
         python3 -m pip install wrapt pycnic lxml jsonpath_ng pyyaml
-          
-    Etape optionnelle, configuration du chemin d'accès pour accéder à python
-
-        vim src/ea/settings.ini
-        [Bin]
-        python=/usr/bin/python3
         
 3. Démarrer le serveur. Sur Linux, le serveur est exécuté en tant que daemon.
 
         cd src
-        python extensiveautomation.py --start
+        python3 extensiveautomation.py --start
         
 4. Enfin vérifier le [bon fonctionnement du serveur](#utilisation-de-la-commande-curl).
  
@@ -147,8 +141,10 @@ Tests samples are available in the default tests storage <projectpath_install>/v
 Curl command:
 
         curl  --user admin:6977aa6a443bd3a6033ebb52557cf90d24c79857 \
-              -d '{"project-id": 1,"test-extension": "yml","test-name": "01_testunit","test-path": "YAML_samples/Framework_Tests/"}' \
-              -H "Content-Type: application/json" -X POST http://127.0.0.1:8081/tests/schedule
+              -d '{"project-id": 1,"test-extension": "yml", "test-name": "01_testunit",
+              "test-path": "YAML_samples/Framework_Tests/"}' \
+              -H "Content-Type: application/json" \
+              -X POST http://127.0.0.1:8081/tests/schedule
               
 Success response:
 
@@ -162,7 +158,8 @@ Curl command:
 
         curl  --user admin:6977aa6a443bd3a6033ebb52557cf90d24c79857 \
               -d '{"test-id": "e57aaa43-325d-468d-8cac-f1dea822ef3a", "project-id": 1}' \
-              -H "Content-Type: application/json" -X POST http://127.0.0.1:8081/results/details
+              -H "Content-Type: application/json" \
+              -X POST http://127.0.0.1:8081/results/details
         
 Success response:
 

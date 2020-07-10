@@ -6,5 +6,6 @@
 		2. (medium): creation date removed from test model lib
 		3. (minor): new function from cli to get apisecret
 		4. (major): no more support of python version 2
+		5. (medium): docker updated with python3.8
 	Issues Fixed
 		1. (minor): add httponly flag on session cookie
