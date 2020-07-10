@@ -48,10 +48,10 @@ else:
 parser = OptionParser()
 if platform.system() != "Linux":
     parser.set_usage(
-        "./extensiveautomation.py [start|version|install_adapter|decodetrx|apikey|convert]")
+        "./extensiveautomation.py [start|version|install_adapter|decodetrx|apikey|apisecret|convert2yaml]")
 else:
     parser.set_usage("./extensiveautomation.py [start|stop|reload|version|\
-install_adapter|decodetrx|apikey|convert]")
+install_adapter|decodetrx|apikey|apisecret|convert2yaml]")
 
 parser.add_option('--start', dest='start', default=False,
                   action='store_true',
@@ -137,6 +137,13 @@ def cli():
         Cli.instance().decodeTrx(filename=args[0])
         sys.exit(0)
 
+    if options.install_adapter is True:
+        if not args:
+            parser.print_help()
+            sys.exit(2)
+        Cli.instance().installAdapter(name=args[0])
+        sys.exit(0)
+        
     if options.convert2yaml is True:
         Cli.instance().convert2yaml()
         sys.exit(0)
