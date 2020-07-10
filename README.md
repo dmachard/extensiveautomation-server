@@ -124,20 +124,20 @@ Plugins allow to interact with the system to be controlled. But by default the s
 
    success response:
    
-        ```json
-        {"cmd": "/session/login", 
-        "message": "Logged in", 
-        "session_id": "MjA1OWI1OTc1MWM0NDU2NDg4MjQxMjRjNWFmN2FkNThhO", 
-        "expires": 86400, 
-        "user_id": 1, 
-        "levels": ["Administrator"], 
-        "project_id": 1, 
-        "api_login": "admin", 
-        "api_secret": "6977aa6a443bd3a6033ebb52557cf90d24c79857", 
-        "client-available": false, 
-        "version": "",
-        "name": ""}
-        ```
+```json
+{"cmd": "/session/login", 
+"message": "Logged in", 
+"session_id": "MjA1OWI1OTc1MWM0NDU2NDg4MjQxMjRjNWFmN2FkNThhO", 
+"expires": 86400, 
+"user_id": 1, 
+"levels": ["Administrator"], 
+"project_id": 1, 
+"api_login": "admin", 
+"api_secret": "6977aa6a443bd3a6033ebb52557cf90d24c79857", 
+"client-available": false, 
+"version": "",
+"name": ""}
+```
         
 ### Connection to server with the web client
 
