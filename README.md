@@ -39,10 +39,7 @@
 
 ## Introduction
 
-**ExtensiveAutomation**  is a generic automation framework for integration, regression and end-to-end usages. The framework provided a rich and collaborative workspace environment. 
-The server can run on both Python 2 and Python 3, and also run on Linux and Windows.
-
-Note: No more support provided with Python 2!
+**ExtensiveAutomation**  is a generic automation framework in 100% Python for integration, regression and end-to-end usages. The framework provided a rich and collaborative workspace environment. 
 
 ## Server Installation
 
@@ -81,17 +78,14 @@ Note: No more support provided with Python 2!
  
 2. As precondition, install the additional python libraries with `pip` command: 
    
-    * Python3 environment
-    
-            python3 -m pip install wrapt pycnic lxml jsonpath_ng
-          
-    * Python2 environment, the `libxslt` library must be installed and settings file updated
-    
-            python -m pip install wrapt scandir pycnic lxml jsonpath_ng
+        python3 -m pip install wrapt pycnic lxml jsonpath_ng pyyaml
         
-            vim src/ea/settings.ini
+        
+   This step is optional, configure the python path according to your python environment
+    
+            vim <install>/ea/settings.ini
             [Bin]
-            python=/usr/bin/python2.7
+            python=/usr/bin/python3
             
 3. Start the server. On linux the server is running as daemon.
 

@@ -39,10 +39,7 @@
 
 ## Introduction
 
-**ExtensiveAutomation** est un framework générique pour automatiser les tâches de tests, d'exploitation et de déploiment.
-Le serveur peut s'exécuter avec Python 2 et Python 3, ainsi que sur Windows et Linux.
-
-Note: Plus de support avec Python 2
+**ExtensiveAutomation** est un framework générique en 100% python pour automatiser les tâches de tests, d'exploitation et de déploiment.
 
 ## Installation du serveur
 
@@ -78,17 +75,13 @@ Note: Plus de support avec Python 2
   
 2. Installer les dépendances python suivantes avec la commande `pip`:
    
-    * Environnement Python3
-    
-            python3 -m pip install wrapt pycnic lxml jsonpath_ng
+        python3 -m pip install wrapt pycnic lxml jsonpath_ng pyyaml
           
-    * Environnement Python2, il est nécessaire d'installer la librarie `libxslt` et modifier le fichier settings.ini:
-    
-            python -m pip install wrapt scandir pycnic lxml jsonpath_ng
-            
-            vim src/ea/settings.ini
-            [Bin]
-            python=/usr/bin/python2.7
+    Etape optionnelle, configuration du chemin d'accès pour accéder à python
+
+        vim src/ea/settings.ini
+        [Bin]
+        python=/usr/bin/python3
         
 3. Démarrer le serveur. Sur Linux, le serveur est exécuté en tant que daemon.
 
