@@ -1,0 +1,52 @@
+properties:
+  descriptions:
+    author: admin
+    name: TESTCASE
+    requirement: REQ_01
+    summary: Just a basic sample.
+  parameters:
+  - description: ''
+    name: CACHE_KEY
+    scope: local
+    type: text
+    value: result
+  - description: |-
+      Provide in this parameter the text to md5
+      The result is automatically saved in the cache
+    name: DATA_MD5
+    scope: local
+    type: text
+    value: ''
+testunit: |2-
+
+  def description(self):
+      # testcase description
+      self.setPurpose(purpose=description('summary'))
+      self.setRequirement(requirement=description('requirement'))
+
+      # steps description
+      self.step1 = self.addStep(expected="md5 generated",
+                                description="generate md5",
+                                summary="generate md5", enabled=True)
+                                
+  def prepare(self):
+      pass
+
+  def definition(self):
+      # starting initial step
+      if self.step1.isEnabled():
+          self.step1.start()
+
+          import hashlib
+
+          hash =  hashlib.md5()
+          hash.update( input('DATA_MD5').encode("utf8") )
+          ret = hash.hexdigest()
+
+          Cache().set(name=input('CACHE_KEY'), data=ret, flag=False)
+
+          self.warning("md5: %s" % ret)
+          self.step1.setPassed(actual="success")
+          
+  def cleanup(self, aborted):
+      if aborted: self.step1.setFailed(actual=aborted)

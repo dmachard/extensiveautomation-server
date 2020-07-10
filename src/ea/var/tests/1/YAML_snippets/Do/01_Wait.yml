@@ -1,0 +1,35 @@
+properties:
+  descriptions:
+    author: admin
+    name: TESTCASE
+    requirement: REQ_01
+    summary: Just a basic sample.
+  parameters:
+  - description: Do nothing until the end of the timeout
+    name: DURATION
+    scope: local
+    type: int
+    value: '10'
+testunit: |2-
+
+  def description(self):
+      # testcase description
+      self.setPurpose(purpose="Testcase do nothing")
+
+      # steps description
+      self.step1 = self.addStep(expected="Action executed with success",
+                                description="Do nothing until the end of the timeout",
+                                summary="Do nothing until the end of the timeout", enabled=True)
+
+  def prepare(self):
+      # adapters and libraries definitions
+      pass
+
+  def cleanup(self, aborted):
+      pass
+
+  def definition(self):
+      if self.step1.isEnabled():
+          self.step1.start()
+          Timer(self).wait(timeout=input('DURATION'))
+          self.step1.setPassed('action ok')

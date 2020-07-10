@@ -1,0 +1,64 @@
+properties:
+  descriptions:
+    author: admin
+    requirement: REQ_01
+    summary: Just a basic sample.
+  parameters:
+  - description: ''
+    name: DEBUG
+    scope: local
+    type: bool
+    value: 'False'
+  - description: ''
+    name: TEST
+    scope: local
+    type: shared
+    value: '1:Common:TIMEOUT:'
+  - description: ''
+    name: TIMEOUT
+    scope: local
+    type: float
+    value: '1.0'
+testsuite: |2-
+
+  class GET_SHARED_FROM_INPUTS_01(TestCase):
+      def description(self):
+          # testcase description
+          self.setPurpose(purpose="Testcase sample")
+
+          # steps description
+          self.step1 = self.addStep(expected="result expected", description="step description", summary="step sample")
+      def prepare(self):
+          # adapters and libraries
+          pass
+      def cleanup(self, aborted):
+          pass
+      def definition(self):
+          # starting initial step
+          self.step1.start()
+          self.step1.setPassed(actual="success")
+
+          self.info( input('TEST') )
+
+  class GET_SHARED_01(TestCase):
+      def description(self):
+          # testcase description
+          self.setPurpose(purpose="Testcase sample")
+
+          # steps description
+          self.step1 = self.addStep(expected="result expected", description="step description", summary="step sample")
+      def prepare(self):
+          # adapters and libraries
+          pass
+      def cleanup(self, aborted):
+          pass
+      def definition(self):
+          # starting initial step
+          self.step1.start()
+          self.step1.setPassed(actual="success")
+
+          self.info( shared('Common', 'TIMEOUT') )
+
+
+  GET_SHARED_FROM_INPUTS_01(suffix=None).execute()
+  GET_SHARED_01(suffix=None).execute()

@@ -1,0 +1,65 @@
+properties:
+  descriptions:
+    author: admin
+    name: TESTCASE
+    requirement: REQ_01
+    summary: Just a basic sample.
+  parameters:
+  - description: ''
+    name: CACHE_KEY
+    scope: local
+    type: text
+    value: result
+  - description: |-
+      Provide in this parameter the text to hash
+      The result is automatically saved in the cache
+    name: DATA_HASH
+    scope: local
+    type: text
+    value: ''
+  - description: SHA-1, SHA-256 or SHA512
+    name: SHA
+    scope: local
+    type: str
+    value: SHA-1
+testunit: |2-
+
+  def description(self):
+      # testcase description
+      self.setPurpose(purpose=description('summary'))
+      self.setRequirement(requirement=description('requirement'))
+
+      # steps description
+      self.step1 = self.addStep(expected="hash %s generated" % input('SHA'),
+                                description="generate hash %s" % input('SHA'),
+                                summary="generate hash %s" % input('SHA'),
+                                enabled=True)
+                                
+  def prepare(self):
+      pass
+
+  def definition(self):
+      # starting initial step
+      if self.step1.isEnabled():
+          self.step1.start()
+
+          import hashlib
+
+          if input('SHA') == "SHA-1":
+              hash =  hashlib.sha1()
+          elif input('SHA') == "SHA-256":
+              hash =  hashlib.sha256()
+          elif input('SHA') == "SHA512":
+              hash =  hashlib.sha512()
+          else:
+              self.abort("sha type not supported: %s" % input('SHA'))
+
+          hash.update( input('DATA_HASH').encode("utf8") )
+          ret = hash.hexdigest()
+
+          Cache().set(name=input('CACHE_KEY'), data=ret, flag=False)
+          self.warning("%s: %s" % (input('SHA'),ret) )
+          self.step1.setPassed(actual="success")
+          
+  def cleanup(self, aborted):
+      if aborted: self.step1.setFailed(actual=aborted)

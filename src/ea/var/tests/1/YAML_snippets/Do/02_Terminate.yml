@@ -1,0 +1,34 @@
+properties:
+  descriptions:
+    author: admin
+    name: TESTCASE
+    requirement: REQ_01
+    summary: Just a basic sample.
+  parameters:
+  - description: ''
+    name: STOP_TEST_MSG
+    scope: local
+    type: str
+    value: Test terminated by user
+testunit: |2-
+
+  def description(self):
+      # testcase description
+      self.setPurpose(purpose=description('summary'))
+      self.setRequirement(requirement=description('requirement'))
+
+      # steps description
+      self.step1 = self.addStep(expected="test terminated", 
+                                description="terminate the test",
+                                summary="terminate the test", enabled=True)
+  def prepare(self):
+      pass
+      
+  def definition(self):
+      # starting initial step
+      if self.step1.isEnabled():
+          self.step1.start()
+          Test(self).terminate(err=input('STOP_TEST_MSG'))
+
+  def cleanup(self, aborted):
+      self.step1.setPassed(actual=aborted)

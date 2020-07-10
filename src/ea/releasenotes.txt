@@ -1,7 +1,10 @@
 
-21.5.0
-	Date: xx/07/2020
+22.0.0
+	Date: 09/07/2020
 	What's new
-		1. (medium): xxx
+		1. (major): support test with yaml format
+		2. (medium): creation date removed from test model lib
+		3. (minor): new function from cli to get apisecret
+		4. (major): no more support of python version 2
 	Issues Fixed
 		1. (minor): add httponly flag on session cookie

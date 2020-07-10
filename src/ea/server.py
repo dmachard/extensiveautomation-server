@@ -48,10 +48,10 @@ else:
 parser = OptionParser()
 if platform.system() != "Linux":
     parser.set_usage(
-        "./extensiveautomation.py [start|version|install_adapter|decodetrx|apikey]")
+        "./extensiveautomation.py [start|version|install_adapter|decodetrx|apikey|convert]")
 else:
     parser.set_usage("./extensiveautomation.py [start|stop|reload|version|\
-install_adapter|decodetrx|apikey]")
+install_adapter|decodetrx|apikey|convert]")
 
 parser.add_option('--start', dest='start', default=False,
                   action='store_true',
@@ -72,12 +72,18 @@ parser.add_option('--version', dest='version', default=False,
 parser.add_option('--apikey', dest='apikey', default=False,
                   action='store_true',
                   help='Generate key for rest api (argument: <username>)')
+parser.add_option('--apisecret', dest='apisecret', default=False,
+                  action='store_true',
+                  help='Get api secret for user <username>')
 parser.add_option('--decodetrx', dest='decodetrx', default=False,
                   action='store_true',
                   help='Decode trx file (argument: <file>)')
 parser.add_option('--install_adapter', dest='install_adapter', default=False,
                   action='store_true',
                   help='Install sut adapter (argument: <plugin name>)')
+parser.add_option('--convert2yaml', dest='convert2yaml', default=False,
+                  action='store_true',
+                  help='Convert test XML to YAML')
 (options, args) = parser.parse_args()
 
 
@@ -117,6 +123,13 @@ def cli():
         Cli.instance().generateKey(username=args[0])
         sys.exit(0)
 
+    if options.apisecret is True:
+        if not args:
+            parser.print_help()
+            sys.exit(2)
+        Cli.instance().getSecret(username=args[0])
+        sys.exit(0)
+        
     if options.decodetrx is True:
         if not args:
             parser.print_help()
@@ -124,11 +137,8 @@ def cli():
         Cli.instance().decodeTrx(filename=args[0])
         sys.exit(0)
 
-    if options.install_adapter is True:
-        if not args:
-            parser.print_help()
-            sys.exit(2)
-        Cli.instance().installAdapter(name=args[0])
+    if options.convert2yaml is True:
+        Cli.instance().convert2yaml()
         sys.exit(0)
 
     parser.print_help()

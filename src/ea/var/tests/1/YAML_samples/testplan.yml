@@ -1,0 +1,28 @@
+properties:
+  descriptions:
+    author: admin
+    summary: Basic testplan
+    name: TESTPLAN
+    requirement: REQ_01
+  parameters:
+    - description: ''
+      name: DEBUG
+      scope: local
+      type: bool
+      value: 'False'
+    - description: ''
+      name: TIMEOUT
+      scope: local
+      type: float
+      value: '20.0'
+testplan:
+  - alias: TESTUNIT
+    description: ''
+    file: Common:YAML_samples/testunit.yml
+    id: '1'
+    parent: '0'
+  - alias: TESTSUITE
+    description: ''
+    file: Common:YAML_samples/testsuite.yml
+    id: '2'
+    parent: '0'

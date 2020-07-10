@@ -1,0 +1,128 @@
+properties:
+  descriptions:
+    author: admin
+    name: Scenario
+    requirement: REQ_01
+    summary: Just a basic sample.
+  parameters:
+  - description: ''
+    name: DEBUG
+    scope: local
+    type: bool
+    value: 'True'
+  - description: ''
+    name: TIMEOUT
+    scope: local
+    type: float
+    value: '1.0'
+  - description: ''
+    name: VERBOSE
+    scope: local
+    type: bool
+    value: 'True'
+testplan:
+- alias: ''
+  description: ''
+  file: Common:/Samples/Framework_Automate/01_Start_Automate.tux
+  id: '1'
+  parameters:
+  - description: ''
+    name: DEBUG
+    scope: local
+    type: bool
+    value: 'True'
+  - description: ''
+    name: TIMEOUT
+    scope: local
+    type: float
+    value: '1.0'
+  - description: ''
+    name: VERBOSE
+    scope: local
+    type: bool
+    value: 'True'
+  parent: '0'
+- alias: ''
+  description: ''
+  file: Common:/Samples/Framework_Automate/01_Start_Automate2.tux
+  id: '6'
+  parameters:
+  - description: ''
+    name: DEBUG
+    scope: local
+    type: bool
+    value: 'True'
+  - description: ''
+    name: TIMEOUT
+    scope: local
+    type: float
+    value: '1.0'
+  - description: ''
+    name: VERBOSE
+    scope: local
+    type: bool
+    value: 'True'
+  parent: '0'
+- alias: ''
+  description: ''
+  file: Common:/Samples/Framework_Automate/01_Automates_Callbacks.tux
+  id: '4'
+  parameters:
+  - description: ''
+    name: DEBUG
+    scope: local
+    type: bool
+    value: 'False'
+  - description: ''
+    name: TIMEOUT
+    scope: local
+    type: float
+    value: '1.0'
+  - description: ''
+    name: VERBOSE
+    scope: local
+    type: bool
+    value: 'True'
+  parent: '0'
+- alias: ''
+  description: ''
+  file: Common:/Samples/Framework_Automate/01_Stop_Automate.tux
+  id: '3'
+  parameters:
+  - description: ''
+    name: DEBUG
+    scope: local
+    type: bool
+    value: 'False'
+  - description: ''
+    name: TIMEOUT
+    scope: local
+    type: float
+    value: '1.0'
+  - description: ''
+    name: VERBOSE
+    scope: local
+    type: bool
+    value: 'True'
+  parent: '0'
+- alias: ''
+  description: ''
+  file: Common:/Samples/Framework_Tests/01_testsuite.tsx
+  id: '5'
+  parameters:
+  - description: ''
+    name: DEBUG
+    scope: local
+    type: bool
+    value: 'False'
+  - description: ''
+    name: TIMEOUT
+    scope: local
+    type: float
+    value: '1.0'
+  - description: ''
+    name: VERBOSE
+    scope: local
+    type: bool
+    value: 'True'
+  parent: '0'

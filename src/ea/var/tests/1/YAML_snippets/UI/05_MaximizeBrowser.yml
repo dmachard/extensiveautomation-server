@@ -1,0 +1,53 @@
+properties:
+  descriptions:
+    author: admin
+    name: TESTCASE
+    requirement: REQ_01
+    summary: Just a basic sample.
+  parameters:
+  - description: ''
+    name: AGENT_GUI_BROWSER
+    scope: local
+    type: json
+    value: '{"name": "agent.win.selenium01", "type": "selenium3server"}'
+  - description: ''
+    name: DEBUG
+    scope: local
+    type: bool
+    value: 'False'
+  - description: ''
+    name: TIMEOUT_GUI_BROWSER
+    scope: local
+    type: float
+    value: '25.0'
+testunit: |2-
+
+  def description(self):
+      # testcase description
+      self.setPurpose(purpose="GUI_Automation_Capture")
+
+      # steps description
+      self.step1 = self.addStep(expected="Action(s) executed with success",
+                                description="Maximize browser",
+                                summary="Maximize browser", enabled=True)
+
+  def prepare(self):
+      # adapters and libraries definitions
+      self.ADP_GUI_BROWSER = SutAdapters.GUI.Selenium(parent=self,
+                                                      agent=input('AGENT_GUI_BROWSER'),
+                                                      debug=input('DEBUG'),
+                                                      navigId=Cache().get(name='selenium-navig-id'))
+
+  def definition(self):
+      if self.step1.isEnabled():
+          self.step1.start()
+
+          ##CAPTURE_BROWSER>Maximize browser
+          BROWSER_RET1 = self.ADP_GUI_BROWSER.doMaximizeWindow(timeout=input('TIMEOUT_GUI_BROWSER'))
+          if not BROWSER_RET1:
+              self.abort("Unable to maximize browser")
+
+          self.step1.setPassed("test terminated")
+
+  def cleanup(self, aborted):
+      if aborted: self.step1.setFailed(aborted)

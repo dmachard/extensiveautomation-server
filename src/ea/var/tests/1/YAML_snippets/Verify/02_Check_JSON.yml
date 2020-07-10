@@ -1,0 +1,143 @@
+properties:
+  descriptions:
+    author: admin
+    name: TESTCASE
+    requirement: REQ_01
+    summary: Just a basic sample.
+  parameters:
+  - description: ''
+    name: DEBUG
+    scope: local
+    type: bool
+    value: 'False'
+  - description: ''
+    name: JSON_STR
+    scope: local
+    type: text
+    value: "{\n\t\"args\": {}, \n\t\"headers\": {\n\t\t\"Connection\": \"close\",\
+      \ \n\t\t\"Host\": \"httpbin.org\", \n\t\t\"User-Agent\": \"ExtensiveTesting\"\
+      \n\t}, \n\t\"origin\": \"190.117.217.129\", \n\t\"url\": \"https://httpbin.org/get\"\
+      \n}"
+  - description: ''
+    name: JSON_XPATH
+    scope: local
+    type: text
+    value: "headers.Connection\t[!CAPTURE:CX:]"
+  - description: ''
+    name: TIMEOUT
+    scope: local
+    type: float
+    value: '1.0'
+  - description: ''
+    name: VERBOSE
+    scope: local
+    type: bool
+    value: 'True'
+testunit: |2-
+
+  def description(self):
+      # testcase description
+      self.setPurpose(purpose=description('summary'))
+      self.setRequirement(requirement=description('requirement'))
+
+      # steps description
+      self.step1 = self.addStep(
+                                                                              expected="result expected",
+                                                                              description="step description",
+                                                                              summary="step sample",
+                                                                              enabled=True
+                                                                          )
+  def prepare(self):
+      self.msg_decodage = []
+
+  def definition(self):
+      # starting initial step
+      if self.step1.isEnabled():
+          self.step1.start()
+
+          import json
+          try:
+              from jsonpath_ng.ext import parse
+          except ImportError:
+              self.error("please to install the jsonpath library")
+              self.abort("jsonpath python library is missing")
+
+          body_json = input('JSON_STR')
+          for inp in  inputs() :
+              if inp["name"] == "JSON_STR":
+                  if inp["type"] == "text":
+                      try:
+                          body_json = json.loads(body_json)
+                      except:
+                          body_json = None
+                      break
+
+          if body_json is None:  self.abort("json provided not valid" )
+
+          json_valid = True
+          n = 1
+          for line in input('JSON_XPATH').splitlines():
+              if line.startswith("#"): continue
+              jsonpath_expected = re.split(r'\t+', line)
+              if len(jsonpath_expected) != 2:
+                  self.abort("bad expected body provided n°=%s value=%s, expected <jsonpath>\\t<regexp>" % (n,line) )
+              jpath, jvalue = jsonpath_expected
+
+              try:
+                  jsons_values =  [match.value for match in parse(jpath).find(body_json)]
+              except Exception as e:
+                  self.error('bad jsonpath (%s) provided ? more details:\n\n %s' % (jpath, str(e)) )
+                  jsons_values = []
+              if not len(jsons_values):
+                  self.msg_decodage.append( "Searching '%s' with the value '%s' : KO" % (jpath, jvalue) )
+                  json_valid = False
+              else:
+                  json_values_valid = True
+
+                  # search capture regexp
+                  cap = re.findall("\(\?P\<.*\>.*\)", jvalue)
+                  param_input = re.findall("\[\!FROM\:INPUT\:.*\:\]", jvalue)
+                  param_cache = re.findall("\[\!FROM\:CACHE\:.*\:\]", jvalue)
+
+                  if cap :
+                      cache_key = jvalue.split("(?P<")[1].split(">.*)")[0]
+                      if len(jsons_values) == 1:
+                          Cache().capture(data="%s" % jsons_values[0], regexp=jvalue)
+                      else:
+                          Cache().set(name=cache_key, data=jsons_values, flag=False)
+                      self.msg_decodage.append( "Searching and capture value of '%s' : OK" % (jpath) )
+
+                  else:
+                      if param_input :
+                          input_key = jvalue.split("[!FROM:INPUT:")[1].split(":]")[0]
+                          jvalue = input(name=input_key)
+
+                      if param_cache :
+                          cache_key = jvalue.split("[!FROM:CACHE:")[1].split(":]")[0]
+                          jvalue = Cache().get(name=cache_key)
+                          if jvalue is None: self.abort("the key %s does not exists in the cache" % cache_key)
+
+                      for jv in jsons_values:
+                          jv = str(jv)
+                          reg = TestOperators.RegEx(needle=jvalue)
+                          if not reg.seekIn(haystack=jv):
+                              self.msg_decodage.append( "Searching '%s' with the value '%s' : KO" % (jpath, jvalue) )
+                              json_values_valid = False
+                              self.msg_decodage.append( " > received value: %s" % jv.encode("utf8") )
+
+                      if json_values_valid:
+                          self.msg_decodage.append( "Searching '%s' with the value '%s' : OK" % (jpath, jvalue) )
+                      else:
+                          json_valid = False
+
+              n += 1
+
+          for msg in self.msg_decodage:
+              self.info(msg)
+
+          if json_valid:
+              self.step1.setPassed(actual="JSON is OK.<br />%s" % "<br />".join(self.msg_decodage) )
+          else:
+              self.step1.setFailed(actual="JSON is KO.<br />%s" % "<br />".join(self.msg_decodage))
+  def cleanup(self, aborted):
+      if aborted: self.step1.setFailed(actual="%s. %s" % (aborted, "<br />".join(self.msg_decodage) ) )

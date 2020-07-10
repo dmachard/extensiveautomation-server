@@ -1,0 +1,77 @@
+properties:
+  descriptions:
+    author: testé
+    requirement: REQ_01
+    summary: |-
+      special character are supported: è#~&|`
+      test with return carrier
+  parameters:
+  - description: évaluation
+    name: PARAM0
+    scope: local
+    type: str
+    value: é#?!:;(-|_è~
+  - description: ''
+    name: PARAM1
+    scope: local
+    type: list
+    value: à,é
+  - description: ''
+    name: PARAM2
+    scope: local
+    type: str
+    value: aaa
+testsuite: |2-
+
+  #
+  # special characters: é*µà@°1é&
+  #
+  class SPECIAL_CHARACTERS_01(TestCase):
+      def description(self):
+          self.step1 = self.addStep(expected="result expected é", description="step description é", summary="step sample é", enabled=True)
+      def prepare(self):
+          pass
+      def cleanup(self, aborted):
+          pass
+      def definition(self):
+          self.step1.start()
+
+          a = "é*µà@°1é&"
+          self.info( a )
+
+          self.step1.setPassed(actual="success é")
+
+  class SPECIAL_CHARACTERS_02(TestCase):
+      def description(self):
+          self.step1 = self.addStep(expected="result expected", description="step description", summary="step sample", enabled=True)
+      def prepare(self):
+          pass
+      def cleanup(self, aborted):
+          pass
+      def definition(self):
+          self.step1.start()
+
+          a = input('PARAM0')
+          self.info( a )
+
+          self.step1.setPassed(actual="success")
+
+  class SPECIAL_CHARACTERS_03(TestCase):
+      def description(self):
+          self.step1 = self.addStep(expected="result expected", description="step description", summary="step sample", enabled=True)
+      def prepare(self):
+          pass
+      def cleanup(self, aborted):
+          pass
+      def definition(self):
+          self.step1.start()
+
+          a = input('PARAM1')
+          for v in a:
+              self.info( v )
+          self.step1.setPassed(actual="success")
+
+  # special characters: é*µà@°1é&
+  SPECIAL_CHARACTERS_01().execute()
+  SPECIAL_CHARACTERS_02().execute()
+  SPECIAL_CHARACTERS_03().execute()

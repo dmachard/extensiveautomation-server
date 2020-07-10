@@ -102,7 +102,6 @@ TEST_SUMMARY = """
 
     ts_summary = ['Description']
     ts_summary.append('\\tAuthor: \\t%s' % description('author'))
-    ts_summary.append('\\tCreation: \\t%s' % description('creation date'))
     ts_summary.append('\\tRun at: \\t%s' % time.strftime("%d/%m/%Y %H:%M:%S", time.localtime(scriptstart_time)))
     ts_summary.append('\\tPurpose: \\t%s' % description('summary'))
     ts_summary.append('\\tInputs: \\t\\n%s' % '\\n'.join(inputs_str))

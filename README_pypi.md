@@ -15,6 +15,7 @@
 
 **ExtensiveAutomation**  is a generic automation framework for integration, regression and end-to-end usages. The framework provided a rich and collaborative workspace environment. 
 The server can run on both Python 2 and Python 3, and also run on Linux and Windows.
+Note: No more support provided with Python 2!
 
 ## Installation
 

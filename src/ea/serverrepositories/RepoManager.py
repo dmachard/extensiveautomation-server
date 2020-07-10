@@ -41,6 +41,8 @@ if sys.version_info > (3,):
     unicode = str
 
 
+TEST_YAML_EXT = 'yml'
+    
 TEST_UNIT_EXT = 'tux'
 TEST_SUITE_EXT = 'tsx'
 TEST_PLAN_EXT = 'tpx'

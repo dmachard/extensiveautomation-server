@@ -1,0 +1,43 @@
+properties:
+  descriptions:
+    author: admin
+    requirement: REQ_01
+    summary: Just a basic sample.
+  parameters:
+  - description: ''
+    name: DEBUG
+    scope: local
+    type: bool
+    value: 'False'
+  - description: ''
+    name: TIMEOUT
+    scope: local
+    type: float
+    value: '1.0'
+testsuite: |2-
+
+  class TESTCASE_01(TestCase):
+      def description(self):
+          # testcase description
+          self.setPurpose(purpose="Testcase sample")
+
+          # steps description
+          self.step1 = self.addStep(expected="result expected", description="step description", summary="step sample", enabled=True)
+      def prepare(self):
+          # adapters and libraries
+          pass
+      def cleanup(self, aborted):
+          pass
+      def definition(self):
+          # starting initial step
+          if self.step1.isEnabled():
+              self.step1.start()
+              self.step1.setPassed(actual="success")
+
+
+  for i in xrange(10):
+      tc = TESTCASE_01(suffix=None)
+      tc.execute()
+
+      if tc.isFailed():
+          break

@@ -27,6 +27,7 @@ try:
     import scandir
 except ImportError:  # for python3 support
     scandir = os
+import yaml
 
 from ea.serverengine import (ProjectsManager)
 from ea.serverinterfaces import EventServerInterface as ESI
@@ -68,6 +69,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                                                               RepoManager.TEST_DATA_EXT,
                                                               RepoManager.TEST_UNIT_EXT,
                                                               RepoManager.PNG_EXT,
+                                                              #RepoManager.TEST_YAML_EXT,
                                                               RepoManager.TEST_GLOBAL_EXT],
                                          context=context)
 
@@ -89,6 +91,13 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         alltests = []
         # read each test files in data
         for ts in data_:
+            # can be missing with yaml format, new in v22
+            if "type" not in ts:
+                ts["type"] = "remote"
+            if "enable" not in ts:
+                ts["enable"] = "2"
+            # end of new
+            
             # backward compatibility
             if 'alias' not in ts:
                 ts['alias'] = ''
@@ -138,6 +147,10 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                         doc = TestUnit.DataModel()
                     elif absPath.endswith(RepoManager.TEST_PLAN_EXT):
                         doc = TestPlan.DataModel()
+                    
+                    elif absPath.endswith(RepoManager.TEST_YAML_EXT):
+                        pass
+                    
                     else:
                         self.error("unknown test extension file: %s" % absPath)
                         ret = (
@@ -145,10 +158,76 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                             (ts['id'], ts['file']))
                         break
 
-                    # load the data model
-                    res = doc.load(
-                        absPath="%s/%s/%s" %
-                        (self.testsPath, prjID, absPath))
+                    # new in v22
+                    if absPath.endswith(RepoManager.TEST_YAML_EXT):
+                        try:
+                            # read the file
+                            with open("%s/%s/%s" % (self.testsPath, prjID, absPath), "r") as f:
+                                doc_yaml = f.read()
+                            res = yaml.safe_load(doc_yaml)
+                        
+                            testprops = {}
+                            testprops["inputs-parameters"] = {}
+                            testprops["inputs-parameters"]["parameter"] = res["properties"]["parameters"]
+                            testprops["descriptions"] = {}
+                            testprops["descriptions"]["description"] = []
+         
+                            for k,v in res["properties"]["descriptions"].items():
+                                s = { 'key': k, 'value': v }
+                                testprops["descriptions"]["description"].append(s)
+                                                        
+                            # decode file
+                            if "testsuite" in res:
+                                fileExt = "tsx"
+                                doc = TestSuite.DataModel()
+                                doc.properties['properties'] = testprops
+                                doc.testdef = res["testsuite"]
+                                doc.testexec = ""
+                                ts["extension"] = "tsx"
+                                
+                            elif "testunit" in res:
+                                fileExt = "tux"
+                                doc = TestUnit.DataModel()
+                                doc.properties['properties'] = testprops
+                                doc.testdef = res["testunit"]
+                                ts["extension"] = "tux"
+                            
+                            elif "testplan" in res:
+                                fileExt = "tpx"
+                                doc = TestPlan.DataModel()
+                                doc.properties['properties'] = testprops
+                                
+                                testplan = {}
+                                testplan['testplan'] = { 'testfile': [] }
+                                for tp in res["testplan"]:
+                                    if "parameters" not in tp:
+                                        tp["parameters"] = []
+                                        
+                                    tf_descr = [ {"key": "summary", "value": ""}, 
+                                                 {"key": "name", "value": ""},
+                                                 {"key": "requirement", "value": ""}]
+                                    tf_prop = {"properties": {"descriptions": { "description": tf_descr},
+                                                              "inputs-parameters": {} }}
+                                    tf_prop["properties"]["inputs-parameters"]["parameter"] = tp["parameters"]
+                                    tp.update(tf_prop)
+                                    testplan['testplan']['testfile'].append(tp)
+                                
+                                doc.testplan = testplan
+                                
+                            elif "testglobal" in res:
+                                raise Exception("tg - bad yaml format")
+                                
+                            res = True
+                        except Exception as e:
+                            self.error("yaml error: %s" % e)
+                            res = False
+                    # end of new v22
+                    
+                    else:   
+                        # load the data model
+                        res = doc.load(
+                            absPath="%s/%s/%s" %
+                            (self.testsPath, prjID, absPath))
                     if not res:
                         ret = (self.context.CODE_NOT_FOUND, absPath)
                         break
@@ -232,6 +311,14 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         """
         ret = (self.context.CODE_OK, "")
         for ts in data_:
+            
+            # can be missing with yaml format, new in v22
+            if "type" not in ts:
+                ts["type"] = "remote"
+            if "enable" not in ts:
+                ts["enable"] = "2"
+            # end of new
+            
             # extract project info
             prjName = str(ts['file']).split(":", 1)[0]
             ts.update({'testproject': prjName})
@@ -273,9 +360,48 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                         doc = TestSuite.DataModel()
                     else:
                         doc = TestUnit.DataModel()
-                    res = doc.load(
-                        absPath="%s/%s/%s" %
-                        (self.testsPath, prjID, absPath))
+                        
+                    if absPath.endswith(RepoManager.TEST_YAML_EXT):
+                        try:
+                            # read the file
+                            with open("%s/%s/%s" % (self.testsPath, prjID, absPath), "r") as f:
+                                doc_yaml = f.read()
+                            res = yaml.safe_load(doc_yaml)
+                        
+                            testprops = {}
+                            testprops["inputs-parameters"] = {}
+                            testprops["inputs-parameters"]["parameter"] = res["properties"]["parameters"]
+                            testprops["descriptions"] = {}
+                            testprops["descriptions"]["description"] = []
+         
+                            for k,v in res["properties"]["descriptions"].items():
+                                s = { 'key': k, 'value': v }
+                                testprops["descriptions"]["description"].append(s)
+                                                        
+                            # decode file
+                            if "testsuite" in res:
+                                fileExt = "tsx"
+                                doc = TestSuite.DataModel()
+                                doc.properties['properties'] = testprops
+                                doc.testdef = res["testsuite"]
+                                doc.testexec = ""
+                                ts["extension"] = "tsx"
+                            else:
+                                fileExt = "tux"
+                                doc = TestUnit.DataModel()
+                                doc.properties['properties'] = testprops
+                                doc.testdef = res["testunit"]
+                                ts["extension"] = "tux"
+                            
+                            res = True
+                        except Exception as e:
+                            self.error("yaml error: %s" % e)
+                            res = False
+                    
+                    else:
+                        res = doc.load(
+                            absPath="%s/%s/%s" % (self.testsPath, prjID, absPath))
+                            
                     if not res:
                         ret = (
                             self.context.CODE_NOT_FOUND, "ID=%s %s" %

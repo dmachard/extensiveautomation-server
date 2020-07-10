@@ -1,0 +1,124 @@
+properties:
+  descriptions:
+    author: admin
+    name: TESTCASE
+    requirement: REQ_01
+    summary: Just a basic sample.
+  parameters:
+  - description: ''
+    name: CHECKING
+    scope: local
+    type: text
+    value: |-
+      # checking contains
+      [!FROM:CACHE:EXAMPLE:] contains test
+  - description: ''
+    name: STEP_DESCRIPTION
+    scope: local
+    type: text
+    value: Checking data in your test
+  - description: ''
+    name: STEP_EXPECTED
+    scope: local
+    type: text
+    value: Results expected are ok
+  - description: ''
+    name: TEST_PURPOSE
+    scope: local
+    type: text
+    value: Checking result
+testunit: |2-
+
+  def description(self):
+      # testcase description
+      self.setPurpose(purpose=input('TEST_PURPOSE'))
+      self.setRequirement(requirement=description('requirement'))
+
+      # steps description
+      self.step1 = self.addStep(expected=input('STEP_EXPECTED'),
+                                description=input('STEP_DESCRIPTION'),
+                                summary=input('STEP_DESCRIPTION'),
+                                enabled=True)
+  def prepare(self):
+      pass
+      
+  def definition(self):
+      # starting initial step
+      if self.step1.isEnabled():
+          self.step1.start()
+
+          i = 0
+          block = 3
+          results = []
+          for check in input('CHECKING').splitlines():
+              if not (i % block):
+                  Trace(self).warning(txt="%s" % check[1:].lstrip(), bold=True, italic=False, multiline=False, raw=False)
+
+              if (i % block) == 1:
+                  if not len(check): self.abort("bad data line format provided")
+
+                  checks = re.findall("(\[!FROM\:(?:CACHE|INPUT|OUTPUT)\:.*\:\])(?: )?(contains|matches|==|!=|<=|>=|>|<|)(?: )?(.*)", check)
+                  if len(checks) != 1: self.abort("bad checking format 1")
+                  if len(checks[0]) != 3: self.abort("bad checking format 2")
+
+                  L, O, R = checks[0]
+                  if O.strip().lower() not in [ "contains", "matches", "==", "!=", ">", "<", ">=", "<="]:
+                      self.abort( "bad operator provided 2")
+
+                  key = L.split(":")[2:-1][0]
+
+                  # prepare the a variable
+                  A = None; B = None;
+                  if "FROM:CACHE" in L:
+                      A = Cache().get(name=key)
+                  if "FROM:INPUT" in L:
+                      A = input(key)
+                  if "FROM:OUTPUT" in L:
+                      A = output(key)
+                  Trace(self).info(txt="%s:\n\n%s" % (key,A), bold=False, italic=False, multiline=False, raw=False)
+
+                  # prepare the b variable
+                  B = R
+                  Trace(self).info(txt="EXPECTED:\n\n%s" % B, bold=False, italic=False, multiline=False, raw=False)
+
+                  if O == "contains":
+                      if not TestOperators.Contains(needle=B).seekIn(haystack=A):
+                          self.abort( "%s not contains %s" % (key, B) )
+
+                  if O == "matches":
+                      if not TestOperators.RegEx(needle=B).seekIn(haystack=A):
+                          self.abort( "%s not matches with %s" % (key, B) )
+
+                  if O == "==":
+                      if not (A==B):
+                          self.abort( "%s not equals to %s" % (key, B) )
+
+                  if O == "!=":
+                      if not (A!=B):
+                          self.abort( "%s equals to %s" % (key, B) )
+
+                  if O == ">":
+                      if not (int(A)>int(B)):
+                          self.abort( "%s not greater than to %s" % (key, B) )
+
+                  if O == "<":
+                      if not (int(A)<int(B)):
+                          self.abort( "%s not lower than to %s" % (key, B) )
+
+                  if O == ">=":
+                      if not (int(A)>=int(B)):
+                          self.abort( "%s not greater than or equals to %s" % (key, B) )
+
+                  if O == "<=":
+                      if not (int(A)<=int(B)):
+                          self.abort( "%s not lower than or equals to %s" % (key, B) )
+
+                  Trace(self).info(txt="RESULT => OK", bold=True, italic=False, multiline=False, raw=False)
+
+
+              i += 1
+
+          self.step1.setPassed(actual="success")
+          
+  def cleanup(self, aborted):
+      if aborted: self.step1.setFailed(actual="%s" % aborted)

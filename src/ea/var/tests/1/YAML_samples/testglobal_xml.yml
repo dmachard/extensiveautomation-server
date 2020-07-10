@@ -1,0 +1,84 @@
+properties:
+  descriptions:
+    author: admin
+    summary: Basic testplan
+    name: TESTPLAN
+    requirement: REQ_01
+  parameters:
+    - description: ''
+      name: DEBUG
+      scope: local
+      type: bool
+      value: 'False'
+    - description: ''
+      name: TIMEOUT_CONNECT
+      scope: local
+      type: float
+      value: '20.0'
+    - description: ''
+      name: VERBOSE
+      scope: local
+      type: bool
+      value: 'True'
+    - description: ''
+      name: SERVERS
+      scope: local
+      type: json
+      value: |
+          [ 
+               {
+               "SSH_DEST_HOST": "10.0.0.72", 
+               "SSH_DEST_PORT": 22,
+               "SSH_DEST_LOGIN": "root",
+               "SSH_DEST_PWD": "bonjour",
+               "SSH_PRIVATE_KEY": null,
+               "SSH_PRIVATE_KEY_PATH": null,
+               "SSH_AGENT": {},
+               "SSH_AGENT_SUPPORT": false,
+               "SSH_AGENT": {"name": "agent.win.ssh01", "type": "ssh"},
+               "SSH_AGENT_SUPPORT": false
+               }
+          ]
+testglobal:
+  - alias: CHECK SERVER STATUS
+    description: ''
+    extension: tsx
+    file: Common:Snippets/Protocols/01_Send_SSH.tsx
+    id: '1'
+    parent: '0'
+    parameters:
+    - description: ''
+      name: COMMANDS
+      scope: local
+      type: text
+      value: |
+        # checking the status of the server 
+        python /root/extensiveautomation-server/src/extensiveautomation.py --status
+        .*is running.*
+  - alias: SHOW SERVER VERSION
+    description: ''
+    extension: tsx
+    file: Common:Snippets/Protocols/01_Send_SSH.tsx
+    id: '2'
+    parent: '0'
+    parameters:
+    - description: ''
+      name: COMMANDS
+      scope: local
+      type: text
+      value: |
+        # checking server version
+        python /root/extensiveautomation-server/src/extensiveautomation.py --version
+        .*Server version: [!CAPTURE:SERVER_VERSION:]
+  - alias: LOGS CAPTURED INFORMATIONS
+    description: ''
+    extension: tux
+    file: Common:/Snippets/Do/04_Info.tux
+    id: '3'
+    parent: '0'
+    parameters:
+    - description: ''
+      name: MESSAGE
+      scope: local
+      type: cache
+      value: SERVER_VERSION

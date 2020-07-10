@@ -29,6 +29,10 @@
 	* [Connection to server with curl](#connection-to-server-with-curl)
 	* [Connection to server with the web client](#connection-to-server-with-the-web-client)
 	* [Connection to server with the app client](#connection-to-server-with-the-app-client)
+* [Execute a test from REST API](#execute-a-test-from-rest-api) 
+	* [Get api secret key](#get-api-secret-key)
+	* [Run basic test](#run-basic-test)
+	* [Get test logs](#get-test-logs)
 * [Security](#security)
 	* [Adding ReverseProxy](#reverse-proxy)
 	* [LDAP users authentication](#ldap-users-authentication)
@@ -37,6 +41,8 @@
 
 **ExtensiveAutomation**  is a generic automation framework for integration, regression and end-to-end usages. The framework provided a rich and collaborative workspace environment. 
 The server can run on both Python 2 and Python 3, and also run on Linux and Windows.
+
+Note: No more support provided with Python 2!
 
 ## Server Installation
 
@@ -133,17 +139,49 @@ To use the server from the rich application, please to read the following [docum
 
 ## Execute a test from REST API
 
-Generate the api key for the admin user
+### Get api secret key
 
-# python3 extensiveautomation.py --apikey admin
-API Key ID: admin
-API Key Secret: 69337fbeebcae1b864fce7d4e88f22cee0f164e9
+Get the API secret for the user admin
 
-# python3 extensiveautomation.py --reload
+        python3 extensiveautomation.py --apisecret admin
+        API key: admin
+        API secret: 6977aa6a443bd3a6033ebb52557cf90d24c79857
 
-curl  --user admin:69337fbeebcae1b864fce7d4e88f22cee0f164e9 -d '{"project-id": 1,"test-extension": "yaml","test-name": "test","test-path": "/"}' -H "Content-Type: application/json" -X POST http://127.0.0.1:8081/tests/schedule
+### Run basic test 
 
+Tests samples are available in the default tests storage <projectpath_install>/var/tests/1/
 
+Curl command:
+
+        curl  --user admin:6977aa6a443bd3a6033ebb52557cf90d24c79857 \
+              -d '{"project-id": 1,"test-extension": "yml","test-name": "01_testunit","test-path": "YAML_samples/Framework_Tests/"}' \
+              -H "Content-Type: application/json" -X POST http://127.0.0.1:8081/tests/schedule
+              
+Success response:
+
+        {"cmd": "/tests/schedule", "message": "background", 
+         "task-id": 2, "test-id": "e57aaa43-325d-468d-8cac-f1dea822ef3a", 
+         "tab-id": 0, "test-name": "01_testunit"}
+        
+### Get test logs
+
+Curl command:
+
+        curl  --user admin:6977aa6a443bd3a6033ebb52557cf90d24c79857 \
+              -d '{"test-id": "e57aaa43-325d-468d-8cac-f1dea822ef3a", "project-id": 1}' \
+              -H "Content-Type: application/json" -X POST http://127.0.0.1:8081/results/details
+        
+Success response:
+
+        {"cmd": "/results/details", "test-id": "e57aaa43-325d-468d-8cac-f1dea822ef3a", 
+         "test-status": "complete", 
+         "test-verdict": "pass", 
+         "test-logs": "10:50:10.7241 task-started
+         10:50:10.7243 script-started 01_testunit
+         10:50:10.7309 script-stopped PASS 0.007
+         10:50:10.7375 task-stopped 0.006909608840942383", 
+         "test-logs-index": 156}
+        
 ## Security
 
 ### Adding reverse proxy

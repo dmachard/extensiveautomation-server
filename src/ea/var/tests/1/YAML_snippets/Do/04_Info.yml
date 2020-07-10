@@ -1,0 +1,36 @@
+properties:
+  descriptions:
+    author: admin
+    name: TESTCASE
+    requirement: REQ_01
+    summary: Just a basic sample.
+  parameters:
+  - description: ''
+    name: MESSAGE
+    scope: local
+    type: text
+    value: hello
+testunit: |2-
+
+  def description(self):
+      # testcase description
+      self.setPurpose(purpose="Testcase do nothing")
+
+      # steps description
+      self.step1 = self.addStep(expected="Action executed with success",
+                                description="Log message",
+                                summary="Log message", enabled=True)
+
+  def prepare(self):
+      # adapters and libraries definitions
+      pass
+
+  def cleanup(self, aborted):
+      pass
+
+  def definition(self):
+      ##CAPTURE_FRAMEWORK>Do nothing until the end of the timeout
+      if self.step1.isEnabled():
+          self.step1.start()
+          self.info( "%s" % input('MESSAGE') )
+          self.step1.setPassed('action ok')

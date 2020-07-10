@@ -1,0 +1,85 @@
+properties:
+  descriptions:
+    author: admin
+    name: TESTCASE
+    requirement: REQ_01
+    summary: Just a basic sample.
+  parameters:
+  - description: ''
+    name: CACHE_KEY
+    scope: local
+    type: text
+    value: result
+  - description: ''
+    name: DECODE
+    scope: local
+    type: bool
+    value: 'True'
+  - description: ''
+    name: ENCODE
+    scope: local
+    type: bool
+    value: 'False'
+  - description: ''
+    name: STR_BASE64
+    scope: local
+    type: str
+    value: aGVsbG8=
+  - description: ''
+    name: URLSAFE
+    scope: local
+    type: bool
+    value: 'False'
+testunit: |2-
+
+  def description(self):
+      # testcase description
+      self.setPurpose(purpose=description('summary'))
+      self.setRequirement(requirement=description('requirement'))
+
+      # steps description
+      self.step1 = self.addStep(expected="base64 string decoded or encoded with success",
+                                description="encode or decode with base64",
+                                summary="encode or decode with base64",
+                                enabled=True)
+                                
+  def prepare(self):
+      pass
+      
+  def definition(self):
+      # starting initial step
+      if self.step1.isEnabled():
+          self.step1.start()
+
+          import base64
+
+          # decode base64 to string
+          if input('DECODE'):
+              if input('URLSAFE'):
+                  ret = base64.urlsafe_b64decode( input('STR_BASE64') )
+              else:
+                  ret = base64.b64decode( input('STR_BASE64') )
+
+          # encode string to base64
+          if input('ENCODE'):
+              # convert to bytes
+              payload_ = bytes(input('STR_BASE64'), "utf8")
+
+              if input('URLSAFE'):
+                  ret = base64.urlsafe_b64encode(  payload_ )
+              else:
+                  ret = base64.b64encode( payload_)
+
+          # convert to str
+          ret = ret.decode("utf8")
+
+          # save the result in the cache
+          Cache().set(name=input('CACHE_KEY'), data=ret, flag=False)
+
+          # log result to user
+          self.warning("output: %s" % ret)
+
+          self.step1.setPassed(actual="success")
+          
+  def cleanup(self, aborted):
+      if aborted: self.step1.setFailed(actual=aborted)

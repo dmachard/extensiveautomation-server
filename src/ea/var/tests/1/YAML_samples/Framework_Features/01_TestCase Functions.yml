@@ -1,0 +1,124 @@
+properties:
+  descriptions:
+    author: ''
+    requirement: REQ_01
+    summary: ''
+  parameters:
+  - description: ''
+    name: TIMER
+    scope: local
+    type: int
+    value: '1'
+  - description: ''
+    name: TIMER_FLOAT
+    scope: local
+    type: float
+    value: '1.0'
+testsuite: |2-
+
+  class INFO(TestCase):
+      def description(self):
+          self.step1 = self.addStep(expected="ok", description="set as undef", summary="set as undef", enabled=True)
+      def prepare(self):
+          pass
+      def cleanup(self, aborted):
+          pass
+      def definition(self):
+          self.step1.start()
+          self.info( 'simple message' )
+          self.info( 'message in bold', bold = True )
+          self.info( 'message in italic', bold = False, italic=True )
+          self.info( 'test\r\ntesté2', multiline=True )
+          self.info( '<html>test</html>', raw=True )
+          self.step1.setPassed(actual="pass")
+
+  class WARNING(TestCase):
+      def description(self):
+          self.step1 = self.addStep(expected="ok", description="set as undef", summary="set as undef", enabled=True)
+      def prepare(self):
+          pass
+      def cleanup(self, aborted):
+          pass
+      def definition(self):
+          self.step1.start()
+          self.warning( 'simple message' )
+          self.warning( 'message in bold', bold = True )
+          self.step1.setPassed(actual="pass")
+
+  class ERROR(TestCase):
+      def description(self):
+          self.step1 = self.addStep(expected="ok", description="set as undef", summary="set as undef", enabled=True)
+      def prepare(self):
+          pass
+      def cleanup(self, aborted):
+          pass
+      def definition(self):
+          self.step1.start()
+          self.error( 'simple message' )
+          self.error( 'message in bold', bold = True )
+          self.step1.setPassed(actual="pass")
+
+  class WAIT(TestCase):
+      def description(self):
+          self.step1 = self.addStep(expected="ok", description="set as undef", summary="set as undef", enabled=True)
+      def prepare(self):
+          pass
+      def cleanup(self, aborted):
+          pass
+      def definition(self):
+          self.step1.start()
+          self.info( 'wait during 1 second' )
+          self.wait( input('TIMER') ) # in seconde
+          self.step1.setPassed(actual="pass")
+
+  class WAIT_FLOAT(TestCase):
+      def description(self):
+          self.step1 = self.addStep(expected="ok", description="set as undef", summary="set as undef", enabled=True)
+      def prepare(self):
+          pass
+      def cleanup(self, aborted):
+          pass
+      def definition(self):
+          self.step1.start()
+          self.info( 'wait during 1 second' )
+
+          Timer(self).wait( input('TIMER_FLOAT')  ) # in second
+
+          self.step1.setPassed(actual="pass")
+
+  class WAIT_STR_VAL(TestCase):
+      def description(self):
+          self.step1 = self.addStep(expected="ok", description="set as undef", summary="set as undef", enabled=True)
+      def prepare(self):
+          pass
+      def cleanup(self, aborted):
+          pass
+      def definition(self):
+          self.step1.start()
+
+          self.info( 'wait during 2 seconds' )
+          Timer(self).wait( "2" ) # in second
+
+          self.step1.setPassed(actual="pass")
+
+
+  class WAIT_UNTIL(TestCase):
+      def description(self):
+          self.step1 = self.addStep(expected="ok", description="wait until", summary="wait until", enabled=True)
+      def prepare(self):
+          pass
+      def cleanup(self, aborted):
+          pass
+      def definition(self):
+          self.step1.start()
+          Timer(self).waitUntil(dt='2100-01-01 00:00:00', fmt='%Y-%m-%d %H:%M:%S', delta=0)
+          self.step1.setPassed(actual="pass")
+
+
+  INFO().execute()
+  WARNING().execute()
+  #ERROR().execute()
+  WAIT().execute()
+  WAIT_FLOAT().execute()
+  WAIT_STR_VAL().execute()
+  #WAIT_UNTIL().execute()

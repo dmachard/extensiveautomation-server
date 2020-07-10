@@ -1,0 +1,124 @@
+properties:
+  descriptions:
+    author: admin
+    name: TESTCASE
+    requirement: REQ_01
+    summary: Just a basic sample.
+  parameters:
+  - description: ''
+    name: AGENT_GUI_BROWSER
+    scope: local
+    type: json
+    value: '{"name": "agent.win.selenium01", "type": "selenium3server"}'
+  - description: Open browser and load url
+    name: BROWSER_DRIVER_GECKO_1
+    scope: local
+    type: bool
+    value: 'True'
+  - description: ''
+    name: BROWSER_PROFILE_1
+    scope: local
+    type: none
+    value: ''
+  - description: Open browser and load url
+    name: BROWSER_SESSION_1
+    scope: local
+    type: str
+    value: default
+  - description: Open browser and load url
+    name: BROWSER_TEXT_1
+    scope: local
+    type: alias
+    value: LOADING_URL
+  - description: ''
+    name: BROWSER_USE_CHROME_1
+    scope: local
+    type: bool
+    value: 'False'
+  - description: ''
+    name: BROWSER_USE_EDGE_1
+    scope: local
+    type: bool
+    value: 'False'
+  - description: ''
+    name: BROWSER_USE_FIREFOX_1
+    scope: local
+    type: bool
+    value: 'True'
+  - description: ''
+    name: BROWSER_USE_IE_1
+    scope: local
+    type: bool
+    value: 'False'
+  - description: ''
+    name: BROWSER_USE_OPERA_1
+    scope: local
+    type: bool
+    value: 'False'
+  - description: ''
+    name: DEBUG
+    scope: local
+    type: bool
+    value: 'False'
+  - description: Open browser and load url
+    name: LOADING_URL
+    scope: local
+    type: str
+    value: ''
+  - description: ''
+    name: TIMEOUT_GUI_BROWSER
+    scope: local
+    type: float
+    value: '25.0'
+testunit: |2-
+
+  def description(self):
+      # testcase description
+      self.setPurpose(purpose="GUI_Automation_Capture")
+
+      # steps description
+      self.step1 = self.addStep(expected="Action(s) executed with success",
+                                description="Open browser and load url",
+                                summary="Open browser and load url",
+                                enabled=True)
+
+  def prepare(self):
+      # adapters and libraries definitions
+      self.ADP_GUI_BROWSER = SutAdapters.GUI.Selenium(parent=self, agent=input('AGENT_GUI_BROWSER'),
+                                                                                                                                                              debug=input('DEBUG'),
+                                                                                                                                                              navigId=Cache().get(name='selenium-navig-id'))
+
+
+
+  def definition(self):
+      if self.step1.isEnabled():
+          self.step1.start()
+
+          _browserProfile = None
+          if input('BROWSER_PROFILE_1') is not None:
+              _browserProfile = self.ADP_GUI_BROWSER.getFirefoxProfile(profileDirectory="%s/%s" % (Public(self).getPath(), input('BROWSER_PROFILE_1'))
+                                                                       )
+          ##CAPTURE_BROWSER>Open browser and load url
+          BROWSER_RET1 = self.ADP_GUI_BROWSER.doOpen(timeout=input('TIMEOUT_GUI_BROWSER'),
+                                                     targetUrl=input('BROWSER_TEXT_1'),
+                                                     withFirefox=input('BROWSER_USE_FIREFOX_1'),
+                                                     withIe=input('BROWSER_USE_IE_1'),
+                                                     withChrome=input('BROWSER_USE_CHROME_1'),
+                                                     withOpera=input('BROWSER_USE_OPERA_1'),
+                                                     withEdge=input('BROWSER_USE_EDGE_1'),
+                                                     useMarionette=input('BROWSER_DRIVER_GECKO_1'),
+                                                     sessionName=input('BROWSER_SESSION_1'),
+                                                     browserProfile=_browserProfile )
+
+          if not BROWSER_RET1:
+              self.abort("Unable to open browser and load url")
+
+          ##CAPTURE_BROWSER>
+          BROWSER_RET2 = self.ADP_GUI_BROWSER.doMaximizeWindow(timeout=input('TIMEOUT_GUI_BROWSER'))
+          if not BROWSER_RET2:
+              self.abort("Unable to ")
+
+          self.step1.setPassed("test terminated")
+
+  def cleanup(self, aborted):
+      if aborted: self.step1.setFailed(aborted)
