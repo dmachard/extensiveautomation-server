@@ -125,6 +125,10 @@ Plugins allow to interact with the system to be controlled. But by default the s
 ### Connection to server with the web client
 
 To use the server from the web interface, please to read the following [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-webclient#web-interface-for-extensiveautomation).
+This user interface enables to:
+- manage users
+- manage projects
+- manage variables
 
 ### Connection to server with the app client
   

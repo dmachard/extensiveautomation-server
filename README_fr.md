@@ -125,6 +125,11 @@ un par un en fonction de vos besoins.
 
 Pour utiliser le serveur depuis l'interface web, merci de lire la [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-webclient#web-interface-for-extensiveautomation) suivante.
 
+L'interface web permet de:
+- d'administrer les utilisateurs
+- d'administrer les projets
+- d'administrer les variables de tests
+
 ### Connexion au serveur avec le client lourd
   
 Pour utiliser le serveur depuis le client lourd, merci de lire la [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-appclient#qt-application-for-extensiveautomation) suivante.
