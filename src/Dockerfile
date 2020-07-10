@@ -1,4 +1,4 @@
-FROM python:3.7.4-alpine3.10
+FROM python:3.8.3-alpine3.11
 
 LABEL name="Extensive Automation" \
       description="ExtensiveAutomation is a generic automation framework for integration, regression and end-to-end usages" \
@@ -12,7 +12,7 @@ COPY . /home/extensive/
 RUN true \
     && adduser -D extensive \
     && apk add --update --no-cache g++ make libxslt-dev curl \
-    && pip install --no-cache-dir wrapt pycnic lxml jsonpath_ng \
+    && pip install --no-cache-dir wrapt pycnic lxml jsonpath_ng pyyaml\
     && apk del --no-cache g++ make \
     && cd /home/extensive \
     && chmod 755 start.sh \
