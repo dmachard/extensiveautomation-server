@@ -91,7 +91,13 @@ Par défaut le serveur est fournit sans aucun plugin, il est donc nécessaire de
 un par un en fonction de vos besoins.
 
 * [Plugin CLI (ssh)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli)
+
+        pip install extensiveautomation_plugin_cli
+        
 * [Plugin WEB (http/https)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web)
+
+        pip install extensiveautomation_plugin_web
+
 * [Plugin GUI (selenium, sikulix and adb)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui)
 * [Et d'autres encore...](https://github.com/ExtensiveAutomation/extensiveautomation-plugins-server)
 

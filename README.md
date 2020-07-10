@@ -92,7 +92,13 @@
 Plugins allow to interact with the system to be controlled. But by default the server is provided without plugins. So you need to install them one by one according to your needs.
 
 * [CLI plugin (ssh)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli)
+
+        pip install extensiveautomation_plugin_cli
+
 * [WEB plugin (http/https)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web)
+
+        pip install extensiveautomation_plugin_web
+
 * [GUI plugin (selenium, sikulix and adb)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui)
 * [And many others...](https://github.com/ExtensiveAutomation/extensiveautomation-plugins-server)
 
