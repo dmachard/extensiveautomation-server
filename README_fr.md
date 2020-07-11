@@ -29,10 +29,14 @@
 	* [Utilisation de la commande curl](#utilisation-de-la-commande-curl)
 	* [Connexion au serveur avec le client web](#connexion-au-serveur-avec-le-client-web)
 	* [Connexion au serveur avec le client web](#connexion-au-serveur-avec-le-client-web)
-* [Exécuter un test depuis l'API REST](#executer-un-test-depuis-l-api-rest) 
+* [Comment exécuter une tâche depuis l'API REST](#comment-executer-une-tache-depuis-l-api-rest) 
 	* [Obtenir le secret pour l'API](#obtenir-le-secret-pour-l-api)
-	* [Exécuter un test de base](#executer-un-test-de-base)
-	* [Récupérer les logs du test](#recuperer-les-logs-du-test)
+	* [Exécuter une tâche](#executer-une-tache)
+	* [Récupérer les logs d'une tâche](#recuperer-les-logs-d-une-tache)
+* [How to write and execute a SSH task](#how-to-write-and-execute-a-ssh-task)
+	* [Describe your YAML task](#describe-your-yaml-task)
+    * [Execute the task from web interface](#execute-the-task-from-web-interface)
+    * [Display the result of the task from the web interface](#display-the-result-of-the-task-from-the-web-interface)
 * [Sécurisation](#sécurisation)
 	* [Ajout ReverseProxy](#reverse-proxy)
 	* [Authentication utilisateurs via LDAP](#authentication-utilisateurs-via-ldap)
@@ -72,14 +76,15 @@
 1. Cloner le projet avec git sur votre serveur linux
 
         git clone https://github.com/ExtensiveAutomation/extensiveautomation-server.git
-  
+        cd extensiveautomation-server/
+        
 2. Installer les dépendances python suivantes avec la commande `pip`:
    
         python3 -m pip install wrapt pycnic lxml jsonpath_ng pyyaml
         
 3. Démarrer le serveur. Sur Linux, le serveur est exécuté en tant que daemon.
 
-        cd src
+        cd src/
         python3 extensiveautomation.py --start
         
 4. Enfin vérifier le [bon fonctionnement du serveur](#utilisation-de-la-commande-curl).
@@ -93,11 +98,13 @@ un par un en fonction de vos besoins.
 * [Plugin CLI (ssh)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli)
 
         pip install extensiveautomation_plugin_cli
+        ./extensiveautomation --reload
         
 * [Plugin WEB (http/https)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web)
 
         pip install extensiveautomation_plugin_web
-
+        ./extensiveautomation --reload
+        
 * [Plugin GUI (selenium, sikulix and adb)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui)
 * [Et d'autres encore...](https://github.com/ExtensiveAutomation/extensiveautomation-plugins-server)
 
@@ -152,7 +159,7 @@ L'interface web permet de:
 Pour utiliser le serveur depuis le client lourd, merci de lire la [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-appclient#qt-application-for-extensiveautomation) suivante.
 
 
-## Exécuter un test depuis l'API REST
+## Comment exécuter une tâche depuis l'API REST
 
 ### Obtenir le secret pour l'API
 
@@ -162,7 +169,7 @@ Get the API secret for the user admin
         API key: admin
         API secret: 6977aa6a443bd3a6033ebb52557cf90d24c79857
 
-### Exécuter un test de base
+### Exécuter une tâche
 
 Tests samples are available in the default tests storage <projectpath_install>/var/tests/1/
 
@@ -185,7 +192,7 @@ Success response:
             "test-name": "01_testunit"
         }
         
-### Récupérer les logs du test
+### Récupérer les logs d'une tâche
 
 Curl command:
 
@@ -207,7 +214,83 @@ Success response:
             10:50:10.7375 task-stopped 0.006909608840942383", 
             "test-logs-index": 156
         }
-         
+
+## How to write and execute a SSH task
+
+This example describe how to:
+- execute a ssh commands on a remote server
+- detect specific content on the output of the command
+- save a part of the output to execute a second command with-it
+
+### Describe your YAML task
+
+The SSH plugin must be installed, please refer to [Adding plugins](#adding-plugins).
+
+Go inside your data storage, you can execute the following command to find the path.
+
+        python3 extensiveautomation.py --datastorage
+        /<install_project>/ea/var/tests/
+        
+        cd /<install_project>/ea/var/tests/
+
+Create your YAML file in the default project (1)
+
+        cd 1/
+        touch task_ssh.yml
+        
+Add the following content inside the file:
+
+        properties:
+          parameters:
+          - name: SERVERS
+            type: json
+            value: |-
+              [
+                  {
+                      "SSH_DEST_HOST": "10.0.0.55",
+                      "SSH_DEST_PORT": 22,
+                      "SSH_DEST_LOGIN": "root",
+                      "SSH_DEST_PWD": "bonjour",
+                      "SSH_PRIVATE_KEY": null,
+                      "SSH_PRIVATE_KEY_PATH": null,
+                      "SSH_AGENT": { "name": "agent.win.ssh01", "type": "ssh" },
+                      "SSH_AGENT_SUPPORT": false
+                  }
+              ]
+        testplan:
+        - alias: Get hostname of the machine
+          file: Common:YAML_snippets/Protocols/01_Send_SSH.yml
+          parameters:
+          - name: COMMANDS
+            type: text
+            value: |-
+                # check status
+                uname -n && echo {}
+                .*{}.*\n[!CAPTURE:MACHINE_HOSTNAME:]\n{}.*
+                
+        - alias: Ping hostname
+          file: Common:YAML_snippets/Protocols/01_Send_SSH.yml
+          parameters:
+          - name: COMMANDS
+            type: text
+            value: |-
+                # send ping 
+                clear && ping -c 3 [!CACHE:MACHINE_HOSTNAME:]
+                .*3 packets transmitted, 3 received, 0% packet loss.*
+                
+
+### Execute the task from web interface
+
+Install the web interface as describe on the page [Connection to server with the web client](#connection-to-server-with-the-web-client).
+
+Go to the menu Automation > Task > Add Task
+
+Select the File "task_ssh" and click on the button 'CREATE'
+
+### Display the result of the task from the web interface
+
+Go to the menu Automation > Run  and display Logs
+
 ## Sécurisation
 
 ### Ajout d'un reverse proxy
@@ -267,7 +350,7 @@ Vous pouvez suivre la procédure suivante pour utiliser un serveur LDAP:
 
 1. Installer la dépendance python suivante avec la commande `pip`:
 
-        python -m pip install ldap3
+        python3 -m pip install ldap3
 
 2. Configurer le fichier de configuration `settings.ini` pour activer l'authentication ldap
 
@@ -286,8 +369,8 @@ Vous pouvez suivre la procédure suivante pour utiliser un serveur LDAP:
 3. Redémarrer le serveur.
 
         cd src/
-        python extensiveautomation.py --stop
-        python extensiveautomation.py --start
+        python3 extensiveautomation.py --stop
+        python3 extensiveautomation.py --start
 
 4. Vérifier l'authentification d'un utilisateur
 

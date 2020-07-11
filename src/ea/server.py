@@ -48,10 +48,10 @@ else:
 parser = OptionParser()
 if platform.system() != "Linux":
     parser.set_usage(
-        "./extensiveautomation.py [start|version|install_adapter|decodetrx|apikey|apisecret|convert2yaml]")
+        "./extensiveautomation.py [start|version|install_adapter|decodetrx|apikey|convert2yaml]")
 else:
     parser.set_usage("./extensiveautomation.py [start|stop|reload|version|\
-install_adapter|decodetrx|apikey|apisecret|convert2yaml]")
+install_adapter|decodetrx|apikey|convert2yaml]")
 
 parser.add_option('--start', dest='start', default=False,
                   action='store_true',
@@ -84,6 +84,9 @@ parser.add_option('--install_adapter', dest='install_adapter', default=False,
 parser.add_option('--convert2yaml', dest='convert2yaml', default=False,
                   action='store_true',
                   help='Convert test XML to YAML')
+parser.add_option('--datastorage', dest='datastorage', default=False,
+                  action='store_true',
+                  help='Show the path of the datastorage')
 (options, args) = parser.parse_args()
 
 
@@ -147,6 +150,10 @@ def cli():
     if options.convert2yaml is True:
         Cli.instance().convert2yaml()
         sys.exit(0)
-
+        
+    if options.datastorage is True:
+        Cli.instance().show_data_storage()
+        sys.exit(0)
+        
     parser.print_help()
     sys.exit(2)

@@ -27,6 +27,7 @@ from pycnic.errors import HTTP_401, HTTP_400, HTTP_500, HTTP_403, HTTP_404
 import wrapt
 import platform
 import os
+import yaml
 
 from ea.libs import Settings
 from ea.serverengine import (Context,
@@ -529,7 +530,6 @@ class SessionContextAll(HandlerCORS):
         rsp['repo-adp'] = adps
         rsp['stats-repo-adapters'] = stats_adps
 
-        # _, _, libs, stats_libs = RepoLibraries.instance().getTree()
         rsp['repo-lib-adp'] = []  # libs
         rsp['stats-repo-libraries'] = {}  # stats_libs
 
@@ -904,8 +904,6 @@ class SystemAbout(HandlerCORS):
           '401':
             description: Access denied
         """
-        # user_profile = _get_user(request=self.request)
-
         about = {}
 
         rn = {}
@@ -1523,13 +1521,6 @@ class TasksSchedule(HandlerCORS):
 
             _scheduleAt = self.request.data.get("schedule-at")
             _scheduleRepeat = self.request.data.get("schedule-repeat", 0)
-            # _tabId = self.request.data.get("tab-id")
-            # _backgroundMode = self.request.data.get("background-mode")
-            # _stepMode = self.request.data.get("step-mode")
-            # _breakpointMode = self.request.data.get("breakpoint-mode")
-            # _probesEnabled = self.request.data.get("probes-enabled")
-            # _notificationsEnabled = self.request.data.get("notifications-enabled")
-            # _logsEnabled = self.request.data.get("logs-enabled")
             _debugEnabled = self.request.data.get("debug-enabled")
             _fromTime = self.request.data.get("from-time")
             _toTime = self.request.data.get("to-time")
@@ -1570,7 +1561,122 @@ class TasksSchedule(HandlerCORS):
         # no test content provided
         if not len(testDefinition) and not len(
                 testExecution) and not len(testProperties):
-            if testExtension == 'tsx':
+            if testExtension == 'yml':
+                try:
+                    file_path = "%s/%s/%s/%s.%s" % (RepoTests.instance().testsPath,
+                                                               projectId,
+                                                               testPath,
+                                                               testName,
+                                                               testExtension)
+                    # read the file
+                    with open(file_path, "r") as f:
+                        doc_yaml = f.read()
+                        
+                    res = yaml.safe_load(doc_yaml)
+
+                    # decode file
+                    if "testplan" in res:
+                        testextension = "tpx"
+                        testfile = res["testplan"]
+                    elif "testglobal" in res:
+                        testextension = "tgx"
+                        testfile = res["testglobal"]
+                    elif "testsuite" in res:
+                        testextension = "tsx"
+                    elif "testunit" in res:
+                        testextension = "tux"
+                    else:
+                        raise Exception("bad yaml format file provided")
+                        
+                    # add default descriptions if missing
+                    if "descriptions" not in res["properties"]:
+                        res["properties"]["descriptions"] = {}
+                        res["properties"]["descriptions"]["author"] = "undefined"
+                        res["properties"]["descriptions"]["name"] = "undefined"
+                        res["properties"]["descriptions"]["requirement"] = "undefined"
+                        res["properties"]["descriptions"]["summary"] = "undefined"
+                    
+                    # add parameters if missing
+                    if "parameters" not in res["properties"]:
+                        res["properties"]["parameters"] = []
+                        
+                    # add default scope in main parameters
+                    for p in res["properties"]["parameters"]:
+                        if "scope" not in p:
+                            p["scope"] = "local"
+                            
+                    testprops = {}
+                    testprops["inputs-parameters"] = {}
+                    testprops["inputs-parameters"]["parameter"] = res["properties"]["parameters"]
+                    testprops["descriptions"] = {}
+                    testprops["descriptions"]["description"] = []
+ 
+                    for k,v in res["properties"]["descriptions"].items():
+                        s = { 'key': k, 'value': v }
+                        testprops["descriptions"]["description"].append(s)
+
+                    if testextension in ["tpx", "tgx"]:
+                        doc = TestPlan.DataModel()
+                    
+                        testplan = {}
+                        testplan['testplan'] = { 'testfile': [] }
+                        i = 0
+                        for tp in testfile:
+                            # add parameters if missing
+                            if "parameters" not in tp:
+                                tp["parameters"] = []
+                            # add default scope in main parameters
+                            for p in tp["parameters"]:
+                                if "scope" not in p:
+                                    p["scope"] = "local"
+                                    
+                            if "id" not in tp:
+                                tp["id"] = "%s" % i
+                            if isinstance(tp["id"], int):
+                                tp["id"] = str(tp["id"])
+                            if "parent" not in tp:
+                                tp["parent"] = "0"
+                            i+=1
+                                
+                            tf_descr = [ {"key": "summary", "value": "undefined"}, 
+                                         {"key": "name", "value": "undefined"},
+                                         {"key": "requirement", "value": "undefined"}]
+                            tf_prop = {"properties": {"descriptions": { "description": tf_descr},
+                                                      "inputs-parameters": {} }}
+                            tf_prop["properties"]["inputs-parameters"]["parameter"] = tp["parameters"]
+                            tp.update(tf_prop)
+                            testplan['testplan']['testfile'].append(tp)
+                        
+                        doc.testplan = testplan
+                        tests = doc.getSorted()
+                        
+                        if testextension == "tpx":
+                            success, error_msg = RepoTests.instance().addtf2tp(data_=tests)
+                            if success != Context.instance().CODE_OK:
+                                raise HTTP_500(
+                                    'Unable to prepare test plan: %s' %
+                                    error_msg)
+                        else:
+                            success, error_msg, tests = RepoTests.instance().addtf2tg(data_=tests)
+                            if success != Context.instance().CODE_OK:
+                                raise HTTP_500(
+                                    'Unable to prepare test global: %s' %
+                                    error_msg)    
+                                    
+                                    
+                    testData = {'test-properties': testprops,
+                                'test-extension': testextension}
+                    if testextension == "tsx":
+                        testData['test-definition'] = res["testsuite"]
+                        testData['test-execution'] = ""
+                    elif testextension == "tux":
+                        testData['test-definition'] = res["testunit"]
+                    else:
+                        testData['test-execution'] = tests
+                except Exception as e:
+                    raise HTTP_500('Unable to read yaml file: %s' % e)
+                    
+            elif testExtension == 'tsx':
                 doc = TestSuite.DataModel()
                 res = doc.load(absPath="%s/%s/%s/%s.%s" % (RepoTests.instance().testsPath,
                                                            projectId,
@@ -1687,28 +1793,14 @@ class TasksSchedule(HandlerCORS):
                     'Test extension not supported: %s' %
                     testExtension)
 
-        # tabId = 0
-        # backgroundMode = True
-        # stepMode = False
-        # breakpointMode = False
-        # notificationsEnabled = False
-        # logsEnabled = True
         debugEnabled = False
-        # probesEnabled = False
         fromTime = (0, 0, 0, 0, 0, 0)
         toTime = (0, 0, 0, 0, 0, 0)
         message = "success"
         scheduleAt = (0, 0, 0, 0, 0, 0)
 
-        # if _tabId is not None: tabId = _tabId
-        # if _backgroundMode is not None: backgroundMode=_backgroundMode
-        # if _stepMode is not None: stepMode=_stepMode
-        # if _breakpointMode is not None: breakpointMode=_breakpointMode
-        # if _notificationsEnabled is not None: notificationsEnabled=_notificationsEnabled
-        # if _logsEnabled is not None: logsEnabled=_logsEnabled
         if _debugEnabled is not None:
             debugEnabled = _debugEnabled
-        # if _probesEnabled is not None: probesEnabled=_probesEnabled
         if _fromTime is not None:
             fromTime = _fromTime
         if _toTime is not None:
