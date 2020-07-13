@@ -58,7 +58,7 @@ class Server():
     def run_tests_framework(self):
         print("Testing framework...")
 
-        self.run_task_schedule(testpath="/Samples/Framework_Features",
+        self.run_task_schedule(testpath="/deprecated/Samples/Framework_Features",
                                testname="001_All_features",
                                testext="tpx")
 
@@ -67,7 +67,7 @@ class Server():
     def run_tests_api(self):
         print("Testing REST API...")
 
-        self.run_task_schedule(testpath="/Samples/Self Testing",
+        self.run_task_schedule(testpath="/deprecated/Samples/Self Testing",
                                testname="001_REST_API_Session_Auth",
                                testext="tpx")
 
