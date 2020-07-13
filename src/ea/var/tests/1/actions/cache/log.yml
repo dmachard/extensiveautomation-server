@@ -1,0 +1,15 @@
+properties:
+  parameters:
+    - name: key
+      value: 
+testunit: |
+    def description(self):
+        self.step1 = self.addStep(summary="Log from cache key=%s" % input("key"))
+        
+    def definition(self):
+        self.step1.start()
+        self.info("value=%s" % Cache().get(input("key")))
+        self.step1.setPassed("success")
+        
+    def cleanup(self, aborted):
+        pass

@@ -26,13 +26,13 @@
 	* [Source code](#source-code)
 	* [Adding plugins](#adding-plugins)
 * [Connecting to server](#connecting-to-server) 
-	* [Connection to server with curl](#connection-to-server-with-curl)
-	* [Connection to server with the web client](#connection-to-server-with-the-web-client)
-	* [Connection to server with the app client](#connection-to-server-with-the-app-client)
+	* [Connection using Curl](#connection-using-curl)
+	* [Connection using Web client](#connection-using-web-client)
+	* [Connection using App client](#connection-using-app-client)
 * [Understand the Data Storage](#understand-the-data-storage)
 	* [Get the location](#get-the-location)
 * [Automation using the Web Interface](#automation-using-the-web-interface)
-    * [Task execution](#task-interface)
+    * [Tasks execution](#tasks-execution)
     * [Display tasks result](#display-tasks-result)
 * [Automation using the REST API](#automation-using-the-rest-api) 
 	* [Get api secret key](#get-api-secret-key)
@@ -42,7 +42,7 @@
 	* [Basic task](#basic-task)
 	* [SSH task](#ssh-task)
 	* [HTTP task](#http-task)
-* [Security](#security)
+* [More security](#more-security)
 	* [Adding ReverseProxy](#reverse-proxy)
 	* [LDAP users authentication](#ldap-users-authentication)
 
@@ -116,7 +116,7 @@ Plugins allow to interact with the system to be controlled. But by default the s
 
 ## Connecting to server
 
-### Connection to server with curl
+### Connection using Curl
 
 1. Please to take in consideration the following points:
 	
@@ -151,7 +151,7 @@ Plugins allow to interact with the system to be controlled. But by default the s
             "name": ""
         }
 
-### Connection to server with the web client
+### Connection using Web client
 
 To use the server from the web interface, please to read the following [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-webclient#web-interface-for-extensiveautomation).
 This user interface enables to:
@@ -160,7 +160,7 @@ This user interface enables to:
 - manage variables
 - and more...
 
-### Connection to server with the app client
+### Connection using App client
   
 To use the server from the rich application, please to read the following [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-appclient#qt-application-for-extensiveautomation).
 
@@ -178,7 +178,7 @@ The location of the storage can be found with the following command:
 
 Install the web interface as describe on the page [Connection to server with the web client](#connection-to-server-with-the-web-client).
 
-### Task execution
+### Tasks executions
 
 Go to the menu `Automation > Task > Add Task`
 
@@ -250,7 +250,7 @@ Success response:
 ### Basic task
 
 This example describe how to write a basic testunit with some parameters and python code
-This example is available in the data storage in "sample" folder.
+This example is available in the data storage in "samples" folder.
 
         properties:
           parameters:
@@ -271,29 +271,56 @@ This example is available in the data storage in "sample" folder.
 ### SSH task
 
 This example describe how to write a ssh task to execute some commands remotely using SSH.
-The SSH plugin must be installed, please refer to [Adding plugins](#adding-plugins).
-This example is available in the data storage in "sample" folder.
 
-        properties:
-          parameters:
-          - name: hosts
-            value:
-              - ssh-host: 10.0.0.55
-                ssh-login: root
-                ssh-password: ESI23xgx4yYukF9rsA1O
+The SSH plugin must be installed, please refer to [Adding plugins](#adding-plugins).
+
+Two actions are available to create SSH task.
+- send_commands.yml: execute commands remotely using SSH 
+- send_expect.yml: automate your SSH session by interacting with-it
+
+Examples are available in the data storage in `./samples/ssh/` folder.
+
         testplan:
         - alias: execute commands remotely using SSH 
           file: Common:actions/ssh/send_commands.yml
           parameters:
-          - name: commands
+          - name: ssh-hosts
+            value:
+              - ssh-host: 10.0.0.55
+                ssh-login: root
+                ssh-password: ESI23xgx4yYukF9rsA1O
+          - name: ssh-commands
             value: |-
                 echo "hello world" >> /var/log/messages
                 echo "hola mondu" >> /var/log/messages
 
 ### HTTP task
 
+This example describe how to write a HTTP task to send HTTP requests.
 
-## Security
+The WEB plugin must be installed, please refer to [Adding plugins](#adding-plugins).
+
+One action is available to create HTTP task.
+- curl.yml: send http requests and analyse response
+
+Examples are available in the data storage in `./samples/http/` folder.
+
+        testplan:
+        - alias: Get my origin IP
+          file: Common:actions/http/curl.yml
+          parameters:
+          - name: curl-hosts
+            value: https://httpbin.org/ip
+          - name: response-body-json
+            value: |
+                origin -> [!CAPTURE:externalip:]
+        - alias: Log external IP
+          file: Common:actions/cache/log.yml
+          parameters:
+          - name: key
+            value: externalip
+            
+## More security
 
 ### Adding reverse proxy
 

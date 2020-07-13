@@ -1,0 +1,6 @@
+testplan:
+- alias: Post resource on fake rest api
+  file: Common:actions/http/curl.yml
+  parameters:
+  - name: curl-hosts
+    value: http://www.holidaywebservice.com/HolidayService_v2/HolidayService2.asmx
