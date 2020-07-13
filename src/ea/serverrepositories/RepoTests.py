@@ -167,6 +167,10 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                                 doc_yaml = f.read()
                             res = yaml.safe_load(doc_yaml)
                             
+                            # add default props if missing
+                            if "properties" not in res:
+                                res["properties"] = {}
+                                
                             # add default descriptions if missing
                             if "descriptions" not in res["properties"]:
                                 res["properties"]["descriptions"] = {}
@@ -231,11 +235,11 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                                 fileExt = "tpx"
                                 doc = TestPlan.DataModel()
                                 doc.properties['properties'] = testprops
-                                
+
                                 testplan = {}
                                 testplan['testplan'] = { 'testfile': [] }
                                 i = 1
-                                for tp in testfile:
+                                for tp in res["testplan"]:
                                     # add parameters if missing
                                     if "parameters" not in tp:
                                         tp["parameters"] = []
@@ -435,7 +439,11 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                             with open("%s/%s/%s" % (self.testsPath, prjID, absPath), "r") as f:
                                 doc_yaml = f.read()
                             res = yaml.safe_load(doc_yaml)
-                        
+                            
+                            # add default props if missing
+                            if "properties" not in res:
+                                res["properties"] = {}
+                                
                             # add default descriptions if missing
                             if "descriptions" not in res["properties"]:
                                 res["properties"]["descriptions"] = {}
