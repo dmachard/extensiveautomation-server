@@ -31,15 +31,17 @@
 	* [Connection to server with the app client](#connection-to-server-with-the-app-client)
 * [Understand the Data Storage](#understand-the-data-storage)
 	* [Get the location](#get-the-location)
-* [How to execute a task from the Web Interface](#how-to-execute-a-task-from-the-web-interface)
-    * [Execute the task from web interface](#execute-the-task-from-web-interface)
-    * [Display the result of the task from the web interface](#display-the-result-of-the-task-from-the-web-interface)
-* [How to execute a task from REST API](#how-to-execute-a-task-from-rest-api) 
+* [Automation using the Web Interface](#automation-using-the-web-interface)
+    * [Task execution](#task-interface)
+    * [Display tasks result](#display-tasks-result)
+* [Automation using the REST API](#automation-using-the-rest-api) 
 	* [Get api secret key](#get-api-secret-key)
 	* [Run task from sample](#run-task-from-sample)
 	* [Get task logs](#get-task-logs)
-* [How to write and execute a SSH task](#how-to-write-and-execute-a-ssh-task)
-	* [Create your YAML task](#create-your-yaml-task)
+* [Write and working with tasks](#write-and-working-with-tasks)
+	* [Basic task](#basic-task)
+	* [SSH task](#ssh-task)
+	* [HTTP task](#http-task)
 * [Security](#security)
 	* [Adding ReverseProxy](#reverse-proxy)
 	* [LDAP users authentication](#ldap-users-authentication)
@@ -172,7 +174,22 @@ The location of the storage can be found with the following command:
         python3 extensiveautomation.py --datastorage
         /<install_project>/ea/var/
 
-## How to execute a task from REST API
+## Automation using the Web Interface
+
+Install the web interface as describe on the page [Connection to server with the web client](#connection-to-server-with-the-web-client).
+
+### Task execution
+
+Go to the menu `Automation > Task > Add Task`
+
+Select the your test and click on the button `CREATE`
+
+### Display tasks result
+
+Go to the menu `Automation > Run` and display Logs
+
+
+## Automation using the REST API
 
 ### Get api secret key
 
@@ -228,25 +245,12 @@ Success response:
             "test-logs-index": 156
         }
 
-## How to execute a task from the Web Interface
+## Write and working with tasks
 
-### Execute the task from web interface
-
-Install the web interface as describe on the page [Connection to server with the web client](#connection-to-server-with-the-web-client).
-
-Go to the menu `Automation > Task > Add Task`
-
-Select the your test and click on the button `CREATE`
-
-### Display the result of the task from the web interface
-
-Go to the menu `Automation > Run` and display Logs
-
-
-## How to write and execute a basic task
+### Basic task
 
 This example describe how to write a basic testunit with some parameters and python code
-This example is available in the data storage in "testing" folder.
+This example is available in the data storage in "sample" folder.
 
         properties:
           parameters:
@@ -264,11 +268,11 @@ This example is available in the data storage in "testing" folder.
             def cleanup(self, aborted):
                 pass
 
-## How to write and execute a SSH task
+### SSH task
 
 This example describe how to write a ssh task to execute some commands remotely using SSH.
 The SSH plugin must be installed, please refer to [Adding plugins](#adding-plugins).
-This example is available in the data storage in "testing" folder.
+This example is available in the data storage in "sample" folder.
 
         properties:
           parameters:
@@ -285,6 +289,9 @@ This example is available in the data storage in "testing" folder.
             value: |-
                 echo "hello world" >> /var/log/messages
                 echo "hola mondu" >> /var/log/messages
+
+### HTTP task
+
 
 ## Security
 
