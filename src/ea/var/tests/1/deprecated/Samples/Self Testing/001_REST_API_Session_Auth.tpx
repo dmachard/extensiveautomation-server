@@ -88,7 +88,7 @@ Cookie: session_id=[!CACHE:CAPTURED_SESSION_ID:]</value><scope>local</scope><typ
     "project-id": [!CACHE:DEF_PROJECT_ID:], 
     "test-extension": "tux",
     "test-name": "01_Wait",
-    "test-path": "/Snippets/Do",
+    "test-path": "/deprecated/Snippets/Do",
     "test-inputs": [
 		{"name": "DURATION", "type": "int", "value": "2"},
 		{"name": "DEBUG", "type": "bool", "value": "True"}
