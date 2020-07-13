@@ -12,7 +12,7 @@ COPY . /home/extensive/
 RUN true \
     && adduser -D extensive \
     && apk add --update --no-cache g++ make libxslt-dev curl \
-    && pip install --no-cache-dir wrapt pycnic lxml jsonpath_ng \
+    && pip install --no-cache-dir wrapt pycnic lxml jsonpath_ng pyyaml\
     && apk del --no-cache g++ make \
     && cd /home/extensive \
     && chmod 755 start.sh \
