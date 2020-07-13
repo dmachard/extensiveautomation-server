@@ -29,14 +29,17 @@
 	* [Connection to server with curl](#connection-to-server-with-curl)
 	* [Connection to server with the web client](#connection-to-server-with-the-web-client)
 	* [Connection to server with the app client](#connection-to-server-with-the-app-client)
-* [How to execute a task from REST API](#how-to-execute-a-task-from-rest-api) 
-	* [Get api secret key](#get-api-secret-key)
-	* [Run basic task](#run-basic-task)
-	* [Get task logs](#get-task-logs)
-* [How to write and execute a SSH task](#how-to-write-and-execute-a-ssh-task)
-	* [Describe your YAML task](#describe-your-yaml-task)
+* [Understand the Data Storage](#understand-the-data-storage)
+	* [Get the location](#get-the-location)
+* [How to execute a task from the Web Interface](#how-to-execute-a-task-from-the-web-interface)
     * [Execute the task from web interface](#execute-the-task-from-web-interface)
     * [Display the result of the task from the web interface](#display-the-result-of-the-task-from-the-web-interface)
+* [How to execute a task from REST API](#how-to-execute-a-task-from-rest-api) 
+	* [Get api secret key](#get-api-secret-key)
+	* [Run task from sample](#run-task-from-sample)
+	* [Get task logs](#get-task-logs)
+* [How to write and execute a SSH task](#how-to-write-and-execute-a-ssh-task)
+	* [Create your YAML task](#create-your-yaml-task)
 * [Security](#security)
 	* [Adding ReverseProxy](#reverse-proxy)
 	* [LDAP users authentication](#ldap-users-authentication)
@@ -159,6 +162,16 @@ This user interface enables to:
   
 To use the server from the rich application, please to read the following [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-appclient#qt-application-for-extensiveautomation).
 
+## Understand the Data Storage
+
+### Get the location
+
+All data necessary  for the server is stored in a specific folder.
+The location of the storage can be found with the following command:
+
+        python3 extensiveautomation.py --datastorage
+        /<install_project>/ea/var/
+
 ## How to execute a task from REST API
 
 ### Get api secret key
@@ -169,7 +182,7 @@ Get the API secret for the user admin
         API key: admin
         API secret: 6977aa6a443bd3a6033ebb52557cf90d24c79857
 
-### Run basic task 
+### Run task from sample
 
 Tasks samples are available in the default data storage <projectpath_install>/var/tests/1/
 
@@ -194,7 +207,7 @@ Success response:
         
 ### Get task logs
 
-Curl command:
+Run the following command with your test id:
 
         curl  --user admin:6977aa6a443bd3a6033ebb52557cf90d24c79857 \
               -d '{"test-id": "e57aaa43-325d-468d-8cac-f1dea822ef3a", "project-id": 1}' \
@@ -215,82 +228,63 @@ Success response:
             "test-logs-index": 156
         }
 
-## How to write and execute a SSH task
-
-This example describe how to:
-- execute a ssh commands on a remote server
-- detect specific content on the output of the command
-- save a part of the output to execute a second command with-it
-
-### Describe your YAML task
-
-The SSH plugin must be installed, please refer to [Adding plugins](#adding-plugins).
-
-Go inside your data storage, you can execute the following command to find the path.
-
-        python3 extensiveautomation.py --datastorage
-        /<install_project>/ea/var/tests/
-        
-        cd /<install_project>/ea/var/tests/
-
-Create your YAML file in the default project (1)
-
-        cd 1/
-        touch task_ssh.yml
-        
-Add the following content inside the file:
-
-        properties:
-          parameters:
-          - name: SERVERS
-            type: json
-            value: |-
-              [
-                  {
-                      "SSH_DEST_HOST": "10.0.0.55",
-                      "SSH_DEST_PORT": 22,
-                      "SSH_DEST_LOGIN": "root",
-                      "SSH_DEST_PWD": "bonjour",
-                      "SSH_PRIVATE_KEY": null,
-                      "SSH_PRIVATE_KEY_PATH": null,
-                      "SSH_AGENT": { "name": "agent.win.ssh01", "type": "ssh" },
-                      "SSH_AGENT_SUPPORT": false
-                  }
-              ]
-        testplan:
-        - alias: Get hostname of the machine
-          file: Common:YAML_snippets/Protocols/01_Send_SSH.yml
-          parameters:
-          - name: COMMANDS
-            type: text
-            value: |-
-                # check status
-                uname -n && echo {}
-                .*{}.*\n[!CAPTURE:MACHINE_HOSTNAME:]\n{}.*
-                
-        - alias: Ping hostname
-          file: Common:YAML_snippets/Protocols/01_Send_SSH.yml
-          parameters:
-          - name: COMMANDS
-            type: text
-            value: |-
-                # send ping 
-                clear && ping -c 3 [!CACHE:MACHINE_HOSTNAME:]
-                .*3 packets transmitted, 3 received, 0% packet loss.*
-                
+## How to execute a task from the Web Interface
 
 ### Execute the task from web interface
 
 Install the web interface as describe on the page [Connection to server with the web client](#connection-to-server-with-the-web-client).
 
-Go to the menu Automation > Task > Add Task
+Go to the menu `Automation > Task > Add Task`
 
-Select the File "task_ssh" and click on the button 'CREATE'
+Select the your test and click on the button `CREATE`
 
 ### Display the result of the task from the web interface
 
-Go to the menu Automation > Run  and display Logs
+Go to the menu `Automation > Run` and display Logs
 
+
+## How to write and execute a basic task
+
+This example describe how to write a basic testunit with some parameters and python code
+This example is available in the data storage in "testing" folder.
+
+        properties:
+          parameters:
+          - name: hello
+            value: bonjour
+        testunit: |
+            def description(self):
+                self.step1 = self.addStep(summary="step sample")
+                
+            def definition(self):
+                self.step1.start()
+                self.info( "%s" % input("hello") )
+                self.step1.setPassed()
+                
+            def cleanup(self, aborted):
+                pass
+
+## How to write and execute a SSH task
+
+This example describe how to write a ssh task to execute some commands remotely using SSH.
+The SSH plugin must be installed, please refer to [Adding plugins](#adding-plugins).
+This example is available in the data storage in "testing" folder.
+
+        properties:
+          parameters:
+          - name: hosts
+            value:
+              - ssh-host: 10.0.0.55
+                ssh-login: root
+                ssh-password: ESI23xgx4yYukF9rsA1O
+        testplan:
+        - alias: execute commands remotely using SSH 
+          file: Common:actions/ssh/send_commands.yml
+          parameters:
+          - name: commands
+            value: |-
+                echo "hello world" >> /var/log/messages
+                echo "hola mondu" >> /var/log/messages
 
 ## Security
 

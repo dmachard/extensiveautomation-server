@@ -1,0 +1,99 @@
+properties:
+  parameters:
+  - name: commands
+    value: 
+  - name: debug
+    value: false
+  - name: hosts
+    value: 
+  - name: timeout
+    value: 20
+  - name: timeout-connect
+    value: 10
+  - name: verbose
+    value: true
+testsuite: |2-
+  class SEND_SSH_01(TestCase):
+      def description(self, svr):
+          self.ADP_SYS = None
+          self.step1 = self.addStep(expected="no error",
+                                    description="execute ssh commands" ,
+                                    summary="execute ssh commands")
+      def prepare(self, svr):
+          pass
+                                  
+      def definition(self, svr):
+          self.step1.start()
+          
+          ssh_port = 22
+          if "ssh-port" in svr:
+              ssh_port = int(svr["ssh-port"])
+          
+          ssh_agent = None
+          ssh_agent_support = False
+          if "ssh-agent" in svr:
+              if svr["ssh-agent"] is not None:
+                  ssh_agent_support = True
+                  ssh_agent = svr["ssh-agent"]
+
+          ssh_password = ""
+          if "ssh-password" in svr:
+              ssh_password = svr["ssh-password"]
+
+          ssh_private_key = None
+          ssh_private_keyfile = None
+          if "ssh-password" in svr:
+              ssh_password = svr["ssh-password"]
+          if "ssh-private-key" in svr:
+              ssh_private_key = svr["ssh-private-key"]
+          if "ssh-private-keyfile" in svr:
+              ssh_private_keyfile = svr["ssh-private-keyfile"]
+                
+          self.ADP_SYS = SutAdapters.CLI.SshTerminal(parent=self,
+                                                     destIp=svr["ssh-host"],
+                                                     destPort=ssh_port,
+                                                     login=svr["ssh-login"],
+                                                     password=ssh_password,
+                                                     agent=ssh_agent,
+                                                     agentSupport=ssh_agent_support,
+                                                     debug=input('debug'),
+                                                     verbose=input('verbose'), 
+                                                     privateKey=ssh_private_key,
+                                                     privateKeyPath=ssh_private_keyfile)
+
+          if not self.ADP_SYS.doSession(timeout=input('timeout-connect')):
+              self.step1.setFailed(actual="unable to connect")
+              self.abort("unable to connect")
+          
+          self.ADP_SYS.doClear()
+          self.ADP_SYS.clear_queue()
+                  
+          for sys_cmd in input('commands').splitlines():
+              self.ADP_SYS.clear_queue()
+              self.ADP_SYS.doText(text=sys_cmd)
+
+          screen =  self.ADP_SYS.hasReceivedScreen(timeout=input('timeout'))
+          if screen is not None:
+              for line in screen.get("TERM", "data").splitlines():
+                  if input("verbose"):
+                      self.info(line.strip())
+          self.step1.setPassed(actual="success")
+
+          
+      def cleanup(self, aborted, svr):
+          if self.ADP_SYS is not None:
+              self.ADP_SYS.doText(text="exit")
+              self.ADP_SYS.doClose(timeout=input('timeout-connect'))
+
+                  
+  servers = input('hosts')
+  if servers is None: AbortTestSuite(reason="no hosts provided")
+  if not isinstance(servers, list): servers = [ input('hosts') ]
+  for svr in servers:
+      if "ssh-host" not in svr: AbortTestSuite(reason="ssh-host missing in hosts parameter")
+      if "ssh-login" not in svr: AbortTestSuite(reason="ssh-login missing in hosts parameter")
+      if "ssh-password" not in svr:
+          if "ssh-private-key" not in svr:
+              if "ssh-private-keyfile" not in svr:
+                  AbortTestSuite(reason="password or private key is missing in hosts parameter")
+      SEND_SSH_01(suffix=svr["ssh-host"]).execute(svr=svr)

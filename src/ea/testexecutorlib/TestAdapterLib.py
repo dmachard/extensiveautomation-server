@@ -375,6 +375,7 @@ class Adapter(threading.Thread):
         self.stopEvent = threading.Event()
         # queue for event
         self.queue = Queue.Queue(0)
+        self.last_event_queue = None
         self.timeoutSleep = timeoutSleep
 
         self.__agentSupport = agentSupport
@@ -419,6 +420,14 @@ class Adapter(threading.Thread):
         print("Start thread for adapter=%s" % self.NAME)
         self.start()
 
+    def clear_queue(self):
+        """clear the queue"""
+        self.queue.queue.clear()
+        
+    def last_item_queue(self):
+        """get last item from the queue"""
+        return self.last_event_queue
+        
     def getTestResultPath(self):
         """
         Return the test result path
@@ -732,6 +741,7 @@ class Adapter(threading.Thread):
     def received(self, expected, timeout, AND=True, XOR=False):
         """
         """
+        
         if not AND and not XOR:
             raise TestAdaptersException("ERR_ADP_010: no condition defined")
         self.getMatchId()
@@ -766,7 +776,7 @@ class Adapter(threading.Thread):
 
         self.received_running = True
         self.received_result = None
-
+        
         timeoutBool = False
         startTime = time.time()
         while (self.received_result is None) and (not timeoutBool):
@@ -777,11 +787,11 @@ class Adapter(threading.Thread):
 
             if not self.queue.empty():
                 evt = self.queue.get(False)
+                self.last_event_queue = evt
                 for i in xrange(len(self.received_template)):
                     success, tpl = TestTemplatesLib.comparePayload(payload=evt.get(),
-                                                                   tpl=self.received_template[i].get(
-                    ),
-                        debug=self.debug)
+                                                                   tpl=self.received_template[i].get(),
+                                                                   debug=self.debug)
                     if success:
                         self.received_result = evt
 
@@ -809,7 +819,7 @@ class Adapter(threading.Thread):
                                                           tolevel=LEVEL_USER,
                                                           testInfo=self.__testcase.getTestInfo())
 
-            time.sleep(0.5)
+            time.sleep(0.2)
 
         self.received_running = False
         return self.received_result
@@ -822,14 +832,15 @@ class Adapter(threading.Thread):
             self.queue.put(event)
 
         else:
+            self.last_event_queue = event
+            
             componentName = "%s [%s_%s]" % (
                 self.name__, 'Match', str(self.matchId))
 
             for i in xrange(len(self.received_template)):
                 success, tpl = TestTemplatesLib.comparePayload(payload=event.get(),
-                                                               tpl=self.received_template[i].get(
-                ),
-                    debug=self.debug)
+                                                               tpl=self.received_template[i].get(),
+                                                               debug=self.debug)
                 if success:
                     self.received_running = False
                     self.received_result = event

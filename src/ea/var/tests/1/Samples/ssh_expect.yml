@@ -1,0 +1,32 @@
+properties:
+  parameters:
+  - name: hosts
+    value:
+      - ssh-host: 10.0.0.55
+        ssh-login: root
+        ssh-password: bonjour
+testplan:
+- alias: Get hostname of the machine
+  file: Common:actions/ssh/send_expect.yml
+  parameters:
+  - name: commands
+    value: |-
+        # get hostname
+        uname -n
+        .*\n[!CAPTURE:MACHINE_HOSTNAME:]\n.*
+- alias: Log hostname
+  file: Common:actions/ssh/send_commands.yml
+  parent: 1
+  parameters:
+  - name: commands
+    value: |-
+        echo "[!CACHE:MACHINE_HOSTNAME:]" >> /var/log/messages
+- alias: Ping the hostname
+  file: Common:actions/ssh/send_expect.yml
+  parent: 1
+  parameters:
+  - name: commands
+    value: |-
+        # send 3 ping to host
+        ping -c 3 [!CACHE:MACHINE_HOSTNAME:]
+        .*3 packets transmitted, 3 received, 0% packet loss.*  

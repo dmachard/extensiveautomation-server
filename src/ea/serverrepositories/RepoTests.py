@@ -28,6 +28,7 @@ try:
 except ImportError:  # for python3 support
     scandir = os
 import yaml
+import json
 
 from ea.serverengine import (ProjectsManager)
 from ea.serverinterfaces import EventServerInterface as ESI
@@ -165,7 +166,41 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                             with open("%s/%s/%s" % (self.testsPath, prjID, absPath), "r") as f:
                                 doc_yaml = f.read()
                             res = yaml.safe_load(doc_yaml)
-                        
+                            
+                            # add default descriptions if missing
+                            if "descriptions" not in res["properties"]:
+                                res["properties"]["descriptions"] = {}
+                                res["properties"]["descriptions"]["author"] = "undefined"
+                                res["properties"]["descriptions"]["name"] = "undefined"
+                                res["properties"]["descriptions"]["requirement"] = "undefined"
+                                res["properties"]["descriptions"]["summary"] = "undefined"
+                            
+                            # add parameters if missing
+                            if "parameters" not in res["properties"]:
+                                res["properties"]["parameters"] = []
+                                
+                            # add default scope in main parameters
+                            for p in res["properties"]["parameters"]:
+                                if "scope" not in p:
+                                    p["scope"] = "local"
+                                if "value" not in p:
+                                    p["value"] = ""
+                                if "type" not in p:
+                                    if p["value"] is None:
+                                        p["type"] = "none"
+                                        p["value"] = ""
+                                    elif isinstance(p["value"], bool):
+                                        p["type"] = "bool"
+                                        p["value"] = "%s" % p["value"]
+                                    elif isinstance(p["value"], int):
+                                        p["type"] = "int"
+                                        p["value"] = "%s" % p["value"]
+                                    elif isinstance(p["value"], list) or isinstance(p["value"], dict):
+                                        p["type"] = "json"
+                                        p["value"] = json.dumps(p["value"])
+                                    else:
+                                        p["type"] = "text"
+                                
                             testprops = {}
                             testprops["inputs-parameters"] = {}
                             testprops["inputs-parameters"]["parameter"] = res["properties"]["parameters"]
@@ -199,9 +234,42 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                                 
                                 testplan = {}
                                 testplan['testplan'] = { 'testfile': [] }
-                                for tp in res["testplan"]:
+                                i = 1
+                                for tp in testfile:
+                                    # add parameters if missing
                                     if "parameters" not in tp:
                                         tp["parameters"] = []
+                                    # add default scope in main parameters
+                                    for p in tp["parameters"]:
+                                        if "scope" not in p:
+                                            p["scope"] = "local"
+                                        if "value" not in p:
+                                            p["value"] = ""
+                                        if "type" not in p:
+                                            if p["value"] is None:
+                                                p["type"] = "none"
+                                                p["value"] = ""
+                                            elif isinstance(p["value"], bool):
+                                                p["type"] = "bool"
+                                                p["value"] = "%s" % p["value"]
+                                            elif isinstance(p["value"], int):
+                                                p["type"] = "int"
+                                                p["value"] = "%s" % p["value"]
+                                            elif isinstance(p["value"], list) or isinstance(p["value"], dict):
+                                                p["type"] = "json"
+                                                p["value"] = json.dumps(p["value"])
+                                            else:
+                                                p["type"] = "text"
+                                            
+                                    if "id" not in tp:
+                                        tp["id"] = "%s" % i
+                                    if isinstance(tp["id"], int):
+                                        tp["id"] = str(tp["id"])
+                                    if "parent" not in tp:
+                                        tp["parent"] = "0"
+                                    if isinstance(tp["parent"], int):
+                                        tp["parent"] = str(tp["parent"])
+                                    i+=1
                                         
                                     tf_descr = [ {"key": "summary", "value": ""}, 
                                                  {"key": "name", "value": ""},
@@ -368,12 +436,46 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                                 doc_yaml = f.read()
                             res = yaml.safe_load(doc_yaml)
                         
+                            # add default descriptions if missing
+                            if "descriptions" not in res["properties"]:
+                                res["properties"]["descriptions"] = {}
+                                res["properties"]["descriptions"]["author"] = "undefined"
+                                res["properties"]["descriptions"]["name"] = "undefined"
+                                res["properties"]["descriptions"]["requirement"] = "undefined"
+                                res["properties"]["descriptions"]["summary"] = "undefined"
+                                
+                            # add parameters if missing
+                            if "parameters" not in res["properties"]:
+                                res["properties"]["parameters"] = []    
+                                
+                            # add default scope in main parameters
+                            for p in res["properties"]["parameters"]:
+                                if "scope" not in p:
+                                    p["scope"] = "local"
+                                if "value" not in p:
+                                    p["value"] = ""
+                                if "type" not in p:
+                                    if p["value"] is None:
+                                        p["type"] = "none"
+                                        p["value"] = ""
+                                    elif isinstance(p["value"], bool):
+                                        p["type"] = "bool"
+                                        p["value"] = "%s" % p["value"]
+                                    elif isinstance(p["value"], int):
+                                        p["type"] = "int"
+                                        p["value"] = "%s" % p["value"]
+                                    elif isinstance(p["value"], list) or isinstance(p["value"], dict):
+                                        p["type"] = "json"
+                                        p["value"] = json.dumps(p["value"])
+                                    else:
+                                        p["type"] = "text"
+                                
                             testprops = {}
                             testprops["inputs-parameters"] = {}
                             testprops["inputs-parameters"]["parameter"] = res["properties"]["parameters"]
                             testprops["descriptions"] = {}
                             testprops["descriptions"]["description"] = []
-         
+
                             for k,v in res["properties"]["descriptions"].items():
                                 s = { 'key': k, 'value': v }
                                 testprops["descriptions"]["description"].append(s)

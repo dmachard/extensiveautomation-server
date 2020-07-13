@@ -3260,7 +3260,7 @@ class Step(object):
         if not continueRun:
             raise AbortException("step on error, don't continue")
 
-    def setPassed(self, actual, thumbnail=None, chart=None):
+    def setPassed(self, actual="", thumbnail=None, chart=None):
         """
         Set the result of the testcase to passed
 
@@ -3382,7 +3382,7 @@ class StepManager(object):
         """
         return len(self.getSteps())
 
-    def addStep(self, action, expected, summary, enabled=True, thumbnail=None):
+    def addStep(self, action="", expected="", summary="", enabled=True, thumbnail=None):
         """
         Add a step
 
@@ -4225,7 +4225,7 @@ class TestCase(object):
         """
         return self.__logs
 
-    def addStep(self, expected, description, summary,
+    def addStep(self, expected="", description="", summary="",
                 enabled=True, thumbnail=None):
         """
         Add step to the testcase with description

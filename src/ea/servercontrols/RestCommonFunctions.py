@@ -28,6 +28,7 @@ import wrapt
 import platform
 import os
 import yaml
+import json
 
 from ea.libs import Settings
 from ea.serverengine import (Context,
@@ -1604,6 +1605,23 @@ class TasksSchedule(HandlerCORS):
                     for p in res["properties"]["parameters"]:
                         if "scope" not in p:
                             p["scope"] = "local"
+                        if "value" not in p:
+                            p["value"] = ""
+                        if "type" not in p:
+                            if p["value"] is None:
+                                p["type"] = "none"
+                                p["value"] = ""
+                            elif isinstance(p["value"], bool):
+                                p["type"] = "bool"
+                                p["value"] = "%s" % p["value"]
+                            elif isinstance(p["value"], int):
+                                p["type"] = "int"
+                                p["value"] = "%s" % p["value"]
+                            elif isinstance(p["value"], list) or isinstance(p["value"], dict):
+                                p["type"] = "json"
+                                p["value"] = json.dumps(p["value"])
+                            else:
+                                p["type"] = "text"
                             
                     testprops = {}
                     testprops["inputs-parameters"] = {}
@@ -1620,7 +1638,7 @@ class TasksSchedule(HandlerCORS):
                     
                         testplan = {}
                         testplan['testplan'] = { 'testfile': [] }
-                        i = 0
+                        i = 1
                         for tp in testfile:
                             # add parameters if missing
                             if "parameters" not in tp:
@@ -1629,6 +1647,23 @@ class TasksSchedule(HandlerCORS):
                             for p in tp["parameters"]:
                                 if "scope" not in p:
                                     p["scope"] = "local"
+                                if "value" not in p:
+                                    p["value"] = ""
+                                if "type" not in p:
+                                    if p["value"] is None:
+                                        p["type"] = "none"
+                                        p["value"] = ""
+                                    elif isinstance(p["value"], bool):
+                                        p["type"] = "bool"
+                                        p["value"] = "%s" % p["value"]
+                                    elif isinstance(p["value"], int):
+                                        p["type"] = "int"
+                                        p["value"] = "%s" % p["value"]
+                                    elif isinstance(p["value"], list) or isinstance(p["value"], dict):
+                                        p["type"] = "json"
+                                        p["value"] = json.dumps(p["value"])
+                                    else:
+                                        p["type"] = "text"
                                     
                             if "id" not in tp:
                                 tp["id"] = "%s" % i
@@ -1636,6 +1671,8 @@ class TasksSchedule(HandlerCORS):
                                 tp["id"] = str(tp["id"])
                             if "parent" not in tp:
                                 tp["parent"] = "0"
+                            if isinstance(tp["parent"], int):
+                                tp["parent"] = str(tp["parent"])
                             i+=1
                                 
                             tf_descr = [ {"key": "summary", "value": "undefined"}, 

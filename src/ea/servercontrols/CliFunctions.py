@@ -393,8 +393,10 @@ class CliFunctions(Logger.ClassLogger):
 
     def show_data_storage(self):
         """show data storage path"""
-        RepoTests.initialize(context=None)
-        sys.stdout.write("%s\n" % RepoTests.instance().testsPath)
+        storage = "%s%s" % (Settings.getDirExec(),
+                             Settings.get('Paths', 'var'))
+                                        
+        sys.stdout.write("%s\n" % storage)
         
     def convert2yaml(self):
         """convert test files to yaml"""

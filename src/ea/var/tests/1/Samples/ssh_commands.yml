@@ -1,0 +1,15 @@
+properties:
+  parameters:
+  - name: hosts
+    value:
+      - ssh-host: 10.0.0.55
+        ssh-login: root
+        ssh-password: bonjour
+testplan:
+- alias: execute commands remotely using SSH 
+  file: Common:actions/ssh/send_commands.yml
+  parameters:
+  - name: commands
+    value: |-
+        echo "hello world" >> /var/log/messages
+        echo "hola mondu" >> /var/log/messages
