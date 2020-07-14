@@ -1,0 +1,6 @@
+testplan:
+- alias: Sleeping
+  file: Common:actions/basic/wait.yml
+  parameters:
+  - name: duration
+    value: 5

@@ -223,7 +223,13 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                                 doc.testdef = res["testsuite"]
                                 doc.testexec = ""
                                 ts["extension"] = "tsx"
-                                
+                            elif "python" in res:
+                                fileExt = "tsx"
+                                doc = TestSuite.DataModel()
+                                doc.properties['properties'] = testprops
+                                doc.testdef = res["python"]
+                                doc.testexec = ""
+                                ts["extension"] = "tsx"    
                             elif "testunit" in res:
                                 fileExt = "tux"
                                 doc = TestUnit.DataModel()
@@ -494,6 +500,13 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                                 doc = TestSuite.DataModel()
                                 doc.properties['properties'] = testprops
                                 doc.testdef = res["testsuite"]
+                                doc.testexec = ""
+                                ts["extension"] = "tsx"
+                            elif "python" in res:
+                                fileExt = "tsx"
+                                doc = TestSuite.DataModel()
+                                doc.properties['properties'] = testprops
+                                doc.testdef = res["python"]
                                 doc.testexec = ""
                                 ts["extension"] = "tsx"
                             else:

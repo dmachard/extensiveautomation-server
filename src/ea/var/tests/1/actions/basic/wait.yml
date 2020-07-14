@@ -1,0 +1,9 @@
+properties:
+  parameters:
+  - name: duration
+    value: 10
+python: |
+    class Wait(Action):
+        def definition(self):
+            Timer(self).wait(timeout=input('duration'))
+    Wait().execute()

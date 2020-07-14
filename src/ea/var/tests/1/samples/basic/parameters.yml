@@ -1,0 +1,24 @@
+properties:
+  parameters:
+  - name: text
+    value: |-
+        hello world
+        bonjour
+  - name: integer
+    value: 20
+  - name: boolean
+    value: false
+  - name: none
+    value: null
+  - name: dict
+    value:
+        hello: world
+python: |
+    class PythonCode(Action):
+        def definition(self):
+            self.info( "Text: %s" % len(input("text")))
+            self.info( "Integer: %s" % input("integer"))
+            self.info( "Boolean: %s" % input("boolean"))
+            self.info( "Null: %s" % input("none"))
+            self.info( "Dict: %s" % input("dict"))
+    PythonCode().execute()

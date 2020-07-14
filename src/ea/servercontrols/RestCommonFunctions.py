@@ -1586,8 +1586,14 @@ class TasksSchedule(HandlerCORS):
                         testextension = "tsx"
                     elif "testunit" in res:
                         testextension = "tux"
+                    elif "python" in res:
+                        testextension = "tsx"    
                     else:
                         raise Exception("bad yaml format file provided")
+                      
+                    # add default props if missing
+                    if "properties" not in res:
+                        res["properties"] = {}
                         
                     # add default descriptions if missing
                     if "descriptions" not in res["properties"]:
@@ -1704,7 +1710,10 @@ class TasksSchedule(HandlerCORS):
                     testData = {'test-properties': testprops,
                                 'test-extension': testextension}
                     if testextension == "tsx":
-                        testData['test-definition'] = res["testsuite"]
+                        if "python" in res:
+                            testData['test-definition'] = res["python"]
+                        else:
+                            testData['test-definition'] = res["testsuite"]
                         testData['test-execution'] = ""
                     elif testextension == "tux":
                         testData['test-definition'] = res["testunit"]

@@ -39,7 +39,7 @@
 	* [Run task from sample](#run-task-from-sample)
 	* [Get task logs](#get-task-logs)
 * [Write and working with tasks](#write-and-working-with-tasks)
-	* [Basic task](#basic-task)
+	* [HelloWorld task](#hello-world-task)
 	* [SSH task](#ssh-task)
 	* [HTTP task](#http-task)
 * [More security](#more-security)
@@ -154,10 +154,10 @@ Plugins allow to interact with the system to be controlled. But by default the s
 ### Connection using Web client
 
 To use the server from the web interface, please to read the following [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-webclient#web-interface-for-extensiveautomation).
-This user interface enables to:
-- manage users
-- manage projects
-- manage variables
+This user interface enables to manage:
+- users
+- projects
+- variables
 - and more...
 
 ### Connection using App client
@@ -174,6 +174,19 @@ The location of the storage can be found with the following command:
         python3 extensiveautomation.py --datastorage
         /<install_project>/ea/var/
 
+Data storage overview:
+
+    var/
+      tests/
+        <project_id>/
+            [...yaml files...]
+      testsresult/
+        <project_id>/
+            <result_id>/
+      logs/
+        output.log
+      data.db
+  
 ## Automation using the Web Interface
 
 Install the web interface as describe on the page [Connection to server with the web client](#connection-to-server-with-the-web-client).
@@ -206,8 +219,8 @@ Tasks samples are available in the default data storage <projectpath_install>/va
 Curl command:
 
         curl  --user admin:6977aa6a443bd3a6033ebb52557cf90d24c79857 \
-              -d '{"project-id": 1,"test-extension": "yml", "test-name": "01_testunit",
-              "test-path": "YAML_samples/Framework_Tests/"}' \
+              -d '{"project-id": 1,"test-extension": "yml", "test-name": "helloworld",
+              "test-path": "samples/basic/"}' \
               -H "Content-Type: application/json" \
               -X POST http://127.0.0.1:8081/tasks/schedule
               
@@ -219,7 +232,7 @@ Success response:
             "task-id": 2,
             "test-id": "e57aaa43-325d-468d-8cac-f1dea822ef3a", 
             "tab-id": 0,
-            "test-name": "01_testunit"
+            "test-name": "helloworld"
         }
         
 ### Get task logs
@@ -239,7 +252,7 @@ Success response:
             "test-status": "complete", 
             "test-verdict": "pass", 
             "test-logs": "10:50:10.7241 task-started
-            10:50:10.7243 script-started 01_testunit
+            10:50:10.7243 script-started helloworld
             10:50:10.7309 script-stopped PASS 0.007
             10:50:10.7375 task-stopped 0.006909608840942383", 
             "test-logs-index": 156
@@ -247,27 +260,21 @@ Success response:
 
 ## Write and working with tasks
 
-### Basic task
+### HelloWorld task
 
 This example describe how to write a basic testunit with some parameters and python code
-This example is available in the data storage in "samples" folder.
+This example is available in the data storage in "/samples/basic/" folder.
 
         properties:
           parameters:
-          - name: hello
-            value: bonjour
-        testunit: |
-            def description(self):
-                self.step1 = self.addStep(summary="step sample")
-                
-            def definition(self):
-                self.step1.start()
-                self.info( "%s" % input("hello") )
-                self.step1.setPassed()
-                
-            def cleanup(self, aborted):
-                pass
-
+          - name: msg
+            value: hello world
+        python: |
+            class HelloWorld(Action):
+                def definition(self):
+                    self.info(input("msg"))
+            HelloWorld().execute()
+            
 ### SSH task
 
 This example describe how to write a ssh task to execute some commands remotely using SSH.
