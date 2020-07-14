@@ -4,24 +4,10 @@
 ![](https://github.com/ExtensiveAutomation/extensiveautomation-server/workflows/Python%20Package/badge.svg)
 ![](https://github.com/ExtensiveAutomation/extensiveautomation-server/workflows/Docker%20Image/badge.svg)
 
-
 **ExtensiveAutomation** enable you to create custom workflows to automate your project.
  - workflows must be defined with YAML file
  - a workflow is the combination of differents actions.
  - an action is individual python code source with parameters.
-
-| | |
-| ------------- | ------------- |
-| Copyright |  Copyright (c) 2010-2020  Denis Machard <d.machard@gmail.com> |
-| License |  LGPL2.1 |
-| Homepage |  https://www.extensiveautomation.org/ |
-| Docs |  https://extensiveautomation.readthedocs.io/en/latest/ |
-| Github |  https://github.com/ExtensiveAutomation |   
-| Docker Hub | https://hub.docker.com/u/extensiveautomation |   
-| PyPI |  https://pypi.org/project/extensiveautomation-server/ |
-| Google Users | https://groups.google.com/group/extensive-automation-users |
-| Twitter | https://twitter.com/Extensive_Auto |
-| | |
 
 ## Table of contents
 * [Server Installation](#installation)
@@ -52,6 +38,7 @@
 * [More security](#more-security)
 	* [Adding ReverseProxy](#reverse-proxy)
 	* [LDAP users authentication](#ldap-users-authentication)
+* [About](#about)
 
 ## Server Installation
 
@@ -440,3 +427,20 @@ Follow this procedure to enable LDAP authentication:
        curl -X POST http://127.0.0.1:8081/session/login \
             -H "Content-Type: application/json" \
             -d '{"login": "admin", "password": "password"}'
+
+## About
+
+This project is an effort, driven in my spare time.
+
+| | |
+| ------------- | ------------- |
+| Copyright |  Copyright (c) 2010-2020  Denis Machard <d.machard@gmail.com> |
+| License |  LGPL2.1 |
+| Homepage |  https://www.extensiveautomation.org/ |
+| Docs |  https://extensiveautomation.readthedocs.io/en/latest/ |
+| Github |  https://github.com/ExtensiveAutomation |   
+| Docker Hub | https://hub.docker.com/u/extensiveautomation |   
+| PyPI |  https://pypi.org/project/extensiveautomation-server/ |
+| Google Users | https://groups.google.com/group/extensive-automation-users |
+| Twitter | https://twitter.com/Extensive_Auto |
+| | |
