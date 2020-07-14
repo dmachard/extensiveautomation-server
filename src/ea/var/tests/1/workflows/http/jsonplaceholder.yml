@@ -1,4 +1,4 @@
-testplan:
+actions:
 - alias: Post resource on fake rest api
   file: Common:actions/http/curl.yml
   parameters:

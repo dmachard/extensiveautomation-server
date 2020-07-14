@@ -1,11 +1,8 @@
 properties:
   parameters:
-  - name: commands
+  - name: ssh-commands
     value: 
-  - name: debug
-    value: false
-  - name: hosts
-    type: text
+  - name: ssh-hosts
     value: 
   - name: timeout
     value: 20
@@ -13,19 +10,13 @@ properties:
     value: 10
   - name: verbose
     value: true
-testsuite: |2-
-
-  class SEND_SSH_01(TestCase):
-      def description(self, svr):
-          self.step1 = self.addStep(expected="Connected to the remote host with success",
-                                    description="Send ssh commands" ,
-                                    summary="Connect to the remote machine with ssh protocol",
-                                    enabled=True)
-                                    
-      def prepare(self, svr):
+  - name: debug
+    value: false
+python: |
+    class SshSendExpect(Action):     
+      def definition(self, svr):
           self.ADP_SYS = None
-          self.step1.start()
-          
+
           ssh_port = 22
           if "ssh-port" in svr:
               ssh_port = int(svr["ssh-port"])
@@ -50,6 +41,7 @@ testsuite: |2-
           if "ssh-private-keyfile" in svr:
               ssh_private_keyfile = svr["ssh-private-keyfile"]
               
+          self.info("> connecting to remote %s:%s" % (svr["ssh-host"],ssh_port))
           self.ADP_SYS = SutAdapters.CLI.SshTerminal(parent=self,
                                                      destIp=svr["ssh-host"],
                                                      destPort=ssh_port,
@@ -62,37 +54,33 @@ testsuite: |2-
                                                      privateKey=ssh_private_key,
                                                      privateKeyPath=ssh_private_keyfile)
 
-      def definition(self, svr):
-
           if not self.ADP_SYS.doSession(timeout=input('timeout-connect')):
-              self.step1.setFailed(actual="unable to connect")
-              self.abort("unable to connect")
-          self.step1.setPassed(actual="connected the remote host")
-
+              self.abort("< unable to connect")
+          else:
+              self.info("< connected to remote")
+              
           i = 0
           block = 4
-          stepN = None
+          block_started = False
           
-          cmds = input('commands').splitlines()
+          cmds = input('ssh-commands').splitlines()
           if len(cmds) == 2:
               cmds.append("")
               
           for sys_cmd in cmds:
               if not (i % block):
                   searchScreen = False
-                  stepN = self.addStep(expected="command executed with success",
-                                       description=sys_cmd[1:],
-                                       summary=sys_cmd[1:])
+                  block_started = True
+                  self.warning("%s" % sys_cmd)
 
               if (i % block) == 1:
-                  if stepN is None: continue
-                  stepN.start()
+                  if not block_started: continue
                   self.ADP_SYS.doClear()
                   self.ADP_SYS.clear_queue()
                   self.ADP_SYS.doText(text=sys_cmd)
 
               if (i % block) == 2 and len(sys_cmd):
-                  if stepN is None: continue
+                  if not block_started: continue
                   searchScreen = False
                   screen =  self.ADP_SYS.hasReceivedScreen(timeout=input('timeout'),
                                                            text=TestOperators.RegEx(needle=sys_cmd))
@@ -102,7 +90,6 @@ testsuite: |2-
                       not_found = True
                       
                   if screen is None:
-                      stepN.setFailed("no screen received during timeout interval")
                       self.abort("no screen received during timeout interval")
                   else:
 
@@ -116,17 +103,15 @@ testsuite: |2-
                               self.info(line.strip())
                               
                       if not_found:
-                          stepN.setFailed("unable to find %s in screen" % sys_cmd)
                           self.abort("unable to find %s in screen" % sys_cmd)
                       else:
                           Cache().capture(data=screen_content, regexp=sys_cmd)
-                          stepN.setPassed("%s found in scren" % sys_cmd)
+                          self.info("< %s found in screen" % sys_cmd)
 
               if (i % block) == 2 and not len(sys_cmd):
                   if not searchScreen:
-                      if stepN is None: continue
-                      stepN.setPassed("command executed without return")
-                  stepN = None
+                      if not block_started: continue
+                  block_started = False
                   i += 1
               i += 1
 
@@ -136,14 +121,14 @@ testsuite: |2-
               self.ADP_SYS.doClose(timeout=input('timeout-connect'))
 
                   
-  servers = input('hosts')
-  if servers is None: AbortTestSuite(reason="no hosts provided")
-  if not isinstance(servers, list): servers = [ input('hosts') ]
-  for svr in servers:
+    servers = input('ssh-hosts')
+    if servers is None: AbortTestSuite(reason="no hosts provided")
+    if not isinstance(servers, list): servers = [ input('ssh-hosts') ]
+    for svr in servers:
       if "ssh-host" not in svr: AbortTestSuite(reason="ssh-host missing in hosts parameter")
       if "ssh-login" not in svr: AbortTestSuite(reason="ssh-login missing in hosts parameter")
       if "ssh-password" not in svr:
           if "ssh-private-key" not in svr:
               if "ssh-private-keyfile" not in svr:
                   AbortTestSuite(reason="password or private key is missing in hosts parameter")
-      SEND_SSH_01(suffix=svr["ssh-host"]).execute(svr=svr)
+      SshSendExpect().execute(svr=svr)

@@ -1,4 +1,4 @@
-testplan:
+actions:
 - alias: Get my origin IP
   file: Common:actions/http/curl.yml
   parameters:

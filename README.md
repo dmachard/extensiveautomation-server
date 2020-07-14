@@ -4,9 +4,14 @@
 ![](https://github.com/ExtensiveAutomation/extensiveautomation-server/workflows/Python%20Package/badge.svg)
 ![](https://github.com/ExtensiveAutomation/extensiveautomation-server/workflows/Docker%20Image/badge.svg)
 
+
+**ExtensiveAutomation** enable you to create custom workflows to automate your project.
+ - workflows must be defined with YAML file
+ - a workflow is the combination of differents actions.
+ - an action is individual python code source with parameters.
+
 | | |
 | ------------- | ------------- |
-| ExtensiveAutomation | Python automation server |
 | Copyright |  Copyright (c) 2010-2020  Denis Machard <d.machard@gmail.com> |
 | License |  LGPL2.1 |
 | Homepage |  https://www.extensiveautomation.org/ |
@@ -19,7 +24,6 @@
 | | |
 
 ## Table of contents
-* [Introduction](#introduction)
 * [Server Installation](#installation)
 	* [PyPI package](#pypi-package)
 	* [Docker image](#docker-image)
@@ -31,24 +35,23 @@
 	* [Connection using App client](#connection-using-app-client)
 * [Understand the Data Storage](#understand-the-data-storage)
 	* [Get the location](#get-the-location)
+* [Working with actions](#working-with-actions)
+	* [About actions](#about-actions)
+	* [HelloWorld action](#helloworld-action)
+* [Working with workflows](#working-with-workflows)
+	* [HelloWorld workflow](#helloworld-workflow)
+	* [SSH workflow](#ssh-workflow)
+	* [HTTP workflow](#http-workflow)
 * [Automation using the Web Interface](#automation-using-the-web-interface)
-    * [Tasks execution](#tasks-execution)
-    * [Display tasks result](#display-tasks-result)
+    * [Schedule a task](#schedule-a-task)
+    * [Get task logs](#get-task-logs)
 * [Automation using the REST API](#automation-using-the-rest-api) 
 	* [Get api secret key](#get-api-secret-key)
-	* [Run task from sample](#run-task-from-sample)
+	* [Schedule a task](#schedule-a-task)
 	* [Get task logs](#get-task-logs)
-* [Write and working with tasks](#write-and-working-with-tasks)
-	* [HelloWorld task](#hello-world-task)
-	* [SSH task](#ssh-task)
-	* [HTTP task](#http-task)
 * [More security](#more-security)
 	* [Adding ReverseProxy](#reverse-proxy)
 	* [LDAP users authentication](#ldap-users-authentication)
-
-## Introduction
-
-**ExtensiveAutomation**  is a generic automation framework in 100% Python for integration, regression and end-to-end usages. The framework provided a rich and collaborative workspace environment. 
 
 ## Server Installation
 
@@ -186,18 +189,113 @@ Data storage overview:
       logs/
         output.log
       data.db
+
+## Working with actions
+
+### About actions
+
+You can create your own actions but some actions are available by default.
+
+| Actions | Description |
+| ------------- | ------------- |
+| basic/wait.yml | make a sleep during xx seconds |
+| cache/log.yml | log the value with the provided key |
+| http/curl.yml | send http requests with responses analysing |
+| ssh/send_commands.yml | execute commands remotely using the SSH protocol |
+| ssh/send_expect.yml | execute commands remotely and expect specific output |
+
+### HelloWorld action
+
+This following action is available in the data storage in "/actions/basic/" folder.
+This basic action shows how to with python source code with parameters in YAML format.
+
+        properties:
+          parameters:
+          - name: msg
+            value: hello world
+        python: |
+            class HelloWorld(Action):
+                def definition(self):
+                    self.info(input("msg"))
+            HelloWorld().execute()
+
+## Working with workflows
+    
+### HelloWorld workflow
+
+This following task is available in the data storage in "/samples/basic/" folder.
+This basic task shows how to use action with updated parameters.
+
+        actions:
+        - alias: HelloWorld Task
+          file: Common:actions/basic/helloworld.yml
+          parameters:
+          - name: msg
+            value: Hola Mundo
+            
+### SSH workflow
+
+This example describe how to write a ssh workflow to execute some commands remotely using SSH.
+
+The SSH plugin must be installed, please refer to [Adding plugins](#adding-plugins).
+
+Two actions are available to create SSH workflow.
+- send_commands.yml: execute commands remotely using SSH 
+- send_expect.yml: automate your SSH session by interacting with-it
+
+Examples are available in the data storage in `./samples/ssh/` folder.
+
+        actions:
+        - alias: execute commands remotely using SSH 
+          file: Common:actions/ssh/send_commands.yml
+          parameters:
+          - name: ssh-hosts
+            value:
+              - ssh-host: 10.0.0.55
+                ssh-login: root
+                ssh-password: ESI23xgx4yYukF9rsA1O
+          - name: ssh-commands
+            value: |-
+                echo "hello world" >> /var/log/messages
+                echo "hola mondu" >> /var/log/messages
+
+### HTTP workflow
+
+This example describe how to write a HTTP workflow to send HTTP requests.
+
+The WEB plugin must be installed, please refer to [Adding plugins](#adding-plugins).
+
+One action is available to create HTTP workflow.
+- curl.yml: send http requests and analyse response
+
+Examples are available in the data storage in `./samples/http/` folder.
+
+        actions:
+        - alias: Get my origin IP
+          file: Common:actions/http/curl.yml
+          parameters:
+          - name: curl-hosts
+            value: https://httpbin.org/ip
+          - name: response-body-json
+            value: |
+                origin -> [!CAPTURE:externalip:]
+        - alias: Log external IP
+          file: Common:actions/cache/log.yml
+          parameters:
+          - name: key
+            value: externalip
   
 ## Automation using the Web Interface
 
 Install the web interface as describe on the page [Connection to server with the web client](#connection-to-server-with-the-web-client).
 
-### Tasks executions
+### Schedule a task
 
 Go to the menu `Automation > Task > Add Task`
 
-Select the your test and click on the button `CREATE`
+Select the your action or worflow and click on the button `CREATE`
 
-### Display tasks result
+### Get task logs
 
 Go to the menu `Automation > Run` and display Logs
 
@@ -212,11 +310,11 @@ Get the API secret for the user admin
         API key: admin
         API secret: 6977aa6a443bd3a6033ebb52557cf90d24c79857
 
-### Run task from sample
+### Schedule a task
 
-Tasks samples are available in the default data storage <projectpath_install>/var/tests/1/
+Make a POST on `/tasks/schedule` to execute create a task witch will execute your actions or workflows.
 
-Curl command:
+Copy/Paste the following curl command:
 
         curl  --user admin:6977aa6a443bd3a6033ebb52557cf90d24c79857 \
               -d '{"project-id": 1,"test-extension": "yml", "test-name": "helloworld",
@@ -237,7 +335,9 @@ Success response:
         
 ### Get task logs
 
-Run the following command with your test id:
+Make a POST on `/results/details` to get logs generated by a task.
+
+Copy/Paste the following curl command:
 
         curl  --user admin:6977aa6a443bd3a6033ebb52557cf90d24c79857 \
               -d '{"test-id": "e57aaa43-325d-468d-8cac-f1dea822ef3a", "project-id": 1}' \
@@ -257,75 +357,6 @@ Success response:
             10:50:10.7375 task-stopped 0.006909608840942383", 
             "test-logs-index": 156
         }
-
-## Write and working with tasks
-
-### HelloWorld task
-
-This example describe how to write a basic testunit with some parameters and python code
-This example is available in the data storage in "/samples/basic/" folder.
-
-        properties:
-          parameters:
-          - name: msg
-            value: hello world
-        python: |
-            class HelloWorld(Action):
-                def definition(self):
-                    self.info(input("msg"))
-            HelloWorld().execute()
-            
-### SSH task
-
-This example describe how to write a ssh task to execute some commands remotely using SSH.
-
-The SSH plugin must be installed, please refer to [Adding plugins](#adding-plugins).
-
-Two actions are available to create SSH task.
-- send_commands.yml: execute commands remotely using SSH 
-- send_expect.yml: automate your SSH session by interacting with-it
-
-Examples are available in the data storage in `./samples/ssh/` folder.
-
-        testplan:
-        - alias: execute commands remotely using SSH 
-          file: Common:actions/ssh/send_commands.yml
-          parameters:
-          - name: ssh-hosts
-            value:
-              - ssh-host: 10.0.0.55
-                ssh-login: root
-                ssh-password: ESI23xgx4yYukF9rsA1O
-          - name: ssh-commands
-            value: |-
-                echo "hello world" >> /var/log/messages
-                echo "hola mondu" >> /var/log/messages
-
-### HTTP task
-
-This example describe how to write a HTTP task to send HTTP requests.
-
-The WEB plugin must be installed, please refer to [Adding plugins](#adding-plugins).
-
-One action is available to create HTTP task.
-- curl.yml: send http requests and analyse response
-
-Examples are available in the data storage in `./samples/http/` folder.
-
-        testplan:
-        - alias: Get my origin IP
-          file: Common:actions/http/curl.yml
-          parameters:
-          - name: curl-hosts
-            value: https://httpbin.org/ip
-          - name: response-body-json
-            value: |
-                origin -> [!CAPTURE:externalip:]
-        - alias: Log external IP
-          file: Common:actions/cache/log.yml
-          parameters:
-          - name: key
-            value: externalip
             
 ## More security
 

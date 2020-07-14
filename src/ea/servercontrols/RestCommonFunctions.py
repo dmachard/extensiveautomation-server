@@ -1587,7 +1587,10 @@ class TasksSchedule(HandlerCORS):
                     elif "testunit" in res:
                         testextension = "tux"
                     elif "python" in res:
-                        testextension = "tsx"    
+                        testextension = "tsx"   
+                    elif "actions" in res:
+                        testextension = "tpx"
+                        testfile = res["actions"]                        
                     else:
                         raise Exception("bad yaml format file provided")
                       

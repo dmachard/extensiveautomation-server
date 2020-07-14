@@ -1,4 +1,4 @@
-testplan:
+actions:
 - alias: Sleeping
   file: Common:actions/basic/wait.yml
   parameters:
