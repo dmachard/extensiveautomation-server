@@ -210,8 +210,8 @@ This basic action shows how to with python source code with parameters in YAML f
     
 ### HelloWorld workflow
 
-This following task is available in the data storage in "/samples/basic/" folder.
-This basic task shows how to use action with updated parameters.
+This following workflow is available in the data storage in "/samples/basic/" folder.
+This workflow shows how to use actions with updated parameters.
 
         actions:
         - alias: HelloWorld Task
@@ -225,10 +225,6 @@ This basic task shows how to use action with updated parameters.
 This example describe how to write a ssh workflow to execute some commands remotely using SSH.
 
 The SSH plugin must be installed, please refer to [Adding plugins](#adding-plugins).
-
-Two actions are available to create SSH workflow.
-- send_commands.yml: execute commands remotely using SSH 
-- send_expect.yml: automate your SSH session by interacting with-it
 
 Examples are available in the data storage in `./samples/ssh/` folder.
 
@@ -251,9 +247,6 @@ Examples are available in the data storage in `./samples/ssh/` folder.
 This example describe how to write a HTTP workflow to send HTTP requests.
 
 The WEB plugin must be installed, please refer to [Adding plugins](#adding-plugins).
-
-One action is available to create HTTP workflow.
-- curl.yml: send http requests and analyse response
 
 Examples are available in the data storage in `./samples/http/` folder.
 
@@ -299,7 +292,7 @@ Get the API secret for the user admin
 
 ### Schedule a task
 
-Make a POST on `/tasks/schedule` to execute create a task witch will execute your actions or workflows.
+Make a POST on `/tasks/schedule` to  create a task wich will execute your actions or workflows.
 
 Copy/Paste the following curl command:
 
