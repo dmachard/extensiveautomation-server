@@ -61,9 +61,11 @@ python: |
           self.ADP_SYS.clear_queue()
                   
           for sys_cmd in input('ssh-commands').splitlines():
-              self.ADP_SYS.clear_queue()
+              #self.ADP_SYS.clear_queue()
               self.ADP_SYS.doText(text=sys_cmd)
-
+              screen =  self.ADP_SYS.hasReceivedScreen(timeout=input('timeout'),
+                                                       text=TestOperators.RegEx(needle=".*%s.*" % sys_cmd))
+                                                           
           screen = self.ADP_SYS.last_item_queue()
           if screen is not None:
               for line in screen.get("TERM", "data").splitlines():
