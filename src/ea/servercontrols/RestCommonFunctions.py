@@ -29,6 +29,7 @@ import platform
 import os
 import yaml
 import json
+import pathlib
 
 from ea.libs import Settings
 from ea.serverengine import (Context,
@@ -963,8 +964,6 @@ class SystemStatus(HandlerCORS):
 """
 Tasks handlers
 """
-
-
 class TasksListing(HandlerCORS):
     """
     /rest/tasks/listing

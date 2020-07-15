@@ -35,6 +35,7 @@ from ea.libs import Logger
 from ea.servercontrols import RestTesterFunctions
 from ea.servercontrols import RestAdminFunctions
 from ea.servercontrols import RestCommonFunctions
+from ea.servercontrols import RestRessources
 
 
 @wrapt.decorator
@@ -107,6 +108,10 @@ class _WebServices(WSGI):
     logger = _my_logger
     # debug = True
     routes = [
+        # new in v22
+        ('/v1/jobs', RestRessources.JobsHandler()),
+        ('/v1/executions', RestRessources.ExecutionsHandler()),
+        
         # session
         ('/session/login', RestCommonFunctions.SessionLogin()),
         ('/session/logout', RestCommonFunctions.SessionLogout()),
@@ -120,6 +125,7 @@ class _WebServices(WSGI):
         ('/agents/disconnect', RestTesterFunctions.AgentsDisconnect()),
 
         # tasks
+        
         ('/tasks/schedule', RestCommonFunctions.TasksSchedule()),
         ('/tasks/remove', RestCommonFunctions.TasksRemove()),
         ('/tasks/listing', RestCommonFunctions.TasksListing()),
