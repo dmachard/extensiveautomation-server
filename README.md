@@ -189,7 +189,7 @@ You can create your own actions but some actions are available by default.
 ### HelloWorld action
 
 This following action is available in the data storage in "/actions/basic/" folder.
-This basic action shows how to with python source code with parameters in YAML format.
+This basic action shows how to write python source code with parameters in YAML format.
 
         properties:
           parameters:
@@ -205,7 +205,7 @@ This basic action shows how to with python source code with parameters in YAML f
     
 ### HelloWorld workflow
 
-This following workflow is available in the data storage in "/samples/basic/" folder.
+This following workflow is available in the data storage in "/workflows/basic/" folder.
 This workflow shows how to use actions with updated parameters.
 
         actions:
@@ -221,7 +221,7 @@ This example describe how to write a ssh workflow to execute some commands remot
 
 The SSH plugin must be installed, please refer to [Adding plugins](#adding-plugins).
 
-Examples are available in the data storage in `./samples/ssh/` folder.
+Examples are available in the data storage in `./workflows/ssh/` folder.
 
         actions:
         - alias: execute commands remotely using SSH 
@@ -243,7 +243,7 @@ This example describe how to write a HTTP workflow to send HTTP requests.
 
 The WEB plugin must be installed, please refer to [Adding plugins](#adding-plugins).
 
-Examples are available in the data storage in `./samples/http/` folder.
+Examples are available in the data storage in `./workflows/http/` folder.
 
         actions:
         - alias: Get my origin IP
