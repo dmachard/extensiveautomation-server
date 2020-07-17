@@ -28,8 +28,8 @@ jobs:
         docker exec ${es} unzip master.zip
         docker exec ${es} cp -rf ${ea}-plugin-web-master/src/ea/sutadapters/WEB/ ea/sutadapters/
         docker exec ${es} ls ea/sutadapters/
-        docker exec ${es} cp -rf ${ea}-plugin-web-master/src/ea/var/tests/1/ ea/vars/tests/1/
-        docker exec ${es} ls ea/vars/tests/1/
+        docker exec ${es} cp -rf ${ea}-plugin-web-master/src/ea/var/tests/1/ ea/var/tests/1/
+        docker exec ${es} ls ea/var/tests/1/
         docker exec ${es} python ${ea}.py --install_adapter WEB
         # install python dependancies
         pip install requests
