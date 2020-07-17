@@ -16,9 +16,8 @@
 	* [Docker image](#docker-image)
 	* [Source code](#source-code)
 	* [Adding plugins](#adding-plugins)
-* [Connecting to server](#connecting-to-server) 
-	* [Connection using Curl](#connection-using-curl)
-	* [Connection using Web client](#connection-using-web-client)
+* [Server is running fine](#server-is-running-fine) 
+	* [Testing using Curl](#testing-using-curl)
 * [Understand the Data Storage](#understand-the-data-storage)
 	* [Get the location](#get-the-location)
 * [Working with actions](#working-with-actions)
@@ -127,17 +126,17 @@ Plugins allow to interact with the system to be controlled. But by default the s
 * [GUI plugin (selenium, sikulix and adb)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui)
 * [And many others...](https://github.com/ExtensiveAutomation/extensiveautomation-plugins-server)
 
-## Connecting to server
+## Server is running fine
 
-### Connection using Curl
+### Testing using Curl
 
-1. Checking if the REST api working fine with curl or postman.
+Checking if the REST api working fine using curl or postman.
 
        curl -X POST http://127.0.0.1:8081/session/login \
             -H "Content-Type: application/json" \
             -d '{"login": "admin", "password": "password"}'
 
-   success response:
+success response:
 
         {
             "cmd": "/session/login", 
@@ -153,15 +152,6 @@ Plugins allow to interact with the system to be controlled. But by default the s
             "version": "",
             "name": ""
         }
-
-### Connection using Web client
-
-To use the server from the web interface, please to read the following [documentation](https://github.com/ExtensiveAutomation/extensiveautomation-webclient#web-interface-for-extensiveautomation).
-This user interface enables to manage:
-- users
-- projects
-- variables
-- and more...
 
 ## Understand the Data Storage
 
@@ -294,8 +284,13 @@ Examples are available in the data storage in `./workflows/http/` folder.
 ### About Web Client
 
 The web client is optional because you can do everything from the REST API of the server.
-But on some cases, it's more user friendly to use the web interface. First 
-you must install the web interface as describe on the page [Connection to server with the web client](#connection-to-server-with-the-web-client).
+But on some cases, it's more user friendly to use the web interface to manage:
+- users
+- projects
+- variables
+- and more...
+
+If you want, follow the web interface install guide as describe on the page [Connection to server with the web client](#connection-to-server-with-the-web-client).
 
 ### Schedule a job
 
