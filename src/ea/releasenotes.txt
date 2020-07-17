@@ -1,6 +1,6 @@
 
 22.0.0
-	Date: xx/07/2020
+	Date: 18/07/2020
 	What's new
 		1. (major): REST API: support test with yaml format
 		2. (medium): creation date removed from test model lib

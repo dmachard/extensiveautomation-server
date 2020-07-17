@@ -11,6 +11,7 @@
 
 ## Table of contents
 * [Server Installation](#installation)
+    * [About the server](#about-the-server)
 	* [PyPI package](#pypi-package)
 	* [Docker image](#docker-image)
 	* [Source code](#source-code)
@@ -24,23 +25,46 @@
 	* [About actions](#about-actions)
 	* [HelloWorld action](#helloworld-action)
 * [Working with workflows](#working-with-workflows)
+	* [About workflows](#about-workflows)
 	* [HelloWorld workflow](#helloworld-workflow)
 	* [SSH workflow](#ssh-workflow)
 	* [HTTP workflow](#http-workflow)
 * [Automation using the Web Interface](#automation-using-the-web-interface)
+    * [About Web Client](#about-web-client)
     * [Schedule a job](#schedule-a-job)
     * [Get job logs](#get-job-logs)
 * [Automation using the REST API](#automation-using-the-rest-api) 
+    * [About API](#about-api)
 	* [Get api secret key](#get-api-secret-key)
 	* [Schedule a job](#schedule-a-job)
 	* [Get job logs](#get-job-logs)
 * [More security](#more-security)
 	* [Adding ReverseProxy](#reverse-proxy)
 	* [LDAP users authentication](#ldap-users-authentication)
+* [Migration from old version](#migration-from-old-version)
+    * [Tests convertion to YAML format](#tests-convertion-to-yaml-format)
 * [About](#about)
 
 ## Server Installation
 
+### About the server
+
+The server is the main part of the **ExtensiveAutomation** project. 
+
+It's is running on the following tcp ports:
+- tcp/8081: REST API
+- tcp/8081: Websocket tunnel for app client
+- tcp/8082: Websocket tunnel for agents
+
+A user account is required, you can use the default ones or create your own account.
+Users available with the default password `password`:
+- admin
+- tester
+- monitor 
+
+YAML files storage can be split into different workspaces. 
+The `Common` workspace is available by default, attached to the previous users.
+ 
 ### PyPI package
 
 1. Run the following command
@@ -107,17 +131,7 @@ Plugins allow to interact with the system to be controlled. But by default the s
 
 ### Connection using Curl
 
-1. Please to take in consideration the following points:
-	
-	 - The server is running on the following tcp ports (don't forget to open these ports on your firewall):
-	    - tcp/8081: REST API
-	    - tcp/8081: Websocket tunnel for app client
-	    - tcp/8082: Websocket tunnel for agents
-	 - The `admin`, `tester` and `monitor` users are available and the default passoword is `password`. 
-	 - The `Common` project is created by default, attached to the previous users.
-	 - Swagger for the REST API is available in the `scripts/swagger` folder.
-    
-2. Checking if the REST api working fine with curl or postman.
+1. Checking if the REST api working fine with curl or postman.
 
        curl -X POST http://127.0.0.1:8081/session/login \
             -H "Content-Type: application/json" \
@@ -174,6 +188,8 @@ Data storage overview:
 
 ## Working with actions
 
+Action is individual python code source with parameters and must be defined with YAML file.
+
 ### About actions
 
 You can create your own actions but some actions are available by default.
@@ -182,7 +198,6 @@ You can create your own actions but some actions are available by default.
 | ------------- | ------------- | ------------- |
 | basic/helloworld.yml | helloworld example for action | |
 | basic/wait.yml | make a sleep during xx seconds | |
-| basic/terminate.yml | force to stop a workflow | |
 | cache/log.yml | log the value with the provided key | |
 | http/curl.yml | send http requests with responses analysing | [WEB plugin (http/https)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web) |
 | ssh/send_commands.yml | execute commands remotely using the SSH protocol | [CLI plugin (ssh)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli) |
@@ -204,7 +219,19 @@ This basic action shows how to write python source code with parameters in YAML 
             HelloWorld().execute()
 
 ## Working with workflows
-    
+
+A workflow is the combination of differents actions and must be defined with YAML file.
+Parameters from actions can be easily overwritten and conditions between actions can be defined.
+
+### About workflows
+
+You can create your own workflows but some workflows are available by default.
+
+| Actions | Description | Prerequisites |
+| ------------- | ------------- | ------------- |
+| basic/helloworld.yml | helloworld example for workflow | |
+| basic/wait.yml | make a sleep during xx seconds | |
+
 ### HelloWorld workflow
 
 This following workflow is available in the data storage in "/workflows/basic/" folder.
@@ -264,7 +291,11 @@ Examples are available in the data storage in `./workflows/http/` folder.
   
 ## Automation using the Web Interface
 
-Install the web interface as describe on the page [Connection to server with the web client](#connection-to-server-with-the-web-client).
+### About Web Client
+
+The web client is optional because you can do everything from the REST API of the server.
+But on some cases, it's more user friendly to use the web interface. First 
+you must install the web interface as describe on the page [Connection to server with the web client](#connection-to-server-with-the-web-client).
 
 ### Schedule a job
 
@@ -279,6 +310,11 @@ Go to the menu `Automation > Run` and display Logs
 
 ## Automation using the REST API
 
+### About API
+
+You can do everything from the REST API, below a small overview.
+Swagger for the REST API is available in the `scripts/swagger` folder.
+    
 ### Get api secret key
 
 Get the API secret for the user admin
@@ -413,6 +449,18 @@ Follow this procedure to enable LDAP authentication:
             -H "Content-Type: application/json" \
             -d '{"login": "admin", "password": "password"}'
 
+## Migration from old version
+
+Since version 22 of the server, a major change has been introduced on the test files.
+All the old tests in XML can still be used but they are obsolete. We must favor the new YAML format.
+
+### Tests convertion to YAML format
+
+XML to YAML conversion can be done with the following command.
+A new YML file will be created automatically after converting the XML reading.
+
+        python3 extensiveautomation.py --convert2xml
+        
 ## About
 
 This project is an effort, driven in my spare time.

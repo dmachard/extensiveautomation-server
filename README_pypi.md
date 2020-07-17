@@ -13,7 +13,11 @@
 | Twitter | https://twitter.com/Extensive_Auto |
 | | |
 
-**ExtensiveAutomation**  is a generic automation framework in full Python for integration, regression and end-to-end usages. The framework provided a rich and collaborative workspace environment.
+**ExtensiveAutomation** enable you to create custom workflows to automate your project.
+ - workflows must be defined with YAML file
+ - a workflow is the combination of differents actions.
+ - an action is individual python code source with parameters.
+
 ## Installation
 
 1. Run the following command
