@@ -178,15 +178,15 @@ Data storage overview:
 
 You can create your own actions but some actions are available by default.
 
-| Actions | Description |
-| ------------- | ------------- |
-| basic/helloworld.yml | helloworld example for action |
-| basic/wait.yml | make a sleep during xx seconds |
-| basic/terminate.yml | force to stop a workflow |
-| cache/log.yml | log the value with the provided key |
-| http/curl.yml | send http requests with responses analysing |
-| ssh/send_commands.yml | execute commands remotely using the SSH protocol |
-| ssh/send_expect.yml | execute commands remotely and expect specific output |
+| Actions | Description | Prerequisites |
+| ------------- | ------------- | ------------- |
+| basic/helloworld.yml | helloworld example for action | |
+| basic/wait.yml | make a sleep during xx seconds | |
+| basic/terminate.yml | force to stop a workflow | |
+| cache/log.yml | log the value with the provided key | |
+| http/curl.yml | send http requests with responses analysing | [WEB plugin (http/https)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web) |
+| ssh/send_commands.yml | execute commands remotely using the SSH protocol | [CLI plugin (ssh)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli) |
+| ssh/send_expect.yml | execute commands remotely and expect specific output | [CLI plugin (ssh)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli) |
 
 ### HelloWorld action
 

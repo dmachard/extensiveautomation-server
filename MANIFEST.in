@@ -6,7 +6,7 @@ include src/ea/test.ini
 include src/ea/var/data.db 
 include src/ea/var/documentations.dat
 recursive-include src/ea/var/tests/1/actions/ *
-recursive-include src/ea/var/tests/1/samples/ *
+recursive-include src/ea/var/tests/1/workflows/ *
 recursive-include src/ea/var/tests/1/deprecated/ *
 recursive-include src/ea/var/templates/ *
 recursive-include src/ea/scripts/ *
