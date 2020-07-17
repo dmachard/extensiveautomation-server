@@ -52,7 +52,7 @@ class ProjectsManager(Logger.ClassLogger):
         self.info('Deploying folders projects and reserved folders...')
 
         self.createDirProjects()
-        self.addReservedFolders()
+        # self.addReservedFolders()
 
     def loadCache(self):
         """
@@ -73,22 +73,22 @@ class ProjectsManager(Logger.ClassLogger):
         """
         return self.__cache
 
-    def addReservedFolders(self):
-        """
-        Add reserved folders (recycle and sandbox)
-        """
-        self.trace("adding reserved folders")
+    # def addReservedFolders(self):
+        # """
+        # Add reserved folders (recycle and sandbox)
+        # """
+        # self.trace("adding reserved folders")
 
-        code, prjsList = self.getProjectsFromDB()
-        if code != self.context.CODE_OK:
-            return
+        # code, prjsList = self.getProjectsFromDB()
+        # if code != self.context.CODE_OK:
+            # return
 
-        for prj in prjsList:
-            try:
-                os.mkdir("%s/%s/@Recycle" % (self.repoTests, prj["id"]))
-                os.mkdir("%s/%s/@Sandbox" % (self.repoTests, prj["id"]))
-            except Exception:
-                pass
+        # for prj in prjsList:
+            # try:
+                # os.mkdir("%s/%s/@Recycle" % (self.repoTests, prj["id"]))
+                # os.mkdir("%s/%s/@Sandbox" % (self.repoTests, prj["id"]))
+            # except Exception:
+                # pass
 
     def createDirProjects(self):
         """

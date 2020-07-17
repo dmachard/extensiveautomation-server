@@ -13,14 +13,16 @@
 | Twitter | https://twitter.com/Extensive_Auto |
 | | |
 
-**ExtensiveAutomation**  is a generic automation framework for integration, regression and end-to-end usages. The framework provided a rich and collaborative workspace environment. 
-The server can run on both Python 2 and Python 3, and also run on Linux and Windows.
+**ExtensiveAutomation** enable you to create custom workflows to automate your project.
+ - workflows must be defined with YAML file
+ - a workflow is the combination of differents actions.
+ - an action is individual python code source with parameters.
 
 ## Installation
 
 1. Run the following command
 
-        python -m pip install extensiveautomation_server
+        python3 -m pip install extensiveautomation_server
 
 2. Type the following command on your shell to start the server
 

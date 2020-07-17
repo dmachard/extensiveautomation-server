@@ -38,10 +38,16 @@ try:
     import cPickle
 except ImportError:  # support python 3
     import pickle as cPickle
+from pathlib import Path
+import yaml
 
 from ea.libs import Settings, Logger
 from ea.libs.FileModels import TestResult as TestResult
-from ea.serverrepositories import (RepoAdapters)
+from ea.serverrepositories import (RepoAdapters, RepoTests)
+
+from ea.libs.FileModels import TestSuite as TestSuite
+from ea.libs.FileModels import TestUnit as TestUnit
+from ea.libs.FileModels import TestPlan as TestPlan
 
 Settings.initialize()
 
@@ -54,6 +60,12 @@ def querySQL(query, db):
 
         c = conn.cursor()
         c.execute(query)
+        
+        rows = []
+        for row in c.fetchall():
+            fields = map(lambda x: x[0], c.description)
+            rows.append(dict(zip(fields, row)))
+
         c.close()
 
         conn.commit()
@@ -61,7 +73,7 @@ def querySQL(query, db):
     except Exception as e:
         print("[query] %s - %s" % (str(e), query))
         sys.exit(1)
-
+    return rows
 
 db_name = "%s/%s/%s" % (Settings.getDirExec(),
                         Settings.get('Paths', 'var'),
@@ -74,6 +86,34 @@ def error(msg):
     print("ERROR: %s" % msg)
 
 
+def str_presenter(dumper, data):
+  if isinstance(data, str) and "\n" in data:
+    return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='|')
+  return dumper.represent_scalar('tag:yaml.org,2002:str', data)
+
+yaml.add_representer(str, str_presenter)
+
+def align_up(x, n):
+    return ((x+n-1)//n)*n
+    
+def reformat_str(s, tab_size=4):
+    pos = 0
+    res = ''
+    for c in s:
+        if c=='\t':
+            aligned = align_up(pos, tab_size)
+            if pos%4!=0:
+                num_spaces = aligned - pos
+            else:
+                num_spaces = tab_size
+            co = ' ' * num_spaces
+            pos += num_spaces
+        else:
+            co = c
+            pos += 1
+        res = res + co
+    return res
+    
 class CliFunctions(Logger.ClassLogger):
     """
     """
@@ -129,7 +169,7 @@ class CliFunctions(Logger.ClassLogger):
                                         break
 
                         if "centos" in os_id or "rhel" in os_id:
-                            cmd = "yum install `cat %s | tr '\n' ' '`" % yum_list
+                            cmd = "yum -y install `cat %s | tr '\n' ' '`" % yum_list
                             subprocess.call(cmd, shell=True)
 
                 RepoAdapters.instance().updateMainInit()
@@ -309,7 +349,28 @@ class CliFunctions(Logger.ClassLogger):
 
         print("API Key ID: %s" % apikey_id)
         print("API Key Secret: %s" % apikey_secret)
+        
+        print("...")
+        self.reload()
+        
+    def getSecret(self, username, size=20):
+        """
+        Get secret for the rest api
+        """
+        apikey_id = username
+        apikey_secret = hexlify(os.urandom(size))
+        if sys.version_info > (3,):
+            apikey_secret = apikey_secret.decode("utf8")
 
+        sql_query = "SELECT apikey_id, apikey_secret from users WHERE login=\"%s\"" % (username)
+        rows = querySQL(query=sql_query, db=db_name)
+        
+        if len(rows):
+            print("API key: %s" % rows[0]["apikey_id"])
+            print("API secret: %s" % rows[0]["apikey_secret"])
+        else:
+            print("error: user not found")
+            
     def reload(self):
         """
         Reload configuration
@@ -330,7 +391,175 @@ class CliFunctions(Logger.ClassLogger):
 
         sys.stdout.flush()
 
+    def show_data_storage(self):
+        """show data storage path"""
+        storage = "%s%s" % (Settings.getDirExec(),
+                             Settings.get('Paths', 'var'))
+                                        
+        sys.stdout.write("%s\n" % storage)
+        
+    def convert2yaml(self):
+        """convert test files to yaml"""
+        RepoTests.initialize(context=None)
 
+        for root,d_names,f_names in os.walk(RepoTests.instance().testsPath):
+            for f in f_names:
+                pth = os.path.join(root, f)
+                file_name, file_ext = os.path.splitext( Path(pth).name )
+    
+                if file_ext.lower() == ".tgx":
+                    doc = TestPlan.DataModel()
+                    res = doc.load(pth)   
+                    if res:
+                        f = {"properties": {"descriptions": {}, "parameters": []}}
+                        for d in doc.properties["properties"]["descriptions"]["description"]:
+                            if d["key"] in [ "author", "summary", "name", "requirement"] :
+                                f["properties"]["descriptions"][d["key"]] = d["value"]
+                        for p in doc.properties["properties"]["inputs-parameters"]["parameter"]:
+                            f["properties"]["parameters"].append({
+                                "description": p["description"],
+                                "name": p["name"],
+                                "scope": p["scope"],
+                                "type": p["type"],
+                                "value": p["value"]
+                            })
+                        f["testglobal"] = []  
+                        for tf in doc.testplan['testplan']['testfile']:
+                            tf_dict =    {
+                                    "alias": tf["alias"],
+                                    "description": tf["description"],
+                                    "file": tf["file"],
+                                    "id": tf["id"],
+                                    "parent": tf["parent"],
+                                    "parameters": []
+                                }
+                            for p in tf["properties"]["inputs-parameters"]["parameter"]:
+                                tf_dict["parameters"].append({
+                                    "description": p["description"],
+                                    "name": p["name"],
+                                    "scope": p["scope"],
+                                    "type": p["type"],
+                                    "value": p["value"]
+                                })
+                            f["testglobal"].append(tf_dict)
+                        
+                        doc_yaml = yaml.dump(f, allow_unicode=True)
+                        with open(os.path.join(root, "%s.yml" % file_name), "w") as f:
+                            f.write(doc_yaml)
+                            print("testglobal file %s converted" % file_name )
+                        
+                if file_ext.lower() == ".tpx":
+                    doc = TestPlan.DataModel()
+                    res = doc.load(pth)   
+                    if res:
+                        f = {"properties": {"descriptions": {}, "parameters": []}}
+                        for d in doc.properties["properties"]["descriptions"]["description"]:
+                            if d["key"] in [ "author", "summary", "name", "requirement"] :
+                                f["properties"]["descriptions"][d["key"]] = d["value"]
+                        for p in doc.properties["properties"]["inputs-parameters"]["parameter"]:
+                            f["properties"]["parameters"].append({
+                                "description": p["description"],
+                                "name": p["name"],
+                                "scope": p["scope"],
+                                "type": p["type"],
+                                "value": p["value"]
+                            })
+                        f["testplan"] = []  
+                        for tf in doc.testplan['testplan']['testfile']:
+                            tf_dict =    {
+                                    "alias": tf["alias"],
+                                    "description": tf["description"],
+                                    "file": tf["file"],
+                                    "id": tf["id"],
+                                    "parent": tf["parent"],
+                                    "parent-condition": "0",
+                                    "parameters": []
+                                }
+                            if tf["parent-condition"] == "1":
+                                tf["parent-condition"] = "failure"
+                            for p in tf["properties"]["inputs-parameters"]["parameter"]:
+                                tf_dict["parameters"].append({
+                                    "description": p["description"],
+                                    "name": p["name"],
+                                    "scope": p["scope"],
+                                    "type": p["type"],
+                                    "value": p["value"]
+                                })
+                            f["testplan"].append(tf_dict)
+                        
+                        doc_yaml = yaml.dump(f, allow_unicode=True)
+                        with open(os.path.join(root, "%s.yml" % file_name), "w") as f:
+                            f.write(doc_yaml)
+                            print("testplan file %s converted" % file_name )
+                            
+                if file_ext.lower() == ".tux":
+                    doc = TestUnit.DataModel()
+                    res = doc.load(pth)
+                    if res:
+                        f = {"properties": {"descriptions": {}, "parameters": []}}
+                        for d in doc.properties["properties"]["descriptions"]["description"]:
+                            if d["key"] in [ "author", "summary", "name", "requirement"] :
+                                f["properties"]["descriptions"][d["key"]] = d["value"]
+                        for p in doc.properties["properties"]["inputs-parameters"]["parameter"]:
+                            f["properties"]["parameters"].append({
+                                "description": p["description"],
+                                "name": p["name"],
+                                "scope": p["scope"],
+                                "type": p["type"],
+                                "value": p["value"]
+                            })
+                            
+                        code = []
+                        for line_content in doc.testdef.splitlines():
+                            line_content = line_content.rstrip()
+                            if '\t' in line_content:
+                                line_content = reformat_str(s=line_content, tab_size=4)
+                            code.append(line_content)
+
+                        f["testunit"] =  "\n".join(code)
+                        doc_yaml = yaml.dump(f, allow_unicode=True)
+                        with open(os.path.join(root, "%s.yml" % file_name), "w") as f:
+                            f.write(doc_yaml)
+                            print("testunit file %s converted" % file_name )
+
+                if file_ext.lower() == ".tsx":
+                    doc = TestSuite.DataModel()
+                    res = doc.load(pth)   
+                    if res:
+                        f = {"properties": {"descriptions": {}, "parameters": []}}
+                        for d in doc.properties["properties"]["descriptions"]["description"]:
+                            if d["key"] in [ "author", "summary", "name", "requirement"] :
+                                f["properties"]["descriptions"][d["key"]] = d["value"]
+                        for p in doc.properties["properties"]["inputs-parameters"]["parameter"]:
+                            f["properties"]["parameters"].append({
+                                "description": p["description"],
+                                "name": p["name"],
+                                "scope": p["scope"],
+                                "type": p["type"],
+                                "value": p["value"]
+                            })
+                            
+                        code = []
+                        for line_content in doc.testdef.splitlines():
+                            line_content = line_content.rstrip()
+                            if '\t' in line_content:
+                                line_content = reformat_str(s=line_content, tab_size=4)
+                            code.append(line_content)
+
+                        code.append("")
+                        
+                        for line_content in doc.testexec.splitlines():
+                            line_content = line_content.rstrip()
+                            if '\t' in line_content:
+                                line_content = reformat_str(s=line_content, tab_size=4)
+                            code.append(line_content)    
+                        f["testsuite"] =  "\n".join(code)
+                        doc_yaml = yaml.dump(f, allow_unicode=True)
+
+                        with open(os.path.join(root, "%s.yml" % file_name), "w") as f:
+                            f.write(doc_yaml)
+                            print("testsuite file %s converted" % file_name )
+                            
 CLI = None  # singleton
 
 

@@ -2267,7 +2267,7 @@ class Test(object):
         if err is None:
             err_msg = ''
 
-        self.tcparent.warning("Terminating test...")
+        self.tcparent.warning("Terminating...")
         raise AbortStopException(err_msg)
 
     def interrupt(self, err=None):
@@ -3260,7 +3260,7 @@ class Step(object):
         if not continueRun:
             raise AbortException("step on error, don't continue")
 
-    def setPassed(self, actual, thumbnail=None, chart=None):
+    def setPassed(self, actual="", thumbnail=None, chart=None):
         """
         Set the result of the testcase to passed
 
@@ -3382,7 +3382,7 @@ class StepManager(object):
         """
         return len(self.getSteps())
 
-    def addStep(self, action, expected, summary, enabled=True, thumbnail=None):
+    def addStep(self, action="", expected="", summary="", enabled=True, thumbnail=None):
         """
         Add a step
 
@@ -4003,19 +4003,19 @@ class TestCase(object):
         """
         return self.__stepsManager.getSteps()
 
-    def description(self):
+    def description(self, **kwargs):
         """
         Description function
         """
         pass
 
-    def prepare(self):
+    def prepare(self, **kwargs):
         """
         prepare function
         """
         pass
 
-    def cleanup(self, aborted):
+    def cleanup(self, aborted, **kwargs):
         """
         Cleanup the test
 
@@ -4046,8 +4046,9 @@ class TestCase(object):
         """
         err_msg = err
         if err is None:
-            err_msg = ''
+            err_msg = '--'
 
+        self.error("action aborted: %s" % err_msg)
         if stop:
             # self.warning("Terminating test...")
             raise AbortStopException(err_msg)
@@ -4225,7 +4226,7 @@ class TestCase(object):
         """
         return self.__logs
 
-    def addStep(self, expected, description, summary,
+    def addStep(self, expected="", description="", summary="",
                 enabled=True, thumbnail=None):
         """
         Add step to the testcase with description
@@ -4377,6 +4378,8 @@ class TestCase(object):
         @param kwargs:
         @type kwargs:
         """
+        no_steps = False
+
         if not _ExecuteTest:
             self.dontExecuteMe(**kwargs)
         else:
@@ -4447,7 +4450,16 @@ class TestCase(object):
                                                              fromlevel=LEVEL_TE,
                                                              tolevel=LEVEL_USER,
                                                              testInfo=self.__testInfo)
+
+                        if not len(self.getSteps()):
+                            no_steps = True
+                            step = self.addStep(summary="initial step")
+                            
                         body(**kwargs)
+                                                                                     
+                        if no_steps:
+                            step.start()
+                            step.setPassed("success")
                     except AbortException as e:
                         aborted = 'Abort reason: %s' % e
                     except AbortStopException as e:
@@ -5215,3 +5227,5 @@ class TestCase(object):
         todo
         """
         return not _ExecuteTest
+
+Action = TestCase

@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   description: Control your test server with Extensive Automation API
-  version: 21.4.0
+  version: 22.0.0
   title: Swagger Tester - Extensive Automation
   contact:
     email: d.machard@gmail.com
@@ -3269,7 +3269,7 @@ paths:
     post:
       tags:
         - tests
-      summary: Schedule a test unit/suite or abstract
+      summary: Schedule a test unit/suite
       description: ''
       operationId: testsSchedule
       consumes:

@@ -1,0 +1,9 @@
+properties:
+  parameters:
+   - name: msg
+     value: hello world
+python: |
+    class HelloWorld(Action):
+        def definition(self):
+            self.info(input("msg"))
+    HelloWorld().execute()

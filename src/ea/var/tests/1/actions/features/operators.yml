@@ -1,0 +1,184 @@
+python: |
+    class CMP_OP_REGEX_01(Action):	
+        def definition(self):
+            haystack = "test for framework"
+            needle = "^t"
+            self.info( "search \"%s\" in \"%s\"" % (needle,haystack) )
+            if TestOperators.RegEx(needle=needle).seekIn(haystack=haystack):
+                self.info( "search successful" )
+            else:
+                self.error( "not found" ) 
+                
+    class CMP_OP_REGEX_02(Action):	
+        def definition(self):
+            haystack = "test for framework"
+            needle = "^a"
+            self.info( "search \"%s\" in \"%s\"" % (needle,haystack) )
+            if TestOperators.RegEx(needle=needle).seekIn(haystack=haystack):
+                self.error( "search successful" )
+            else:
+                self.info( "not found" )
+                
+    class CMP_OP_NOTREGEX_01(Action):		
+        def definition(self):
+            haystack = "test for framework"
+            needle = "^a"
+            self.info( "search if \"%s\" is not in \"%s\"" % (needle,haystack) )
+            if TestOperators.NotRegEx(needle=needle).seekIn(haystack=haystack):
+                self.info( "not found" )
+            else:
+                self.error( "found" )
+                
+    class CMP_OP_NOTREGEX_02(Action):	
+        def definition(self):
+            haystack = "test for framework"
+            needle = "^test"
+            self.info( "search if \"%s\" is not in \"%s\"" % (needle,haystack) )
+            if TestOperators.NotRegEx(needle=needle).seekIn(haystack=haystack):
+                self.error( "not found" )
+            else:
+                self.info( "found" )
+                
+    class CMP_OP_CONTAINS_01(Action):		
+        def definition(self):
+            haystack = "test for framework"
+            needle = "for"
+            self.info( "search \"%s\" in \"%s\"" % (needle,haystack) )
+            if TestOperators.Contains(needle=needle).seekIn(haystack=haystack):
+                self.info( "search successful" )
+            else:
+                self.error( "not found" )
+                
+    class CMP_OP_CONTAINS_02(Action):		
+        def definition(self):
+            haystack = "test for framework"
+            needle = "for2"
+            self.info( "search \"%s\" in \"%s\"" % (needle,haystack) )
+            if TestOperators.Contains(needle=needle).seekIn(haystack=haystack):
+                self.error( "search successful" )
+            else:
+                self.info( "not found" )
+                
+    class CMP_OP_NOTCONTAINS_01(Action):	
+        def definition(self):
+            haystack = "test for framework"
+            needle = "for2"
+            self.info( "search if \"%s\" is not in \"%s\"" % (needle,haystack) )
+            if TestOperators.NotContains(needle=needle).seekIn(haystack=haystack):
+                self.info( "not found" )
+            else:
+                self.error( "found" )
+                
+    class CMP_OP_NOTCONTAINS_02(Action):		
+        def definition(self):
+            haystack = "test for framework"
+            needle = "for"
+            self.info( "search if \"%s\" is not in \"%s\"" % (needle,haystack) )
+            if TestOperators.NotContains(needle=needle).seekIn(haystack=haystack):
+                self.error( "not found" )
+            else:
+                self.info( "found" )
+                
+    class CMP_OP_STARTSWITH_01(Action):		
+        def definition(self):
+            haystack = "test for framework"
+            needle = "test"
+            self.info( "search if \"%s\" starts with \"%s\"" % (haystack,needle) )
+            if TestOperators.Startswith(needle=needle).seekIn(haystack=haystack):
+                self.info( "found" )
+            else:
+                self.error( "not found" )
+                
+    class CMP_OP_STARTSWITH_02(Action):		
+        def definition(self):
+            haystack = "test for framework"
+            needle = "test2"
+            self.info( "search if \"%s\" starts with \"%s\"" % (haystack,needle) )
+            if TestOperators.Startswith(needle=needle).seekIn(haystack=haystack):
+                self.error( "found" )
+            else:
+                self.info( "not found" )
+                
+    class CMP_OP_ENDSWITH_01(Action):		
+        def definition(self):
+            haystack = "test for framework"
+            needle = "framework"
+            self.info( "search if \"%s\" endswith \"%s\"" % (haystack,needle) )
+            if TestOperators.Endswith(needle=needle).seekIn(haystack=haystack):
+                self.info( "found" )
+            else:
+                self.error( "not found" )
+                
+    class CMP_OP_ENDSWITH_02(Action):	
+        def definition(self):
+            haystack = "test for framework"
+            needle = "framework2"
+            self.info( "search if \"%s\" endswith \"%s\"" % (haystack,needle) )
+            if TestOperators.Endswith(needle=needle).seekIn(haystack=haystack):
+                self.error( "found" )
+            else:
+                self.info( "not found" )
+                
+    class CMP_OP_GREATERTHAN_01(Action):		
+        def definition(self):
+            x = 20
+            y = 40
+            self.info( "check if %s > %s" % (y,x) )
+            if TestOperators.GreaterThan(x=x).comp(y=y):
+                self.info( "is greater" )
+            else:
+                self.error( "is not greater" )
+                
+    class CMP_OP_GREATERTHAN_02(Action):		
+        def definition(self):
+            x = 20
+            y = -10
+            self.info( "check if %s > %s" % (y,x) )
+            if TestOperators.GreaterThan(x=x).comp(y=y):
+                self.error( "is greater" )
+            else:
+                self.info( "is not greater" )
+                
+    class CMP_OP_LOWERTHAN_01(Action):		
+        def definition(self):
+            x = 20
+            y = 10
+            self.info( "check if %s < %s" % (y,x) )
+            if TestOperators.LowerThan(x=x).comp(y=y):
+                self.info( "is lower" )
+            else:
+                self.error( "is not lower" )
+                
+    class CMP_OP_LOWERTHAN_02(Action):		
+        def definition(self):
+            x = -20
+            y = -10
+            self.info( "check if %s < %s" % (y,x) )
+            if TestOperators.LowerThan(x=x).comp(y=y):
+                self.error( "is lower" )
+            else:
+                self.info( "is not lower" )
+                
+    CMP_OP_REGEX_01().execute()
+    CMP_OP_REGEX_02().execute()
+    
+    CMP_OP_NOTREGEX_01().execute()
+    CMP_OP_NOTREGEX_02().execute()
+    
+    CMP_OP_CONTAINS_01().execute()
+    CMP_OP_CONTAINS_02().execute()
+    
+    CMP_OP_NOTCONTAINS_01().execute()
+    CMP_OP_NOTCONTAINS_02().execute()
+    
+    CMP_OP_STARTSWITH_01().execute()
+    CMP_OP_STARTSWITH_02().execute()
+    
+    CMP_OP_ENDSWITH_01().execute()
+    CMP_OP_ENDSWITH_02().execute()
+    
+    CMP_OP_GREATERTHAN_01().execute()
+    CMP_OP_GREATERTHAN_02().execute()
+    
+    CMP_OP_LOWERTHAN_01().execute()
+    CMP_OP_LOWERTHAN_02().execute()

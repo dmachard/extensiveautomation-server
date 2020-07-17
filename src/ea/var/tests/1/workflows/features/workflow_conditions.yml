@@ -1,0 +1,19 @@
+actions:
+- description: Execute A1
+  id: 1
+  file: Common:actions/features/action_parameters.yml
+- description: Execute A2 (IF A1=SUCCESS)
+  id: 2
+  file: Common:actions/features/action_parameters.yml
+  parent: 1
+- description: Execute A3
+  id: 3
+  file: Common:actions/features/action_parameters.yml
+  parameters:
+    - name: return-error
+      value: true
+- description: Execute A4 (IF A3=FAILURE)
+  id: 4
+  file: Common:actions/features/action_parameters.yml
+  parent: 3
+  parent-condition: failure

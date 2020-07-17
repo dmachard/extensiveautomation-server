@@ -1,0 +1,9 @@
+properties:
+  parameters:
+   - name: key
+     value: 
+python: |
+    class CacheLog(Action):
+        def definition(self):
+            self.info("value=%s" % Cache().get(input("key")))
+    CacheLog().execute()

@@ -1275,7 +1275,7 @@ class TestLoggerXml(object):
         """
         Log step started event
         """
-        # self.to_notif_raw(value="script-warning [step #%s] %s" % (step_id, shortMsg))
+        #self.to_notif_raw(value="script-warning [step #%s] %s" % (step_id, shortMsg))
         
         evt = {
             'event': 'testcase',
@@ -1326,7 +1326,7 @@ class TestLoggerXml(object):
         """
         Log step passed event
         """
-        # self.to_notif_raw(value="script-warning [step #%s] %s" % (step_id, shortMsg))
+        #self.to_notif_raw(value="script-warning [step #%s] %s" % (step_id, shortMsg))
         
         self.to_notif({
             'event': 'testcase',

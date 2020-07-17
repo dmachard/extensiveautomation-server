@@ -46,7 +46,6 @@ setuptools.setup(
     keywords=KEYWORDS,
     classifiers=[
         "License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)",
-        "Programming Language :: Python :: 2",
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
         "Topic :: Software Development :: Testing",
@@ -58,6 +57,7 @@ setuptools.setup(
         "scandir",
         "pycnic",
         "lxml",
-        "jsonpath_ng"
+        "jsonpath_ng",
+        "pyyaml"
     ]
 )

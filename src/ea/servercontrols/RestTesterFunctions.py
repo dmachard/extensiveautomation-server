@@ -27,6 +27,7 @@ from pycnic.errors import HTTP_401, HTTP_400, HTTP_500, HTTP_403, HTTP_404
 import os
 import json
 import wrapt
+import yaml
 
 from ea.libs import Settings
 from ea.serverengine import (Context,
@@ -2709,21 +2710,6 @@ class TestsScheduleGroup(HandlerCORS):
                                  'test-name': testName,
                                  'test-path': testPath, 'test-data': testData})
 
-            # elif testExtension == 'tax':
-                # doc = TestAbstract.DataModel()
-                # res = doc.load(absPath = "%s/%s/%s.%s" % (RepoTests.instance().testsPath,
-                # prjID, testPath, testExtension))
-                # if not res:
-                # raise HTTP_500('Unable to read test abstract: %s' % testPath)
-
-                # testData = {'test-definition': doc.testdef,
-                # 'test-execution': '',
-                # 'test-properties': doc.properties['properties'],
-                # 'test-extension': testExtension}
-                # testsRun.append({ 'prj-id': prjID, 'test-extension': testExtension,
-                # 'test-name': testName,
-                # 'test-path': testPath, 'test-data': testData})
-
             elif testExtension == 'tpx':
                 doc = TestPlan.DataModel()
                 res = doc.load(absPath="%s/%s/%s.%s" % (RepoTests.instance().testsPath,
@@ -2794,7 +2780,7 @@ class TestsSchedule(HandlerCORS):
         """
         tags:
           - tests
-        summary: Schedule a test unit/suite or abstract
+        summary: Schedule a test unit/suite
         description: ''
         operationId: testsSchedule
         consumes:
@@ -2960,7 +2946,6 @@ class TestsSchedule(HandlerCORS):
             _toTime = self.request.data.get("to-time")
 
             _testInputs = self.request.data.get("test-inputs")
-            # _testAgents = self.request.data.get("test-agents")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -3002,6 +2987,7 @@ class TestsSchedule(HandlerCORS):
         # no test content provided
         if not len(testDefinition) and not len(
                 testExecution) and not len(testProperties):
+
             if testExtension == 'tsx':
                 doc = TestSuite.DataModel()
                 res = doc.load(absPath="%s/%s/%s/%s.%s" % (RepoTests.instance().testsPath,
@@ -3052,7 +3038,7 @@ class TestsSchedule(HandlerCORS):
 
             else:
                 raise HTTP_403(
-                    'Test extension not supported: %s' %
+                    'Test extension not supported - no content: %s' %
                     testExtension)
 
         tabId = 0
@@ -3330,7 +3316,6 @@ class TestsScheduleTpg(HandlerCORS):
             _toTime = self.request.data.get("to-time")
 
             _testInputs = self.request.data.get("test-inputs")
-            # _testAgents = self.request.data.get("test-agents")
         except EmptyValue as e:
             raise HTTP_400("%s" % e)
         except Exception as e:
@@ -3444,7 +3429,7 @@ class TestsScheduleTpg(HandlerCORS):
 
             else:
                 raise HTTP_403(
-                    'Test extension not supported: %s' %
+                    'Test extension not supported - no content: %s' %
                     testExtension)
 
         tabId = 0
@@ -3459,9 +3444,7 @@ class TestsScheduleTpg(HandlerCORS):
         toTime = (0, 0, 0, 0, 0, 0)
         scheduleAt = (0, 0, 0, 0, 0, 0)
         message = "success"
-        # scheduleRepeat = 0
 
-        # if _scheduleRepeat is not None: scheduleRepeat = _scheduleRepeat
         if _tabId is not None:
             tabId = _tabId
         if _backgroundMode is not None:
@@ -4198,11 +4181,11 @@ class TestsFileDownload(HandlerCORS):
         # avoid directory traversal
         filePath = os.path.normpath("/" + filePath)
 
-        success, _, _, _, content, _, _ = RepoTests.instance().getFile(pathFile=filePath,
+        success, _, _, _, _, content, _, _= RepoTests.instance().getFile(pathFile=filePath,
                                                                        binaryMode=True,
                                                                        project=projectId,
                                                                        addLock=False)
-        if success == Context.instance().CODE_NOT_FOUND:
+        if success != Context.instance().CODE_OK:
             raise HTTP_500("Unable to download file")
 
         return {"cmd": self.request.path, "file-content": content}

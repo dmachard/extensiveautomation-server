@@ -1,0 +1,114 @@
+properties:
+  parameters:
+   - name: api-addr
+     value: 127.0.0.1:8081
+     scope: cache
+   - name: api-scheme
+     value: http
+     scope: cache
+   - name: api-path
+     value: ""
+     scope: cache
+   - name: DATA_TEST
+     type: global
+     value: Common:SAMPLE_DATA:TEST
+     scope: cache
+   - name: curl-options
+     value: " --insecure"
+   - name: timeout
+     value: 10
+   - name: timeout-connect
+     value: 10
+actions:
+- description: Session login
+  file: Common:actions/http/curl.yml
+  id: 1
+  parameters:
+   - name: curl-hosts
+     value: "[!CACHE:api-scheme:]://[!CACHE:api-addr:][!CACHE:api-path:]/session/login"
+   - name: curl-headers
+     value: "Content-Type: application/json; charset=utf-8"
+   - name: curl-method
+     value: POST
+   - name: curl-body
+     value:
+       login: admin
+       password: password
+   - name: response-body-json
+     value: |
+       message -> [Ll]ogged in
+       project_id -> [!CAPTURE:DEF_PROJECT_ID:]
+   - name: response-headers
+     value: "[sS]et-[cC]ookie: session_id=[!CAPTURE:CAPTURED_SESSION_ID:];.*"
+- description: Tests files listing
+  file: Common:actions/http/curl.yml
+  id: 2
+  parent: 1
+  parameters:
+   - name: curl-hosts
+     value: "[!CACHE:api-scheme:]://[!CACHE:api-addr:][!CACHE:api-path:]/tests/listing/basic"
+   - name: curl-headers
+     value: |
+       Content-Type: application/json; charset=utf-8
+       Cookie: session_id=[!CACHE:CAPTURED_SESSION_ID:]
+   - name: curl-method
+     value: POST
+   - name: curl-body
+     value: |
+         {
+            "project-id": [!CACHE:DEF_PROJECT_ID:]
+         }
+   - name: response-headers
+     value: "[cC]ontent-[tT]ype: application/json.*"
+   - name: response-body-json
+     value: |
+       cmd -> /tests/listing/basic
+- description: Add folder
+  file: Common:actions/http/curl.yml
+  id: 3
+  parent: 1
+  parameters:
+   - name: curl-hosts
+     value: "[!CACHE:api-scheme:]://[!CACHE:api-addr:][!CACHE:api-path:]/tests/directory/add"
+   - name: curl-headers
+     value: |
+       Content-Type: application/json; charset=utf-8
+       Cookie: session_id=[!CACHE:CAPTURED_SESSION_ID:]
+   - name: curl-method
+     value: POST
+   - name: curl-body
+     value: |
+         {
+            "project-id": [!CACHE:DEF_PROJECT_ID:],
+            "directory-path": "/", 
+            "directory-name": "[!CACHE:DATA_TEST:dir_name:]"
+         }
+   - name: response-headers
+     value: "[cC]ontent-[tT]ype: application/json.*"
+   - name: response-body-json
+     value: |
+       message -> directory successfully added
+- description: Remove folder
+  file: Common:actions/http/curl.yml
+  id: 4
+  parent: 3
+  parameters:
+   - name: curl-hosts
+     value: "[!CACHE:api-scheme:]://[!CACHE:api-addr:][!CACHE:api-path:]/tests/directory/remove"
+   - name: curl-headers
+     value: |
+       Content-Type: application/json; charset=utf-8
+       Cookie: session_id=[!CACHE:CAPTURED_SESSION_ID:]
+   - name: curl-method
+     value: POST
+   - name: curl-body
+     value: |
+         {
+           "project-id": [!CACHE:DEF_PROJECT_ID:], 
+           "directory-path": "/[!CACHE:DATA_TEST:dir_name:]"
+         }
+   - name: response-headers
+     value: "[cC]ontent-[tT]ype: application/json.*"
+   - name: response-body-json
+     value: |
+       message -> directory successfully removed

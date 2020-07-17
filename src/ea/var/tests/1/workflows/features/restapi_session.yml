@@ -1,0 +1,66 @@
+properties:
+  parameters:
+   - name: api-addr
+     value: 127.0.0.1:8081
+     scope: cache
+   - name: api-scheme
+     value: http
+     scope: cache
+   - name: api-path
+     value: ""
+     scope: cache
+   - name: curl-options
+     value: " --insecure"
+   - name: timeout
+     value: 10
+   - name: timeout-connect
+     value: 10 
+actions:
+- description: Session login
+  file: Common:actions/http/curl.yml
+  id: 1
+  parameters:
+   - name: curl-hosts
+     value: "[!CACHE:api-scheme:]://[!CACHE:api-addr:][!CACHE:api-path:]/session/login"
+   - name: curl-headers
+     value: "Content-Type: application/json; charset=utf-8"
+   - name: curl-method
+     value: POST
+   - name: curl-body
+     value:
+       login: admin
+       password: password
+   - name: response-body-json
+     value: |
+       message -> [Ll]ogged in
+       project_id -> [!CAPTURE:DEF_PROJECT_ID:]
+   - name: response-headers
+     value: "[sS]et-[cC]ookie: session_id=[!CAPTURE:CAPTURED_SESSION_ID:];.*"
+- description: Refresh session
+  file: Common:actions/http/curl.yml
+  id: 2
+  parent: 1
+  parameters:
+   - name: curl-hosts
+     value: "[!CACHE:api-scheme:]://[!CACHE:api-addr:][!CACHE:api-path:]/session/refresh"
+   - name: curl-headers
+     value: "Cookie: session_id=[!CACHE:CAPTURED_SESSION_ID:]"
+   - name: response-body-json
+     value: |
+       message -> session refreshed
+   - name: response-headers
+     value: "[sS]et-[cC]ookie: session_id=.*;expires=.*"
+- description: Session logout
+  file: Common:actions/http/curl.yml
+  id: 3
+  parent: 1
+  parameters:
+   - name: curl-hosts
+     value: "[!CACHE:api-scheme:]://[!CACHE:api-addr:][!CACHE:api-path:]/session/logout"
+   - name: curl-headers
+     value: "Cookie: session_id=[!CACHE:CAPTURED_SESSION_ID:]"
+   - name: response-body-json
+     value: |
+       message -> [Ll]ogged out
+   - name: response-headers
+     value: "[sS]et-[cC]ookie: session_id=DELETED.*"

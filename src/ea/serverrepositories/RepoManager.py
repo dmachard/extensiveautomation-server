@@ -41,6 +41,8 @@ if sys.version_info > (3,):
     unicode = str
 
 
+TEST_YAML_EXT = 'yml'
+    
 TEST_UNIT_EXT = 'tux'
 TEST_SUITE_EXT = 'tsx'
 TEST_PLAN_EXT = 'tpx'
@@ -448,7 +450,7 @@ class RepoManager(Logger.ClassLogger):
         return (nbFolders, nbFiles, content, statistics)
 
     def getFile(self, pathFile, binaryMode=True, project='', addLock=True, login='',
-                forceOpen=False, readOnly=False):
+                forceOpen=False, readOnly=False, b64encode=True):
         """
         Returns the content of the file gived in argument
         """
@@ -498,9 +500,7 @@ class RepoManager(Logger.ClassLogger):
 
             # open the file in binary mode ? yes by default
             if binaryMode:
-                f = open(
-                    "%s/%s/%s" %
-                    (self.testsPath, project, pathFile), 'rb')
+                f = open( "%s/%s/%s" % (self.testsPath, project, pathFile), 'rb')
             else:
                 f = open("%s/%s/%s" % (self.testsPath, project, pathFile), 'r')
 
@@ -517,12 +517,13 @@ class RepoManager(Logger.ClassLogger):
                     fd_lock.write(b64login)
                     fd_lock.close()
 
-            b64file = base64.b64encode(data_read)
-            if sys.version_info > (3,):
-                b64file = b64file.decode("utf8")
-
-            return (self.context.CODE_OK,) + ret + \
-                (b64file, is_locked, locked_by)
+            if b64encode:
+                b64file = base64.b64encode(data_read)
+                if sys.version_info > (3,):
+                    b64file = b64file.decode("utf8")
+            else:
+                b64file = data_read
+            return (self.context.CODE_OK,) + ret + (b64file, is_locked, locked_by)
         except IOError as e:
             self.error("io: %s" % e)
             return (self.context.CODE_FORBIDDEN,) + ret + ('', False, '')
@@ -548,7 +549,8 @@ class RepoManager(Logger.ClassLogger):
                                        TEST_PLAN_EXT,
                                        TEST_GLOBAL_EXT,
                                        TEST_CONFIG_EXT,
-                                       TEST_DATA_EXT]:
+                                       TEST_DATA_EXT,
+                                       TEST_YAML_EXT]:
                 return (self.context.CODE_FORBIDDEN,) + \
                     ret + (is_locked, lockedBy,)
 
