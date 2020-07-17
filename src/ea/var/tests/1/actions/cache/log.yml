@@ -1,7 +1,7 @@
 properties:
   parameters:
-    - name: key
-      value: 
+   - name: key
+     value: 
 python: |
     class CacheLog(Action):
         def definition(self):

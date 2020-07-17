@@ -213,12 +213,29 @@ def decodeShared(parameter, sharedParameters=[],
                 projectData = prj['test_environment']
                 break
     else:
-        prjId, prjName, mainKey, secondKey = parameter['value'].split(":")
-        for prj in sharedParameters:
-            if int(prj['project_id']) == int(prjId):
-                projectData = prj['test_environment']
-                break
-
+        params = parameter['value'].split(":")
+        if len(params) == 4:
+            prjId, prjName, mainKey, secondKey = parameter['value'].split(":")
+            for prj in sharedParameters:
+                if int(prj['project_id']) == int(prjId):
+                    projectData = prj['test_environment']
+                    break
+        else:
+            if len(params) == 2:
+                prjName = params[0]
+                mainKey = params[1]
+                secondKey = ""
+                
+            if len(params) == 3:
+                prjName = params[0]
+                mainKey = params[1]
+                secondKey = params[2]
+                
+            for prj in sharedParameters:
+                if prj['project_name'] == prjName:
+                    projectData = prj['test_environment']
+                    break
+                
     if projectData is None:
         if exception:
             raise TestPropertiesException(

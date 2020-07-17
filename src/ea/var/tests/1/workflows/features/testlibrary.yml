@@ -1,0 +1,21 @@
+actions:
+- description: Testing feature - Action
+  file: Common:actions/features/action_parameters.yml
+- description: Testing feature - Action
+  file: Common:actions/features/action_steps.yml
+- description: Testing feature - Wait
+  file: Common:actions/features/wait.yml
+- description: Testing feature - Cache
+  file: Common:actions/features/cache.yml
+- description: Testing feature - Steps
+  file: Common:actions/features/steps.yml
+- description: Testing feature - Parameters
+  file: Common:actions/features/parameters.yml
+- description: Testing feature - Descriptions
+  file: Common:actions/features/descriptions.yml
+- description: Testing feature - Operators
+  file: Common:actions/features/operators.yml
+- description: Testing feature - Validators
+  file: Common:actions/features/validators.yml
+- description: Testing feature - Globals
+  file: Common:actions/features/globals.yml

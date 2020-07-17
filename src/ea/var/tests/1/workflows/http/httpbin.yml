@@ -1,27 +1,27 @@
 actions:
-- alias: Get my origin IP
+- description: Get my origin IP
   file: Common:actions/http/curl.yml
   parameters:
-  - name: curl-hosts
-    value: https://httpbin.org/ip
-  - name: response-body-json
-    value: |
+   - name: curl-hosts
+     value: https://httpbin.org/ip
+   - name: response-body-json
+     value: |
         origin -> [!CAPTURE:externalip:]
-- alias: Log external IP
+- description: Log external IP
   file: Common:actions/cache/log.yml
   parameters:
-  - name: key
-    value: externalip
-- alias: Get user agent
+   - name: key
+     value: externalip
+- description: Get user agent
   file: Common:actions/http/curl.yml
   parameters:
-  - name: curl-hosts
-    value: http://httpbin.org/get
-  - name: response-body-json
-    value: |
+   - name: curl-hosts
+     value: http://httpbin.org/get
+   - name: response-body-json
+     value: |
         headers.User-Agent -> [!CAPTURE:useragent:]
-- alias: Log UserAgent
+- description: Log UserAgent
   file: Common:actions/cache/log.yml
   parameters:
-  - name: key
-    value: useragent
+   - name: key
+     value: useragent

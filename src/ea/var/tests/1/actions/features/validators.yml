@@ -1,0 +1,376 @@
+python: |   
+    class TESTCASE_STRING_01(Action):
+        def definition(self):
+            validator = TestValidators.String()
+            for i in xrange(10):
+                randStr = validator.getRandom(length=12, withLetterLowerCase=True, withLetterUpperCase=True, withPunctuation=True,
+                            withDigits=True, withWhitespace=True, withHexdigits=False)
+                self.info(txt=randStr, bold=False)  
+            
+            nb = validator.containsDigits(strVal=randStr)
+            self.info( str(nb) )
+            
+    class TESTCASE_STRING_02(Action):       
+        def definition(self):
+            validator = TestValidators.String()
+            for i in xrange(10):
+                randStr = validator.getRandom(length=12, withLetterLowerCase=False, withLetterUpperCase=False, withPunctuation=False,
+                            withDigits=False, withWhitespace=False, withHexdigits=False)
+                self.info(txt=randStr, bold=False)  
+            
+            nb = validator.containsDigits(strVal=randStr)
+            self.info( str(nb) )
+            
+    class TESTCASE_FLOAT_01(Action):    
+        def definition(self):
+            validator = TestValidators.Float()
+            for i in xrange(10):
+                randFloat = validator.getRandom(fmin=5.2, fmax=25.8)
+                self.info(txt=randFloat, bold=False)    
+            
+            floatValid = validator.isValid(n="fds")
+            self.info( str(floatValid) )
+            
+    class TESTCASE_INTEGER_01(Action):  
+        def definition(self):
+            validator = TestValidators.Integer()
+            for i in xrange(10):
+                randInt = validator.getRandom(imin=10, imax=25)
+                self.info(txt=randInt, bold=False)  
+            
+            intValid = validator.isValid(n="fds")
+            self.info( str(intValid) )
+            
+    class TESTCASE_MAC_ADDRESS_01(Action):      
+        def definition(self):
+            validator = TestValidators.MacAddress(separator=":")
+            
+            mac = '01:11:22:33:44:FF'
+            self.info( mac )
+            ret = validator.isValid(mac=mac)
+            if ret:
+                self.info( 'this mac is valid' )
+            else: 
+                self.error( 'this mac is invalid' )
+                
+    class TESTCASE_MAC_ADDRESS_INVALID_01(Action):      
+        def definition(self):
+            validator = TestValidators.MacAddress(separator=":")
+            
+            mac = '01:11:22:33:44:FFF'
+            self.info( mac )
+            ret = validator.isValid(mac=mac)
+            if ret:
+                self.error( 'this mac is valid' )
+                self.setFailed()
+            else: 
+                self.info( 'this mac is invalid' )
+                
+            mac = '11:22:33:44'
+            self.info( mac )
+            ret = validator.isValid(mac=mac)
+            if ret: 
+                self.error( 'this mac is valid' )
+            else: 
+                self.info( 'this mac is invalid' )
+                
+    class TESTCASE_MAC_ADDRESS_BROADCAST_01(Action):
+        def definition(self):
+            validator = TestValidators.MacAddress(separator="-")
+            self.info( validator.getBroadcast() ) 
+            
+    class TESTCASE_MAC_ADDRESS_RANDOM_01(Action):   
+        def definition(self):
+            validator = TestValidators.MacAddress(separator="-")
+            for i in xrange(20):
+                self.info( validator.getRandom() ) 
+                
+    class TESTCASE_IPV4_ADDRESS_BROADCAST_01(Action):       
+        def definition(self):
+            validator = TestValidators.IPv4Address(separator=".")
+            self.info( validator.getBroadcast() ) 
+            
+    class TESTCASE_IPV4_ADDRESS_LOCALHOST_01(Action):       
+        def definition(self):
+            validator = TestValidators.IPv4Address(separator=".")
+            self.info( validator.getLocalhost() ) 
+            
+    class TESTCASE_IPV4_ADDRESS_NULL_01(Action):        
+        def definition(self):
+            validator = TestValidators.IPv4Address(separator=".")
+            self.info( validator.getNull() ) 
+            
+    class TESTCASE_IPV4_ADDRESS_RANDOM_01(Action):  
+        def definition(self):
+            validator = TestValidators.IPv4Address(separator=".")
+            for i in xrange(20):
+                self.info( validator.getRandom() ) 
+                
+    class TESTCASE_IPV4_ADDRESS_VALID_01(Action):       
+        def definition(self):
+            validator = TestValidators.IPv4Address(separator=".")
+            
+            ip = '192.168.1.1'
+            self.info(ip )
+            ret = validator.isValid(ip=ip)
+            if ret: 
+                self.info( 'this ip is valid' )
+            else:
+                self.error( 'this ip is invalid' )
+                
+    class TESTCASE_IPV4_ADDRESS_INVALID_01(Action): 
+        def definition(self):
+            validator = TestValidators.IPv4Address(separator=".")
+            
+            ip = '192.168.1.1999'
+            self.info(ip )
+            ret = validator.isValid(ip=ip)
+            if ret: 
+                self.error( 'this ip is valid' )
+            else: 
+                self.info( 'this ip is invalid' )
+            
+            ip = '192.168.1'
+            self.info( ip )
+            ret = validator.isValid(ip=ip)
+            if ret: 
+                self.error( 'this ip is valid' )
+            else: 
+                self.info( 'this ip is invalid' )
+                
+    class TESTCASE_EMAIL_VALID_01(Action):
+        def definition(self):
+            # starting initial step
+            self.VAL_EMAIL = TestValidators.Email()
+            email = 'toto@tt.com'
+            self.info( 'email: %s' % email)
+            if self.VAL_EMAIL.isValid(email=email):
+                self.info("success")
+            else:
+                self.error("invalid")
+                
+    class TESTCASE_EMAIL_INVALID_01(Action):
+        def definition(self):
+            self.VAL_EMAIL = TestValidators.Email()
+            
+            email = '.toto@tt.com'
+            self.info( 'email: %s' % email)
+            if self.VAL_EMAIL.isValid(email=email):
+                self.error("invalid")
+            else:
+                self.info("success")
+    class TESTCASE_EMAIL_INVALID_02(Action):
+        def definition(self):
+            self.VAL_EMAIL = TestValidators.Email()
+            
+            email = 't@oto@tt.com'
+            self.info( 'email: %s' % email)
+            if self.VAL_EMAIL.isValid(email=email):
+                self.error("invalid")
+            else:
+                self.info("success")            
+                
+    class TESTCASE_FTPURL_VALID_01(Action):
+        def definition(self):
+            self.VAL_FTPURL = TestValidators.FtpUrl()
+            
+            ftpurl = 'ftp://192.168.1.1'
+            self.info( 'ftp url: %s' % ftpurl)
+            if self.VAL_FTPURL.isValid(url=ftpurl):
+                self.info("success")
+            else:
+                self.error("invalid")
+  
+    class TESTCASE_FTPURL_INVALID_01(Action):
+        def definition(self):
+            self.VAL_FTPURL = TestValidators.FtpUrl()
+            
+            ftpurl = 'ftp://192.168.1.1aaa'
+            self.info( 'ftp url: %s' % ftpurl)
+            if self.VAL_FTPURL.isValid(url=ftpurl):
+                self.error("invalid")
+            else:
+                self.info("success")
+                
+    class TESTCASE_HTTPURL_VALID_01(Action):
+        def definition(self):
+            self.VAL_HTTPURL = TestValidators.HttpUrl()
+            
+            httpurl = 'http://192.168.1.1'
+            self.info( 'http url: %s' % httpurl)
+            if self.VAL_HTTPURL.isValid(url=httpurl):
+                self.info("success")
+            else:
+                self.error("invalid")
+                
+    class TESTCASE_HTTPURL_VALID_02(Action):
+        def definition(self):
+            self.VAL_HTTPURL = TestValidators.HttpUrl()
+            
+            httpurl = 'https://www.google.fr/imghp?hl=en&tab=wi&ei=5FXKUsmBNIab0AWy8oHoCQ&ved=0CAQQqi4oAg'
+            self.info( 'http url: %s' % httpurl)
+            if self.VAL_HTTPURL.isValid(url=httpurl, https=True):
+                self.info("success")
+            else:
+                self.error("invalid")
+                
+    class TESTCASE_HTTPURL_INVALID_01(Action):
+        def definition(self):
+            self.VAL_HTTPURL = TestValidators.HttpUrl()
+            
+            httpurl = 'http://aaa192.168.1.1'
+            self.info( 'http url: %s' % httpurl)
+            if self.VAL_HTTPURL.isValid(url=httpurl):
+                self.error("invalid")
+            else:
+                self.info("success")
+                
+    class TESTCASE_HTTPURL_INVALID_02(Action):
+        def definition(self):
+            self.VAL_HTTPURL = TestValidators.HttpUrl()
+            
+            httpurl = 'https:/sqdsqdsq/www.google.fr/imghp?hl=en&tab=wi&ei=5FXKUsmBNIab0AWy8oHoCQ&ved=0CAQQqi4oAg'
+            self.info( 'http url: %s' % httpurl)
+            if self.VAL_HTTPURL.isValid(url=httpurl):
+                self.error("invalid")
+            else:
+                self.info("success")
+                
+    class TESTCASE_URI_VALID_01(Action):
+        def definition(self):
+            self.VAL_URI = TestValidators.Uri()
+            
+            uri = 'http://192.168.1.1'
+            self.info( 'uri: %s' % uri)
+            if self.VAL_URI.isValid(uri=uri):
+                self.info("success")
+            else:
+                self.error("invalid")
+                
+    class TESTCASE_URI_VALID_02(Action):
+        def definition(self):
+            self.VAL_URI = TestValidators.Uri()
+            
+            uri = 'https://www.google.fr/imghp?hl=en&tab=wi&ei=5FXKUsmBNIab0AWy8oHoCQ&ved=0CAQQqi4oAg'
+            self.info( 'uri: %s' % uri)
+            if self.VAL_URI.isValid(uri=uri):
+                self.info("success")
+            else:
+                self.error("invalid")
+                
+    class TESTCASE_URI_INVALID_01(Action):
+        def definition(self):
+            self.VAL_URI = TestValidators.Uri()
+            
+            uri = '.htdsqdsqtp://aaa192.168.1.1'
+            self.info( 'uri: %s' % uri)
+            if self.VAL_URI.isValid(uri=uri):
+                self.error("valid but should not")
+            else:
+                self.info("success")
+                
+    class TESTCASE_URI_INVALID_02(Action):
+        def definition(self):
+            self.VAL_URI = TestValidators.Uri()
+            
+            uri = '-https:/sqdsqdsq/www.google.fr/imghp?hl=en&tab=wi&ei=5FXKUsmBNIab0AWy8oHoCQ&ved=0CAQQqi4oAg'
+            self.info( 'uri: %s' % uri)
+            if self.VAL_URI.isValid(uri=uri):
+                self.error("valid but should not")
+            else:
+                self.info("success")
+                
+    class TESTCASE_IPV6_VALID_01(Action):
+        def definition(self):
+            self.VAL_IPV6 = TestValidators.IPv6Address()
+            
+            ip = '::1'
+            self.info( 'ip: %s' % ip)
+            if self.VAL_IPV6.isValid(ip=ip):
+                self.info("success")
+            else:
+                self.error("invalid")
+    class TESTCASE_IPV6_VALID_02(Action):
+        def definition(self):
+            self.VAL_IPV6 = TestValidators.IPv6Address()
+            
+            ip = 'FFFF:AAAA::221:3:11:3'
+            self.info( 'ip: %s' % ip)
+            if self.VAL_IPV6.isValid(ip=ip):
+                self.info("success")
+            else:
+                self.error("invalid")
+                
+    class TESTCASE_IPV6_INVALID_01(Action):
+        def definition(self):
+            self.VAL_IPV6 = TestValidators.IPv6Address()
+            
+            ip = 'FFFF:AAAA:;:221:3:11:3'
+            self.info( 'ip: %s' % ip)
+            if self.VAL_IPV6.isValid(ip=ip):
+                    self.error("invalid")
+            else:
+                self.info("success")
+                
+    class TESTCASE_HOSTNAME_VALID_01(Action):
+        def definition(self):
+            self.VAL_HOST = TestValidators.Hostname()
+            
+            hostname = 'www.google.fr'
+            self.info( 'hostname: %s' % hostname)
+            if self.VAL_HOST.isValid(hostname=hostname):
+                self.info("success")
+            else:
+                self.error("invalid")
+                
+    class TESTCASE_HOSTNAME_INVALID_01(Action):
+        def definition(self):
+            self.VAL_HOST = TestValidators.Hostname()
+            
+            hostname = ';www.google.fr'
+            self.info( 'hostname: %s' % hostname)
+            if self.VAL_HOST.isValid(hostname=hostname):
+                self.error("invalid")
+            else:
+                self.info("success")
+                
+    TESTCASE_STRING_01().execute()
+    TESTCASE_STRING_02().execute()
+    TESTCASE_FLOAT_01().execute()
+    TESTCASE_INTEGER_01().execute()
+    
+    TESTCASE_MAC_ADDRESS_01().execute()
+    TESTCASE_MAC_ADDRESS_INVALID_01().execute()
+    TESTCASE_MAC_ADDRESS_BROADCAST_01().execute()
+    TESTCASE_MAC_ADDRESS_RANDOM_01().execute()
+    
+    TESTCASE_IPV4_ADDRESS_BROADCAST_01().execute()
+    TESTCASE_IPV4_ADDRESS_LOCALHOST_01().execute()
+    TESTCASE_IPV4_ADDRESS_NULL_01().execute()
+    TESTCASE_IPV4_ADDRESS_RANDOM_01().execute()
+    TESTCASE_IPV4_ADDRESS_VALID_01().execute()
+    TESTCASE_IPV4_ADDRESS_INVALID_01().execute()
+   
+    TESTCASE_EMAIL_VALID_01().execute()
+    TESTCASE_EMAIL_INVALID_01().execute()
+    TESTCASE_EMAIL_INVALID_02().execute()
+    
+    TESTCASE_FTPURL_VALID_01().execute()
+    TESTCASE_FTPURL_INVALID_01().execute()
+    
+    TESTCASE_HTTPURL_VALID_01().execute()
+    TESTCASE_HTTPURL_VALID_02().execute()
+    TESTCASE_HTTPURL_INVALID_01().execute()
+    TESTCASE_HTTPURL_INVALID_02().execute()
+    
+    TESTCASE_URI_VALID_01().execute()
+    TESTCASE_URI_VALID_02().execute()
+    TESTCASE_URI_INVALID_01().execute()
+    TESTCASE_URI_INVALID_02().execute()
+    
+    TESTCASE_IPV6_VALID_01().execute()
+    TESTCASE_IPV6_VALID_02().execute()
+    TESTCASE_IPV6_INVALID_01().execute()
+    
+    TESTCASE_HOSTNAME_VALID_01().execute()
+    TESTCASE_HOSTNAME_INVALID_01().execute()

@@ -1,0 +1,25 @@
+python: |
+    class STEP_PASSED_01(Action):
+        def description(self):
+            self.step1 = self.addStep(description="call api",
+                                      expected="users created",
+                                      summary="create users")
+            multilines = [ 'call api' ]
+            multilines.append( "iterate on each users to delete" )
+            self.step2 = self.addStep(description = "\n".join(multilines),
+                                      expected = "users deleted",
+                                      summary="delete users" )
+            self.step3 = self.addStep(description = "appel api",
+                                      expected = "utilisateurs crées",
+                                      summary="création utilisateurs" )	
+        def definition(self):
+            self.step1.start()
+            self.step1.setPassed(actual="terminée")
+            
+            self.step2.start()
+            self.step2.setPassed(actual="running")
+            
+            self.step3.start()
+            self.step3.setPassed(actual="stopped")
+            
+    STEP_PASSED_01().execute()

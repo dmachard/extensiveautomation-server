@@ -1,6 +1,6 @@
 
 22.0.0
-	Date: 09/07/2020
+	Date: xx/07/2020
 	What's new
 		1. (major): REST API: support test with yaml format
 		2. (medium): creation date removed from test model lib
@@ -12,6 +12,9 @@
 		8. (minor): test library - step description no more mandatory
 		9. (minor): reserverd folders removed in tests storage
 		10. (minor): test libray - new function to clear the queue in adapter
+		11. (major): REST API: new ressources to handle jobs, executions and files
+		12. (major): all snippets and samples are marked as deprecated
 	Issues Fixed
 		1. (minor): add httponly flag on session cookie
 		2. (minor): force to install plugin with yum, missing flag -y in command
+		3. (medium): REST API: fix download file ressource

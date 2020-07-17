@@ -1,13 +1,13 @@
 actions:
-- alias: execute commands remotely using SSH 
+- description: execute commands remotely using SSH 
   file: Common:actions/ssh/send_commands.yml
   parameters:
-  - name: ssh-hosts
-    value:
+   - name: ssh-hosts
+     value:
       - ssh-host: 10.0.0.55
         ssh-login: root
         ssh-password: bonjour
-  - name: ssh-commands
-    value: |-
+   - name: ssh-commands
+     value: |-
         echo "hello world" >> /var/log/messages
         echo "hola mondu" >> /var/log/messages

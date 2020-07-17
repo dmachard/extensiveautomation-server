@@ -1,0 +1,7 @@
+python: |
+    class GET_DESCRIPTIONS(Action):	
+        def definition(self):
+            self.info( "author: %s" % description('Author') )
+            self.info( "summary: %s" % description('summary') )
+            self.info( "requirement: %s" % description('requirement') )
+    GET_DESCRIPTIONS().execute()

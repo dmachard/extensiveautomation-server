@@ -109,6 +109,7 @@ class _WebServices(WSGI):
     # debug = True
     routes = [
         # new in v22
+        ('/v1/files/(.*)', RestRessources.FilesHandler()),
         ('/v1/jobs', RestRessources.JobsHandler()),
         ('/v1/executions', RestRessources.ExecutionsHandler()),
         

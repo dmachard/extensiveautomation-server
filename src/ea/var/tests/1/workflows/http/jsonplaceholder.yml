@@ -1,26 +1,26 @@
 actions:
-- alias: Post resource on fake rest api
+- description: Post resource on fake rest api
   file: Common:actions/http/curl.yml
   parameters:
-  - name: curl-hosts
-    value: https://jsonplaceholder.typicode.com/posts
-  - name: curl-method
-    value: POST
-  - name: curl-headers
-    value: |
+   - name: curl-hosts
+     value: https://jsonplaceholder.typicode.com/posts
+   - name: curl-method
+     value: POST
+   - name: curl-headers
+     value: |
         Content-Type: application/json
-  - name: curl-body
-    value:
-      title: un exemple en français
+   - name: curl-body
+     value:
+      title: un exemple en franÃ§ais
       body: bonjour
       userId: 1
-  - name: response-body-json
-    value: |
+   - name: response-body-json
+     value: |
         id -> [!CAPTURE:postid:]
-  - name: response-code
-    value: 201
-- alias: Log post id
+   - name: response-code
+     value: 201
+- description: Log post id
   file: Common:actions/cache/log.yml
   parameters:
-  - name: key
-    value: postid
+   - name: key
+     value: postid

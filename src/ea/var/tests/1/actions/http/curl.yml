@@ -1,49 +1,49 @@
 properties:
   parameters:
-  - name: agent-curl
-    value: null
-  - name: debug
-    value: false
-  - name: curl-body
-    value: null
-  - name: curl-headers
-    value: null
-  - name: curl-hosts
-    value: http://10.0.0.1
-  - name: curl-proxy
-    description: http://proxy:8080
-    value: null
-  - name: curl-method
-    value: GET
-  - name: curl-options
-    value: null
-  - name: response-body-json
-    description: error <tab> .*
-    value: null
-  - name: response-body-text
-    description: <title>Extensive.*</title>
-    value: null
-  - name: response-body-xml
-    description: //s:Body <tab> .*
-    value: null
-  - name: response-body-xmlns
-    description: "s\thttp://www.w3.org/2003/05/soap-envelope\nr\thttp://www.holidaywebservice.com/HolidayService_v2/"
-    value: null
-  - name: response-code
-    value: 200
-  - name: response-headers
-    description: '[S|s]erver:.*'
-    value: null
-  - name: response-phrase
-    value: null
-  - name: response-version
-    value: null
-  - name: timeout
-    value: 3
-  - name: timeout-connect
-    value: 3
-  - name: verbose
-    value: true
+   - name: agent-curl
+     value: null
+   - name: debug
+     value: false
+   - name: curl-body
+     value: null
+   - name: curl-headers
+     value: null
+   - name: curl-hosts
+     value: http://10.0.0.1
+   - name: curl-proxy
+     description: http://proxy:8080
+     value: null
+   - name: curl-method
+     value: GET
+   - name: curl-options
+     value: null
+   - name: response-body-json
+     description: error -> .*
+     value: null
+   - name: response-body-text
+     description: <title>Extensive.*</title>
+     value: null
+   - name: response-body-xml
+     description: //s:Body -> .*
+     value: null
+   - name: response-body-xmlns
+     description: "s\thttp://www.w3.org/2003/05/soap-envelope\nr\thttp://www.holidaywebservice.com/HolidayService_v2/"
+     value: null
+   - name: response-code
+     value: 200
+   - name: response-headers
+     description: '[S|s]erver:.*'
+     value: null
+   - name: response-phrase
+     value: null
+   - name: response-version
+     value: null
+   - name: timeout
+     value: 3
+   - name: timeout-connect
+     value: 3
+   - name: verbose
+     value: true
 python: |
     class Curl(Action):
       def definition(self, host):

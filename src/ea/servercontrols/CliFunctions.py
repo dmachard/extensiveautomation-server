@@ -472,8 +472,11 @@ class CliFunctions(Logger.ClassLogger):
                                     "file": tf["file"],
                                     "id": tf["id"],
                                     "parent": tf["parent"],
+                                    "parent-condition": "0",
                                     "parameters": []
                                 }
+                            if tf["parent-condition"] == "1":
+                                tf["parent-condition"] = "failure"
                             for p in tf["properties"]["inputs-parameters"]["parameter"]:
                                 tf_dict["parameters"].append({
                                     "description": p["description"],

@@ -1,0 +1,12 @@
+properties:
+  parameters:
+    - name: return-error
+      value: false
+python: |
+    class ACTION_PASS(Action):
+        def definition(self):
+            if input("return-error"):
+                self.error("failure")
+            else:   
+                self.info("success")
+    ACTION_PASS().execute()

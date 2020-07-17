@@ -1,0 +1,28 @@
+python: |
+    class TESTCASE_01(Action):
+        def description(self):
+            self.setPurpose(purpose=description('summary'))
+            self.setRequirement(requirement=description('requirement'))
+            
+            # steps description
+            self.step1 = self.addStep(expected="result expected",
+                                      description="step description",
+                                      summary="step sample",
+                                      enabled=True)
+        def prepare(self):
+            pass
+            
+        def definition(self):
+            # starting initial step
+            if self.step1.isEnabled():
+                self.step1.start()
+                
+                self.info("message - info level")
+                self.info("message - warning level")
+                
+                self.step1.setPassed(actual="success")
+                
+        def cleanup(self, aborted):
+            pass
+            
+    TESTCASE_01(suffix=None).execute()

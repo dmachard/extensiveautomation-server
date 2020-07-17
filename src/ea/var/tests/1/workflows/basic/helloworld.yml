@@ -1,6 +1,6 @@
 actions:
-- alias: HelloWorld Task
+- description: HelloWorld
   file: Common:actions/basic/helloworld.yml
   parameters:
-  - name: msg
-    value: Hola Mundo
+   - name: msg
+     value: Hola Mundo

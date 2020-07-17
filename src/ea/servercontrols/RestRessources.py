@@ -47,15 +47,6 @@ from ea.libs.FileModels import TestUnit as TestUnit
 from ea.libs.FileModels import TestPlan as TestPlan
 
 
-
-@wrapt.decorator
-def _to_yaml(wrapped, instance, args, kwargs):
-    """
-    New in v17
-    public decorator for yaml generator
-    """
-    return wrapped(*args, **kwargs)
-
 def _get_user(request):
     """
     Lookup a user session or return None if one doesn't exist
@@ -96,68 +87,128 @@ def _check_project_permissions(user_login, project_id):
     if not project_authorized:
         raise HTTP_403('Permission denied to this workspace')
 
+def fix_encoding_uri_param(p):
+    try:
+        p = p.encode("latin1").decode()
+    except UnicodeError:
+        pass
+    return p
+    
 class EmptyValue(Exception):
     pass
 
 class HandlerCORS(Handler):
-    def options(self):
+    def options(self, *args):
         return {}
-    
+        
+class FilesHandler(HandlerCORS):
+    """/v1/files"""
+    def get(self, file_path):
+        """get files"""
+        user_profile = _get_user(request=self.request)
+
+        try:
+            projectId = self.request.args.get("workspace", 1)
+            file_path = fix_encoding_uri_param(file_path)
+        except EmptyValue as e:
+            raise HTTP_400("%s" % e)
+        except Exception as e:
+            raise HTTP_400("Invalid request provided (%s ?)" % e)
+
+        _check_project_permissions(
+            user_login=user_profile['login'],
+            project_id=projectId)
+
+        # avoid directory traversal
+        file_path = os.path.normpath("/" + file_path)
+
+        success, _, _, _, _, content, _, _= RepoTests.instance().getFile(pathFile=file_path,
+                                                                         binaryMode=True,
+                                                                         project=projectId,
+                                                                         addLock=False,
+                                                                         b64encode=True)
+        if success != Context.instance().CODE_OK:
+            raise HTTP_500("Unable to download file")
+
+        return {"cmd": self.request.path, "file-content": content}
+    def delete(self, file_path):
+        """delete file"""
+        user_profile = _get_user(request=self.request)
+
+        if user_profile['monitor']:
+            raise HTTP_403("Access refused")
+            
+        try:
+            projectId = self.request.args.get("workspace", 1)
+            file_path = fix_encoding_uri_param(file_path)
+        except Exception as e:
+            raise HTTP_400("Invalid request provided (%s ?)" % e)
+            
+        # avoid directory traversal
+        filePath = os.path.normpath("/" + file_path)
+        
+        success = RepoTests.instance().delFile(pathFile=filePath,
+                                               project=projectId,
+                                               supportSnapshot=False)
+        if success != Context.instance().CODE_OK:
+            raise HTTP_500("Unable to delete file")
+            
+        return {"cmd": self.request.path,
+                "message": "success"}                
+    def post(self, file_path):
+        """upload file"""
+        user_profile = _get_user(request=self.request)
+
+        if user_profile['monitor']:
+            raise HTTP_403("Access refused")
+
+        try:
+            projectId = self.request.args.get("workspace", 1)
+            file_path = fix_encoding_uri_param(file_path)
+            
+            fileContent = self.request.data.get("file-content")
+            if fileContent is None:
+                raise EmptyValue("Please specify a file content")
+        except EmptyValue as e:
+            raise HTTP_400("%s" % e)
+        except Exception as e:
+            raise HTTP_400("Invalid request provided (%s ?)" % e)
+
+        _check_project_permissions(
+            user_login=user_profile['login'],
+            project_id=projectId)
+
+        try:
+            filePath = os.path.normpath(file_path)
+            p  = pathlib.Path(filePath)
+            
+            fileExt = p.suffix[1:]
+            fileName = p.stem
+            filePath = filePath.rsplit("%s%s" %(p.stem, p.suffix))[0]
+        except Exception as e:
+            raise HTTP_403('Invalid file name: %s' % e)
+            
+        success, _, _, _, _, _, _, _, _ = RepoTests.instance().uploadFile(pathFile=filePath,
+                                                                        nameFile=fileName,
+                                                                        extFile=fileExt,
+                                                                        contentFile=fileContent,
+                                                                        login=user_profile['login'],
+                                                                        project=projectId,
+                                                                        overwriteFile=True,
+                                                                        createFolders=True,
+                                                                        lockMode=False,
+                                                                        binaryMode=True)
+
+        if success != Context.instance().CODE_OK:
+            raise HTTP_500("Unable to upload file")
+            
+        return {"cmd": self.request.path,
+                "message": "success"}
+                
 class ExecutionsHandler(HandlerCORS):
-    """
-    /rest/executions
-    """
-    @_to_yaml
+    """/v1/executions"""
     def get(self):
-        """
-        tags:
-          - results
-        summary: Get details of the test result
-        description: ''
-        operationId: resultsDetails
-        consumes:
-          - application/json
-        produces:
-          - application/json
-        parameters:
-          - name: Cookie
-            in: header
-            description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
-            required: true
-            type: string
-          - name: body
-            in: body
-            required: true
-            schema:
-              required: [ test-id, project-id ]
-              properties:
-                test-id:
-                  type: string
-                project-id:
-                  type: string
-        responses:
-          '200':
-            schema :
-              properties:
-                cmd:
-                  type: string
-                results:
-                  type: string
-                project-id:
-                  type: string
-            examples:
-              application/json: |
-                {
-                  "cmd": "/results/details",
-                  "project-id": 25
-               }
-          '400':
-            description: Bad request provided
-          '403':
-            description: Access denied to this project
-          '500':
-            description: Server error
-        """
+        """get executions"""
         user_profile = _get_user(request=self.request)
 
         try:
@@ -195,106 +246,9 @@ class ExecutionsHandler(HandlerCORS):
                 'logs-index': logs_index}
                 
 class JobsHandler(HandlerCORS):
-    """
-    /rest/jobs
-    """
-    @_to_yaml
+    """/v1/jobs"""
     def post(self):
-        """
-        tags:
-          - tasks
-        summary: Schedule a task from task manager
-        description: ''
-        operationId: tasksSchedule
-        consumes:
-          - application/json
-        produces:
-          - application/json
-        parameters:
-          - name: Cookie
-            in: header
-            description: session_id=NjQyOTVmOWNlMDgyNGQ2MjlkNzAzNDdjNTQ3ODU5MmU5M
-            required: true
-            type: string
-          - name: body
-            in: body
-            required: true
-            schema:
-              required: [ project-id, file-extension, file-path, file-name]
-              properties:
-                project-id:
-                  type: integer
-                file-content:
-                  type: string
-                file-extension:
-                  type: string
-                file-path:
-                  type: string
-                file-name:
-                  type: string
-                schedule-id:
-                  type: integer
-                  description: '0 => now, 1 => at, 2 => in'
-                schedule-at:
-                  type: array
-                  description: '[ Y,M,D,H,M,S ]'
-                  items:
-                    type: integer
-                schedule-repeat:
-                  type: integer
-                debug-enabled:
-                  type: boolean
-                from-time:
-                  type: array
-                  description: '[ Y,M,D,H,M,S ]'
-                  items:
-                    type: integer
-                to-time:
-                  type: array
-                  description: '[ Y,M,D,H,M,S ]'
-                  items:
-                    type: integer
-                file-parameters:
-                  type: array
-                  description: overwrite the original parameters
-                  items:
-                    type: object
-                    required: [ name, value, type ]
-                    properties:
-                      name:
-                        type: string
-                      type:
-                        type: string
-                      value:
-                        type: string
-        responses:
-          '200':
-            description: tests listing
-            schema :
-              properties:
-                cmd:
-                  type: string
-                execution-id:
-                  type: string
-                task-id:
-                  type: string
-                message:
-                  type: string
-            examples:
-              application/json: |
-                {
-                  "cmd": "/tasks",
-                  "message": ""
-                  "execution-id": "",
-                  "task-id": ""
-               }
-          '400':
-            description: Bad request provided
-          '403':
-            description: Access denied to this workspace
-          '500':
-            description: Server error
-        """
+        """create job"""
         user_profile = _get_user(request=self.request)
 
         projectId = self.request.args.get("workspace", 1)
@@ -345,6 +299,7 @@ class JobsHandler(HandlerCORS):
             project_id=projectId)
 
         try:
+            yamlFile = os.path.normpath(yamlFile)
             p  = pathlib.Path(yamlFile)
             
             fileExtension = p.suffix[1:]
@@ -403,9 +358,17 @@ class JobsHandler(HandlerCORS):
             # add default descriptions if missing
             if "descriptions" not in res["properties"]:
                 res["properties"]["descriptions"] = {}
+                
+            if "author" not in res["properties"]["descriptions"]:
                 res["properties"]["descriptions"]["author"] = "undefined"
+                
+            if "name" not in res["properties"]["descriptions"]:
                 res["properties"]["descriptions"]["name"] = "undefined"
+                
+            if "requirement" not in res["properties"]["descriptions"]:
                 res["properties"]["descriptions"]["requirement"] = "undefined"
+                
+            if "summary" not in res["properties"]["descriptions"]:
                 res["properties"]["descriptions"]["summary"] = "undefined"
             
             # add parameters if missing
@@ -484,9 +447,23 @@ class JobsHandler(HandlerCORS):
                         tp["parent"] = "0"
                     if isinstance(tp["parent"], int):
                         tp["parent"] = str(tp["parent"])
+                    
+                    if "parent-condition" not in tp:
+                        tp["parent-condition"] = "0"
+                    else:
+                        if tp["parent-condition"] == "success":
+                            tp["parent-condition"] = "0"
+                        else:
+                            tp["parent-condition"] = "1"
+                        tp["parent-condition"] = str(tp["parent-condition"])
+                        
+                    if "description" in tp:
+                        tp["alias"] = tp["description"]
+                        
                     i+=1
                         
-                    tf_descr = [ {"key": "summary", "value": "undefined"}, 
+                    tf_descr = [ {"key": "author", "value": "undefined"},
+                                 {"key": "summary", "value": "undefined"}, 
                                  {"key": "name", "value": "undefined"},
                                  {"key": "requirement", "value": "undefined"}]
                     tf_prop = {"properties": {"descriptions": { "description": tf_descr},

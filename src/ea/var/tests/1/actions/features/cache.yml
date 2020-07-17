@@ -1,0 +1,46 @@
+properties:
+  parameters:
+   - name: REGEXP
+     value: .*session_id=[!CAPTURE:SESSIONID:.*?:];.*
+   - name: param-cache
+     scope: cache
+     value: hello world
+python: |
+    class TESTCASE_CACHE(Action):	
+        def definition(self):
+            data = [2, 3, {"de": 1}]
+            key = "my key"
+            Cache().set(name=key, data=data)
+            
+            cache = Cache().get(name=key)
+            self.info( "data1 from cache: %s" % cache)
+    
+            cache = Cache().get(name="param-cache")
+            self.info( "data2 from cache: %s" % cache)
+            
+            deleted = Cache().delete(name=key)
+            if not deleted:
+                self.error( "unable to delete data from cache" )
+                
+            cache = Cache().get(name=key)
+            self.info( "data from cache: %s" % cache)
+    
+            Cache().reset()
+                
+    class TESTCASE_CACHE_CAPTURE(Action):		
+        def definition(self):
+            my_data="March, 25 2017 07:38:58 AM"
+            Cache().capture(data=my_data, regexp=".* (?P<TIME>\d{2}:\d{2}:\d{2}) .*")
+            Trace(self).info( txt=Cache().get(name="TIME") )
+            
+    class TESTCASE_CACHE_CAPTURE_CUSTOM(Action):		
+        def definition(self):
+            h  = "Set-Cookie: session_id=Mjc5YTg1NjJjNDA3NDU5ZDliNDAwZWJiYjQxMmRjMDI5M;expires=Tue, 02-May-2017 19:43:26 GMT; path=/"
+            Cache().capture(data=h, regexp=input('REGEXP'))
+            
+            session_id =Cache().get(name="SESSIONID")
+            self.warning( "session_id: %s" % session_id)
+            
+    TESTCASE_CACHE().execute()
+    TESTCASE_CACHE_CAPTURE().execute()
+    TESTCASE_CACHE_CAPTURE_CUSTOM().execute()

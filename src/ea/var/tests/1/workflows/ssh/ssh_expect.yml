@@ -6,27 +6,27 @@ properties:
         ssh-login: root
         ssh-password: bonjour
 actions:
-- alias: Get hostname of the machine
+- description: Get hostname of the machine
   file: Common:actions/ssh/send_expect.yml
   parameters:
-  - name: ssh-commands
-    value: |-
+   - name: ssh-commands
+     value: |-
         # get hostname
         uname -n
         .*\n[!CAPTURE:MACHINE_HOSTNAME:]\n.*
-- alias: Log hostname
+- description: Log hostname
   file: Common:actions/ssh/send_commands.yml
   parent: 1
   parameters:
-  - name: ssh-commands
-    value: |-
+   - name: ssh-commands
+     value: |-
         echo "[!CACHE:MACHINE_HOSTNAME:]" >> /var/log/messages
-- alias: Ping the hostname
+- description: Ping the hostname
   file: Common:actions/ssh/send_expect.yml
   parent: 1
   parameters:
-  - name: ssh-commands
-    value: |-
+   - name: ssh-commands
+     value: |-
         # send 3 ping to host
         ping -c 3 [!CACHE:MACHINE_HOSTNAME:]
         .*3 packets transmitted, 3 received, 0% packet loss.*  

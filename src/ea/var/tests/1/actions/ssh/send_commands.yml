@@ -1,17 +1,17 @@
 properties:
   parameters:
-  - name: ssh-commands
-    value: 
-  - name: ssh-hosts
-    value:  
-  - name: timeout
-    value: 20
-  - name: timeout-connect
-    value: 10
-  - name: verbose
-    value: true
-  - name: debug
-    value: false
+   - name: ssh-commands
+     value: 
+   - name: ssh-hosts
+     value:  
+   - name: timeout
+     value: 20
+   - name: timeout-connect
+     value: 10
+   - name: verbose
+     value: true
+   - name: debug
+     value: false
 python: |
     class SshSendCommands(Action):                  
       def definition(self, svr):

@@ -285,11 +285,25 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                                         tp["parent"] = "0"
                                     if isinstance(tp["parent"], int):
                                         tp["parent"] = str(tp["parent"])
+                                        
+                                    if "parent-condition" not in tp:
+                                        tp["parent-condition"] = "0"
+                                    else:
+                                        if tp["parent-condition"] == "success":
+                                            tp["parent-condition"] = "0"
+                                        else:
+                                            tp["parent-condition"] = "1"
+                                        tp["parent-condition"] = str(tp["parent-condition"])
+                        
+                                    if "description" in tp:
+                                        tp["alias"] = tp["description"]
+                        
                                     i+=1
                                         
-                                    tf_descr = [ {"key": "summary", "value": ""}, 
-                                                 {"key": "name", "value": ""},
-                                                 {"key": "requirement", "value": ""}]
+                                    tf_descr = [ {"key": "author", "value": "undefined"},
+                                                 {"key": "summary", "value": "undefined"}, 
+                                                 {"key": "name", "value": "undefined"},
+                                                 {"key": "requirement", "value": "undefined"}]
                                     tf_prop = {"properties": {"descriptions": { "description": tf_descr},
                                                               "inputs-parameters": {} }}
                                     tf_prop["properties"]["inputs-parameters"]["parameter"] = tp["parameters"]
@@ -459,9 +473,17 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                             # add default descriptions if missing
                             if "descriptions" not in res["properties"]:
                                 res["properties"]["descriptions"] = {}
+                                
+                            if "author" not in res["properties"]["descriptions"]:
                                 res["properties"]["descriptions"]["author"] = "undefined"
+                                
+                            if "name" not in res["properties"]["descriptions"]:
                                 res["properties"]["descriptions"]["name"] = "undefined"
+                                
+                            if "requirement" not in res["properties"]["descriptions"]:
                                 res["properties"]["descriptions"]["requirement"] = "undefined"
+                                
+                            if "summary" not in res["properties"]["descriptions"]:
                                 res["properties"]["descriptions"]["summary"] = "undefined"
                                 
                             # add parameters if missing
@@ -651,7 +673,7 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
         return (self.context.CODE_OK, tests)
 
     def getFile(self, pathFile, binaryMode=True, project='', addLock=True, login='',
-                forceOpen=False, readOnly=False):
+                forceOpen=False, readOnly=False, b64encode=True):
         """
         New in v17
         Return the file ask by the tester
@@ -663,7 +685,8 @@ class RepoTests(RepoManager.RepoManager, Logger.ClassLogger):
                                               addLock=addLock,
                                               login=login,
                                               forceOpen=forceOpen,
-                                              readOnly=readOnly)
+                                              readOnly=readOnly,
+                                              b64encode=b64encode)
         result, path_file, name_file, ext_file, project, _, locked, locked_by = ret
         if result != self.context.CODE_OK:
             return ret

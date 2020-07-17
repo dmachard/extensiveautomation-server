@@ -1,0 +1,152 @@
+properties:
+  parameters:
+   - name: api-addr
+     value: 127.0.0.1:8081
+     scope: cache
+   - name: api-scheme
+     value: http
+     scope: cache
+   - name: api-path
+     value: ""
+     scope: cache
+   - name: DATA_PROJECT
+     type: global
+     value: Common:SAMPLE_DATA:PROJECT
+     scope: cache
+   - name: curl-options
+     value: " --insecure"
+   - name: timeout
+     value: 10
+   - name: timeout-connect
+     value: 10 
+actions:
+- description: Session login
+  file: Common:actions/http/curl.yml
+  id: 1
+  parameters:
+   - name: curl-hosts
+     value: "[!CACHE:api-scheme:]://[!CACHE:api-addr:][!CACHE:api-path:]/session/login"
+   - name: curl-headers
+     value: "Content-Type: application/json; charset=utf-8"
+   - name: curl-method
+     value: POST
+   - name: curl-body
+     value:
+       login: admin
+       password: password
+   - name: response-body-json
+     value: |
+       message -> [Ll]ogged in
+       project_id -> [!CAPTURE:DEF_PROJECT_ID:]
+   - name: response-headers
+     value: "[sS]et-[cC]ookie: session_id=[!CAPTURE:CAPTURED_SESSION_ID:];.*"
+- description: Add project
+  file: Common:actions/http/curl.yml
+  id: 2
+  parent: 1
+  parameters:
+   - name: curl-hosts
+     value: "[!CACHE:api-scheme:]://[!CACHE:api-addr:][!CACHE:api-path:]/administration/projects/add"
+   - name: curl-headers
+     value: |
+       Content-Type: application/json; charset=utf-8
+       Cookie: session_id=[!CACHE:CAPTURED_SESSION_ID:]
+   - name: curl-body
+     value: |
+       {
+          "project-name":"[!CACHE:DATA_PROJECT:name:]"
+       }
+   - name: curl-method
+     value: POST
+   - name: response-headers
+     value: "[cC]ontent-[tT]ype: application/json.*"
+   - name: response-body-json
+     value: |
+       message -> project successfully added
+       project-id -> [!CAPTURE:NEW_PROJECT_ID:]
+- description: Rename project
+  file: Common:actions/http/curl.yml
+  id: 3
+  parent: 2
+  parameters:
+   - name: curl-hosts
+     value: "[!CACHE:api-scheme:]://[!CACHE:api-addr:][!CACHE:api-path:]/administration/projects/rename"
+   - name: curl-headers
+     value: |
+       Content-Type: application/json; charset=utf-8
+       Cookie: session_id=[!CACHE:CAPTURED_SESSION_ID:]
+   - name: curl-body
+     value: |
+       { 
+         "project-id":    [!CACHE:NEW_PROJECT_ID:],
+         "project-name":    "[!CACHE:DATA_PROJECT:name_new:]"
+       }
+   - name: curl-method
+     value: POST
+   - name: response-headers
+     value: "[cC]ontent-[tT]ype: application/json.*"
+   - name: response-body-json
+     value: |
+       message -> project successfully updated
+- description: Listing projects
+  file: Common:actions/http/curl.yml
+  id: 4
+  parent: 2
+  parameters:
+   - name: curl-hosts
+     value: "[!CACHE:api-scheme:]://[!CACHE:api-addr:][!CACHE:api-path:]/administration/projects/listing"
+   - name: curl-headers
+     value: |
+       Cookie: session_id=[!CACHE:CAPTURED_SESSION_ID:]
+   - name: response-headers
+     value: "[cC]ontent-[tT]ype: application/json.*"
+   - name: response-body-json
+     value: |
+       projects[?id=[!CACHE:NEW_PROJECT_ID:]].name -> [!CACHE:DATA_PROJECT:name_new:]
+- description: Search project by name
+  file: Common:actions/http/curl.yml
+  id: 5
+  parent: 2
+  parameters:
+   - name: curl-hosts
+     value: "[!CACHE:api-scheme:]://[!CACHE:api-addr:][!CACHE:api-path:]/administration/projects/search/by/name"
+   - name: curl-method
+     value: POST
+   - name: curl-headers
+     value: |
+       Content-Type: application/json; charset=utf-8
+       Cookie: session_id=[!CACHE:CAPTURED_SESSION_ID:]
+   - name: curl-body
+     value: |
+       { 
+         "project-name":    "[!CACHE:DATA_PROJECT:name_new:]"
+       }
+   - name: response-headers
+     value: "[cC]ontent-[tT]ype: application/json.*"
+   - name: response-body-json
+     value: |
+       project.id -> [!CACHE:NEW_PROJECT_ID:]
+       project.name -> [!CACHE:DATA_PROJECT:name_new:]
+- description: Remove project
+  file: Common:actions/http/curl.yml
+  id: 6
+  parent: 2
+  parameters:
+   - name: curl-hosts
+     value: "[!CACHE:api-scheme:]://[!CACHE:api-addr:][!CACHE:api-path:]/administration/projects/remove"
+   - name: curl-method
+     value: POST
+   - name: curl-headers
+     value: |
+       Content-Type: application/json; charset=utf-8
+       Cookie: session_id=[!CACHE:CAPTURED_SESSION_ID:]
+   - name: curl-body
+     value: |
+       { 
+          "project-id":    [!CACHE:NEW_PROJECT_ID:]
+       }
+   - name: response-headers
+     value: "[cC]ontent-[tT]ype: application/json.*"
+   - name: response-body-json
+     value: |
+       message -> project successfully removed

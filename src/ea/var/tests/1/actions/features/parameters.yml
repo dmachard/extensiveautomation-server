@@ -1,17 +1,17 @@
 properties:
   parameters:
-  - name: text
-    value: |-
+   - name: text
+     value: |-
         hello world
         bonjour
-  - name: integer
-    value: 20
-  - name: boolean
-    value: false
-  - name: none
-    value: null
-  - name: dict
-    value:
+   - name: integer
+     value: 20
+   - name: boolean
+     value: false
+   - name: none
+     value: null
+   - name: dict
+     value:
         hello: world
 python: |
     class PythonCode(Action):

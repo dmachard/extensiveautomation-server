@@ -180,7 +180,9 @@ You can create your own actions but some actions are available by default.
 
 | Actions | Description |
 | ------------- | ------------- |
+| basic/helloworld.yml | helloworld example for action |
 | basic/wait.yml | make a sleep during xx seconds |
+| basic/terminate.yml | force to stop a workflow |
 | cache/log.yml | log the value with the provided key |
 | http/curl.yml | send http requests with responses analysing |
 | ssh/send_commands.yml | execute commands remotely using the SSH protocol |
@@ -193,8 +195,8 @@ This basic action shows how to write python source code with parameters in YAML 
 
         properties:
           parameters:
-          - name: msg
-            value: hello world
+           - name: msg
+             value: hello world
         python: |
             class HelloWorld(Action):
                 def definition(self):
@@ -209,11 +211,11 @@ This following workflow is available in the data storage in "/workflows/basic/" 
 This workflow shows how to use actions with updated parameters.
 
         actions:
-        - alias: HelloWorld Task
+        - description: HelloWorld
           file: Common:actions/basic/helloworld.yml
           parameters:
-          - name: msg
-            value: Hola Mundo
+           - name: msg
+             value: Hola Mundo
             
 ### SSH workflow
 
@@ -224,16 +226,16 @@ The SSH plugin must be installed, please refer to [Adding plugins](#adding-plugi
 Examples are available in the data storage in `./workflows/ssh/` folder.
 
         actions:
-        - alias: execute commands remotely using SSH 
+        - description: execute commands remotely using SSH 
           file: Common:actions/ssh/send_commands.yml
           parameters:
-          - name: ssh-hosts
-            value:
+           - name: ssh-hosts
+             value:
               - ssh-host: 10.0.0.55
                 ssh-login: root
                 ssh-password: ESI23xgx4yYukF9rsA1O
-          - name: ssh-commands
-            value: |-
+           - name: ssh-commands
+             value: |-
                 echo "hello world" >> /var/log/messages
                 echo "hola mondu" >> /var/log/messages
 
@@ -246,19 +248,19 @@ The WEB plugin must be installed, please refer to [Adding plugins](#adding-plugi
 Examples are available in the data storage in `./workflows/http/` folder.
 
         actions:
-        - alias: Get my origin IP
+        - description: Get my origin IP
           file: Common:actions/http/curl.yml
           parameters:
-          - name: curl-hosts
-            value: https://httpbin.org/ip
-          - name: response-body-json
-            value: |
+           - name: curl-hosts
+             value: https://httpbin.org/ip
+           - name: response-body-json
+             value: |
                 origin -> [!CAPTURE:externalip:]
-        - alias: Log external IP
+        - description: Log external IP
           file: Common:actions/cache/log.yml
           parameters:
-          - name: key
-            value: externalip
+           - name: key
+             value: externalip
   
 ## Automation using the Web Interface
 

@@ -1,6 +1,6 @@
 actions:
-- alias: Sleeping
+- description: Sleeping
   file: Common:actions/basic/wait.yml
   parameters:
-  - name: duration
-    value: 5
+   - name: duration
+     value: 5

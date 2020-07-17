@@ -1,0 +1,10 @@
+properties:
+  parameters:
+   - name: sample-data
+     type: global
+     value: Common:SAMPLE_DATA
+python: |
+    class Variables(Action):
+        def definition(self):
+            self.info( "%s" % input("sample-data") )
+    Variables().execute()

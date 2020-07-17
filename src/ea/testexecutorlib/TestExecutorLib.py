@@ -2267,7 +2267,7 @@ class Test(object):
         if err is None:
             err_msg = ''
 
-        self.tcparent.warning("Terminating test...")
+        self.tcparent.warning("Terminating...")
         raise AbortStopException(err_msg)
 
     def interrupt(self, err=None):
@@ -4379,10 +4379,7 @@ class TestCase(object):
         @type kwargs:
         """
         no_steps = False
-        if not len(self.getSteps()):
-            no_steps = True
-            step = self.addStep(summary="initial step")
-            
+
         if not _ExecuteTest:
             self.dontExecuteMe(**kwargs)
         else:
@@ -4454,6 +4451,10 @@ class TestCase(object):
                                                              tolevel=LEVEL_USER,
                                                              testInfo=self.__testInfo)
 
+                        if not len(self.getSteps()):
+                            no_steps = True
+                            step = self.addStep(summary="initial step")
+                            
                         body(**kwargs)
                                                                                      
                         if no_steps:

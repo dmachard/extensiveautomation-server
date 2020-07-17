@@ -1,7 +1,7 @@
 properties:
   parameters:
-  - name: msg
-    value: hello world
+   - name: msg
+     value: hello world
 python: |
     class HelloWorld(Action):
         def definition(self):

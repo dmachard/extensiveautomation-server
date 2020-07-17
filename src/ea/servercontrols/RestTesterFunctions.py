@@ -4181,11 +4181,11 @@ class TestsFileDownload(HandlerCORS):
         # avoid directory traversal
         filePath = os.path.normpath("/" + filePath)
 
-        success, _, _, _, content, _, _ = RepoTests.instance().getFile(pathFile=filePath,
+        success, _, _, _, _, content, _, _= RepoTests.instance().getFile(pathFile=filePath,
                                                                        binaryMode=True,
                                                                        project=projectId,
                                                                        addLock=False)
-        if success == Context.instance().CODE_NOT_FOUND:
+        if success != Context.instance().CODE_OK:
             raise HTTP_500("Unable to download file")
 
         return {"cmd": self.request.path, "file-content": content}

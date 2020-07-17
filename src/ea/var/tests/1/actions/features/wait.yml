@@ -1,0 +1,12 @@
+python: |
+    class WAIT(Action):
+        def definition(self):
+            self.info( 'wait during 1 second' )
+            self.wait(1)
+            
+    class WAIT_UNTIL(Action):	
+        def definition(self):
+            Timer(self).waitUntil(dt='2100-01-01 00:00:00', fmt='%Y-%m-%d %H:%M:%S', delta=0)
+    
+    WAIT().execute()
+    #WAIT_UNTIL().execute()
