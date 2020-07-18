@@ -511,10 +511,10 @@ All the old tests in XML can still be used but they are obsolete. We must favor 
 XML to YAML conversion can be done with the following command.
 A new YML file will be created automatically after converting the XML reading.
 
-    ```bash
-    extensiveautomation --convert2xml
-    ```
-    
+```bash
+extensiveautomation --convert2xml
+```
+
 ## About
 
 This project is an effort, driven in my spare time.
