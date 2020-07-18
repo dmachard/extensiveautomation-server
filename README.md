@@ -210,7 +210,7 @@ Action is individual python code source with parameters and must be defined with
 
 ### About actions
 
-You can create your own actions but some actions are available by default.
+You can create your own actions but some actions are available by default in the folder `/actions`
 
 | Actions | Description | Prerequisites |
 | ------------- | ------------- | ------------- |
@@ -245,7 +245,7 @@ Parameters from actions can be easily overwritten and conditions between actions
 
 ### About workflows
 
-You can create your own workflows but some workflows are available by default.
+You can create your own workflows but some workflows are available by default in the folder `/workflows`
 
 | Actions | Description | Prerequisites |
 | ------------- | ------------- | ------------- |
@@ -336,7 +336,7 @@ Select the your action or worflow and click on the button `CREATE`
 
 ### Get job logs
 
-Go to the menu `Automation > Run` and display Logs
+Go to the menu `Automation > Executions` and display Logs
 
 
 ## Automation using the REST API
