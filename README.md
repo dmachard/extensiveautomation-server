@@ -132,26 +132,30 @@ Plugins allow to interact with the system to be controlled. But by default the s
 
 Checking if the REST api working fine using curl or postman.
 
-       curl -X POST http://127.0.0.1:8081/session/login \
-            -H "Content-Type: application/json" \
-            -d '{"login": "admin", "password": "password"}'
+```bash
+curl -X POST http://127.0.0.1:8081/session/login \
+-H "Content-Type: application/json" \
+-d '{"login": "admin", "password": "password"}'
+```
 
 success response:
 
-        {
-            "cmd": "/session/login", 
-            "message": "Logged in", 
-            "session_id": "MjA1OWI1OTc1MWM0NDU2NDg4MjQxMjRjNWFmN2FkNThhO", 
-            "expires": 86400, 
-            "user_id": 1, 
-            "levels": ["Administrator"], 
-            "project_id": 1, 
-            "api_login": "admin", 
-            "api_secret": "6977aa6a443bd3a6033ebb52557cf90d24c79857", 
-            "client-available": false, 
-            "version": "",
-            "name": ""
-        }
+```json
+{
+    "cmd": "/session/login", 
+    "message": "Logged in", 
+    "session_id": "MjA1OWI1OTc1MWM0NDU2NDg4MjQxMjRjNWFmN2FkNThhO", 
+    "expires": 86400, 
+    "user_id": 1, 
+    "levels": ["Administrator"], 
+    "project_id": 1, 
+    "api_login": "admin", 
+    "api_secret": "6977aa6a443bd3a6033ebb52557cf90d24c79857", 
+    "client-available": false, 
+    "version": "",
+    "name": ""
+}
+```
 
 ## Understand the Data Storage
 
@@ -160,7 +164,7 @@ success response:
 All data necessary  for the server is stored in a specific folder.
 The location of the storage can be found with the following command:
 
-        python3 extensiveautomation.py --datastorage
+        extensiveautomation --datastorage
         /<install_project>/ea/var/
 
 Data storage overview:
@@ -314,7 +318,7 @@ Swagger for the REST API is available in the `scripts/swagger` folder.
 
 Get the API secret for the user admin
 
-        python3 extensiveautomation.py --apisecret admin
+        extensiveautomation --apisecret admin
         API key: admin
         API secret: 6977aa6a443bd3a6033ebb52557cf90d24c79857
 
@@ -325,7 +329,7 @@ Make a POST on `/v1/jobs` to  create a job wich will execute your actions or wor
 Copy/Paste the following curl command:
 
         curl  --user admin:6977aa6a443bd3a6033ebb52557cf90d24c79857 \
-              -d '{"yaml-file": "/workflows/basic/helloworld.yml"}' \
+-d '{"yaml-file": "/workflows/basic/helloworld.yml"}' \
               -H "Content-Type: application/json" \
               -X POST http://127.0.0.1:8081/v1/jobs?workspace=1
               
