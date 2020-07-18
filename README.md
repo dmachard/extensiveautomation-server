@@ -68,25 +68,33 @@ The `Common` workspace is available by default, attached to the previous users.
 
 1. Run the following command
 
-        python3 -m pip install extensiveautomation_server
-
+    ```bash
+    python3 -m pip install extensiveautomation_server
+    ```
+    
 2. Type the following command on your shell to start the server
 
-        extensiveautomation --start
-
+    ```bash
+    extensiveautomation --start
+    ```
+    
 3. Finally, check if the [server is running fine](#connection-to-server-with-curl).
 
 ### Docker image
 
 1. Downloading the image
 
-        docker pull extensiveautomation/extensiveautomation-server:latest
-
+    ```bash
+    docker pull extensiveautomation/extensiveautomation-server:latest
+    ```
+    
 2. Start the container
 
-        docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083 \
-                   --name=extensive extensiveautomation
-
+    ```bash
+    docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083 \
+    --name=extensive extensiveautomation
+    ```
+    
    If you want to start the container with persistant tests data, go to [Docker Hub](https://hub.docker.com/r/extensiveautomation/extensiveautomation-server) page.
 
 3. Finally, check if the [server is running fine](#connection-to-server-with-curl).
@@ -95,18 +103,24 @@ The `Common` workspace is available by default, attached to the previous users.
  
 1. Clone this repository on your linux server
 
-        git clone https://github.com/ExtensiveAutomation/extensiveautomation-server.git
-        cd extensiveautomation-server/
-        
+    ```bash
+    git clone https://github.com/ExtensiveAutomation/extensiveautomation-server.git
+    cd extensiveautomation-server/
+    ```
+    
 2. As precondition, install the additional python libraries with `pip` command: 
    
-        python3 -m pip install wrapt pycnic lxml jsonpath_ng pyyaml
-
+    ```bash
+    python3 -m pip install wrapt pycnic lxml jsonpath_ng pyyaml
+    ```
+    
 3. Start the server. On linux the server is running as daemon.
 
-        cd src/
-        python3 extensiveautomation.py --start
-        
+    ```bash
+    cd src/
+    python3 extensiveautomation.py --start
+    ```
+      
 4. Finally, check if the [server is running fine](#connection-to-server-with-curl).
  
 ### Adding plugins
@@ -115,14 +129,20 @@ Plugins allow to interact with the system to be controlled. But by default the s
 
 * [CLI plugin (ssh)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli)
 
-        pip install extensiveautomation_plugin_cli
-        ./extensiveautomation --reload
-         
+    ```bash
+    pip install extensiveautomation_plugin_cli
+    extensiveautomation --stop
+    extensiveautomation --start
+    ```
+    
 * [WEB plugin (http/https)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web)
 
-        pip install extensiveautomation_plugin_web
-        ./extensiveautomation --reload
-         
+    ```bash
+    pip install extensiveautomation_plugin_web
+    extensiveautomation --stop
+    extensiveautomation --start
+    ```
+    
 * [GUI plugin (selenium, sikulix and adb)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui)
 * [And many others...](https://github.com/ExtensiveAutomation/extensiveautomation-plugins-server)
 
@@ -164,21 +184,25 @@ success response:
 All data necessary  for the server is stored in a specific folder.
 The location of the storage can be found with the following command:
 
-        extensiveautomation --datastorage
-        /<install_project>/ea/var/
+```bash
+extensiveautomation --datastorage
+/<install_project>/ea/var/
+```
 
 Data storage overview:
 
-    var/
-      tests/
-        <project_id>/
-            [...yaml files...]
-      testsresult/
-        <project_id>/
-            <result_id>/
-      logs/
-        output.log
-      data.db
+```bash
+var/
+  tests/
+    <project_id>/
+        [...yaml files...]
+  testsresult/
+    <project_id>/
+        <result_id>/
+  logs/
+    output.log
+  data.db
+```
 
 ## Working with actions
 
@@ -202,15 +226,17 @@ You can create your own actions but some actions are available by default.
 This following action is available in the data storage in "/actions/basic/" folder.
 This basic action shows how to write python source code with parameters in YAML format.
 
-        properties:
-          parameters:
-           - name: msg
-             value: hello world
-        python: |
-            class HelloWorld(Action):
-                def definition(self):
-                    self.info(input("msg"))
-            HelloWorld().execute()
+```yaml
+properties:
+  parameters:
+   - name: msg
+     value: hello world
+python: |
+    class HelloWorld(Action):
+        def definition(self):
+            self.info(input("msg"))
+    HelloWorld().execute()
+```
 
 ## Working with workflows
 
@@ -231,13 +257,15 @@ You can create your own workflows but some workflows are available by default.
 This following workflow is available in the data storage in "/workflows/basic/" folder.
 This workflow shows how to use actions with updated parameters.
 
-        actions:
-        - description: HelloWorld
-          file: Common:actions/basic/helloworld.yml
-          parameters:
-           - name: msg
-             value: Hola Mundo
-            
+```yaml
+actions:
+- description: HelloWorld
+  file: Common:actions/basic/helloworld.yml
+  parameters:
+   - name: msg
+     value: Hola Mundo
+```
+     
 ### SSH workflow
 
 This example describe how to write a ssh workflow to execute some commands remotely using SSH.
@@ -246,19 +274,21 @@ The SSH plugin must be installed, please refer to [Adding plugins](#adding-plugi
 
 Examples are available in the data storage in `./workflows/ssh/` folder.
 
-        actions:
-        - description: execute commands remotely using SSH 
-          file: Common:actions/ssh/send_commands.yml
-          parameters:
-           - name: ssh-hosts
-             value:
-              - ssh-host: 10.0.0.55
-                ssh-login: root
-                ssh-password: ESI23xgx4yYukF9rsA1O
-           - name: ssh-commands
-             value: |-
-                echo "hello world" >> /var/log/messages
-                echo "hola mondu" >> /var/log/messages
+```yaml
+actions:
+- description: execute commands remotely using SSH 
+  file: Common:actions/ssh/send_commands.yml
+  parameters:
+   - name: ssh-hosts
+     value:
+      - ssh-host: 10.0.0.55
+        ssh-login: root
+        ssh-password: ESI23xgx4yYukF9rsA1O
+   - name: ssh-commands
+     value: |-
+        echo "hello world" >> /var/log/messages
+        echo "hola mondu" >> /var/log/messages
+```
 
 ### HTTP workflow
 
@@ -268,21 +298,23 @@ The WEB plugin must be installed, please refer to [Adding plugins](#adding-plugi
 
 Examples are available in the data storage in `./workflows/http/` folder.
 
-        actions:
-        - description: Get my origin IP
-          file: Common:actions/http/curl.yml
-          parameters:
-           - name: curl-hosts
-             value: https://httpbin.org/ip
-           - name: response-body-json
-             value: |
-                origin -> [!CAPTURE:externalip:]
-        - description: Log external IP
-          file: Common:actions/cache/log.yml
-          parameters:
-           - name: key
-             value: externalip
-  
+```yaml
+actions:
+- description: Get my origin IP
+  file: Common:actions/http/curl.yml
+  parameters:
+   - name: curl-hosts
+     value: https://httpbin.org/ip
+   - name: response-body-json
+     value: |
+        origin -> [!CAPTURE:externalip:]
+- description: Log external IP
+  file: Common:actions/cache/log.yml
+  parameters:
+   - name: key
+     value: externalip
+```
+
 ## Automation using the Web Interface
 
 ### About Web Client
@@ -318,9 +350,11 @@ Swagger for the REST API is available in the `scripts/swagger` folder.
 
 Get the API secret for the user admin
 
-        extensiveautomation --apisecret admin
-        API key: admin
-        API secret: 6977aa6a443bd3a6033ebb52557cf90d24c79857
+```bash
+extensiveautomation --apisecret admin
+API key: admin
+API secret: 6977aa6a443bd3a6033ebb52557cf90d24c79857
+```
 
 ### Schedule a job
 
@@ -328,43 +362,51 @@ Make a POST on `/v1/jobs` to  create a job wich will execute your actions or wor
 
 Copy/Paste the following curl command:
 
-        curl  --user admin:6977aa6a443bd3a6033ebb52557cf90d24c79857 \
+```bash
+curl  --user admin:6977aa6a443bd3a6033ebb52557cf90d24c79857 \
 -d '{"yaml-file": "/workflows/basic/helloworld.yml"}' \
-              -H "Content-Type: application/json" \
-              -X POST http://127.0.0.1:8081/v1/jobs?workspace=1
-              
+-H "Content-Type: application/json" \
+-X POST http://127.0.0.1:8081/v1/jobs?workspace=1
+```
+             
 Success response:
 
-        {
-            "cmd": "/v1/jobs",
-            "message": "background", 
-            "job-id": 2,
-            "execution-id": "e57aaa43-325d-468d-8cac-f1dea822ef3a"
-        }
-        
+```json
+{
+    "cmd": "/v1/jobs",
+    "message": "background", 
+    "job-id": 2,
+    "execution-id": "e57aaa43-325d-468d-8cac-f1dea822ef3a"
+}
+```
+       
 ### Get job logs
 
 Make a GET on `/v1/executions` to get logs generated by the job.
 
 Copy/Paste the following curl command:
 
-        curl  --user admin:6977aa6a443bd3a6033ebb52557cf90d24c79857 \
-              "http://127.0.0.1:8081/v1/executions?workspace=1&id=eab41766-c9b6-4632-8a73-42232a431051"
-        
+```bash
+curl  --user admin:6977aa6a443bd3a6033ebb52557cf90d24c79857 \
+"http://127.0.0.1:8081/v1/executions?workspace=1&id=eab41766-c9b6-4632-8a73-42232a431051"
+```
+  
 Success response:
 
-        {
-            "cmd": "/v1/executions",
-            "execution-id": "e57aaa43-325d-468d-8cac-f1dea822ef3a", 
-            "status": "complete", 
-            "verdict": "pass", 
-            "logs": "10:50:10.7241 task-started
-            10:50:10.7243 script-started helloworld
-            10:50:10.7309 script-stopped PASS 0.007
-            10:50:10.7375 task-stopped 0.006909608840942383", 
-            "logs-index": 156
-        }
-            
+```json
+{
+    "cmd": "/v1/executions",
+    "execution-id": "e57aaa43-325d-468d-8cac-f1dea822ef3a", 
+    "status": "complete", 
+    "verdict": "pass", 
+    "logs": "10:50:10.7241 task-started
+    10:50:10.7243 script-started helloworld
+    10:50:10.7309 script-stopped PASS 0.007
+    10:50:10.7375 task-stopped 0.006909608840942383", 
+    "logs-index": 156
+}
+```
+           
 ## More security
 
 ### Adding reverse proxy
@@ -378,37 +420,41 @@ If you want to install a reverse proxy, please to follow this procedure.
 
 1. Install the example provided `scripts\reverseproxy\extensiveautomation_api.conf` in your apache instance. If you install the reverse proxy on a new server, don't forget to replace the 127.0.0.1 address by the ip of your extensive server.
 
-        Listen 8080
+    ```bash
+    Listen 8080
 
-        <VirtualHost *:8080>
-          SSLEngine on
+    <VirtualHost *:8080>
+      SSLEngine on
 
-          SSLCertificateFile /etc/pki/tls/certs/localhost.crt
-          SSLCertificateKeyFile /etc/pki/tls/private/localhost.key
+      SSLCertificateFile /etc/pki/tls/certs/localhost.crt
+      SSLCertificateKeyFile /etc/pki/tls/private/localhost.key
 
-          LogLevel warn
-          ErrorLog  /var/log/extensiveautomation_api_error_ssl_rp.log
-          CustomLog /var/log/extensiveautomation_api_access_ssl_rp.log combined
+      LogLevel warn
+      ErrorLog  /var/log/extensiveautomation_api_error_ssl_rp.log
+      CustomLog /var/log/extensiveautomation_api_access_ssl_rp.log combined
 
-          Redirect 307 / /rest/session/login
+      Redirect 307 / /rest/session/login
 
-          ProxyPass /rest/ http://127.0.0.1:8081/
-          ProxyPassReverse /rest/ http://127.0.0.1:8081/
-          
-          ProxyPass /wss/client/ ws://127.0.0.1:8082 disablereuse=on
-          ProxyPassReverse /wss/client/ ws://127.0.0.1:8082 disablereuse=on
+      ProxyPass /rest/ http://127.0.0.1:8081/
+      ProxyPassReverse /rest/ http://127.0.0.1:8081/
+      
+      ProxyPass /wss/client/ ws://127.0.0.1:8082 disablereuse=on
+      ProxyPassReverse /wss/client/ ws://127.0.0.1:8082 disablereuse=on
 
-          ProxyPass /wss/agent/ ws://127.0.0.1:8083 disablereuse=on
-          ProxyPassReverse /wss/agent/ ws://127.0.0.1:8083 disablereuse=on
-        </VirtualHost>
+      ProxyPass /wss/agent/ ws://127.0.0.1:8083 disablereuse=on
+      ProxyPassReverse /wss/agent/ ws://127.0.0.1:8083 disablereuse=on
+    </VirtualHost>
+    ```
 
     With this configuration in apache, the REST API is now running on the port tcp/8080 (tls).
 
 2. Checking if the REST api working fine with curl command.
 
-       curl -X POST https://127.0.0.1:8080/rest/session/login --insecure \ 
-         -H "Content-Type: application/json" \
-         -d '{"login": "admin", "password": "password"}'
+    ```bash
+    curl -X POST https://127.0.0.1:8080/rest/session/login --insecure \ 
+    -H "Content-Type: application/json" \
+    -d '{"login": "admin", "password": "password"}'
+    ```
          
 ### LDAP users authentication
 
@@ -419,35 +465,42 @@ Follow this procedure to enable LDAP authentication:
 
 1. Install python dependancies with the `pip` command:
 
-        python3 -m pip install ldap3
+    ```bash
+    python3 -m pip install ldap3
+    ```
 
 2. Configure the `settings.ini`  file to enable ldap authentication and other stuff
 
-        [Users_Session]
-        
-        ; enable ldap user authentication for rest api session only
-        ; 0=disable 1=enable
-        ldap-authbind=1
-        ; remote addresses of your ldap servers
-        ; ldaps://127.0.0.1:636 
-        ldap-host=[ "ldap://127.0.0.1:389" ]
-        ; username form
-        ; uid=%%s,ou=People,dc=extensive,dc=local
-        ldap-dn=[ "uid=%%s,ou=People,dc=extensive,dc=local" ]
+    ```bash
+    [Users_Session]
 
+    ; enable ldap user authentication for rest api session only
+    ; 0=disable 1=enable
+    ldap-authbind=1
+    ; remote addresses of your ldap servers
+    ; ldaps://127.0.0.1:636 
+    ldap-host=[ "ldap://127.0.0.1:389" ]
+    ; username form
+    ; uid=%%s,ou=People,dc=extensive,dc=local
+    ldap-dn=[ "uid=%%s,ou=People,dc=extensive,dc=local" ]
+    ```
 
 3. Restart the server
 
-        cd src/
-        python3 extensiveautomation.py --stop
-        python3 extensiveautomation.py --start
-        
+    ```bash
+    cd src/
+    python3 extensiveautomation.py --stop
+    python3 extensiveautomation.py --start
+    ```
+    
 4. Check the new user authentication method
 
-       curl -X POST http://127.0.0.1:8081/session/login \
-            -H "Content-Type: application/json" \
-            -d '{"login": "admin", "password": "password"}'
-
+    ```bash
+    curl -X POST http://127.0.0.1:8081/session/login \
+    -H "Content-Type: application/json" \
+    -d '{"login": "admin", "password": "password"}'
+    ```
+    
 ## Migration from old version
 
 Since version 22 of the server, a major change has been introduced on the test files.
@@ -458,8 +511,10 @@ All the old tests in XML can still be used but they are obsolete. We must favor 
 XML to YAML conversion can be done with the following command.
 A new YML file will be created automatically after converting the XML reading.
 
-        python3 extensiveautomation.py --convert2xml
-        
+    ```bash
+    extensiveautomation --convert2xml
+    ```
+    
 ## About
 
 This project is an effort, driven in my spare time.
