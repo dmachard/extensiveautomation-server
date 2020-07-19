@@ -512,7 +512,7 @@ XML to YAML conversion can be done with the following command.
 A new YML file will be created automatically after converting the XML reading.
 
 ```bash
-extensiveautomation --convert2xml
+extensiveautomation --convert2yaml
 ```
 
 ## About
