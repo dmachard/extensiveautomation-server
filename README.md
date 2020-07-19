@@ -5,9 +5,8 @@
 ![](https://github.com/ExtensiveAutomation/extensiveautomation-server/workflows/Docker%20Image/badge.svg)
 
 **ExtensiveAutomation** enable you to create custom workflows to automate your project.
- - workflows must be defined with YAML file
  - a workflow is the combination of differents actions.
- - an action is individual python code source with parameters.
+ - an action is individual python code source with enriched parameters.
 
 ## Table of contents
 * [Server Installation](#installation)
@@ -204,6 +203,7 @@ Action is individual python code source with parameters and must be defined with
 ### About actions
 
 You can create your own actions but some actions are available by default in the folder `/actions`
+Actions must be defined with YAML file.
 
 | Actions | Description | Prerequisites |
 | ------------- | ------------- | ------------- |
@@ -239,6 +239,7 @@ Parameters from actions can be easily overwritten and conditions between actions
 ### About workflows
 
 You can create your own workflows but some workflows are available by default in the folder `/workflows`
+Workflows must be defined with YAML file.
 
 | Actions | Description | Prerequisites |
 | ------------- | ------------- | ------------- |

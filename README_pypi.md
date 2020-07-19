@@ -14,9 +14,8 @@
 | | |
 
 **ExtensiveAutomation** enable you to create custom workflows to automate your project.
- - workflows must be defined with YAML file
  - a workflow is the combination of differents actions.
- - an action is individual python code source with parameters.
+ - an action is individual python code source with enriched parameters.
 
 ## Installation
 
