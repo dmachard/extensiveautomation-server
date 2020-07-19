@@ -15,7 +15,7 @@
 	* [PyPI package](#pypi-package)
 	* [Docker image](#docker-image)
 	* [Source code](#source-code)
-	* [Adding plugins](#adding-plugins)
+	* [Install plugins](#install-plugins)
 * [Server is running fine](#server-is-running-fine) 
 	* [Testing using Curl](#testing-using-curl)
 * [Understand the Data Storage](#understand-the-data-storage)
@@ -123,28 +123,21 @@ The `Common` workspace is available by default, attached to the previous users.
       
 4. Finally, check if the [server is running fine](#connection-to-server-with-curl).
  
-### Adding plugins
+### Install plugins
 
-Plugins allow to interact with the system to be controlled. But by default the server is provided without plugins. So you need to install them one by one according to your needs.
+You can add plugins to your extensive automation server to add more functionnalities like 
+make http requests, send ssh commands.
 
-* [CLI plugin (ssh)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli)
+By default the server comes without plugins so you need 
+to install them one by one according to your needs.
 
-    ```bash
-    pip install extensiveautomation_plugin_cli
-    extensiveautomation --stop
-    extensiveautomation --start
-    ```
-    
-* [WEB plugin (http/https)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web)
+| Plugin | Description | Installation |
+| ------------- | ------------- | ------------- |
+| CLI | This plugin enable to interact with remote system throught the SSH protocol. | [CLI plugin (ssh)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli) |
+| WEB | This plugin enable to interact with remote web server through the HTTP protocol. This plugin is based on the curl command. | [WEB plugin (http/https)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web) |
+| GUI | This plugin enable to interact with user interface Selenium, sikulix or adb for android mobile are used to do that. | [GUI plugin (selenium, sikulix and adb)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui) |
 
-    ```bash
-    pip install extensiveautomation_plugin_web
-    extensiveautomation --stop
-    extensiveautomation --start
-    ```
-    
-* [GUI plugin (selenium, sikulix and adb)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui)
-* [And many others...](https://github.com/ExtensiveAutomation/extensiveautomation-plugins-server)
+[And many others...](https://github.com/ExtensiveAutomation/extensiveautomation-plugins-server)
 
 ## Server is running fine
 
