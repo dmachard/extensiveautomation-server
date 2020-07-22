@@ -516,6 +516,7 @@ extensiveautomation --convert2yaml
 
 This project is an effort, driven in my spare time.
 
+|  | |
 | ------------- | ------------- |
 | Copyright |  Copyright (c) 2010-2020  Denis Machard <d.machard@gmail.com> |
 | License |  LGPL2.1 |
