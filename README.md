@@ -10,7 +10,7 @@
 
 The architecture is composed of 3 parts:
  - server
- - web client (optional)
+ - [web client (optional)](https://github.com/ExtensiveAutomation/extensiveautomation-webclient)
  - agents (optional)
  
 ## Table of contents
@@ -318,14 +318,12 @@ actions:
 
 ### About Web Client
 
-The web client is optional because you can do everything from the REST API of the server.
+The [web client](https://github.com/ExtensiveAutomation/extensiveautomation-webclient#web-interface-for-extensiveautomation) is optional because you can do everything from the REST API of the server.
 But on some cases, it's more user friendly to use the web interface to manage:
 - users
 - projects
 - variables
 - and more...
-
-If you want, follow the web interface install guide as describe on the page [Connection to server with the web client](#connection-to-server-with-the-web-client).
 
 ### Schedule a job
 
