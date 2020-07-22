@@ -8,8 +8,13 @@
  - a workflow is the combination of differents actions.
  - an action is individual python code source with enriched parameters.
 
+The architecture is composed of 3 parts:
+ - server
+ - web client (optional)
+ - agents (optional)
+ 
 ## Table of contents
-* [Server Installation](#installation)
+* [Server Installation](#server-installation)
     * [About the server](#about-the-server)
 	* [PyPI package](#pypi-package)
 	* [Docker image](#docker-image)
