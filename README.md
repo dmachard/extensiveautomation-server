@@ -341,7 +341,7 @@ Go to the menu `Automation > Executions` and display Logs
 ### About API
 
 You can do everything from the REST API, below a small overview.
-Swagger for the REST API is available in the `scripts/swagger` folder.
+Take a look to the [swagger](https://github.com/ExtensiveAutomation/extensiveautomation-server/tree/master/src/ea/scripts/swagger).
     
 ### Get api secret key
 
@@ -516,7 +516,6 @@ extensiveautomation --convert2yaml
 
 This project is an effort, driven in my spare time.
 
-| | |
 | ------------- | ------------- |
 | Copyright |  Copyright (c) 2010-2020  Denis Machard <d.machard@gmail.com> |
 | License |  LGPL2.1 |
@@ -527,4 +526,3 @@ This project is an effort, driven in my spare time.
 | PyPI |  https://pypi.org/project/extensiveautomation-server/ |
 | Google Users | https://groups.google.com/group/extensive-automation-users |
 | Twitter | https://twitter.com/Extensive_Auto |
-| | |
