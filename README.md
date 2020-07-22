@@ -56,8 +56,8 @@ The server is the main part of the **ExtensiveAutomation** project.
 
 It's is running on the following tcp ports:
 - tcp/8081: REST API
-- tcp/8081: Websocket tunnel for app client
-- tcp/8082: Websocket tunnel for agents
+- tcp/8082: Websocket tunnel for app client
+- tcp/8083: Websocket tunnel for agents
 
 A user account is required, you can use the default ones or create your own account.
 Users available with the default password `password`:
@@ -137,9 +137,9 @@ to install them one by one according to your needs.
 
 | Plugin | Description | Installation |
 | ------------- | ------------- | ------------- |
-| CLI | This plugin enable to interact with remote system throught the SSH protocol. | [CLI plugin (ssh)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli) |
-| WEB | This plugin enable to interact with remote web server through the HTTP protocol. This plugin is based on the curl command. | [WEB plugin (http/https)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web) |
-| GUI | This plugin enable to interact with user interface Selenium, sikulix or adb for android mobile are used to do that. | [GUI plugin (selenium, sikulix and adb)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui) |
+| CLI | This plugin enable to execute commands in a remote system throught the SSH protocol. | [CLI plugin (ssh)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli) |
+| WEB | This plugin enable to send http request to a remote web server through the HTTP protocol. This plugin is based on the curl command. | [WEB plugin (http/https)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web) |
+| GUI | This plugin enable to interact with graphical user interface. This plugin is based on selenium, sikulix or adb for android. | [GUI plugin (selenium, sikulix and adb)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui) |
 
 [And many others...](https://github.com/ExtensiveAutomation/extensiveautomation-plugins-server)
 
@@ -269,7 +269,7 @@ actions:
 
 This example describe how to write a ssh workflow to execute some commands remotely using SSH.
 
-The SSH plugin must be installed, please refer to [Adding plugins](#adding-plugins).
+The SSH plugin must be installed, please refer to [Install plugins](#install-plugins).
 
 Examples are available in the data storage in `./workflows/ssh/` folder.
 
@@ -293,7 +293,7 @@ actions:
 
 This example describe how to write a HTTP workflow to send HTTP requests.
 
-The WEB plugin must be installed, please refer to [Adding plugins](#adding-plugins).
+The WEB plugin must be installed, please refer to [Install plugins](#install-plugins).
 
 Examples are available in the data storage in `./workflows/http/` folder.
 
