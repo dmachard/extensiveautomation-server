@@ -62,10 +62,12 @@ It's is running on the following tcp ports:
 - tcp/8083: Websocket tunnel for agents
 
 A user account is required, you can use the default ones or create your own account.
-Users available with the default password `password`:
-- admin
-- tester
-- monitor 
+Default user accounts and passwords:
+- admin/password
+- tester/password
+- monitor/password
+
+Default credentials  are   `password`:
 
 YAML files storage can be split into different workspaces. 
 The `Common` workspace is available by default, attached to the previous users.
@@ -223,9 +225,9 @@ The default ones:
 | generator/random_integer.yml | generate random integer |
 
 Additional actions are available with plugins:
-- [WEB actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web#about-actions) |
-- [CLI actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli#about-actions) |
-- [GUI actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui#about-actions) |
+- [WEB actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web#about-actions)
+- [CLI actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli#about-actions)
+- [GUI actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui#about-actions)
 
 ### HelloWorld action
 
@@ -261,9 +263,9 @@ Workflows must be defined with YAML file.
 | generators/random.yml | generate random string and integer |
 
 Additional workflows are available with plugins:
-- [WEB actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web#about-workflows) |
-- [CLI actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli#about-workflows) |
-- [GUI actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui#about-workflows) |
+- [WEB actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web#about-workflows)
+- [CLI actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli#about-workflows)
+- [GUI actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui#about-workflows)
 
 ### HelloWorld workflow
 
@@ -282,7 +284,7 @@ actions:
 ### SSH workflow
 
 This example describe how to write a ssh workflow to execute some commands remotely using SSH.
-The SSH plugin must be installed, please refer to [Install plugins](#install-plugins).
+The SSH plugin must be installed, please refer to the chapter [Install plugins](#install-plugins).
 
 The following example show how to execute remote ssh commands.
 
@@ -320,7 +322,7 @@ Additional examples are available in the data storage `./workflows/ssh/`.
 ### HTTP workflow
 
 This example describe how to write a HTTP workflow to send HTTP requests.
-The WEB plugin must be installed, please refer to [Install plugins](#install-plugins).
+The WEB plugin must be installed, please refer to the chapter [install plugins](#install-plugins).
 
 The following example show how to send a http request 
 and waiting response with specific json key.
