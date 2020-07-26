@@ -67,8 +67,6 @@ Default user accounts and passwords:
 - tester/password
 - monitor/password
 
-Default credentials  are   `password`:
-
 YAML files storage can be split into different workspaces. 
 The `Common` workspace is available by default, attached to the previous users.
  
