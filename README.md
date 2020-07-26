@@ -137,8 +137,8 @@ make http requests, send ssh commands.
 By default the server comes without plugins so you need 
 to install them one by one according to your needs.
 
-| Plugin | Description | Installation |
-| ------------- | ------------- | ------------- |
+| Plugins | Description |
+| ------------- | ------------- | 
 | [CLI](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli)  | This plugin enable to execute commands in a remote system throught the SSH protocol. |
 | [WEB](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web) | This plugin enable to send http request to a remote web server through the HTTP protocol. This plugin is based on the curl command. |
 | [GUI](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui)  | This plugin enable to interact with graphical user interface. This plugin is based on selenium, sikulix or adb for android. |
@@ -216,16 +216,16 @@ The default ones:
 
 | Actions | Description |
 | ------------- | ------------- | 
-| [basic/helloworld.yml](https://github.com/ExtensiveAutomation/extensiveautomation-server/blob/master/README_actions.md#basic_helloworld_yml) | helloworld example for action |
+| [basic/helloworld.yml](https://github.com/ExtensiveAutomation/extensiveautomation-server/blob/master/README_actions.md#basichelloworldyml) | helloworld example for action |
 | basic/wait.yml | make a sleep during xx seconds |
 | cache/log.yml | log the value with the provided key |
 | generator/random_string.yml | generate random string |
 | generator/random_integer.yml | generate random integer |
 
 Additional actions are available with plugins:
-- [WEB actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web#about-actions)
-- [CLI actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli#about-actions)
-- [GUI actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui#about-actions)
+- [WEB plugin actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web#about-actions)
+- [CLI plugin actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli#about-actions)
+- [GUI plugin actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui#about-actions)
 
 ### HelloWorld action
 
