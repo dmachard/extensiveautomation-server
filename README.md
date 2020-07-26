@@ -9,9 +9,9 @@
  - an action is individual python code source with enriched parameters.
 
 The architecture is composed of 3 parts:
- - server
+ - [automation server](https://github.com/ExtensiveAutomation/extensiveautomation-server)
  - [web client (optional)](https://github.com/ExtensiveAutomation/extensiveautomation-webclient)
- - agents (optional)
+ - [remote agents (optional)](https://github.com/ExtensiveAutomation/extensiveautomation-agent)
  
 ## Table of contents
 * [Server Installation](#server-installation)
@@ -32,6 +32,8 @@ The architecture is composed of 3 parts:
 	* [HelloWorld workflow](#helloworld-workflow)
 	* [SSH workflow](#ssh-workflow)
 	* [HTTP workflow](#http-workflow)
+	* [Selenium workflow](#selenium-workflow)
+	* [Sikulix workflow](#sikulix-workflow)
 * [Automation using the Web Interface](#automation-using-the-web-interface)
     * [About Web Client](#about-web-client)
     * [Schedule a job](#schedule-a-job)
@@ -210,14 +212,20 @@ Action is individual python code source with parameters and must be defined with
 You can create your own actions but some actions are available by default in the folder `/actions`
 Actions must be defined with YAML file.
 
-| Actions | Description | Prerequisites |
-| ------------- | ------------- | ------------- |
-| basic/helloworld.yml | helloworld example for action | |
-| basic/wait.yml | make a sleep during xx seconds | |
-| cache/log.yml | log the value with the provided key | |
-| http/curl.yml | send http requests with responses analysing | [WEB plugin (http/https)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web) |
-| ssh/send_commands.yml | execute commands remotely using the SSH protocol | [CLI plugin (ssh)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli) |
-| ssh/send_expect.yml | execute commands remotely and expect specific output | [CLI plugin (ssh)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli) |
+The default ones:
+
+| Actions | Description |
+| ------------- | ------------- | 
+| basic/helloworld.yml | helloworld example for action |
+| basic/wait.yml | make a sleep during xx seconds |
+| cache/log.yml | log the value with the provided key |
+| generator/random_string.yml | generate random string |
+| generator/random_integer.yml | generate random integer |
+
+Additional actions are available with plugins:
+- [WEB actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web#about-actions) |
+- [CLI actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli#about-actions) |
+- [GUI actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui#about-actions) |
 
 ### HelloWorld action
 
@@ -250,6 +258,12 @@ Workflows must be defined with YAML file.
 | ------------- | ------------- | ------------- |
 | basic/helloworld.yml | helloworld example for workflow | |
 | basic/wait.yml | make a sleep during xx seconds | |
+| generators/random.yml | generate random string and integer |
+
+Additional workflows are available with plugins:
+- [WEB actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web#about-workflows) |
+- [CLI actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli#about-workflows) |
+- [GUI actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui#about-workflows) |
 
 ### HelloWorld workflow
 
@@ -268,10 +282,9 @@ actions:
 ### SSH workflow
 
 This example describe how to write a ssh workflow to execute some commands remotely using SSH.
-
 The SSH plugin must be installed, please refer to [Install plugins](#install-plugins).
 
-Examples are available in the data storage in `./workflows/ssh/` folder.
+The following example show how to execute remote ssh commands.
 
 ```yaml
 actions:
@@ -289,13 +302,28 @@ actions:
         echo "hola mondu" >> /var/log/messages
 ```
 
+If your want to run the previous workflow with a remote agent:
+- you must deploy a `ssh` agent
+- you must define the agent to use in your worflow like below
+
+```yaml
+properties:
+  parameters:
+    - name: agent-curl
+      value:
+        name: agent.win.ssh01
+        type: ssh
+```
+
+Additional examples are available in the data storage `./workflows/ssh/`.
+
 ### HTTP workflow
 
 This example describe how to write a HTTP workflow to send HTTP requests.
-
 The WEB plugin must be installed, please refer to [Install plugins](#install-plugins).
 
-Examples are available in the data storage in `./workflows/http/` folder.
+The following example show how to send a http request 
+and waiting response with specific json key.
 
 ```yaml
 actions:
@@ -312,6 +340,92 @@ actions:
   parameters:
    - name: key
      value: externalip
+```
+
+If your want to run the previous workflow with a remote agent:
+- you must deploy a `curl` agent
+- you must define the agent to use in your worflow like below
+
+```yaml
+properties:
+  parameters:
+    - name: agent-curl
+      value:
+        name: agent.win.curl01
+        type: curl
+```
+
+Additional examples are available in the data storage `./workflows/http/`.
+
+### Selenium workflow
+
+This example describe how to write a Selenium workflow.
+
+The `GUI plugin` must be installed, please refer to [Install plugins](#install-plugins).
+and the `selenium agent` must [installed](https://github.com/ExtensiveAutomation/extensiveautomation-agent-plugin-selenium) 
+and [running](https://github.com/ExtensiveAutomation/extensiveautomation-agent#running-agent).
+
+The following example show how to open the web browser, 
+that loads the url www.google.com and finally  close-it after.
+
+```yaml
+properties:
+  parameters:
+    - name: agent
+      value:
+        name: agent
+        type: selenium3
+    - name: browser
+      value: chrome
+actions:
+- description: open browser
+  file: Common:actions/selenium/openbrowser.yml
+  id: 1
+  parameters:
+   - name: url
+     value: https://www.google.com
+- description: close browser
+  file: Common:actions/selenium/closebrowser.yml
+  id: 2
+  parent: 1
+```
+
+Additionals examples are available in the data storage `./workflows/selenium/`.
+
+### Sikulix workflow
+
+This example describe how to write a Sikulix workflow. Sikulix is nice to 
+simulate keyboard and mouse interactions on your system.
+
+The `GUI plugin` must be installed, please refer to [Install plugins](#install-plugins).
+and the `sikulix agent` must [installed](https://github.com/ExtensiveAutomation/extensiveautomation-agent-plugin-sikulix) 
+and [running](https://github.com/ExtensiveAutomation/extensiveautomation-agent#running-agent).
+
+The following example show how to execute `Windows + R` shorcut and run a command.
+
+```yaml
+properties:
+  parameters:
+    - name: agent
+      value:
+        name: sikulix01
+        type: sikulixserver
+actions:
+- description: Type Windows+R on keyboard 
+  file: Common:actions/sikulix/type_shorcut.yml
+  id: 1
+  parameters:
+   - name: key
+     value: KEY_WIN
+   - name: other-key
+     value: r
+- description: "Type text: cmd"
+  file: Common:actions/sikulix/type_text.yml
+  id: 1
+  parent: 1
+  parameters:
+   - name: text
+     value: cmd
 ```
 
 ## Automation using the Web Interface
