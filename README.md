@@ -139,11 +139,11 @@ to install them one by one according to your needs.
 
 | Plugin | Description | Installation |
 | ------------- | ------------- | ------------- |
-| CLI | This plugin enable to execute commands in a remote system throught the SSH protocol. | [CLI plugin (ssh)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli) |
-| WEB | This plugin enable to send http request to a remote web server through the HTTP protocol. This plugin is based on the curl command. | [WEB plugin (http/https)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web) |
-| GUI | This plugin enable to interact with graphical user interface. This plugin is based on selenium, sikulix or adb for android. | [GUI plugin (selenium, sikulix and adb)](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui) |
+| [CLI](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli)  | This plugin enable to execute commands in a remote system throught the SSH protocol. |
+| [WEB](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web) | This plugin enable to send http request to a remote web server through the HTTP protocol. This plugin is based on the curl command. |
+| [GUI](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui)  | This plugin enable to interact with graphical user interface. This plugin is based on selenium, sikulix or adb for android. |
 
-[And many others...](https://github.com/ExtensiveAutomation/extensiveautomation-plugins-server)
+[And many others (old ones)...](https://github.com/ExtensiveAutomation/extensiveautomation-plugins-server)
 
 ## Server is running fine
 
@@ -216,7 +216,7 @@ The default ones:
 
 | Actions | Description |
 | ------------- | ------------- | 
-| basic/helloworld.yml | helloworld example for action |
+| [basic/helloworld.yml](https://github.com/ExtensiveAutomation/extensiveautomation-server/blob/master/README_actions.md#basic_helloworld_yml) | helloworld example for action |
 | basic/wait.yml | make a sleep during xx seconds |
 | cache/log.yml | log the value with the provided key |
 | generator/random_string.yml | generate random string |
@@ -361,7 +361,7 @@ Additional examples are available in the data storage `./workflows/http/`.
 
 This example describe how to write a Selenium workflow.
 
-The `GUI plugin` must be installed, please refer to [Install plugins](#install-plugins).
+The `GUI plugin` must be installed, please refer to the chapter [install plugins](#install-plugins).
 and the `selenium agent` must [installed](https://github.com/ExtensiveAutomation/extensiveautomation-agent-plugin-selenium) 
 and [running](https://github.com/ExtensiveAutomation/extensiveautomation-agent#running-agent).
 
@@ -397,7 +397,7 @@ Additionals examples are available in the data storage `./workflows/selenium/`.
 This example describe how to write a Sikulix workflow. Sikulix is nice to 
 simulate keyboard and mouse interactions on your system.
 
-The `GUI plugin` must be installed, please refer to [Install plugins](#install-plugins).
+The `GUI plugin` must be installed, please refer to the chapter [install plugins](#install-plugins).
 and the `sikulix agent` must [installed](https://github.com/ExtensiveAutomation/extensiveautomation-agent-plugin-sikulix) 
 and [running](https://github.com/ExtensiveAutomation/extensiveautomation-agent#running-agent).
 
