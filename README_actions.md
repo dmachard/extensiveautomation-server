@@ -1,6 +1,6 @@
 # Actions
 
-Default actions documentations.
+Documentations for default actions.
 
 An action is individual python code source with enriched parameters.
 
@@ -8,8 +8,8 @@ An action is individual python code source with enriched parameters.
 * [basic/helloworld.yml](#basichelloworldyml)
 * [basic/wait.yml](#basicwaityml)
 * [cache/log.yml](#cachelogyml)
-* [generator/random_string.yml](#generatorrandomstringyml)
-* [generator/random_integer.yml](#generatorrandomintegeryml)
+* [generator/random_string.yml](#generatorrandom_stringyml)
+* [generator/random_integer.yml](#generatorrandom_integeryml)
     
 ## basic/helloworld.yml
 

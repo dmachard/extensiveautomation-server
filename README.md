@@ -213,14 +213,11 @@ You can create your own actions but some actions are available by default in the
 Actions must be defined with YAML file.
 
 The default ones:
-
-| Actions | Description |
-| ------------- | ------------- | 
-| [basic/helloworld.yml](https://github.com/ExtensiveAutomation/extensiveautomation-server/blob/master/README_actions.md#basichelloworldyml) | helloworld example for action |
-| [basic/wait.yml](https://github.com/ExtensiveAutomation/extensiveautomation-server/blob/master/README_actions.md#basicwaityml) | make a sleep during xx seconds |
-| [cache/log.yml](https://github.com/ExtensiveAutomation/extensiveautomation-server/blob/master/README_actions.md#cachelogyml) | log the value with the provided key |
-| [generator/random_string.yml](https://github.com/ExtensiveAutomation/extensiveautomation-server/blob/master/README_actions.md#generatorrandomstringyml) | generate random string |
-| [generator/random_integer.yml](https://github.com/ExtensiveAutomation/extensiveautomation-server/blob/master/README_actions.md#generatorrandomintegeryml) | generate random integer |
+- [basic/helloworld.yml](https://github.com/ExtensiveAutomation/extensiveautomation-server/blob/master/README_actions.md#basichelloworldyml)
+- [basic/wait.yml](https://github.com/ExtensiveAutomation/extensiveautomation-server/blob/master/README_actions.md#basicwaityml)
+- [cache/log.yml](https://github.com/ExtensiveAutomation/extensiveautomation-server/blob/master/README_actions.md#cachelogyml)
+- [generator/random_string.yml](https://github.com/ExtensiveAutomation/extensiveautomation-server/blob/master/README_actions.md#generatorrandom_stringyml)
+- [generator/random_integer.yml](https://github.com/ExtensiveAutomation/extensiveautomation-server/blob/master/README_actions.md#generatorrandom_integeryml)
 
 Additional actions are available with plugins:
 - [WEB plugin actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web#about-actions)
@@ -254,11 +251,10 @@ Parameters from actions can be easily overwritten and conditions between actions
 You can create your own workflows but some workflows are available by default in the folder `/workflows`
 Workflows must be defined with YAML file.
 
-| Actions | Description | Prerequisites |
-| ------------- | ------------- | ------------- |
-| basic/helloworld.yml | helloworld example for workflow | |
-| basic/wait.yml | make a sleep during xx seconds | |
-| generators/random.yml | generate random string and integer |
+The default ones:
+- [basic/helloworld.yml](https://github.com/ExtensiveAutomation/extensiveautomation-server/blob/master/README_workflows.md#basichelloworldyml)
+- [basic/wait.yml](https://github.com/ExtensiveAutomation/extensiveautomation-server/blob/master/README_workflows.md#basicwaityml)
+- [generators/random.yml](https://github.com/ExtensiveAutomation/extensiveautomation-server/blob/master/README_workflows.md#generatorsrandomyml)
 
 Additional workflows are available with plugins:
 - [WEB actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web#about-workflows)
