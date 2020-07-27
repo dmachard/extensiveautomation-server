@@ -217,10 +217,10 @@ The default ones:
 | Actions | Description |
 | ------------- | ------------- | 
 | [basic/helloworld.yml](https://github.com/ExtensiveAutomation/extensiveautomation-server/blob/master/README_actions.md#basichelloworldyml) | helloworld example for action |
-| basic/wait.yml | make a sleep during xx seconds |
-| cache/log.yml | log the value with the provided key |
-| generator/random_string.yml | generate random string |
-| generator/random_integer.yml | generate random integer |
+| [basic/wait.yml](https://github.com/ExtensiveAutomation/extensiveautomation-server/blob/master/README_actions.md#basicwaityml) | make a sleep during xx seconds |
+| [cache/log.yml](https://github.com/ExtensiveAutomation/extensiveautomation-server/blob/master/README_actions.md#cachelogyml) | log the value with the provided key |
+| [generator/random_string.yml](https://github.com/ExtensiveAutomation/extensiveautomation-server/blob/master/README_actions.md#generatorrandomstringyml) | generate random string |
+| [generator/random_integer.yml](https://github.com/ExtensiveAutomation/extensiveautomation-server/blob/master/README_actions.md#generatorrandomintegeryml) | generate random integer |
 
 Additional actions are available with plugins:
 - [WEB plugin actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web#about-actions)
