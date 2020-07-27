@@ -257,9 +257,9 @@ The default ones:
 - [generators/random.yml](https://github.com/ExtensiveAutomation/extensiveautomation-server/blob/master/README_workflows.md#generatorsrandomyml)
 
 Additional workflows are available with plugins:
-- [WEB actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web#about-workflows)
-- [CLI actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli#about-workflows)
-- [GUI actions](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui#about-workflows)
+- [WEB plugin workflows](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web#about-workflows)
+- [CLI plugin workflows](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli#about-workflows)
+- [GUI plugin workflows](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui#about-workflows)
 
 ### HelloWorld workflow
 
