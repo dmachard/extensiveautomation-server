@@ -307,8 +307,7 @@ properties:
   parameters:
     - name: agent-curl
       value:
-        name: agent.win.ssh01
-        type: ssh
+        name: 13ae34f7-e2f6-40b6-9c87-6c275423127e
 ```
 
 Additional examples are available in the data storage `./workflows/ssh/`.
@@ -347,8 +346,7 @@ properties:
   parameters:
     - name: agent-curl
       value:
-        name: agent.win.curl01
-        type: curl
+        name: 13ae34f7-e2f6-40b6-9c87-6c275423127e
 ```
 
 Additional examples are available in the data storage `./workflows/http/`.
@@ -370,8 +368,7 @@ properties:
   parameters:
     - name: agent
       value:
-        name: agent
-        type: selenium3
+        name: 13ae34f7-e2f6-40b6-9c87-6c275423127e
     - name: browser
       value: chrome
 actions:
@@ -406,8 +403,7 @@ properties:
   parameters:
     - name: agent
       value:
-        name: sikulix01
-        type: sikulixserver
+        name: 13ae34f7-e2f6-40b6-9c87-6c275423127e
 actions:
 - description: Type Windows+R on keyboard 
   file: Common:actions/sikulix/type_shorcut.yml

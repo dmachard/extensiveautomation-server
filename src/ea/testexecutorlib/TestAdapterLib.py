@@ -147,10 +147,12 @@ def check_agent(caller, agent, agent_support, agent_type):
                 type(agent))
         if not len(agent['name']):
             raise ValueException(caller, "agent name cannot be empty")
-        if agent['type'] != agent_type:
-            raise ValueException(
-                caller, 'Bad agent type: %s, expected: %s' %
-                (agent['type'], agent_type))
+        if "type" not in agent:
+            agent["type"] = agent_type
+        # if agent['type'] != agent_type:
+            # raise ValueException(
+                # caller, 'Bad agent type: %s, expected: %s' %
+                # (agent['type'], agent_type))
 
 
 class AdapterException(Exception):
@@ -380,7 +382,7 @@ class Adapter(threading.Thread):
         self.last_event_queue = None
         self.timeoutSleep = timeoutSleep
 
-        self.__agentSupport = agentSupport
+        self.__agentSupport = agentSupport 
         self.__agentName = agent
         self.__agentType = agentType
         self.__caller = caller

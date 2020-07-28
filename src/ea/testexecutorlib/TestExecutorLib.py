@@ -5163,65 +5163,47 @@ class TestCase(object):
         """
         Called from TCI
         """
-
         try:
             if not _ExecuteTest:
                 return
             __body__ = request['body']
             if request['cmd'] == Messages.RSQ_NOTIFY:
-
                 # checking task and test id of the notify
                 if __body__['uuid'] == TLX.instance().testUuid:
-
-                    if int(TestSettings.get('Tests_Framework',
-                                            'dispatch-events-current-tc')):
+                    if int(TestSettings.get('Tests_Framework','dispatch-events-current-tc')):
                         # checking the adapter id and dispatch it
                         if int(__body__['source-adapter']) in self.__cpts:
                             if __body__['event'] == "agent-data":
-                                self.__cpts[int(
-                                    __body__['source-adapter'])].receivedDataFromAgent(data=__body__['data'])
+                                self.__cpts[int(__body__['source-adapter'])].receivedDataFromAgent(data=__body__['data'])
                             elif __body__['event'] == "agent-notify":
-                                self.__cpts[int(
-                                    __body__['source-adapter'])].receivedNotifyFromAgent(data=__body__['data'])
+                                self.__cpts[int(__body__['source-adapter'])].receivedNotifyFromAgent(data=__body__['data'])
                             elif __body__['event'] == "agent-error":
-                                self.__cpts[int(
-                                    __body__['source-adapter'])].receivedErrorFromAgent(data=__body__['data'])
+                                self.__cpts[int(__body__['source-adapter'])].receivedErrorFromAgent(data=__body__['data'])
                             elif __body__['event'] == "agent-system-error":
-                                self.warning(
-                                    "Agent '%s' is not running" %
-                                    __body__['destination-agent'])
+                                self.warning("Agent '%s' is not running" % __body__['destination-agent'])
                             else:
-                                sys.stderr.write(
-                                    "Notify received but with an incorrect event: %s" % str(
-                                        __body__['event']))
+                                sys.stderr.write("Notify received but with an incorrect event: %s" % str(__body__['event']))
                     else:
-                        if int(__body__['source-adapter']
-                               ) in getAdpsMgrALL().adps_id:
+                        if int(__body__['source-adapter']) in getAdpsMgrALL().adps_id:
                             if __body__['event'] == "agent-data":
-                                getAdpsMgrALL().adps_id[int(
-                                    __body__['source-adapter'])].receivedDataFromAgent(data=__body__['data'])
+                                getAdpsMgrALL().adps_id[int(__body__['source-adapter'])].receivedDataFromAgent(data=__body__['data'])
                             elif __body__['event'] == "agent-notify":
-                                getAdpsMgrALL().adps_id[int(
-                                    __body__['source-adapter'])].receivedNotifyFromAgent(data=__body__['data'])
+                                getAdpsMgrALL().adps_id[int(__body__['source-adapter'])].receivedNotifyFromAgent(data=__body__['data'])
                             elif __body__['event'] == "agent-error":
-                                getAdpsMgrALL().adps_id[int(
-                                    __body__['source-adapter'])].receivedErrorFromAgent(data=__body__['data'])
+                                getAdpsMgrALL().adps_id[int(__body__['source-adapter'])].receivedErrorFromAgent(data=__body__['data'])
                             elif __body__['event'] == "agent-system-error":
-                                self.warning(
-                                    "Agent '%s' is not running" %
-                                    __body__['destination-agent'])
+                                self.warning("Agent '%s' is not running" % __body__['destination-agent'])
                             else:
-                                sys.stderr.write(
-                                    "Notify (2) received but with an incorrect event: %s" % str(
-                                        __body__['event']))
+                                sys.stderr.write("Notify (2) received but with an incorrect event: %s" % str(__body__['event']))
 
                 else:
                     sys.stderr.write("Notify received but not for me")
             else:
                 sys.stderr.write("Request received but not for me")
+        
         except Exception as e:
             self.error("request error: %s" % e)
-
+            
     def virtualRun(self):
         """
         todo
