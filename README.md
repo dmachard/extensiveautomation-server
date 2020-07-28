@@ -359,7 +359,7 @@ This example describe how to write a Selenium workflow.
 
 Some prerequisites to follow:
 - The `GUI plugin` must be installed on your automation server, please refer to the chapter [install plugins](#install-plugins).
-- Agent must be deployed with the `selenium agent` [installed](https://github.com/ExtensiveAutomation/extensiveautomation-agent-plugin-selenium) 
+- Agent must be deployed with the `selenium` plugin [installed](https://github.com/ExtensiveAutomation/extensiveautomation-agent-plugin-selenium) 
 - Your agent must be [running](https://github.com/ExtensiveAutomation/extensiveautomation-agent#running-agent).
 
 The following example show how to open the web browser, 
@@ -396,7 +396,7 @@ simulate keyboard and mouse interactions on your system.
 
 Some prerequisites to follow:
 - The `GUI plugin` must be installed, please refer to the chapter [install plugins](#install-plugins).
-- Agent must be deployed with the `sikulix agent` [installed](https://github.com/ExtensiveAutomation/extensiveautomation-agent-plugin-sikulix) 
+- Agent must be deployed with the `sikulix` plugin [installed](https://github.com/ExtensiveAutomation/extensiveautomation-agent-plugin-sikulix) 
 - Your agent must be [running](https://github.com/ExtensiveAutomation/extensiveautomation-agent#running-agent).
 
 The following example show how to execute `Windows + R` shorcut and run a command.
