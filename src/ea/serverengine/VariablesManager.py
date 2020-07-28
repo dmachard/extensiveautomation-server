@@ -361,12 +361,12 @@ def instance():
     return VarsMng
 
 
-def initialize(context):
+def initialize(*args, **kwargs):
     """
     Instance creation
     """
     global VarsMng
-    VarsMng = VariablesManager(context=context)
+    VarsMng = VariablesManager(*args, **kwargs)
 
 
 def finalize():

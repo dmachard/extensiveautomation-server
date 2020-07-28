@@ -40,6 +40,7 @@ except ImportError:  # support python 3
     import pickle as cPickle
 from pathlib import Path
 import yaml
+import uuid
 
 from ea.libs import Settings, Logger
 from ea.libs.FileModels import TestResult as TestResult
@@ -391,6 +392,45 @@ class CliFunctions(Logger.ClassLogger):
 
         sys.stdout.flush()
 
+    def generate_token(self, token_name):
+        """generate token for remote agents"""
+        
+        sql_query = "SELECT * from agents WHERE name=\"%s\"" % (token_name)
+        rows = querySQL(query=sql_query, db=db_name)
+        if len(rows):
+            print("error: token name already used")
+            return
+            
+        token_uuid = str(uuid.uuid4())
+        
+        sql_query = "INSERT INTO `agents` "
+        sql_query += "(`token`, `name`, `project_id`) "
+        sql_query += "VALUES ('%s', '%s', %s);" % (token_uuid,
+                                                   token_name,
+                                                   "1")
+                                                   
+        querySQL(query=sql_query, db=db_name)
+        print("%s %s" % (token_name, token_uuid) )
+        
+    def delete_token(self, token_name):
+        """delete token by name"""
+        sql_query = "SELECT * from agents WHERE name=\"%s\"" % (token_name)
+        rows = querySQL(query=sql_query, db=db_name)
+        if not len(rows):
+            print("error: token name does not exist")
+            return
+            
+        sql_query = "DELETE FROM `agents` "
+        sql_query += "WHERE name=\"%s\"" % token_name
+        querySQL(query=sql_query, db=db_name)
+        
+    def list_tokens(self):
+        """list all tokens for agents"""
+        sql_query = "SELECT * from agents"
+        rows = querySQL(query=sql_query, db=db_name)
+        for r in rows:
+            print("%s %s" % (r["name"], r["token"]) )
+            
     def show_data_storage(self):
         """show data storage path"""
         storage = "%s%s" % (Settings.getDirExec(),
@@ -570,12 +610,12 @@ def instance():
     return CLI
 
 
-def initialize(parent):
+def initialize(*args, **kwargs):
     """
     Instance creation
     """
     global CLI
-    CLI = CliFunctions(parent=parent)
+    CLI = CliFunctions(*args, **kwargs)
 
 
 def finalize():

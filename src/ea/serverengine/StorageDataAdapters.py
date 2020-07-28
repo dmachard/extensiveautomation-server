@@ -178,12 +178,12 @@ def instance():
     return SDAMng
 
 
-def initialize(context):
+def initialize(*args, **kwargs):
     """
     Instance creation
     """
     global SDAMng
-    SDAMng = StorageDataAdapters(context=context)
+    SDAMng = StorageDataAdapters(*args, **kwargs)
 
 
 def finalize():

@@ -185,12 +185,12 @@ def instance():
     return RA
 
 
-def initialize(context):
+def initialize(*args, **kwargs):
     """
     Instance creation
     """
     global RA
-    RA = RepoAdapters(context=context)
+    RA = RepoAdapters(*args, **kwargs)
 
 
 def finalize():

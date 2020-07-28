@@ -25,24 +25,17 @@ import threading
 import sys
 
 from ea.serverinterfaces import EventServerInterface as ESI
+from ea.serverengine import AgentsManager
+
 from ea.libs.NetLayerLib import ServerAgent as NetLayerLib
 from ea.libs.NetLayerLib import Messages as Messages
 from ea.libs.NetLayerLib import ClientAgent as ClientAgent
 from ea.libs import Settings, Logger
 
-
 class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
     def __init__(self, listeningAddress, agentName='ASI', sslSupport=False,
                  wsSupport=False, tsi=None, context=None):
-        """
-        Construct Agent Server Interface
-
-        @param listeningAddress:
-        @type listeningAddress:
-
-        @param agentName:
-        @type agentName: string
-        """
+        """Construct Agent Server Interface"""
         NetLayerLib.ServerAgent.__init__(self, listeningAddress=listeningAddress,
                                          agentName=agentName,
                                          keepAliveInterval=Settings.getInt(
@@ -64,30 +57,20 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
                                          )
         self.tsi = tsi
         self.context = context
-
+        
         self.__mutex = threading.RLock()
         self.__mutexNotif = threading.RLock()
         self.agentsRegistered = {}
         self.agentsPublicIp = {}
 
     def onWsHanshakeSuccess(self, clientId, publicIp):
-        """
-        Called on ws handshake successful
-        """
+        """Called on ws handshake successful"""
         self.trace("ws hanshake success: %s" % str(clientId))
         # save public ip
         self.agentsPublicIp[clientId] = publicIp
 
     def getAgent(self, aname):
-        """
-        Search and return a specific agent by the name
-
-        @type  pname:
-        @param pname:
-
-        @return:
-        @rtype:
-        """
+        """Search and return a specific agent by the name"""
         self.trace("search and get agent=%s" % aname)
         ret = None
         if aname in self.agentsRegistered:
@@ -95,12 +78,7 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         return ret
 
     def getAgents(self):
-        """
-        Returns all registered agents
-
-        @return:
-        @rtype: list
-        """
+        """Returns all registered agents"""
         self.trace("get agents")
         ret = []
         for k, c in self.agentsRegistered.items():
@@ -110,9 +88,7 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         return ret
 
     def notifyAgent(self, client, tid, data):
-        """
-        Notify agent
-        """
+        """Notify agent"""
         try:
             agentName = data['destination-agent']
             agent = self.getAgent(aname=agentName)
@@ -126,28 +102,12 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
             self.error("unable to notify agent: %s" % str(e))
 
     def onConnection(self, client):
-        """
-        Called on connection
-
-        @param client:
-        @type client:
-        """
+        """Called on connection"""
         self.trace("New connection from %s" % str(client.client_address))
         NetLayerLib.ServerAgent.onConnection(self, client)
 
     def onRequest(self, client, tid, request):
-        """
-        Reimplemented from ServerAgent
-
-        @param client:
-        @type client:
-
-        @param tid:
-        @type tid:
-
-        @param request:
-        @type request:
-        """
+        """Reimplemented from ServerAgent"""
         try:
             # handle register request
             if request['cmd'] == Messages.RSQ_CMD:
@@ -179,9 +139,7 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
             self.error("unable to handle incoming request: %s" % e)
 
     def onNotify(self, client, tid, request):
-        """
-        Called on notify
-        """
+        """Called on notify"""
         self.__mutexNotif.acquire()
         try:
             self.tsi.notify(client=request["from-src"], data=request)
@@ -190,21 +148,9 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         self.__mutexNotif.release()
 
     def onRegistration(self, client, tid, request):
-        """
-        Called on the registration of a new agents
-
-        @param client:
-        @type client:
-
-        @param tid:
-        @type tid:
-
-        @param request:
-        @type request:
-        """
+        """Called on the registration of a new agents"""
         self.trace("on registration")
         self.__mutex.acquire()
-        doNotify = False
 
         if sys.version_info > (3,):
             request['userid'] = request['userid'].decode("utf8")
@@ -212,49 +158,51 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         if request['userid'] in self.agentsRegistered:
             self.info('duplicate agents registration: %s' % request['userid'])
             NetLayerLib.ServerAgent.failed(self, client, tid)
-        else:
-            if not ('type' in request['body']):
-                self.error('type missing in request: %s' % request['body'])
-                NetLayerLib.ServerAgent.failed(self, client, tid)
-            else:
-                if request['body']['type'] != ClientAgent.TYPE_AGENT_AGENT:
-                    self.error(
-                        'agent type refused: %s' %
-                        request['body']['type'])
-                    NetLayerLib.ServerAgent.forbidden(self, client, tid)
-                else:
-                    tpl = {'address': client,
-                           'version': request['body']['version'],
-                           'description': request['body']['description']['details'],
-                           'auto-startup': request['body']['description']['default'],
-                           'type': request['body']['name'],
-                           'start-at': request['body']['start-at'],
-                           'publicip': self.agentsPublicIp[client]
-                           }
+            self.__mutex.release()
+            return
 
-                    self.agentsRegistered[request['userid']] = tpl
-                    NetLayerLib.ServerAgent.ok(self, client, tid)
-                    self.info(
-                        'Remote agent registered: Name="%s"' %
-                        request['userid'])
-                    doNotify = True
+        if not ('type' in request['body']):
+            self.error('type missing in request: %s' % request['body'])
+            NetLayerLib.ServerAgent.failed(self, client, tid)
+            self.__mutex.release()
+            return
 
-        if doNotify:
-            # Notify all connected users
-            notif = ('agents', ('add', self.getAgents()))
-            ESI.instance().notifyByUserTypes(body=notif,
-                                             admin=True,
-                                             monitor=False,
-                                             tester=True)
+        if request['body']['type'] != ClientAgent.TYPE_AGENT_AGENT:
+            self.error('agent type refused: %s' % request['body']['type'])
+            NetLayerLib.ServerAgent.forbidden(self, client, tid)
+            self.__mutex.release()
+            return
+
+        if request['userid'] not in AgentsManager.instance().cache:
+            self.error('agent token refused: %s' % request['userid'])
+            NetLayerLib.ServerAgent.forbidden(self, client, tid)
+            self.__mutex.release()
+            return
+        
+        # all is fine
+        tpl = {'address': client,
+               'version': request['body']['version'],
+               'description': request['body']['description']['details'],
+               'auto-startup': request['body']['description']['default'],
+               'type': request['body']['name'],
+               'start-at': request['body']['start-at'],
+               'publicip': self.agentsPublicIp[client]
+               }
+
+        self.agentsRegistered[request['userid']] = tpl
+        NetLayerLib.ServerAgent.ok(self, client, tid)
+        self.info('Remote agent registered: Name="%s"' % request['userid'])
+
+        # Notify all connected users
+        notif = ('agents', ('add', self.getAgents()))
+        ESI.instance().notifyByUserTypes(body=notif,
+                                         admin=True,
+                                         monitor=False,
+                                         tester=True)
         self.__mutex.release()
 
     def onDisconnection(self, client):
-        """
-        Reimplemented from ServerAgent
-
-        @type  client:
-        @param client:
-        """
+        """Reimplemented from ServerAgent"""
         self.trace("on disconnection")
         NetLayerLib.ServerAgent.onDisconnection(self, client)
         clientRegistered = self.agentsRegistered.items()
@@ -272,9 +220,7 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
                 break
 
     def trace(self, txt):
-        """
-        Trace message
-        """
+        """Trace message"""
         if Settings.instance() is not None:
             if Settings.get('Trace', 'debug-level') == 'VERBOSE':
                 Logger.ClassLogger.trace(self, txt=txt)
@@ -284,32 +230,18 @@ ASI = None
 
 
 def instance():
-    """
-    Returns the singleton
-
-    @return:
-    @rtype:
-    """
+    """Returns the singleton"""
     return ASI
 
 
-def initialize(listeningAddress, sslSupport, wsSupport, tsi, context):
-    """
-    Instance creation
-
-    @param listeningAddress:
-    @type listeningAddress:
-    """
+def initialize(*args, **kwargs):
+    """Instance creation"""
     global ASI
-    ASI = AgentServerInterface(listeningAddress=listeningAddress,
-                               sslSupport=sslSupport, wsSupport=wsSupport,
-                               tsi=tsi, context=context)
+    ASI = AgentServerInterface(*args, **kwargs)
 
 
 def finalize():
-    """
-    Destruction of the singleton
-    """
+    """Destruction of the singleton"""
     global ASI
     if ASI:
         ASI.stopSA()

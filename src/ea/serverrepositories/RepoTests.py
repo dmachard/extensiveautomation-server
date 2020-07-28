@@ -967,12 +967,12 @@ def instance():
     return RepoTestsMng
 
 
-def initialize(context):
+def initialize(*args, **kwargs):
     """
     Instance creation
     """
     global RepoTestsMng
-    RepoTestsMng = RepoTests(context=context)
+    RepoTestsMng = RepoTests(*args, **kwargs)
 
 
 def finalize():

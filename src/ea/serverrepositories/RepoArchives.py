@@ -916,12 +916,12 @@ def instance():
     return RepoArchivesMng
 
 
-def initialize(context):
+def initialize(*args, **kwargs):
     """
     Instance creation
     """
     global RepoArchivesMng
-    RepoArchivesMng = RepoArchives(context=context)
+    RepoArchivesMng = RepoArchives(*args, **kwargs)
 
 
 def finalize():

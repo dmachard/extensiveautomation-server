@@ -328,7 +328,7 @@ def instance():
     return _RSI
 
 
-def initialize(listeningAddress):
+def initialize(*args, **kwargs):
     """
     Rest server instance creation
 
@@ -336,7 +336,7 @@ def initialize(listeningAddress):
     @type listeningAddress: tuple
     """
     global _RSI
-    _RSI = _RestServerInterface(listeningAddress=listeningAddress)
+    _RSI = _RestServerInterface(*args, **kwargs)
 
 
 def finalize():

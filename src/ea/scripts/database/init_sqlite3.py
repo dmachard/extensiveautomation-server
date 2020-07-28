@@ -84,3 +84,10 @@ def create_sqlite3_model():
 `value` TEXT, \
 `project_id` INT \
 );")
+
+    querySQL(query="CREATE TABLE `agents` (\
+`id` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, \
+`token` INT, \
+`name` varchar(50) NOT NULL, \
+`project_id` INT \
+);")
