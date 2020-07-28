@@ -13,10 +13,9 @@
 | Twitter | https://twitter.com/Extensive_Auto |
 | | |
 
-**ExtensiveAutomation** enable you to create custom workflows to automate your project.
- - workflows must be defined with YAML file
+[**ExtensiveAutomation**](https://github.com/ExtensiveAutomation/extensiveautomation-server) enable you to create custom workflows to automate your project.
  - a workflow is the combination of differents actions.
- - an action is individual python code source with parameters.
+ - an action is individual python code source with enriched parameters.
 
 ## Installation
 
@@ -27,30 +26,3 @@
 2. Type the following command on your shell to start the server
 
         extensiveautomation --start
-
-## Testing if server running
-
-1. Please to take in consideration the following points:
-	
-	 - The server is running on the following tcp ports (don't forget to open these ports on your firewall):
-	    - tcp/8081: REST API
-	    - tcp/8081: Websocket tunnel for app client
-	    - tcp/8082: Websocket tunnel for agents
-	 - The `admin`, `tester` and `monitor` users are available and the default passoword is `password`. 
-	 - The `Common` project is created by default, attached to the previous users.
-	 - Swagger for the REST API is available in the `scripts/swagger` folder.
-    
-2. Checking if the REST api working fine with curl or postman.
-
-       curl -X POST http://127.0.0.1:8081/session/login \
-            -H "Content-Type: application/json" \
-            -d '{"login": "admin", "password": "password"}'
-
-## Adding plugins
-
-Plugins allow to interact with the system to be controlled. But by default the server is provided without plugins. So you need to install them one by one according to your needs.
-
-* [CLI plugin (ssh)](https://pypi.org/project/extensiveautomation-plugin-cli/)
-* [WEB plugin (http/https)](https://pypi.org/project/extensiveautomation-plugin-web/)
-* [GUI plugin (selenium, sikulix and adb)](https://pypi.org/project/extensiveautomation-plugin-gui/)
-* [And many others...](https://github.com/ExtensiveAutomation/extensiveautomation-plugins-server)

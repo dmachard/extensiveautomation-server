@@ -299,6 +299,8 @@ class JobsHandler(HandlerCORS):
             project_id=projectId)
 
         try:
+            if yamlFile.startswith("//"):
+                yamlFile = yamlFile[1:]
             yamlFile = os.path.normpath(yamlFile)
             p  = pathlib.Path(yamlFile)
             

@@ -166,10 +166,11 @@ class AdapterException(Exception):
     def __str__(self):
         """
         """
-        # sut adapters path normalized, remove double // or more
-        sut = re.sub("/{2,}", "/", getMainPath())
+        # normalize path
+        sut = os.path.normpath(getMainPath())
+        orig = os.path.normpath(self.orig[0])
 
-        f = self.orig[0].split(sut)[1]
+        f = orig.split(sut)[1]
         ret = "Adapter.%s > %s" % (self.orig[2], self.msg)
         ret += '\nFile: %s' % f
         ret += '\nLine error: %s' % self.orig[1]
@@ -190,9 +191,10 @@ class ValueException(Exception):
         """
         """
         # sut adapters path normalized, remove double // or more
-        sut = re.sub("/{2,}", "/", getMainPath())
+        sut = os.path.normpath(getMainPath())
+        orig = os.path.normpath(self.orig[0])
 
-        f = self.orig[0].split(sut)[1]
+        f = orig.split(sut)[1]
         ret = "Adapter.%s > %s" % (self.orig[2], self.msg)
         ret += '\nFile: %s' % f
         ret += '\nLine error: %s' % self.orig[1]

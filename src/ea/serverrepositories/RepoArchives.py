@@ -39,6 +39,7 @@ try:
 except ImportError:  # support python 3
     import io as cStringIO
     import pickle as cPickle
+import pathlib
 
 from ea.serverrepositories import RepoManager
 from ea.libs import (Settings, Logger)
@@ -656,12 +657,13 @@ class RepoArchives(RepoManager.RepoManager, Logger.ClassLogger):
 
                 # compute the test id (md5 hash)
                 real_path = "/%s" % entry.path.split(initial_path)[1]
-
+                real_path = os.path.normpath(real_path)
+                
                 # example real path: "/1/2016-04-29/2016-04-29_16-14-
                 # 24.293494.TmV3cy9yZXN0X2FwaQ==.admin"
                 # extract the username, testname, date
                 _timestamp, _, _, _user = real_path.rsplit(".")
-                _, _, testdate, _testtime = _timestamp.split("/")
+                _, _, testdate, _testtime = pathlib.Path(_timestamp).parts
                 _, testtime = _testtime.split("_")
 
                 testdate = testdate.replace("-", "/")

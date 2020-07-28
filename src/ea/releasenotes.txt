@@ -1,5 +1,5 @@
 
-22.0.0
+22.0.2
 	Date: 18/07/2020
 	What's new
 		1. (major): REST API: support test with yaml format
@@ -18,3 +18,4 @@
 		1. (minor): add httponly flag on session cookie
 		2. (minor): force to install plugin with yum, missing flag -y in command
 		3. (medium): REST API: fix download file ressource
+		4. (minor): fix bad exception handle in adapter library
