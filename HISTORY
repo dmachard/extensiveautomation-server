@@ -1,4 +1,25 @@
 
+22.0.2
+	Date: 18/07/2020
+	What's new
+		1. (major): REST API: support test with yaml format
+		2. (medium): creation date removed from test model lib
+		3. (minor): new option in the cli to get apisecret
+		4. (major): no more support of python version 2
+		5. (medium): docker updated with python3.8
+		6. (minor): new option in the cli to get the path of the data storage
+		7. (minor): small update in ssh snippet; only display ssh output if verbose mode is activated
+		8. (minor): test library - step description no more mandatory
+		9. (minor): reserverd folders removed in tests storage
+		10. (minor): test libray - new function to clear the queue in adapter
+		11. (major): REST API: new ressources to handle jobs, executions and files
+		12. (major): all snippets and samples are marked as deprecated
+	Issues Fixed
+		1. (minor): add httponly flag on session cookie
+		2. (minor): force to install plugin with yum, missing flag -y in command
+		3. (medium): REST API: fix download file ressource
+		4. (minor): fix bad exception handle in adapter library
+        
 21.4.0
 	Date: 25/20/2019
 	What's new

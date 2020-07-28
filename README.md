@@ -184,7 +184,7 @@ All data necessary  for the server is stored in a specific folder.
 The location of the storage can be found with the following command:
 
 ```bash
-extensiveautomation --datastorage
+extensiveautomation --show-data-path
 /<install_project>/ea/var/
 ```
 
@@ -299,7 +299,7 @@ actions:
 ```
 
 If your want to run the previous workflow with a remote agent:
-- you must deploy a `ssh` agent
+- you must deploy and register a `ssh` agent in your automation server
 - you must define the agent to use in your worflow like below
 
 ```yaml
@@ -339,7 +339,7 @@ actions:
 ```
 
 If your want to run the previous workflow with a remote agent:
-- you must deploy a `curl` agent
+- you must deploy and register a `curl` agent in your automation server
 - you must define the agent to use in your worflow like below
 
 ```yaml
@@ -357,9 +357,10 @@ Additional examples are available in the data storage `./workflows/http/`.
 
 This example describe how to write a Selenium workflow.
 
-The `GUI plugin` must be installed, please refer to the chapter [install plugins](#install-plugins).
-and the `selenium agent` must [installed](https://github.com/ExtensiveAutomation/extensiveautomation-agent-plugin-selenium) 
-and [running](https://github.com/ExtensiveAutomation/extensiveautomation-agent#running-agent).
+Some prerequisites to follow:
+- The `GUI plugin` must be installed on your automation server, please refer to the chapter [install plugins](#install-plugins).
+- Agent must be deployed with the `selenium agent` [installed](https://github.com/ExtensiveAutomation/extensiveautomation-agent-plugin-selenium) 
+- Your agent must be [running](https://github.com/ExtensiveAutomation/extensiveautomation-agent#running-agent).
 
 The following example show how to open the web browser, 
 that loads the url www.google.com and finally  close-it after.
@@ -393,9 +394,10 @@ Additionals examples are available in the data storage `./workflows/selenium/`.
 This example describe how to write a Sikulix workflow. Sikulix is nice to 
 simulate keyboard and mouse interactions on your system.
 
-The `GUI plugin` must be installed, please refer to the chapter [install plugins](#install-plugins).
-and the `sikulix agent` must [installed](https://github.com/ExtensiveAutomation/extensiveautomation-agent-plugin-sikulix) 
-and [running](https://github.com/ExtensiveAutomation/extensiveautomation-agent#running-agent).
+Some prerequisites to follow:
+- The `GUI plugin` must be installed, please refer to the chapter [install plugins](#install-plugins).
+- Agent must be deployed with the `sikulix agent` [installed](https://github.com/ExtensiveAutomation/extensiveautomation-agent-plugin-sikulix) 
+- Your agent must be [running](https://github.com/ExtensiveAutomation/extensiveautomation-agent#running-agent).
 
 The following example show how to execute `Windows + R` shorcut and run a command.
 
@@ -458,7 +460,7 @@ Take a look to the [swagger](https://github.com/ExtensiveAutomation/extensiveaut
 Get the API secret for the user admin
 
 ```bash
-extensiveautomation --apisecret admin
+extensiveautomation --generate-api-key admin
 API key: admin
 API secret: 6977aa6a443bd3a6033ebb52557cf90d24c79857
 ```
@@ -619,7 +621,7 @@ XML to YAML conversion can be done with the following command.
 A new YML file will be created automatically after converting the XML reading.
 
 ```bash
-extensiveautomation --convert2yaml
+extensiveautomation --convert-to-yaml
 ```
 
 ## About
