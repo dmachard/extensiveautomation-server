@@ -36,9 +36,9 @@ class AgentsManager(Logger.ClassLogger):
         self.tb_agents = 'agents'
         # load agents token in cache, new in v23
         self.cache = {}
-        self.loadCache()
+        self.load_cache()
 
-    def loadCache(self):
+    def load_cache(self):
         """load cache"""
         self.cache = {}
         

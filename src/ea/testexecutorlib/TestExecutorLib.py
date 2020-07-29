@@ -5180,7 +5180,7 @@ class TestCase(object):
                             elif __body__['event'] == "agent-error":
                                 self.__cpts[int(__body__['source-adapter'])].receivedErrorFromAgent(data=__body__['data'])
                             elif __body__['event'] == "agent-system-error":
-                                self.warning("Agent '%s' is not running" % __body__['destination-agent'])
+                                self.error("communication error with remote agent: %s" % __body__['destination-agent'])
                             else:
                                 sys.stderr.write("Notify received but with an incorrect event: %s" % str(__body__['event']))
                     else:
@@ -5192,7 +5192,7 @@ class TestCase(object):
                             elif __body__['event'] == "agent-error":
                                 getAdpsMgrALL().adps_id[int(__body__['source-adapter'])].receivedErrorFromAgent(data=__body__['data'])
                             elif __body__['event'] == "agent-system-error":
-                                self.warning("Agent '%s' is not running" % __body__['destination-agent'])
+                                self.error("communication error with remote agent: %s" % __body__['destination-agent'])
                             else:
                                 sys.stderr.write("Notify (2) received but with an incorrect event: %s" % str(__body__['event']))
 

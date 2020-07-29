@@ -53,7 +53,8 @@ class TestServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         self.__mutex__ = threading.RLock()
         self.__fifoThread = None
 
-        self.tests = {}  # {'task-id': Boolean} # test register,  with background running or not
+        self.tests = {}  # {'task-id': Boolean} # test register,  
+        # with background running or not
         self.testsConnected = {}  # all tests connected
 
     def startFifo(self):
@@ -72,9 +73,7 @@ class TestServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         """Register the test on the server"""
         try:
             self.tests[str(id)] = bool(background)
-            self.trace(
-                'Test=%s registered, running in Background=%s' %
-                (id, background))
+            self.trace('Test=%s registered, running in Background=%s' % (id, background))
         except Exception as e:
             self.error(err=e)
             return False

@@ -75,6 +75,12 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         ret = None
         if aname in self.agentsRegistered:
             return self.agentsRegistered[aname]
+            
+        for agent_token, agent in self.agentsRegistered.items():
+            if aname == agent["agent-name"]:
+                ret = agent
+                break
+                
         return ret
 
     def getAgents(self):
@@ -179,19 +185,22 @@ class AgentServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
             self.__mutex.release()
             return
         
+        
         # all is fine
+        agent_name = AgentsManager.instance().cache[request['userid']]["name"]
         tpl = {'address': client,
                'version': request['body']['version'],
                'description': request['body']['description']['details'],
                'auto-startup': request['body']['description']['default'],
                'type': request['body']['name'],
                'start-at': request['body']['start-at'],
-               'publicip': self.agentsPublicIp[client]
+               'publicip': self.agentsPublicIp[client],
+               'agent-name': agent_name
                }
 
         self.agentsRegistered[request['userid']] = tpl
         NetLayerLib.ServerAgent.ok(self, client, tid)
-        self.info('Remote agent registered: Name="%s"' % request['userid'])
+        self.info('Remote agent=%s registered' % agent_name)
 
         # Notify all connected users
         notif = ('agents', ('add', self.getAgents()))

@@ -149,10 +149,6 @@ def check_agent(caller, agent, agent_support, agent_type):
             raise ValueException(caller, "agent name cannot be empty")
         if "type" not in agent:
             agent["type"] = agent_type
-        # if agent['type'] != agent_type:
-            # raise ValueException(
-                # caller, 'Bad agent type: %s, expected: %s' %
-                # (agent['type'], agent_type))
 
 
 class AdapterException(Exception):
@@ -341,13 +337,12 @@ ADAPTER_NAME = "Adapter"
 
 
 class Adapter(threading.Thread):
-    """
-    Adapter class
-    """
-
+    """Adapter class"""
     def __init__(self, parent, name, realname=None, debug=False,
-                 showEvts=True, showSentEvts=True, showRecvEvts=True, shared=False,
-                 agentSupport=False, agent=None, timeoutSleep=0.1, caller=None,
+                 showEvts=True, showSentEvts=True, 
+                 showRecvEvts=True, shared=False,
+                 agentSupport=False, agent=None,
+                 timeoutSleep=0.1, caller=None,
                  agentType=None):
         """
         All adapters must inherent from this class

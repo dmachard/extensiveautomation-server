@@ -11,7 +11,7 @@
 The architecture is composed of 3 parts:
  - [automation server](https://github.com/ExtensiveAutomation/extensiveautomation-server)
  - [web client (optional)](https://github.com/ExtensiveAutomation/extensiveautomation-webclient)
- - [remote agents (optional)](https://github.com/ExtensiveAutomation/extensiveautomation-agent)
+ - [remote agent (optional)](https://github.com/ExtensiveAutomation/extensiveautomation-agent)
  
 ## Table of contents
 * [Server Installation](#server-installation)
@@ -184,7 +184,7 @@ All data necessary  for the server is stored in a specific folder.
 The location of the storage can be found with the following command:
 
 ```bash
-extensiveautomation --show-data-path
+extensiveautomation --datastorage
 /<install_project>/ea/var/
 ```
 
@@ -299,15 +299,14 @@ actions:
 ```
 
 If your want to run the previous workflow with a remote agent:
-- you must deploy and register a `ssh` agent in your automation server
+- you must deploy a `ssh` agent
 - you must define the agent to use in your worflow like below
 
 ```yaml
 properties:
   parameters:
-    - name: agent-curl
-      value:
-        name: 13ae34f7-e2f6-40b6-9c87-6c275423127e
+    - name: agent
+      value: agent01.ssh
 ```
 
 Additional examples are available in the data storage `./workflows/ssh/`.
@@ -338,15 +337,14 @@ actions:
 ```
 
 If your want to run the previous workflow with a remote agent:
-- you must deploy and register a `curl` agent in your automation server
+- you must deploy a `curl` agent
 - you must define the agent to use in your worflow like below
 
 ```yaml
 properties:
   parameters:
-    - name: agent-curl
-      value:
-        name: 13ae34f7-e2f6-40b6-9c87-6c275423127e
+    - name: agent
+      value: agent01.curl
 ```
 
 Additional examples are available in the data storage `./workflows/http/`.
@@ -355,10 +353,9 @@ Additional examples are available in the data storage `./workflows/http/`.
 
 This example describe how to write a Selenium workflow.
 
-Some prerequisites to follow:
-- The `GUI plugin` must be installed on your automation server, please refer to the chapter [install plugins](#install-plugins).
-- Agent must be deployed with the `selenium` plugin [installed](https://github.com/ExtensiveAutomation/extensiveautomation-agent-plugin-selenium) 
-- Your agent must be [running](https://github.com/ExtensiveAutomation/extensiveautomation-agent#running-agent).
+The `GUI plugin` must be installed, please refer to the chapter [install plugins](#install-plugins).
+and the `selenium agent` must [installed](https://github.com/ExtensiveAutomation/extensiveautomation-agent-plugin-selenium) 
+and [running](https://github.com/ExtensiveAutomation/extensiveautomation-agent#running-agent).
 
 The following example show how to open the web browser, 
 that loads the url www.google.com and finally  close-it after.
@@ -367,8 +364,7 @@ that loads the url www.google.com and finally  close-it after.
 properties:
   parameters:
     - name: agent
-      value:
-        name: 13ae34f7-e2f6-40b6-9c87-6c275423127e
+      value: agent01.selenium
     - name: browser
       value: chrome
 actions:
@@ -391,10 +387,9 @@ Additionals examples are available in the data storage `./workflows/selenium/`.
 This example describe how to write a Sikulix workflow. Sikulix is nice to 
 simulate keyboard and mouse interactions on your system.
 
-Some prerequisites to follow:
-- The `GUI plugin` must be installed, please refer to the chapter [install plugins](#install-plugins).
-- Agent must be deployed with the `sikulix` plugin [installed](https://github.com/ExtensiveAutomation/extensiveautomation-agent-plugin-sikulix) 
-- Your agent must be [running](https://github.com/ExtensiveAutomation/extensiveautomation-agent#running-agent).
+The `GUI plugin` must be installed, please refer to the chapter [install plugins](#install-plugins).
+and the `sikulix agent` must [installed](https://github.com/ExtensiveAutomation/extensiveautomation-agent-plugin-sikulix) 
+and [running](https://github.com/ExtensiveAutomation/extensiveautomation-agent#running-agent).
 
 The following example show how to execute `Windows + R` shorcut and run a command.
 
@@ -402,8 +397,7 @@ The following example show how to execute `Windows + R` shorcut and run a comman
 properties:
   parameters:
     - name: agent
-      value:
-        name: 13ae34f7-e2f6-40b6-9c87-6c275423127e
+      value: agent01.sikulix
 actions:
 - description: Type Windows+R on keyboard 
   file: Common:actions/sikulix/type_shorcut.yml
@@ -456,7 +450,7 @@ Take a look to the [swagger](https://github.com/ExtensiveAutomation/extensiveaut
 Get the API secret for the user admin
 
 ```bash
-extensiveautomation --generate-api-key admin
+extensiveautomation --apisecret admin
 API key: admin
 API secret: 6977aa6a443bd3a6033ebb52557cf90d24c79857
 ```
@@ -617,7 +611,7 @@ XML to YAML conversion can be done with the following command.
 A new YML file will be created automatically after converting the XML reading.
 
 ```bash
-extensiveautomation --convert-to-yaml
+extensiveautomation --convert2yaml
 ```
 
 ## About
