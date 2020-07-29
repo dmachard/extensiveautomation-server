@@ -688,12 +688,12 @@ def instance():
     return UM
 
 
-def initialize(context):
+def initialize(*args, **kwargs):
     """
     Instance creation
     """
     global UM
-    UM = UsersManager(context=context)
+    UM = UsersManager(*args, **kwargs)
 
 
 def finalize():

@@ -46,12 +46,6 @@ else:
 
 # prepare the command line with all options
 parser = OptionParser()
-if platform.system() != "Linux":
-    parser.set_usage(
-        "./extensiveautomation.py [start|version|install_adapter|decodetrx|apikey|convert2yaml]")
-else:
-    parser.set_usage("./extensiveautomation.py [start|stop|reload|version|\
-install_adapter|decodetrx|apikey|convert2yaml]")
 
 parser.add_option('--start', dest='start', default=False,
                   action='store_true',
@@ -69,24 +63,33 @@ if platform.system() == "Linux":
 parser.add_option('--version', dest='version', default=False,
                   action='store_true',
                   help='Show the version.')
-parser.add_option('--apikey', dest='apikey', default=False,
+parser.add_option('--generate-api-key', dest='apikey', default=False,
                   action='store_true',
                   help='Generate key for rest api (argument: <username>)')
-parser.add_option('--apisecret', dest='apisecret', default=False,
+parser.add_option('--show-api-secret', dest='apisecret', default=False,
                   action='store_true',
                   help='Get api secret for user <username>')
-parser.add_option('--decodetrx', dest='decodetrx', default=False,
+parser.add_option('--decode-trx', dest='decodetrx', default=False,
                   action='store_true',
                   help='Decode trx file (argument: <file>)')
-parser.add_option('--install_adapter', dest='install_adapter', default=False,
+parser.add_option('--install-adapter', dest='install_adapter', default=False,
                   action='store_true',
                   help='Install sut adapter (argument: <plugin name>)')
-parser.add_option('--convert2yaml', dest='convert2yaml', default=False,
+parser.add_option('--convert-to-yaml', dest='convert2yaml', default=False,
                   action='store_true',
-                  help='Convert test XML to YAML')
-parser.add_option('--datastorage', dest='datastorage', default=False,
+                  help='Convert XML files to YAML')
+parser.add_option('--show-data-path', dest='datastorage', default=False,
                   action='store_true',
                   help='Show the path of the datastorage')
+parser.add_option('--generate-token', dest='generate_token', default=False,
+                  action='store_true',
+                  help='Generate token for remote agent <name>')
+parser.add_option('--delete-token', dest='delete_token', default=False,
+                  action='store_true',
+                  help='Delete token by <name>')
+parser.add_option('--list-tokens', dest='list_tokens', default=False,
+                  action='store_true',
+                  help='List all tokens')
 (options, args) = parser.parse_args()
 
 
@@ -153,6 +156,24 @@ def cli():
         
     if options.datastorage is True:
         Cli.instance().show_data_storage()
+        sys.exit(0)
+        
+    if options.generate_token is True:
+        if not args:
+            parser.print_help()
+            sys.exit(2)
+        Cli.instance().generate_token(token_name=args[0])
+        sys.exit(0)
+
+    if options.delete_token is True:
+        if not args:
+            parser.print_help()
+            sys.exit(2)
+        Cli.instance().delete_token(token_name=args[0])
+        sys.exit(0)
+        
+    if options.list_tokens is True:
+        Cli.instance().list_tokens()
         sys.exit(0)
         
     parser.print_help()

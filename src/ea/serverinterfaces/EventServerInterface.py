@@ -31,15 +31,7 @@ from ea.serverengine import (ProjectsManager)
 class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
     def __init__(self, listeningAddress, agentName='ESI',
                  sslSupport=False, wsSupport=False, context=None):
-        """
-        Event server interface
-
-        @param listeningAddress:
-        @type listeningAddress:
-
-        @param agentName: agent name used on request
-        @type agentName: string
-        """
+        """Event server interface"""
         NetLayerLib.ServerAgent.__init__(self, listeningAddress=listeningAddress, agentName=agentName,
                                          keepAliveInterval=Settings.getInt(
                                              'Network', 'keepalive-interval'),
@@ -62,9 +54,7 @@ class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         self.context = context
 
     def onWsHanshakeSuccess(self, clientId, publicIp):
-        """
-        Called on ws handshake successful
-        """
+        """Called on ws handshake successful"""
         self.trace(
             "WS handshake successful for privateip=%s publicip=%s" %
             (str(clientId), publicIp))
@@ -78,12 +68,7 @@ class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
             self, client=client.client_address, data=body)
 
     def onConnection(self, client):
-        """
-        Called on connection
-
-        @param client:
-        @type client:
-        """
+        """Called on connection"""
         self.trace("New connection Client=%s" % str(client.client_address))
 
         NetLayerLib.ServerAgent.onConnection(self, client)
@@ -97,12 +82,7 @@ class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
                 self, client=client.client_address, data=body)
 
     def onDisconnection(self, client):
-        """
-        Called on disconnection
-
-        @param client:
-        @type client:
-        """
+        """Called on disconnection"""
         self.trace("Disconnection Client=%s" % str(client.client_address))
 
         NetLayerLib.ServerAgent.onDisconnection(self, client)
@@ -112,12 +92,7 @@ class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         self.__mutex__.release()
 
     def notify(self, body, toUser=None, toAddress=None):
-        """
-        Notify a specific connected user
-
-        @param body:
-        @type body:
-        """
+        """Notify a specific connected user"""
         if toAddress is not None:
             self.trace('Sending notify Client=%s' % toAddress)
             NetLayerLib.ServerAgent.notify(
@@ -138,12 +113,7 @@ class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         del connected
 
     def interact(self, body, timeout=0.0):
-        """
-        Command a specific connected user
-
-        @param body:
-        @type body:
-        """
+        """Command a specific connected user"""
         to_user = body['from']
         self.trace('Sending command User=%s' % to_user)
 
@@ -164,12 +134,7 @@ class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         return rsp
 
     def notifyAll(self, body):
-        """
-        Notify all connected users
-
-        @param body:
-        @type body:
-        """
+        """Notify all connected users"""
         self.trace('Sending notify to all users')
 
         connected = self.context.getUsersConnectedCopy()
@@ -213,21 +178,7 @@ class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
 
     def notifyByUserTypes(self, body, admin=False,
                           monitor=False, tester=False):
-        """
-        Notify users by type
-
-        @param body:
-        @type body:
-
-        @param admin:
-        @type admin: boolean
-
-        @param monitor:
-        @type monitor: boolean
-
-        @param tester:
-        @type tester: boolean
-        """
+        """Notify users by type"""
         self.trace('Sending notify to admin=%s, monitor=%s, tester=%s' % (admin,
                                                                           monitor,
                                                                           tester))
@@ -253,36 +204,19 @@ class EventServerInterface(Logger.ClassLogger, NetLayerLib.ServerAgent):
         del connected
 
     def notifyAllAdmins(self, body):
-        """
-        Notify all admin users
-
-        @param body:
-        @type body:
-        """
+        """Notify all admin users"""
         self.notifyByUserTypes(body=body, admin=True)
 
     def notifyAllMonitors(self, body):
-        """
-        Notify all admin managers
-
-        @param body:
-        @type body:
-        """
+        """Notify all admin managers"""
         self.notifyByUserTypes(body=body, monitor=True)
 
     def notifyAllTesters(self, body):
-        """
-        Notify all admin testers
-
-        @param body:
-        @type body:
-        """
+        """Notify all admin testers"""
         self.notifyByUserTypes(body=body, tester=True)
 
     def trace(self, txt):
-        """
-        Trace message
-        """
+        """Trace message"""
         if Settings.instance() is not None:
             if Settings.get('Trace', 'debug-level') == 'VERBOSE':
                 Logger.ClassLogger.trace(self, txt=txt)
@@ -292,32 +226,18 @@ ESI = None  # singleton
 
 
 def instance():
-    """
-    Returns the singleton
-
-    @return:
-    @rtype:
-    """
+    """Returns the singleton"""
     return ESI
 
 
-def initialize(listeningAddress, sslSupport, wsSupport, context=None):
-    """
-    Instance creation
-
-    @param listeningAddress:
-    @type listeningAddress:
-    """
+def initialize(*args, **kwargs):
+    """Instance creation"""
     global ESI
-    ESI = EventServerInterface(listeningAddress=listeningAddress,
-                               sslSupport=sslSupport, wsSupport=wsSupport,
-                               context=context)
+    ESI = EventServerInterface(*args, **kwargs)
 
 
 def finalize():
-    """
-    Destruction of the singleton
-    """
+    """Destruction of the singleton"""
     global ESI
     if ESI:
         ESI.stopSA()

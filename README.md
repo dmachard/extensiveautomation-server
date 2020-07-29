@@ -11,7 +11,7 @@
 The architecture is composed of 3 parts:
  - [automation server](https://github.com/ExtensiveAutomation/extensiveautomation-server)
  - [web client (optional)](https://github.com/ExtensiveAutomation/extensiveautomation-webclient)
- - [remote agents (optional)](https://github.com/ExtensiveAutomation/extensiveautomation-agent)
+ - [remote agent (optional)](https://github.com/ExtensiveAutomation/extensiveautomation-agent)
  
 ## Table of contents
 * [Server Installation](#server-installation)
@@ -305,10 +305,8 @@ If your want to run the previous workflow with a remote agent:
 ```yaml
 properties:
   parameters:
-    - name: agent-curl
-      value:
-        name: agent.win.ssh01
-        type: ssh
+    - name: agent
+      value: agent01.ssh
 ```
 
 Additional examples are available in the data storage `./workflows/ssh/`.
@@ -345,10 +343,8 @@ If your want to run the previous workflow with a remote agent:
 ```yaml
 properties:
   parameters:
-    - name: agent-curl
-      value:
-        name: agent.win.curl01
-        type: curl
+    - name: agent
+      value: agent01.curl
 ```
 
 Additional examples are available in the data storage `./workflows/http/`.
@@ -368,9 +364,7 @@ that loads the url www.google.com and finally  close-it after.
 properties:
   parameters:
     - name: agent
-      value:
-        name: agent
-        type: selenium3
+      value: agent01.selenium
     - name: browser
       value: chrome
 actions:
@@ -403,9 +397,7 @@ The following example show how to execute `Windows + R` shorcut and run a comman
 properties:
   parameters:
     - name: agent
-      value:
-        name: sikulix01
-        type: sikulixserver
+      value: agent01.sikulix
 actions:
 - description: Type Windows+R on keyboard 
   file: Common:actions/sikulix/type_shorcut.yml

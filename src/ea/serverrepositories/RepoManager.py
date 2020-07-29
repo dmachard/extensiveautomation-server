@@ -1079,12 +1079,12 @@ def instance():
     return RepoMng
 
 
-def initialize(context):
+def initialize(*args, **kwargs):
     """
     Instance creation
     """
     global RepoMng
-    RepoMng = RepoManager(context=context)
+    RepoMng = RepoManager(*args, **kwargs)
 
 
 def finalize():

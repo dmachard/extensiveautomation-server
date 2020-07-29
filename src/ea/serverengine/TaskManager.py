@@ -3712,12 +3712,12 @@ def instance():
     return TaskMngr
 
 
-def initialize(context):
+def initialize(*args, **kwargs):
     """
     Instance creation
     """
     global TaskMngr
-    TaskMngr = TaskManager(context=context)
+    TaskMngr = TaskManager(*args, **kwargs)
     TaskMngr.start()
 
 

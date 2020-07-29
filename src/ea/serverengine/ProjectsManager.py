@@ -463,12 +463,12 @@ def instance():
     return PM
 
 
-def initialize(context):
+def initialize(*args, **kwargs):
     """
     Instance creation
     """
     global PM
-    PM = ProjectsManager(context=context)
+    PM = ProjectsManager(*args, **kwargs)
 
 
 def finalize():

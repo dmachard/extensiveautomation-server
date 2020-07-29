@@ -24,6 +24,7 @@
 from ea.libs import Logger
 from ea.serverinterfaces import AgentServerInterface as ASI
 
+from ea.serverengine import DbManager
 
 class AgentsManager(Logger.ClassLogger):
     def __init__(self, context):
@@ -31,7 +32,25 @@ class AgentsManager(Logger.ClassLogger):
         Construct Probes Manager
         """
         self.context = context
+        
+        self.tb_agents = 'agents'
+        # load agents token in cache, new in v23
+        self.cache = {}
+        self.load_cache()
 
+    def load_cache(self):
+        """load cache"""
+        self.cache = {}
+        
+        sql = """SELECT * FROM `%s`""" % (self.tb_agents)
+        success, rows = DbManager.instance().querySQL(query=sql,
+                                                      columnName=True)
+        if not success:
+            raise Exception("unable to init agents caching")
+        
+        for r in rows:
+            self.cache[r["token"]] = r
+            
     def getRunning(self, b64=False):
         """
         Returns all registered agent
@@ -64,12 +83,12 @@ def instance():
     return AM
 
 
-def initialize(context):
+def initialize(*args, **kwargs):
     """
     Instance creation
     """
     global AM
-    AM = AgentsManager(context=context)
+    AM = AgentsManager(*args, **kwargs)
 
 
 def finalize():

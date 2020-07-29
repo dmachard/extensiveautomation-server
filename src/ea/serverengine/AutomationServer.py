@@ -463,7 +463,8 @@ class AutomationServer(Logger.ClassLogger, daemon.Daemon):
 
         # reload cache
         UsersManager.instance().loadCache()
-
+        AgentsManager.instance().load_cache()
+        
         self.info('Configuration reloaded!')
 
 
