@@ -132,16 +132,13 @@ The `Common` workspace is available by default, attached to the previous users.
 ### Install plugins
 
 You can add plugins to your extensive automation server to add more functionnalities like 
-make http requests, send ssh commands.
+make http requests, send ssh commands. By default the server comes without plugins so you need 
+to install them one by one according to your needs with `pip` commands.
 
-By default the server comes without plugins so you need 
-to install them one by one according to your needs.
-
-| Plugins | Description |
-| ------------- | ------------- | 
-| [CLI](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli)  | This plugin enable to execute commands in a remote system throught the SSH protocol. |
-| [WEB](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web) | This plugin enable to send http request to a remote web server through the HTTP protocol. This plugin is based on the curl command. |
-| [GUI](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui)  | This plugin enable to interact with graphical user interface. This plugin is based on selenium, sikulix or adb for android. |
+Main plugins:
+- [CLI](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-cli)
+- [WEB](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-web)
+- [GUI](https://github.com/ExtensiveAutomation/extensiveautomation-plugin-gui)
 
 [And many others (old ones)...](https://github.com/ExtensiveAutomation/extensiveautomation-plugins-server)
 
@@ -184,7 +181,7 @@ All data necessary  for the server is stored in a specific folder.
 The location of the storage can be found with the following command:
 
 ```bash
-extensiveautomation --datastorage
+extensiveautomation --show-data-path
 /<install_project>/ea/var/
 ```
 
@@ -450,7 +447,7 @@ Take a look to the [swagger](https://github.com/ExtensiveAutomation/extensiveaut
 Get the API secret for the user admin
 
 ```bash
-extensiveautomation --apisecret admin
+extensiveautomation --generate-api-key admin
 API key: admin
 API secret: 6977aa6a443bd3a6033ebb52557cf90d24c79857
 ```
@@ -611,7 +608,7 @@ XML to YAML conversion can be done with the following command.
 A new YML file will be created automatically after converting the XML reading.
 
 ```bash
-extensiveautomation --convert2yaml
+extensiveautomation --convert-to-yaml
 ```
 
 ## About
