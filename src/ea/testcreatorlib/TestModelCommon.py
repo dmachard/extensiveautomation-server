@@ -323,6 +323,8 @@ def loadDataset(parameters, inputs=True, user=''):
     missingDataset = []
     for pr in parameters:
         if pr['type'] == 'dataset':
+            if isinstance(pr["value"], bytes):
+                pr['value'] = pr['value'].decode("utf8")
             if pr['value'].startswith('undefined:/'):
                 dataEncoded = pr['value'].split('undefined:/')[1]
                 if dataEncoded:
