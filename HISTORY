@@ -1,4 +1,12 @@
 
+22.1.0
+	Date: 29/07/2020
+	What's new
+		1. (medium): new table agent in database
+		2. (medium): update cli usage arguments
+		3. (medium): remote agent provisionning is mandatory
+		4. (minor): agent type no more mandatory
+
 22.0.2
 	Date: 18/07/2020
 	What's new

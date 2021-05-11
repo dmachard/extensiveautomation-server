@@ -1,12 +1,12 @@
 swagger: '2.0'
 info:
   description: Control your test server with Extensive Automation API
-  version: 22.0.0
+  version: 22.2.0
   title: Swagger Tester - Extensive Automation
   contact:
     email: d.machard@gmail.com
   license:
-    name: LGPL 2.1
+    name: MIT
 host: 127.0.0.1
 basePath: /rest
 schemes:

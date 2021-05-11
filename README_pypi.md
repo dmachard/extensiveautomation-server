@@ -2,8 +2,8 @@
 | | |
 | ------------- | ------------- |
 | ExtensiveAutomation | Python automation server |
-| Copyright |  Copyright (c) 2010-2020  Denis Machard <d.machard@gmail.com> |
-| License |  LGPL2.1 |
+| Copyright |  Copyright (c) 2010-2021  Denis Machard <d.machard@gmail.com> |
+| License |  MIT |
 | Homepage |  https://www.extensiveautomation.org/ |
 | Docs |  https://extensiveautomation.readthedocs.io/en/latest/ |
 | Github |  https://github.com/ExtensiveAutomation |   
