@@ -4,3 +4,4 @@ pycnic==0.1.6
 lxml==4.6.3
 jsonpath_ng==1.5.3
 pyyaml==5.4.1
+requests==2.26.0
