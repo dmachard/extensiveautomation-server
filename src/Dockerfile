@@ -12,7 +12,7 @@ COPY . /home/extensive/
 RUN true \
     && adduser -D extensive \
     && apk add --update --no-cache g++ make libxslt-dev curl \
-    && pip install --no-cache-dir -r requirements.txt\
+    && pip install --no-cache-dir -r ../requirements.txt\
     && apk del --no-cache g++ make \
     && cd /home/extensive \
     && chmod 755 start.sh \
