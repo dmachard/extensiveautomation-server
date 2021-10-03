@@ -149,9 +149,9 @@ Main plugins:
 Checking if the REST api working fine using curl or postman.
 
 ```bash
-curl -X POST http://127.0.0.1:8081/session/login \
+curl -s -X POST http://127.0.0.1:8081/session/login \
 -H "Content-Type: application/json" \
--d '{"login": "admin", "password": "password"}'
+-d '{"login": "admin", "password": "password"}' | jq .
 ```
 
 success response:
