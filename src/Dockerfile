@@ -1,4 +1,4 @@
-FROM python:3.9.5-alpine3.13
+FROM python:3.9.7-alpine3.14
 
 LABEL name="Extensive Automation" \
       description="ExtensiveAutomation is a generic automation framework for integration, regression and end-to-end usages" \
