@@ -84,7 +84,7 @@ The `Common` workspace is available by default, attached to the previous users.
     extensiveautomation --start
     ```
     
-3. Finally, check if the [server is running fine](#connection-to-server-with-curl).
+3. Finally, check if the [server is running fine](#server-is-running-fine).
 
 ### Docker image
 
@@ -103,7 +103,7 @@ The `Common` workspace is available by default, attached to the previous users.
     
    If you want to start the container with persistant tests data, go to [Docker Hub](https://hub.docker.com/r/extensiveautomation/extensiveautomation-server) page.
 
-3. Finally, check if the [server is running fine](#connection-to-server-with-curl).
+3. Finally, check if the [server is running fine](#server-is-running-fine).
    
 ### Source code
  
@@ -127,7 +127,7 @@ The `Common` workspace is available by default, attached to the previous users.
     python3 extensiveautomation.py --start
     ```
       
-4. Finally, check if the [server is running fine](#connection-to-server-with-curl).
+4. Finally, check if the [server is running fine](#server-is-running-fine).
  
 ### Install plugins
 
