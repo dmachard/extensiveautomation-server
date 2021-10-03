@@ -17,14 +17,17 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    
     - name: Set up Python ${{ matrix.python-version }} and ${{ matrix.os }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+        
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r ./src/requirements.txt
+        
     - name: Lint with flake8
       run: |
         pip install flake8
@@ -32,6 +35,7 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings.
         flake8 . --count --exit-zero --max-complexity=100 --max-line-length=200 --statistics
+        
     - name: Build and install the pypi package
       run: |
         # build 
@@ -39,6 +43,7 @@ jobs:
         # install 
         PKG_VERSION=`cat src/ea/VERSION`
         pip install ./dist/extensiveautomation_server-${PKG_VERSION}.tar.gz
+        
     - name: Start the server
       run: |
         # start the server
@@ -49,6 +54,7 @@ jobs:
         pip install extensiveautomation_plugin_web
         # reload server configuration
         extensiveautomation --reload
+        
     - name: Test the server
       run: |
         # start to test the server
