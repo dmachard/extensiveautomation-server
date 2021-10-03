@@ -10,15 +10,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+    
     - name: Build the Docker image
       run: |
         # build image
         docker build ./src --file ./src/Dockerfile -t extensiveautomation-server
+        
     - name: Start the container
       run: |
         # start the container
         docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083 --name=extensive-server  extensiveautomation-server
+        
     - name: Test the server
       run: |
         # install web plugin
