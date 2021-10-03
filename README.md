@@ -98,7 +98,7 @@ The `Common` workspace is available by default, attached to the previous users.
 
     ```bash
     docker run -d -p 8081:8081 -p 8082:8082 -p 8083:8083 \
-    --name=extensive extensiveautomation
+    --name=extensive extensiveautomation/extensiveautomation-server
     ```
     
    If you want to start the container with persistant tests data, go to [Docker Hub](https://hub.docker.com/r/extensiveautomation/extensiveautomation-server) page.
