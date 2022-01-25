@@ -1,7 +1,7 @@
 wrapt==1.13.3
 scandir==1.10.0
 pycnic==0.1.8
-lxml==4.6.5
+lxml==4.7.1
 jsonpath_ng==1.5.3
 pyyaml==6.0
 requests==2.26.0
