@@ -1,4 +1,4 @@
-wrapt==1.14.1
+wrapt==1.15.0
 scandir==1.10.0
 pycnic==0.1.9
 lxml==4.9.2
