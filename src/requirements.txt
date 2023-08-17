@@ -3,5 +3,5 @@ scandir==1.10.0
 pycnic==0.1.9
 lxml==4.9.2
 jsonpath_ng==1.5.3
-pyyaml==6.0
+pyyaml==6.0.1
 requests==2.28.2
