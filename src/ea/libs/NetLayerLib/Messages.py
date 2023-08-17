@@ -188,11 +188,17 @@ class Messages(object):
             if not self.__useJson:
                 pickled = cPickle.dumps(body, protocol=self.__pickleProtocol)
                 bod = zlib.compress(pickled)
-                ret.append(base64.encodestring(bod))
+                if sys.version_info >= (3,10):
+                    ret.append(base64.encodebytes(bod))
+                else:
+                    ret.append(base64.encodestring(bod))
             else:
                 json_data = json.dumps(body, ensure_ascii=False)
                 compressed = zlib.compress(json_data)
-                ret.append(base64.encodestring(compressed))
+                if sys.version_info >= (3,10):
+                    ret.append(base64.encodebytes(compressed))
+                else:
+                    ret.append(base64.encodestring(compressed))
         else:
             rslt = ret
 
