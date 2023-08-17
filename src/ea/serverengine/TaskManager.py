@@ -29,7 +29,10 @@ import pickle
 import subprocess
 import threading
 import os
-import parser
+try:
+    import parser # remove from python3.10
+except ImportError:
+    import ast
 try:
     import ConfigParser
 except ImportError:  # python3 support
@@ -1057,7 +1060,11 @@ class Task(Logger.ClassLogger):
                         try:
                             if sys.version_info > (3,):
                                 te = te.decode("utf8")
-                            parser.suite(te).compile()
+                            if sys.version_info >= (3,10):
+                                parsed_ast = ast.parse(te)
+                                compile(parsed_ast, filename="dryrun", mode="exec")
+                            else:
+                                parser.suite(te).compile()
                         except SyntaxError as e:
                             cleanupTmp = False
                             self.trace(
@@ -1262,7 +1269,11 @@ class Task(Logger.ClassLogger):
 
                     # compile
                     try:
-                        parser.suite(subtest_val).compile()
+                        if sys.version_info >= (3,10):
+                            parsed_ast = ast.parse(subtest_val)
+                            compile(parsed_ast, filename="dryrun", mode="exec")
+                        else:
+                            parser.suite(subtest_val).compile()
                     except SyntaxError as e:
                         self.trace("sub test (id=%s, testname=%s) syntax error: %s" % (i,
                                                                                        subtest_name,
@@ -1294,7 +1305,11 @@ class Task(Logger.ClassLogger):
 
                 self.trace('Parse test: compiling main te')
                 try:
-                    parser.suite(te).compile()
+                    if sys.version_info >= (3,10):
+                        parsed_ast = ast.parse(te)
+                        compile(parsed_ast, filename="dryrun", mode="exec")
+                    else:
+                        parser.suite(te).compile()
                 except SyntaxError as e:
                     self.trace("syntax error: %s" % str(e))
                     self.wrongParseToFile(te=te)
@@ -1612,7 +1627,10 @@ class Task(Logger.ClassLogger):
             t0 = time.time()
             for i in xrange(len(sub_tes)):
                 try:
-                    if sys.version_info > (3,):
+                    if sys.version_info >= (3,10):
+                        parsed_ast = ast.parse(sub_tes[i].decode("utf8"))
+                        compile(parsed_ast, filename="dryrun", mode="exec")
+                    elif sys.version_info > (3,):
                         parser.suite(sub_tes[i].decode("utf8")).compile()
                     else:
                         parser.suite(sub_tes[i]).compile()
@@ -1632,7 +1650,10 @@ class Task(Logger.ClassLogger):
 
             self.trace("Compile the main test executable")
             try:
-                if sys.version_info > (3,):
+                if sys.version_info >= (3,10):
+                    parsed_ast = ast.parse(te.decode("utf8"))
+                    compile(parsed_ast, filename="dryrun", mode="exec")
+                elif sys.version_info > (3,):
                     parser.suite(te.decode("utf8")).compile()
                 else:
                     parser.suite(te).compile()

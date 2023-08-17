@@ -25,7 +25,10 @@
 
 import os
 import base64
-import parser
+try:
+    import parser # remove from python3.10
+except ImportError:
+    import ast
 import sys
 
 from ea.serverrepositories import RepoManager
@@ -169,7 +172,11 @@ class RepoAdapters(RepoManager.RepoManager, Logger.ClassLogger):
                 content_decoded = base64.b64decode(content.encode())
                 content_decoded = content_decoded.decode()
 
-            parser.suite(content_decoded).compile()
+            if sys.version_info >= (3,10):
+                parsed_ast = ast.parse(content_decoded)
+                compile(parsed_ast, filename="dryrun", mode="exec")
+            else:
+                parser.suite(content_decoded).compile()
         except SyntaxError as e:
             # syntax_msg = str(e)
             return False, str(e)
