@@ -7,12 +7,16 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write
+      
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
-        python-version: "3.10"
+        python-version: "3.11"
         
     - name: Install dependencies
       run: |
@@ -23,10 +27,5 @@ jobs:
       run: |
         python setup.py sdist
         
-    - name: Twine check
-      run: |
-        twine check dist/*
-        
-    - name: Upload to PyPI
-      run: |
-        twine upload dist/* -u ${{ secrets.PYPI_LOGIN }} -p ${{ secrets.PYPI_PASSWORD }}
+    - name: Publish package distributions to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
